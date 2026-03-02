@@ -132,7 +132,7 @@ body * {
 /* Alagard for your intro words */
 @font-face {
   font-family: 'Alagard';
-  src: url('https://github.com/melodysz/baubles/raw/refs/heads/main/fonts/alagard.ttf') format('truetype'); 
+  src: url('https://raw.githubusercontent.com/melodysz/baubles/main/fonts/alagard.ttf') format('truetype'); 
   font-weight: normal;
   font-style: normal;
 }
@@ -268,7 +268,7 @@ body * {
 }
 
 
-@font-face { font-family: 'SD Georgia Light'; src: url('https://github.com/melodysz/baubles/raw/refs/heads/main/SdGeorgiaLight-pMj1.ttf') format('truetype'); font-weight: 300; font-style: normal; }
+@font-face { font-family: 'SD Georgia Light'; src: url('https://raw.githubusercontent.com/melodysz/baubles/main/SdGeorgiaLight-pMj1.ttf') format('truetype'); font-weight: 300; font-style: normal; }
 
 :root {
   --bg-beige: #F9F5EC;

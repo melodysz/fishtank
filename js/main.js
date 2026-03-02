@@ -278,15 +278,39 @@ document.addEventListener('visibilitychange', () => {
     lenis.start();
 
     requestAnimationFrame(() => {
+      // Safety check before every gsap.set
+      const safe = (selector) => {
+        const el = document.querySelector(selector);
+        if (!el) { console.warn('NULL ELEMENT:', selector); return false; }
+        return true;
+      };
+
       lenis.raf(performance.now());
       lenis.scrollTo(window.scrollY, { immediate: true, force: true });
 
-      // Fix blackCover getting stuck
-      const scrollRatio = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-      if (scrollRatio < 0.55) {
-        gsap.set("#blackCover", { opacity: 0 });
-      } else if (scrollRatio > 0.80) {
-        gsap.set("#blackCover", { opacity: 1 });
+      const scrollY = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const scrollRatio = scrollY / docHeight;
+
+      if (safe('.section-2-wrapper')) {
+        const thirdSection = document.querySelector('.third-section');
+        const thirdTop = thirdSection ? thirdSection.offsetTop : 0;
+        gsap.set('.section-2-wrapper', { y: scrollY >= thirdTop ? '-100vh' : '0vh' });
+      }
+
+      if (safe('#blackCover')) {
+        if (scrollRatio < 0.55) gsap.set('#blackCover', { opacity: 0 });
+        else if (scrollRatio > 0.80) gsap.set('#blackCover', { opacity: 1 });
+        else gsap.set('#blackCover', { opacity: (scrollRatio - 0.55) / 0.25 });
+      }
+
+      if (safe('.footer-section')) {
+        const footerTop = document.querySelector('.footer-section').offsetTop;
+        if (scrollY + window.innerHeight > footerTop + 100) {
+          if (safe('#footer-main-content')) gsap.set('#footer-main-content', { opacity: 1, y: 0 });
+          if (safe('.footer-anim')) gsap.set('.footer-anim', { opacity: 1, y: 0 });
+          if (safe('.footer-star-wrapper')) gsap.set('.footer-star-wrapper', { opacity: 1, scale: 1 });
+        }
       }
 
       ScrollTrigger.refresh();
@@ -309,7 +333,7 @@ ScrollTrigger.create({
   scrub: 0.3,
   onUpdate: (self) => {
     
-        console.log("progress:", self.progress, "scale:", Math.min(1 + (self.progress * 9), 10));
+        
 
     
     if (!pageReady) return;
@@ -671,6 +695,7 @@ const skyText = document.getElementById("skyRevealText");
 const fishTank = document.getElementById('fish-tank');
 const section2Wrapper = document.querySelector('.section-2-wrapper');
 
+// AFTER
 ScrollTrigger.create({
   trigger: ".third-section",
   start: "top bottom",
@@ -678,7 +703,7 @@ ScrollTrigger.create({
   scrub: 1,
   onUpdate: (self) => {
     gsap.to(section2Wrapper, { y: (-100 * self.progress) + "vh", duration: 0.1, overwrite: "auto" });
-    gsap.to([skyText, fishTank], { opacity: 1 - self.progress, duration: 0.1, overwrite: "auto" });
+    if (fishTank) gsap.to(fishTank, { opacity: 1 - self.progress, duration: 0.1, overwrite: "auto" });
   }
 });
 
