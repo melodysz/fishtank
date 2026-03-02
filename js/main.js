@@ -270,19 +270,28 @@ setTimeout(() => {
 }, 800);
 
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-      const isAtTop = (lenis && lenis.scroll < 100) || window.scrollY < 100;
-      if (isAtTop) {
-        gsap.killTweensOf(".scaling-rig");
-        gsap.killTweensOf([".hero-peek-layer", ".hero-halo"]);
-        gsap.set(".scaling-rig", { scale: 1, autoAlpha: 1 });
-        gsap.set([".hero-peek-layer", ".hero-halo"], { autoAlpha: 1, scale: 1 });
-        gsap.set(".hero-identity-frame", { autoAlpha: 1 });
-        gsap.set([".fish-clown-1", ".fish-clown-2", ".fish-tang"], { x: 0, autoAlpha: 1, scale: 1 });
+  if (document.hidden) {
+    gsap.ticker.sleep();
+    lenis.stop();
+  } else {
+    gsap.ticker.wake();
+    lenis.start();
+
+    requestAnimationFrame(() => {
+      lenis.raf(performance.now());
+      lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+
+      // Fix blackCover getting stuck
+      const scrollRatio = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      if (scrollRatio < 0.55) {
+        gsap.set("#blackCover", { opacity: 0 });
+      } else if (scrollRatio > 0.80) {
+        gsap.set("#blackCover", { opacity: 1 });
       }
-    }, 100);
+
+      ScrollTrigger.refresh();
+      ScrollTrigger.update();
+    });
   }
 });
 
@@ -419,7 +428,9 @@ gsap.set([".sky-text-images", ".dangles-decor", ".sec2-bubble", ".sec2-flower", 
   force3D: true
 });
 
-gsap.ticker.add((time) => lenis.raf(time * 1000));
+gsap.ticker.add((time) => {
+  if (!document.hidden) lenis.raf(time * 1000);
+});
 gsap.ticker.lagSmoothing(0);
 ScrollTrigger.refresh();
 
@@ -868,19 +879,21 @@ projectCards.forEach(card => {
     projectCards.forEach(c => {
       if (c === card) {
         const tilt = Math.random() > 0.5 ? (Math.random() * 6 + 6).toFixed(2) : -(Math.random() * 6 + 6).toFixed(2);
-        gsap.to(c, { filter: "blur(0px)", opacity: 1, scale: 1.18, rotate: tilt, duration: 0.5, ease: "back.out(2.5)", overwrite: true });
+        gsap.to(c, { filter: "blur(0px)", opacity: 1, scale: 1.18, rotate: tilt, duration: 0.28, ease: "back.out(2.5)", overwrite: true });
       } else {
-        gsap.to(c, { filter: "blur(8px)", opacity: 0.4, scale: 1, rotate: 0, duration: 0.25, ease: "power2.out", overwrite: true });
+        gsap.to(c, { filter: "blur(8px)", opacity: 0.4, scale: 1, rotate: 0, duration: 0.15, ease: "power2.out", overwrite: true });
       }
     });
-    gsap.to(thirdDecor, { filter: "blur(8px)", opacity: 0.4, duration: 0.25, ease: "power2.out", overwrite: true });
+    gsap.to(thirdDecor, { filter: "blur(8px)", opacity: 0.4, duration: 0.15, ease: "power2.out", overwrite: true });
   });
 
   card.addEventListener("mouseleave", () => {
     if (!projectCardsReady) return;
     card.classList.remove("is-hovered");
-    gsap.to(projectCards, { filter: "blur(0px)", opacity: 1, scale: 1, rotate: 0, duration: 0.05, ease: "elastic.out(1, 0.6)", overwrite: true });
-    gsap.to(thirdDecor, { filter: "blur(0px)", opacity: 1, duration: 0.4, ease: "power3.out", overwrite: true });
+gsap.to(projectCards, { filter: "blur(0px)", opacity: 1, scale: 1, rotate: 0, duration: 0.18, ease: "power2.out", overwrite: true });
+
+gsap.to(thirdDecor, { filter: "blur(0px)", opacity: 1, duration: 0.2, ease: "power2.out", overwrite: true });
+
   });
   
   card.addEventListener('click', () => {
