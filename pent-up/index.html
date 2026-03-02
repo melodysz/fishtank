@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pent Up – Case Study</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Zen+Old+Mincho&display=swap" rel="stylesheet">
+
+  <!-- Link to external CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursor"></div>
+
+<!-- Top Nav Bar (copied from home page) -->
+<nav class="top-nav">
+<a href="https://mz-fishtank.netlify.app/" class="nav-left interactable" id="nav-name">
+  <span class="name-inner">美迪</span>
+</a>
+  
+  <div class="nav-center-star">
+    <svg id="nav-star-icon" width="40" height="40" viewBox="0 0 110 110" fill="none">
+      <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" fill="currentColor"/>
+      <circle cx="55" cy="55" r="41.5" stroke="currentColor"/>
+    </svg>
+  </div>
+  
+  <div class="nav-right">
+<a href="https://mz-fishtank.netlify.app/" class="interactable nav-swap" data-default="[WORK]" data-hover="[STUFF!]">[WORK]</a>
+    <a href="#" class="interactable nav-swap" data-default="[WHO?]" data-hover="[ME!]">[WHO?]</a>
+    <a href="#" class="interactable nav-swap" data-default="[PLAY!]" data-hover="[YAY!]">[PLAY!]</a>
+  </div>
+</nav>
+
+<!-- Fixed Sidebar Navigation -->
+<nav class="sidebar-nav">
+  <ul class="nav-sections">
+    <li class="nav-item active">
+      <a href="#overview" class="nav-link">overview</a>
+    </li>
+    
+    <li class="nav-item">
+      <a href="#research" class="nav-link">research</a>
+    </li>
+    
+    <li class="nav-item">
+      <a href="#design" class="nav-link">design</a>
+    </li>
+    
+    <li class="nav-item">
+      <a href="#launch" class="nav-link">launch</a>
+    </li>
+    
+    <li class="nav-item">
+      <a href="#reflection" class="nav-link">reflection</a>
+    </li>
+  </ul>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <img src="images/HERO.png" alt="Pent Up Hero" class="hero-image">
+</section>
+
+<!-- Main Content Area (CENTERED) -->
+<main class="main-content">
+
+ 
+<section class="hero-meta">
+  <div class="content-column hero-meta-inner">
+  <div class="hero-head">
+    <h1 class="hero-title">
+      <span class="pent">Pent</span><span class="up"> U</span><span class="letterp">p</span><span class="bang">!</span>
+    </h1>
+
+    <p class="hero-summary">
+      A Penn-only anonymous confession platform designed to remove
+      performative social dynamics from emotional expression by eliminating
+      validation metrics.
+    </p>
+  </div>
+
+  <div class="hero-pills">
+    <span class="pill"><span class="star">*</span> ux/ui design</span>
+    <span class="pill"><span class="star">*</span> product strategy</span>
+    <span class="pill"><span class="star">*</span> live product</span>
+    <span class="pill"><span class="star">*</span> web design</span>
+    <span class="pill"><span class="star">*</span> team/personal project</span>
+  </div>
+</div>
+
+</section>
+
+<!-- Large Image - between summary and overview -->
+<section class="large-image-section">
+  <div class="content-column-outer">
+   <img src="images/large img.png" 
+         alt="Pent Up Interface"
+       >
+  </div>
+</section>
+
+  
+<section id="overview" class="content-section overview-section">
+  <img src="images/dashlines.png" class="stamp-dash-bg" alt="" loading="lazy">
+
+  <div class="content-column">
+    <div class="section-number">01</div>
+    <h2 class="section-title">OVERVIEW<span class="title-asterisk">*</span></h2>
+    
+    <div class="overview-grid">
+      <!-- Left column: Problem & Solution -->
+      <div class="overview-main">
+        <div class="overview-block">
+          <h3>The PROBLEM</h3>
+          <p>Penn students experience high social pressure in an environment where expression is hyper-visible and identity-linked. Existing platforms either feel too public or reward performative vulnerability, <span class="highlight">leaving no safe, shared space for unfiltered expression within a shared campus context.</span></p>
+        </div>
+        
+        <div class="overview-block">
+          <h3>The SOLUTION</h3>
+          <p><span class="highlight">We designed Pent Up to act as a digital release valve,</span> engineered to dismantle the performative dynamics of the Penn community and strip away social validation mechanics.</p>
+        </div>
+      </div>
+      
+      <!-- Right column: Metadata -->
+      <div class="overview-meta">
+        <div class="meta-item">
+          <div class="meta-label">role</div>
+          <div class="meta-text">Project Co-Lead, Product Designer</div>
+        </div>
+        
+        <div class="meta-item">
+          <div class="meta-label">team</div>
+          <div class="meta-text"><span class="meta-orange">LEADS:</span> Melody Zhang (DSGN), Gia Gupta (DEV)<br><br>
+          <span class="meta-orange">DSGNERS:</span> Fiona Herzog, Zara Baig<br><br>
+          <span class="meta-orange">DEVS:</span> Sam Park, Gordon Chen, Ziana Sundrani</div>
+        </div>
+        
+        <div class="meta-item">
+          <div class="meta-label">time</div>
+          <div class="meta-text">Aug – Dec 2025</div>
+        </div>
+        
+        <div class="meta-item">
+          <div class="meta-label">tools</div>
+          <div class="meta-text"><span class="meta-orange">DSGN:</span> Procreate, Figma, Jitter, Adobe Illustrator<br><br>
+          <span class="meta-orange">DEV:</span> React, Next.js, TypeScript, Supabase, Hugging Face (AI), Node.js</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stamp Cards - inside overview -->
+    <div class="stamp-cards-grid">
+      <div class="stamp-card">
+        <img src="images/stamp.png" alt="Stamp" class="stamp-bg" loading="lazy">
+        <div class="stamp-content">
+          <div class="stamp-number">01</div>
+          <h4 class="stamp-title">No Feedback Loops</h4>
+          <p class="stamp-text">Removed upvotes and virality trackers to eliminate the dopamine loops that drive engagement farming.</p>
+        </div>
+      </div>
+      
+      <div class="stamp-card">
+        
+        <img src="images/stamp.png" alt="Stamp" class="stamp-bg" loading="lazy">
+        <div class="stamp-content">
+          <div class="stamp-number">02</div>
+          <h4 class="stamp-title">Pure Expression</h4>
+          <p class="stamp-text">The "read-and-release" architecture lets users express freely without performance.</p>
+        </div>
+      </div>
+      
+      <div class="stamp-card">
+        <img src="images/stamp.png" alt="Stamp" class="stamp-bg" loading="lazy">
+        <div class="stamp-content">
+          <div class="stamp-number">03</div>
+          <h4 class="stamp-title">Penn-Locked Anonymity</h4>
+          <p class="stamp-text">Email verification creates a high-trust, Penn-only environment for sharing with peers.</p>
+        </div>
+      </div>
+    </div>
+    
+        <!-- The Results Circle -->
+<div class="results-circle">
+  <div class="results-inner">
+    <div class="results-label">The RESULT?</div>
+    <span class="results-asterisk">*</span>
+    <p class="results-text">A digital sanctuary that prioritizes psychological safety over viral metrics.</p>
+  </div>
+</div>
+    
+    <!-- My CONTRIBUTION - outside grid, still in overview section -->
+        <div class="overview-block">
+  <h3>My CONTRIBUTION</h3>
+  <p>Pent Up was originally conceived as a two-person side project. Recognizing that our ambitions outpaced our immediate resources, <span class="highlight">I pitched the concept to our club, Penn Spark, to secure a seven-person, cross-functional team.</span></p>
+  
+  <p>As lead designer, <span class="highlight">I defined trust and anonymity as core product constraints and owned the end-to-end experience</span>, from UX research through final visual design. <span class="highlight">I also acted as the connective tissue between design and development</span>—clarifying intent, resolving feasibility questions, and ensuring the product shipped as designed.</p>
+  
+  <p>Alongside this, <span class="highlight">I established the design system, designed key launch materials</span>, including physical flyers and Instagram story assets, and designed the final showcase presentation.</p>
+</div>
+    
+
+  </div>
+</section>
+  
+<!-- Research Section (NORMAL LAYOUT) -->
+<section id="research" class="content-section">
+  <div class="content-column">
+    <div class="section-number">02</div>
+    <h2 class="section-title">RESEARCH<span class="title-asterisk">*</span></h2>
+    
+    <!-- Market Audit Subsection -->
+        <div class="market-audit-section">
+      <h3>Our MARKET AUDIT</h3>
+      
+      <div class="market-audit-grid">
+        <!-- Left: Text with numbered pills -->
+        <div class="market-audit-text">
+          <p>To understand the mechanics of anonymous spaces, <span class="highlight">we audited two extremes</span> to identify the "sweet spot" for genuine expression:</p>
+          
+          <div class="audit-item">
+            <div class="audit-number">01</div>
+            <div class="audit-name">The Unsent Project</div>
+          </div>
+          
+          <div class="audit-item">
+            <div class="audit-number">02</div>
+            <div class="audit-name">Sidechat</div>
+          </div>
+        </div>
+        
+        <!-- Market Audit with pills overlay -->
+        <div class="market-audit-image">
+          <img src="images/market audit.png" alt="Market Audit Analysis"
+               loading="lazy">
+          <img src="images/marketauditpills.png" 
+               alt="Market Audit Pills" 
+               class="pills-overlay"
+               style="top: 30px; left: -110px; width: 170%; height: auto;"
+               loading="lazy">
+        </div>
+      </div> <!-- Close market-audit-grid -->
+      
+      <!-- Full-width Unsent Project Image with pills overlay -->
+      <div class="unsent-project-image">
+        <img src="images/marketaudit-unsentproj.png" alt="The Unsent Project" loading="lazy">
+        <img src="images/unsentpills.png" 
+             alt="Unsent Pills"
+             class="pills-overlay"
+             style="top: 120px; left: -65px; width: 110%; height: auto;"
+             loading="lazy">
+      </div>
+
+      <!-- Full-width Unsent analysis text with number pill -->
+      <div class="unsent-analysis">
+        <div class="analysis-number">01</div>
+        <p class="analysis-text">While we were inspired by its raw, archive-like energy, <span class="highlight">The Unsent Project functions as a global repository of unsent messages to first loves.</span> This tightly defined prompt produces emotionally similar submissions, limiting broader resonance within a campus community and <span class="highlight">offering little variation in how users engage with the archive.</span></p>
+      </div>
+
+      <!-- Full-width Sidechat Image with pills overlay -->
+      <div class="sidechat-image">
+        <img src="images/marketaudit-sidechat.png" alt="Sidechat Analysis"
+             loading="lazy">
+        <img src="images/sidechatpills.png" alt="Sidechat Pills" 
+             class="pills-overlay"
+             style="top: 100px; left: -85px; width: 125%; height: auto;"
+             loading="lazy">
+      </div>
+
+      <!-- Full-width Sidechat analysis text with number pill -->
+      <div class="sidechat-analysis">
+        <div class="analysis-number">02</div>
+        <p class="analysis-text">Sidechat captures <span class="highlight">hyper-local campus context</span>, but its interaction model is driven by public feedback systems such as upvotes, karma, and leaderboards. These mechanics rank posts, <span class="highlight">subsequently privileging visibility and shaping what content rises.</span> By combining anonymity, public visibility, and ranking, <span class="highlight">Sidechat unintentionally creates a space where the most incendiary responses get rewarded.</span></p>
+      </div>
+
+      <!-- Conclusion Circle -->
+      <div class="conclusion-circle">
+        <div class="conclusion-inner">
+          <div class="conclusion-label">Our<br>CONCLUSION?</div>
+          <span class="conclusion-asterisk">*</span>
+          <p class="conclusion-text">Pent Up needed to preserve local context while removing public feedback and ranking mechanics altogether—a Zero-Validation Architecture.</p>
+        </div>
+      </div>
+    </div> <!-- Close market-audit-section -->
+    
+<!-- Proto-Personas Subsection -->
+<div class="proto-personas-section">
+  <h3>Our PROTO-PERSONAS</h3>
+  
+  <p class="personas-intro">To ensure we didn't just design for ourselves, we created proto-personas—<span class="highlight">the Anonymous Poster (seeking release) and the Curious Scroller (seeking connection)</span>—to stress-test our features against two opposing user needs: <span class="highlight">absolute anonymity vs. community resonance.</span></p>
+  
+  <!-- Persona 1: Sana Ahmed -->
+  <div class="persona-card">
+    <img src="images/proto-persona_ sana.png" 
+         alt="Sana Ahmed Proto-Persona" 
+         class="persona-image interactable" 
+         loading="lazy">
+  </div>
+  
+  <!-- Persona 2: Leo Qiu -->
+  <div class="persona-card">
+    <img src="images/proto-persona_ leo.png" 
+         alt="Leo Qiu Proto-Persona" 
+         class="persona-image interactable" 
+         loading="lazy">
+  </div>
+</div>
+
+<!-- Image Modal Overlay -->
+<div class="image-modal" id="imageModal">
+  <span class="modal-close">&times;</span>
+  <img class="modal-content" id="modalImage" loading="lazy">
+</div>
+    
+    <!-- Dilemmas Subsection -->
+  <div class="dilemmas-section">
+
+  <h3>Our DILEMMAS</h3>
+
+  <!-- Dilemma 1: Text Left, Image Right -->
+  <div class="dilemma-row dilemma-row--default">
+    <div class="dilemma-text">
+      <div class="dilemma-label">
+        <div class="audit-number">01</div>
+        <div class="audit-name">The Surveillance Paradox</div>
+      </div>
+      <p>Allowing full anonymity without verification <span class="highlight">would have undermined the platform's campus-specific purpose</span>. At the same time, requiring visible identity or persistent accounts <span class="highlight">would discourage participation</span> by making vulnerable expression feel traceable.</p>
+      <p><span class="highlight">We determined that preserving Penn exclusivity outweighed the perceived discomfort of verification</span>. Our solution was a verify-and-obfuscate flow: users authenticate once using a Penn email, after which identifying information is immediately hashed and never stored in plain text.</p>
+    </div>
+    <div class="dilemma-image">
+      <img src="images/dilemma1.png" alt="Dilemma 1 – The Surveillance Paradox" loading="lazy">
+    </div>
+  </div>
+
+  <!-- Dilemma 2: Image Left, Text Right -->
+  <div class="dilemma-row dilemma-row--flipped">
+    <div class="dilemma-image">
+      <img src="images/dilemma2.png" alt="Dilemma 2 – The Small N Problem" loading="lazy">
+    </div>
+    <div class="dilemma-text">
+      <div class="dilemma-label">
+        <div class="audit-number">02</div>
+        <div class="audit-name">The "Small N" Problem</div>
+      </div>
+      <p>While The Unsent Project allows users to dedicate confessions to full names, <span class="highlight">we identified this as a significant risk within a small, tightly networked campus.</span></p>
+      <p><span class="highlight">We chose to sacrifice some intrigue in favor of protection</span> and went with initials. Later, we implemented a search-by-initials system that preserves discovery while introducing a critical layer of obfuscation.</p>
+    </div>
+  </div>
+</div>
+    
+    
+  </div> <!-- Close content-column -->
+</section> <!-- Close research section -->
+  
+  
+  
+<!-- Design Section -->
+<section id="design" class="content-section">
+  <div class="content-column">
+    <div class="section-number">03</div>
+    <h2 class="section-title">DESIGN<span class="title-asterisk">*</span></h2>
+    
+    <!-- Ideation Subsection -->
+    <div class="ideation-section">
+      <h3>Our IDEATION</h3>
+      
+      <p>I led a design workshop to define the project's visual direction and align the team around a shared artistic language. We converged within our Pinterest moodboard and <span class="highlight">emerged with our three core visual motifs:</span></p>
+    </div>
+    
+  </div> <!-- Close content-column -->
+</section> <!-- Close design section -->
+
+<!-- Full-width Ideation Image -->
+<section class="ideation-image-section">
+  <div class="content-column-outer">
+    <img src="images/ideation.png" 
+         alt="Design Ideation Moodboard"
+         loading="lazy">
+  </div>
+</section>
+
+<!-- Back to content column for quote and controlled chaos -->
+<section class="content-section">
+  <div class="content-column">
+    
+    <!-- Centered Quote -->
+    <div class="ideation-quote">
+      <p>"Picture smooth gradients vandalized by pencil graffiti, or crumpled notebook pages arranged in perfect grids—a dialogue between order and chaos."</p>
+    </div>
+    
+    <!-- Explanation text -->
+    <p>—That was my original pitch to the club, when we were gathering interested team members. However, as we moved into wireframing, we deliberately <span class="highlight">scaled back the visual disruption to preserve readability and navigation.</span> We focused on maintaining the metaphor through texture and tone rather than disorder.</p>
+    
+    <p>And so, we solidified <span class="highlight">our theme of juxtapositions:</span></p>
+    
+    <!-- Controlled Chaos Circle -->
+    <div class="results-circle">
+      <div class="results-inner">
+        <div class="results-label">Controlled<br>CHAOS</div>
+        <span class="results-asterisk">*</span>
+        <p class="results-text">Human messiness contained within a structured system.</p>
+      </div>
+    </div>
+    
+    <!-- User Flow Subsection -->
+    <div class="user-flow-section">
+      <h3>Our USER FLOW</h3>
+      
+      <p>To support a read-and-release experience, <span class="highlight">we deliberately minimized decision points throughout the flow.</span> Introducing unnecessary choices risked slowing users down at the moment when expression should feel immediate.</p>
+      
+      <img src="images/userflow.png" 
+           alt="User Flow Diagram"
+           class="userflow-image"
+           loading="lazy">
+    </div>
+    
+    <!-- Lo-Fi Subsection -->
+    <div class="lofi-section">
+      <h3>Our LO-FI WIREFRAMES</h3>
+      
+      <p>We used lo-fi wireframes to define the core screens, hierarchy, and flow.</p>
+      
+      <!-- Lo-Fi Grid - 2x2 -->
+      <div class="wireframe-grid">
+        <img src="images/lo-fi-1.png" alt="Lo-Fi Wireframe 1" loading="lazy">
+        <img src="images/lo-fi-2.png" alt="Lo-Fi Wireframe 2" loading="lazy">
+        <img src="images/lo-fi-3.png" alt="Lo-Fi Wireframe 3" loading="lazy">
+        <img src="images/lo-fi-4.png" alt="Lo-Fi Wireframe 4" loading="lazy">
+      </div>
+    </div>
+    
+    <!-- Mid-Fi Subsection -->
+    <div class="midfi-section">
+      <h3>Our MID-FI WIREFRAMES</h3>
+      
+      <p>We experimented with color schemes for the hero and looks for the main feed.</p>
+      
+      <!-- Mid-Fi Grid - 2x2 -->
+      <div class="wireframe-grid">
+        <img src="images/mid-fi-1.png" alt="Mid-Fi Wireframe 1">
+        <img src="images/mid-fi-2.png" alt="Mid-Fi Wireframe 2">
+        <img src="images/mid-fi-3.png" alt="Mid-Fi Wireframe 3">
+        <img src="images/mid-fi-4.png" alt="Mid-Fi Wireframe 4">
+      </div>
+    </div>
+    
+    <!-- Mascot Exploration Subsection -->
+    <div class="mascot-exploration-section">
+      <h3>Our MASCOT EXPLORATION</h3>
+      
+      <p>We asked ourselves: <span class="highlight">what sort of mascot would suit Pent Up?</span> Something memorable, adorable, on-theme...</p>
+      
+      <p><span class="highlight">An angry critter!</span> After our team went through stages of doodling iterations and looking for inspiration, I assembled the logo: our mascot, trapped within a stamp. <span class="highlight">It's a visual pun: quite literally pent up.</span></p>
+    </div>
+
+  </div> <!-- Close content-column -->
+</section>
+
+<!-- Mascot Exploration Image (outer column) -->
+<section class="mascot-image-section">
+  <div class="content-column-outer">
+    <img src="images/mascotexploration.png" alt="Mascot Exploration Process" loading="lazy">
+  </div>
+</section>
+
+<!-- Back to content column -->
+<section class="content-section">
+  <div class="content-column">
+    
+    <!-- Feedback Subsection -->
+    <div class="feedback-section">
+      <h3>Our FEEDBACK</h3>
+      
+      <p>Penn Spark hosted a midpoint check-in for all projects, during which Pent Up's mid-fi wireframes were presented. This served as our <span class="highlight">primary User Acceptance Testing session</span>.</p>
+      
+      <!-- Feedback Grid - using columns like Problem/Solution -->
+      <div class="feedback-grid">
+        <div class="feedback-worked">
+          <h4>What worked:</h4>
+          <ul>
+            <li><span class="highlight">Visually distinct from standard social apps</span></li>
+            <li>Described as approachable and expressive</li>
+            <li><span class="highlight">Strong enthusiasm for the tactile paper textures</span></li>
+            <li>Positive reactions to the emotion avatars</li>
+            <li>The Tasmanian Devil mascot was called intuitive, charming, and memorable</li>
+          </ul>
+        </div>
+        
+        <div class="feedback-didnt-work">
+          <h4>What didn't work:</h4>
+          <ul>
+            <li>Pixel fonts were widely enjoyed, but many users <span class="highlight">raised readability concerns</span></li>
+            <li>Users unsure how to find specific content beyond scrolling → <span class="highlight">a desire for search or filtering</span></li>
+            <li>The competing textures and decorations were <span class="highlight">seen as overwhelming</span></li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Key Tension Circle -->
+      <div class="results-circle">
+        <div class="results-inner">
+          <div class="results-label">Key<br>TENSION:</div>
+          <span class="results-asterisk">*</span>
+          <p class="results-text">How could we preserve charm without sacrificing clarity?</p>
+        </div>
+      </div>
+      
+      <p>The Spark community had identified critical usability barriers.</p>
+      
+      <p>I led the team in translating these critiques into <span class="highlight">three primary design pivots:</span></p>
+      
+      <!-- Pivot Stamp Cards Grid -->
+      <div class="pivot-stamps-wrapper">
+        <img src="images/dashlines.png" class="stamp-dash-bg" alt="" loading="lazy">
+        <div class="stamp-cards-grid">
+          <div class="stamp-card">
+            <img src="images/pivot-stamp.png" alt="Pivot Stamp" class="stamp-bg" loading="lazy">
+            <div class="stamp-content">
+              <div class="stamp-number">01</div>
+              <h4 class="stamp-title">Typography & Accessibility</h4>
+              <p class="stamp-text">Pixel fonts were difficult to read in large quantities. So we ensured Helvetica was used for body text, while pixel fonts were used sparingly, for headers.</p>
+            </div>
+          </div>
+          
+          <div class="stamp-card">
+            <img src="images/pivot-stamp.png" alt="Pivot Stamp" class="stamp-bg" loading="lazy">
+            <div class="stamp-content">
+              <div class="stamp-number">02</div>
+              <h4 class="stamp-title">Navigation & Discovery</h4>
+              <p class="stamp-text">Users were unsure how to find specific content beyond scrolling. So we introduced a search-by-initials feature in the navigation bar.</p>
+            </div>
+          </div>
+          
+          <div class="stamp-card">
+            <img src="images/pivot-stamp.png" alt="Pivot Stamp" class="stamp-bg" loading="lazy">
+            <div class="stamp-content">
+              <div class="stamp-number">03</div>
+              <h4 class="stamp-title">Visual Hierarchy</h4>
+              <p class="stamp-text">The interface felt visually dense in the body of the homepage, where all the messages were. So we reduced decorative elements in reading contexts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Design Pivots Subsection -->
+    <div class="design-pivots-section">
+      <h3>Our DESIGN PIVOTS</h3>
+
+      <div class="pivot-label">
+        <div class="audit-number">01</div>
+        <div class="audit-name">Unifying the Hero Section</div>
+      </div>
+    </div> <!-- Close design-pivots-section -->
+    
+  </div> <!-- Close content-column -->
+</section>
+
+<!-- Design Pivots: iterations-landing (outer column with overlay) -->
+<section class="pivot-image-outer pivot-with-overlay">
+  <div class="content-column-outer">
+    <div class="pivot-overlay-container">
+      <img src="images/iterations-landing-imgs.png"
+           alt="Iterations Landing Overlay"
+           class="pivot-overlay-image"
+           loading="lazy">
+      <img src="images/iterations-landing.png"
+           alt="Iterations – Landing"
+           loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- Back to content column for pivot 02 -->
+<section class="content-section">
+  <div class="content-column">
+    <div class="pivot-label">
+      <div class="audit-number">02</div>
+      <div class="audit-name">Simplifying Confessions for Legibility</div>
+    </div>
+  </div>
+</section>
+
+<!-- Design Pivots: iterations-message (outer column) -->
+<section class="pivot-image-outer">
+  <div class="content-column-outer">
+    <img src="images/iterations-message.png"
+         alt="Iterations – Message"
+         loading="lazy">
+  </div>
+</section>
+
+<!-- Back to content column for pivot 03 -->
+<section class="content-section">
+  <div class="content-column">
+    <div class="pivot-label">
+      <div class="audit-number">03</div>
+      <div class="audit-name">Implementing Search-by-Initials System</div>
+    </div>
+  </div>
+</section>
+
+<!-- Design Pivots: iterations-nav (outer column) -->
+<section class="pivot-image-outer">
+  <div class="content-column-outer">
+    <img src="images/iterations-nav.png"
+         alt="Iterations – Nav"
+         loading="lazy">
+  </div>
+</section>
+
+<!-- Back to content column for Final Prototype -->
+<section class="content-section">
+  <div class="content-column">
+    
+    <!-- Final Prototype Subsection -->
+    <div class="final-prototype-section">
+      <h3>Our FINAL PROTOTYPE</h3>
+    </div>
+    
+  </div>
+</section>
+
+<!-- Final Prototype Backdrop (full-width) -->
+<div class="final-prototype-backdrop">
+  <!-- Background images (dots + beige rect baked in) — behind everything -->
+  <div class="prototype-bg-container">
+    <img src="images/final-bg1.png"
+         alt="" class="prototype-bg" loading="lazy">
+    <img src="images/final-bg2.png"
+         alt="" class="prototype-bg" loading="lazy">
+  </div>
+
+  <!-- Dashed line -->
+  <div class="prototype-line-container">
+    <img src="images/prototype-line1.png" 
+         alt="" class="prototype-line" loading="lazy">
+    <img src="images/prototype-line2.png" 
+         alt="" class="prototype-line" loading="lazy">
+  </div>
+
+<!-- 01: Image LEFT, Text RIGHT -->
+<div class="prototype-block prototype-block--left">
+  <div class="prototype-image">
+    <img src="images/final1.png" 
+         alt="Pent Up – Landing Page" loading="lazy">
+  </div>
+  <div class="prototype-text">
+    <div class="audit-number prototype-number">01</div>
+    <h4 class="prototype-heading">The Sanctuary Entryway</h4>
+    <p class="prototype-summary">Establishing a retro-tactile identity through early-internet metaphors and physical textures.</p>
+    <p>Pent Up's landing page invites users into a hyper-local, anonymous space designed for the Penn community to connect without social risk or judgment. Pixel text and paper crinkles—kitschy!</p>
+  </div>
+</div>
+
+<!-- 02: Text LEFT, Image RIGHT -->
+<div class="prototype-block prototype-block--right">
+  <div class="prototype-text">
+    <div class="audit-number prototype-number">02</div>
+    <h4 class="prototype-heading">An Archive of Pure Expression</h4>
+    <p class="prototype-summary">Prioritizing intentional discovery while eliminating performative social metrics.</p>
+    <p>Sick of performative social dynamics? This feed allows you to browse an archive stripped of all validation metrics—no likes, no comments—to focus purely on the message. Use the search-by-initials feature to uncover the "mystique" of confessions possibly dedicated to you.</p>
+  </div>
+  <div class="prototype-image">
+    <img src="images/final2.png" 
+         alt="Pent Up – Message Feed" loading="lazy">
+  </div>
+</div>
+
+<!-- 03: Image LEFT, Text RIGHT -->
+<div class="prototype-block prototype-block--left">
+  <div class="prototype-image">
+    <img src="images/final3.png" 
+         alt="Pent Up – Send a Message" loading="lazy">
+  </div>
+  <div class="prototype-text">
+    <div class="audit-number prototype-number">03</div>
+    <h4 class="prototype-heading">The "Read-and-Release" Flow</h4>
+    <p class="prototype-summary">Bridging the gap between raw emotional unburdening and automated platform safety.</p>
+    <p>Ready to finally let loose? Draft your message and dedicate it anonymously using a "verify-and-obfuscate" flow that protects your identity through email hashing. Every post is secured by real-time AI moderation to ensure the sanctuary remains a safe harbor for student expression.</p>
+  </div>
+</div>
+
+</div><!-- close .final-prototype-backdrop -->
+
+  
+  <!-- Launch Section -->
+<section id="launch" class="content-section">
+  <div class="content-column">
+    <div class="section-number">04</div>
+    <h2 class="section-title">LAUNCH<span class="title-asterisk">*</span></h2>
+
+    <!-- Marketing Subsection -->
+    <div class="launch-marketing-section">
+      <h3>The MARKETING</h3>
+
+      <p>Leading up to launch, we released a series of minimal <span class="highlight">Instagram teasers designed to spark curiosity</span> without revealing functionality.</p>
+
+      <img src="images/marketing-phones.png"
+           alt="Marketing – Instagram Teasers"
+           class="launch-full-img"
+           loading="lazy">
+
+      <p>I paired this with physical flyers placed in high-traffic campus spaces, using sparse copy and tactile visuals to mirror the platform's tone.</p>
+
+      <img src="images/marketing-flyers.png"
+           alt="Marketing – Physical Flyers"
+           class="launch-full-img"
+           loading="lazy">
+    </div>
+
+    <!-- So What? Circle -->
+    <div class="results-circle">
+      <div class="results-inner">
+        <div class="results-label">So<br>WHAT?</div>
+        <span class="results-asterisk">*</span>
+        <p class="results-text">Together, these efforts helped stir up awareness and build up mystique!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reflection Section -->
+<section id="reflection" class="content-section">
+  <div class="content-column">
+    <div class="section-number">05</div>
+    <h2 class="section-title">REFLECTION<span class="title-asterisk">*</span></h2>
+
+    <!-- Results Subsection -->
+    <div class="reflection-results-section">
+      <h3>The RESULTS</h3>
+
+      <div class="results-grid">
+        <div class="results-text-col">
+          <p>Pent Up was awarded <span class="highlight">Best Red Project—the top honor within Penn Spark's advanced track for senior members.</span> The project culminated in a live launch at the Wu and Chen Auditorium, where we presented our roadmap to the Penn community and secured 50+ verified submissions during the event alone.</p>
+
+          <p>Since the showcase, the platform has demonstrated sustained engagement. As of January 2026, <span class="highlight">Pent Up has reached 11,000+ digital impressions and a milestone of 100 total submissions, maintaining momentum well beyond its initial deployment.</span></p>
+        </div>
+
+        <div class="results-image-col">
+          <img src="images/results-img.png"
+               alt="Best Red Project Award"
+               loading="lazy">
+        </div>
+      </div>
+
+      <img src="images/results-table.png"
+           alt="Results Metrics Table"
+           class="results-table-img"
+           loading="lazy">
+    </div>
+
+    <!-- Future Considerations Subsection -->
+    <div class="future-considerations-section">
+      <h3>My FUTURE CONSIDERATIONS</h3>
+
+      <p>Pent Up was born from a simple text exchange between two sophomores. What began as a dormant experiment grew into a vibrant social amalgam. <span class="highlight">However, because this product was deployed within a tight 10-week sprint while the team balanced midterms and theater performances, several high-impact features were intentionally deprioritized for the initial launch.</span></p>
+
+      <div class="future-item">
+        <div class="audit-number">01</div>
+        <div class="future-item-content">
+          <h4>Refining the MVP</h4>
+          <p>I plan to re-integrate the original intro animation to polish the entry experience and <span class="highlight">develop a "shareable" asset system</span>—similar to Duolingo—that allows users to generate and download nicely formatted snapshots of confessions to share on social media.</p>
+        </div>
+      </div>
+
+      <div class="future-item">
+        <div class="audit-number">02</div>
+        <div class="future-item-content">
+          <h4>Visualizing Campus Sentiment</h4>
+          <p>I want to return to our <span class="highlight">initial concept of color and emotion mapping to visualize the collective "mood" of the community.</span> By exploring the data-visualization potential of the platform, we could map campus sentiment over time—such as identifying measurable spikes in "stress" during midterms to provide tangible insights into student mental health.</p>
+        </div>
+      </div>
+
+      <div class="future-item">
+        <div class="audit-number">03</div>
+        <div class="future-item-content">
+          <h4>Building a Sustainable Legacy</h4>
+          <p>This is not the end of the project; we are currently discussing <span class="highlight">a legacy model to ensure the platform's longevity by handing the project and its community presence down to a new cohort of student leaders.</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team Showcase Image (full bleed) -->
+<section class="team-showcase-section">
+  <div class="content-column-outer">
+    <img src="images/team.png"
+         alt="The team at showcase"
+         class="team-showcase-img"
+         loading="lazy">
+  </div>
+</section>
+
+<!-- FIN Section -->
+<section class="fin-section">
+  <div class="content-column">
+    <!-- Fish icon pill + FIN title -->
+    <div class="fin-title-row">
+      <div class="fin-pill">
+        <img src="images/fin-icon.png"
+             alt="fish"
+             class="fin-fish-icon">
+      </div>
+      <h2 class="fin-title">FIN.<span class="title-asterisk">*</span></h2>
+    </div>
+
+    <!-- Dashed line (reused from stamps) -->
+    <img src="images/dashlines.png"
+         class="fin-dashline"
+         alt=""
+         loading="lazy">
+
+    <!-- Pent Up link image -->
+    <img src="images/pent-up-link.png"
+         alt="Pent Up – Try it"
+         class="fin-link-img"
+         loading="lazy">
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="case-footer">
+  <div class="case-footer-inner">
+<div class="case-footer-main">
+  <div class="case-footer-star-wrapper">
+    <svg id="case-footer-star-icon" width="80" height="80" viewBox="0 0 110 110" fill="none">
+      <defs>
+        <radialGradient id="caseStarGradient" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#FFF3BF" />
+          <stop offset="100%" stop-color="#FFF3BF" />
+        </radialGradient>
+      </defs>
+      <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" fill="url(#caseStarGradient)"/>
+      <circle cx="55" cy="55" r="41.5" stroke="#FFF3BF"/>
+    </svg>
+  </div>
+  
+  <h2 class="case-footer-tagline">
+    <span class="case-footer-line">
+      <span class="case-footer-italic">what's</span>
+      <span class="case-footer-helv"> </span>
+    </span>
+    <span class="case-footer-line">
+      <span class="case-footer-italic">next</span><span class="case-footer-helv">?</span>
+    </span>
+  </h2>
+  <ul class="case-footer-links">
+    <li><a href="#">iPRO DENTAL</a></li>
+    <li><a href="#">Deep24</a></li>
+    <li><a href="#">Knouri</a></li>
+    <li><a href="#">Airbnb Journeys</a></li>
+  </ul>
+</div>
+  </div>
+  <div class="case-footer-bottom">
+    <div class="case-footer-left">
+      <span class="case-footer-signature">Melody Zhang</span>
+      <span class="case-footer-copy">© 2026</span>
+    </div>
+    <div class="case-footer-right">
+      <a href="mailto:melodyserenazhang@gmail.com">[EMAIL]</a>
+      <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank">[LINKEDIN]</a>
+    </div>
+  </div>
+</footer>
+  
+</main> <!-- Close main-content -->
+
+<!-- GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  
+<!-- Your JavaScript -->
+<script src="main.js"></script>
+</body>
+</html>
