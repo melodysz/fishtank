@@ -1,11 +1,4 @@
-// Wait for GSAP and ScrollTrigger to load
-// window.addEventListener('load', () => {
-//   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-//     gsap.registerPlugin(ScrollTrigger);
-//   } else {
-//     console.error('GSAP or ScrollTrigger failed to load!');
-//   }
-// });
+gsap.registerPlugin(ScrollTrigger);
 
 // ===============================
 // LENIS SMOOTH SCROLL (GLOBAL)
@@ -27,31 +20,31 @@ gsap.ticker.add((time) => {
 gsap.ticker.lagSmoothing(0);
 
 // ✅ IMPROVED - Better sync
-// lenis.on('scroll', (e) => {
-//   ScrollTrigger.update();
-// });
+lenis.on('scroll', (e) => {
+  ScrollTrigger.update();
+});
 
-// ScrollTrigger.defaults({ markers: false });
+ScrollTrigger.defaults({ markers: false });
 
 
 // ✅ ADDED - Refresh on resize
-// let resizeTimer;
-// window.addEventListener('resize', () => {
-//   clearTimeout(resizeTimer);
-//   resizeTimer = setTimeout(() => {
-//     ScrollTrigger.refresh();
-//   }, 250);
-// });
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    ScrollTrigger.refresh();
+  }, 250);
+});
 
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
-// window.addEventListener('load', () => {
-//   window.scrollTo(0, 0);
-//   lenis.scrollTo(0, { immediate: true });
-//   ScrollTrigger.refresh();
-// });
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+  lenis.scrollTo(0, { immediate: true });
+  ScrollTrigger.refresh();
+});
 
 
 // ===============================
@@ -318,7 +311,7 @@ function getAbsoluteTop(el) {
 }
 
 // Register ScrollTo plugin
-// gsap.registerPlugin(ScrollToPlugin);
+gsap.registerPlugin(ScrollToPlugin);
 
 // Smooth scroll - ONLY main sections with CUSTOM OFFSETS
 document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
@@ -394,22 +387,17 @@ lenis.scrollTo(`#${targetId}`, {
 
 
 // Show sidebar after scrolling past Overview title
-// ScrollTrigger.create({
-//   trigger: ".overview-section .section-title",
-//   start: "top center",
-//   end: "bottom top",
-//   onEnter: () => {
-//     document.querySelector('.sidebar-nav').classList.add('visible');
-//   },
-//   onLeaveBack: () => {
-//     document.querySelector('.sidebar-nav').classList.remove('visible');
-//   }
-// });
-
-
-// Just make sidebar always visible for now
-document.querySelector('.sidebar-nav').classList.add('visible');
-
+ScrollTrigger.create({
+  trigger: ".overview-section .section-title",
+  start: "top center",
+  end: "bottom top",
+  onEnter: () => {
+    document.querySelector('.sidebar-nav').classList.add('visible');
+  },
+  onLeaveBack: () => {
+    document.querySelector('.sidebar-nav').classList.remove('visible');
+  }
+});
 
 // ===================================
 // IMAGE MODAL FOR PROTO-PERSONAS
@@ -562,13 +550,12 @@ const highlightObserver = new IntersectionObserver((entries) => {
     if (entry.isIntersecting) {
       entry.target.classList.add('animate-in');
     } else {
-      // Re-enable animation when scrolling away
       entry.target.classList.remove('animate-in');
     }
   });
 }, {
-  threshold: 0.1, // Trigger early
-  rootMargin: '-100px 0px -100px 0px' // Need to scroll farther away to reset
+  threshold: 0,
+  rootMargin: '0px 0px 0px 0px'
 });
 
 highlights.forEach(highlight => {
@@ -621,7 +608,7 @@ const FOOTSTAR_THRESHOLD = 50;   // footer star pops in last (latest — nearly 
 // ── REPLACE your lenis.on('scroll') with this: ──
 lenis.on('scroll', (e) => {
   // Keep ScrollTrigger in sync for everything else on the page
-  // ScrollTrigger.update();
+  ScrollTrigger.update();
 
   // Read where the footer actually is RIGHT NOW on screen.
   // getBoundingClientRect().top = distance from viewport top to footer top.
@@ -675,18 +662,6 @@ lenis.on('scroll', (e) => {
       scale: 0.6, 
       duration: 1, 
       ease: "power2.in" 
-    });
-  }
-});
-
-// [WHO?] / [ME!] navigation - About Me page
-document.addEventListener('DOMContentLoaded', () => {
-  const whoNavLink = document.querySelector('.nav-right a[data-default="[WHO?]"]');
-  
-  if (whoNavLink) {
-    whoNavLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.open('https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=852-4986&viewport=-4079%2C1347%2C0.2&t=CsBovf6LvnJhJpB3-1&scaling=scale-down-width&content-scaling=fixed&hide-ui=1', '_blank');
     });
   }
 });
