@@ -1091,3 +1091,11 @@ window.addEventListener('load', () => {
 document.addEventListener('click', (e) => {
   console.log('CLICK CAUGHT BY:', e.target, '| path:', e.composedPath().map(el => el.className || el.tagName).join(' > '));
 }, true);
+
+document.querySelector('.btn-touch').addEventListener('click', () => {
+  navigator.clipboard.writeText('melodyserenazhang@gmail.com');
+  const btn = document.querySelector('.btn-touch');
+  const original = btn.textContent;
+  btn.textContent = 'copied!';
+  setTimeout(() => btn.textContent = original, 2000);
+});
