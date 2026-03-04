@@ -1,3 +1,10 @@
+// Force scroll to top IMMEDIATELY before anything renders
+if (!window.location.hash) {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
 // Add loading class immediately
 document.documentElement.classList.add('page-loading');
 
@@ -307,6 +314,7 @@ lenis = new Lenis({
 let pageReady = false;
 
 setTimeout(() => {
+  if (!window.location.hash) window.scrollTo(0, 0);
   pageReady = true;
   ScrollTrigger.refresh();
 }, 800);
