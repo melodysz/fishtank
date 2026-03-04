@@ -1089,3 +1089,7 @@ document.querySelector('.btn-touch').addEventListener('click', function(e) {
   e.stopImmediatePropagation();
   window.location.href = 'mailto:melodyserenazhang@gmail.com';
 }, true);
+
+document.addEventListener('click', (e) => {
+  console.log('CLICK CAUGHT BY:', e.target, '| path:', e.composedPath().map(el => el.className || el.tagName).join(' > '));
+}, true);
