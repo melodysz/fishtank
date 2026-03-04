@@ -542,7 +542,7 @@ paragraphGroups.forEach(group => {
   });
 });
 
-window.addEventListener('scroll', () => {
+lenis.on('scroll', () => {
   highlights.forEach(highlight => {
     const rect = highlight.getBoundingClientRect();
     const viewH = window.innerHeight;
