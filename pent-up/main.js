@@ -1,4 +1,4 @@
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 // ===============================
 // LENIS SMOOTH SCROLL (GLOBAL)
@@ -309,9 +309,6 @@ function getAbsoluteTop(el) {
   }
   return top;
 }
-
-// Register ScrollTo plugin
-gsap.registerPlugin(ScrollToPlugin);
 
 // Smooth scroll - ONLY main sections with CUSTOM OFFSETS
 document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
