@@ -300,7 +300,8 @@ lenis = new Lenis({
   duration: 1.0,
   smoothWheel: true,
   wheelMultiplier: 0.7,
-  touchMultiplier: 1.5
+  touchMultiplier: 1.5,
+  prevent: (node) => node.classList.contains('btn-touch')
 });
 
 let pageReady = false;
@@ -1084,6 +1085,7 @@ window.addEventListener('load', () => {
     }, 500); // Give ScrollTrigger time to initialize
   }
 });
+
 
 
 document.addEventListener('click', (e) => {
