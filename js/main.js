@@ -1080,6 +1080,8 @@ window.addEventListener('load', () => {
 });
 
 document.querySelector('.btn-touch').addEventListener('click', (e) => {
+  e.stopImmediatePropagation();
   e.stopPropagation();
-  window.location.href = 'mailto:melodyserenazhang@gmail.com';
-});
+  e.preventDefault();
+  window.open('mailto:melodyserenazhang@gmail.com', '_self');
+}, true);
