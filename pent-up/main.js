@@ -542,21 +542,19 @@ paragraphGroups.forEach(group => {
   });
 });
 
-const highlightObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('animate-in');
-    } else {
-      entry.target.classList.remove('animate-in');
+window.addEventListener('scroll', () => {
+  highlights.forEach(highlight => {
+    const rect = highlight.getBoundingClientRect();
+    const viewH = window.innerHeight;
+    
+    if (rect.top < viewH && rect.bottom > 0) {
+      highlight.classList.add('animate-in');
+    }
+    
+    if (rect.bottom < -1000 || rect.top > viewH + 1000) {
+      highlight.classList.remove('animate-in');
     }
   });
-}, {
-  threshold: 0,
-  rootMargin: '-500px 0px -500px 0px'
-});
-
-highlights.forEach(highlight => {
-  highlightObserver.observe(highlight);
 });
 
 
