@@ -552,7 +552,7 @@ const highlightObserver = new IntersectionObserver((entries) => {
   });
 }, {
   threshold: 0,
-  rootMargin: '-300px 0px 0px 0px'
+  rootMargin: '-500px 0px -500px 0px'
 });
 
 highlights.forEach(highlight => {
