@@ -77,7 +77,7 @@ function playHeroFishIn() {
 
 gsap.set('.sec2-bubble, .sec2-flower', { opacity: 0, y: 20 });
 gsap.set('.bubble-decor, .flower-decor', { opacity: 0, y: 20 });
-gsap.set('.dangles-decor', { y: -60, opacity: 0 });
+gsap.set('.dangles-decor', { y: -50, opacity: 0 });
 
 function playHeroIdentityIn() {
   const heroLines = [
@@ -800,7 +800,7 @@ ScrollTrigger.create({
     })
     .fromTo('.dangles-decor', 
       { y: -40, opacity: 0 },  // reduced from -60 to lessen travel
-      { y: 0, opacity: 1, duration: 0.9, ease: "power3.out", force3D: true },  // removed back.out overshoot
+      { y: 10, opacity: 1, duration: 0.9, ease: "power3.out", force3D: true },  // removed back.out overshoot
       0.1
     )
     .to('.sec2-bubble, .sec2-flower', { 
