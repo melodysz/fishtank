@@ -1078,3 +1078,8 @@ window.addEventListener('load', () => {
     }, 500); // Give ScrollTrigger time to initialize
   }
 });
+
+document.querySelector('.btn-touch').addEventListener('click', (e) => {
+  e.stopPropagation();
+  window.location.href = 'mailto:melodyserenazhang@gmail.com';
+});
