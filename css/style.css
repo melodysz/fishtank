@@ -1618,7 +1618,3 @@ html:not(.page-loading) .third-section {
   transform: translateZ(0);
 }
 
-
-.hero-identity-frame {
-  display: none;
-}
