@@ -925,9 +925,15 @@ gsap.set(".footer-star-wrapper", { opacity: 0, scale: 0.6 });
 ScrollTrigger.create({
   trigger: ".footer-section", 
   start: "top 75%",
-  onEnter: () => {
+onEnter: () => {
     gsap.to("#footer-main-content", { opacity: 1, y: 0, duration: 1.0, ease: "power2.out" });
-    gsap.to('#footer-main-content .footer-anim', { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out" });
+    gsap.to('#footer-main-content .footer-anim', { 
+      opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out",
+      onComplete: () => {
+        const btn = document.querySelector('.btn-touch');
+        if (btn) btn.style.pointerEvents = 'auto';
+      }
+    });
     gsap.to('.footer-left .footer-anim', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", delay: 0.3 });
     gsap.to('.footer-right .footer-anim', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", delay: 0.3 });
     gsap.to(".footer-star-wrapper", { opacity: 1, scale: 1, rotation: "+=720", duration: 1.5, ease: "expo.out" });
@@ -1079,9 +1085,7 @@ window.addEventListener('load', () => {
   }
 });
 
-document.querySelector('.btn-touch').addEventListener('click', (e) => {
+document.querySelector('.btn-touch').addEventListener('click', function(e) {
   e.stopImmediatePropagation();
-  e.stopPropagation();
-  e.preventDefault();
-  window.open('mailto:melodyserenazhang@gmail.com', '_self');
+  window.location.href = 'mailto:melodyserenazhang@gmail.com';
 }, true);
