@@ -319,12 +319,8 @@ document.addEventListener('visibilitychange', () => {
     lenis.start();
 
     requestAnimationFrame(() => {
-      // Safety check before every gsap.set
-      const safe = (selector) => {
-        const el = document.querySelector(selector);
-        if (!el) { console.warn('NULL ELEMENT:', selector); return false; }
-        return true;
-      };
+      // Always restore the mask FIRST before anything else
+      restoreScalingRigMask();
 
       lenis.raf(performance.now());
       lenis.scrollTo(window.scrollY, { immediate: true, force: true });
@@ -332,6 +328,20 @@ document.addEventListener('visibilitychange', () => {
       const scrollY = window.scrollY;
       const docHeight = document.body.scrollHeight - window.innerHeight;
       const scrollRatio = scrollY / docHeight;
+
+      // Only restore hero state if we're actually near the top
+      if (scrollRatio < 0.05) {
+        gsap.set('.scaling-rig', { scale: 1, autoAlpha: 1, filter: 'none' });
+        gsap.set(['.hero-peek-layer', '.hero-halo'], { autoAlpha: 1, scale: 1 });
+        gsap.set('.hero-orbit', { autoAlpha: 1, scale: 0.9 });
+        gsap.set('.hero-identity-frame', { autoAlpha: 1 });
+        gsap.set(['.fish-clown-1', '.fish-clown-2', '.fish-tang'], { x: 0, autoAlpha: 1, scale: 1 });
+        gsap.set('.hero-star', { autoAlpha: 1 });
+        // Re-apply mask after gsap.set (gsap can wipe inline styles)
+        restoreScalingRigMask();
+      }
+
+      const safe = (selector) => !!document.querySelector(selector);
 
       if (safe('.section-2-wrapper')) {
         const thirdSection = document.querySelector('.third-section');
@@ -356,6 +366,9 @@ document.addEventListener('visibilitychange', () => {
 
       ScrollTrigger.refresh();
       ScrollTrigger.update();
+
+      // Final mask insurance after ScrollTrigger.update() runs
+      restoreScalingRigMask();
     });
   }
 });
@@ -961,6 +974,19 @@ function playHeroOrbitIn() {
   gsap.killTweensOf(".hero-orbit");
   gsap.set(".hero-orbit", { autoAlpha: 0, scale: 0.75, rotation: 0 });
   gsap.to(".hero-orbit", { autoAlpha: 1, scale: 0.9, rotation: "+=150", duration: 1.5, ease: "expo.out" });
+}
+
+function restoreScalingRigMask() {
+  const scalingRig = document.querySelector('.scaling-rig');
+  if (!scalingRig) return;
+  scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+  scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+  scalingRig.style.webkitMaskSize = 'cover';
+  scalingRig.style.maskSize = 'cover';
+  scalingRig.style.webkitMaskPosition = 'center';
+  scalingRig.style.maskPosition = 'center';
+  scalingRig.style.webkitMaskRepeat = 'no-repeat';
+  scalingRig.style.maskRepeat = 'no-repeat';
 }
 
 const projectCards = document.querySelectorAll(".project-card");
