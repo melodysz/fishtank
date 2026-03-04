@@ -405,7 +405,11 @@ function handleImageLoad(img) {
   img.classList.add('loaded');
   
 // AFTER — added .prototype-image
-const container = img.closest('.dilemma-image, .unsent-project-image, .sidechat-image, .persona-card, .market-audit-image, .large-image-section, .ideation-image-section, .prototype-image, .hero-section, .original-interface-image-section, .content-column-outer');
+const container = img.closest(
+  '.dilemma-image, .unsent-project-image, .sidechat-image, .persona-card, ' +
+  '.market-audit-image, .large-image-section, .ideation-image-section, ' +
+  '.prototype-image, .hero-section, .original-interface-image-section'
+);
 
   if (container) {
     container.classList.add('image-loaded');
