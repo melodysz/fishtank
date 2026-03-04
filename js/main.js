@@ -18,18 +18,23 @@ if (window.location.hash) {
     if (intro) intro.style.display = 'none';
     
     // NEW: Force reset the scaling rig mask completely
-    const scalingRig = document.querySelector('.scaling-rig');
-    if (scalingRig) {
-      scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-      scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-      scalingRig.style.webkitMaskSize = 'cover';
-      scalingRig.style.maskSize = 'cover';
-      scalingRig.style.webkitMaskPosition = 'center';
-      scalingRig.style.maskPosition = 'center';
-      scalingRig.style.webkitMaskRepeat = 'no-repeat';
-      scalingRig.style.maskRepeat = 'no-repeat';
-      scalingRig.style.filter = 'none';
-    }
+setTimeout(() => {
+  const scalingRig = document.querySelector('.scaling-rig');
+  if (scalingRig) {
+    scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+    scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+    scalingRig.style.webkitMaskSize = 'cover';
+    scalingRig.style.maskSize = 'cover';
+    scalingRig.style.webkitMaskPosition = 'center';
+    scalingRig.style.maskPosition = 'center';
+    scalingRig.style.webkitMaskRepeat = 'no-repeat';
+    scalingRig.style.maskRepeat = 'no-repeat';
+  }
+
+  playHeroFishIn();
+  playHeroIdentityIn();
+  playHeroOrbitIn();
+}, 100);
 
     // Initialize hero elements to their default state
     gsap.set(".scaling-rig", { scale: 1, autoAlpha: 1 });
@@ -128,7 +133,7 @@ window.addEventListener('load', function() {
     rippleContainer.className = 'ripple-container';
     introScreen.appendChild(rippleContainer);
     
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       setTimeout(() => {
         const blueRipple = document.createElement('div');
         blueRipple.className = 'ripple ripple-blue';
@@ -185,8 +190,26 @@ window.addEventListener('load', function() {
               applyMask(r);
               const t = Math.min(1, r / maxR);
               
-              if (!window._heroContentStarted && t > 0.55) {
-                window._heroContentStarted = true;
+if (!window._heroContentStarted && t > 0.55) {
+  window._heroContentStarted = true;
+  gsap.to('.nav-left', { opacity: 1, duration: 0.4, ease: "power2.out" });
+  gsap.to('.nav-right a', { opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" });
+  gsap.to('.nav-center-star', { opacity: 1, duration: 0.1, ease: "none", onComplete: () => {
+    gsap.to('.nav-center-star', { rotation: "+=720", duration: 1.5, ease: "expo.out" });
+  }});
+
+                const scalingRig = document.querySelector('.scaling-rig');
+                if (scalingRig) {
+                  scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+                  scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+                  scalingRig.style.webkitMaskSize = 'cover';
+                  scalingRig.style.maskSize = 'cover';
+                  scalingRig.style.webkitMaskPosition = 'center';
+                  scalingRig.style.maskPosition = 'center';
+                  scalingRig.style.webkitMaskRepeat = 'no-repeat';
+                  scalingRig.style.maskRepeat = 'no-repeat';
+                }
+
                 playHeroFishIn();
                 playHeroIdentityIn();
                 playHeroOrbitIn();
@@ -210,10 +233,10 @@ window.addEventListener('load', function() {
                 opacity: 0,
                 duration: 0.5,
                 ease: "power1.out",
-                onComplete: () => {
-                  introScreen.style.display = "none";
-                  unlockScroll();
-                }
+onComplete: () => {
+  introScreen.style.display = "none";
+  unlockScroll();
+}
               });
             }
           });
@@ -222,7 +245,25 @@ window.addEventListener('load', function() {
     }, 800);
   }
 
-  setTimeout(() => startRippleTransition(), 900);
+  // Animate dots one by one, then start ripple
+// Wait for Xanh Mono to load before showing intro text
+  const introText = document.querySelector('.intro-text');
+  introText.style.opacity = '0';
+
+  document.fonts.load("italic 1.6rem 'Xanh Mono'").finally(() => {
+    introText.style.opacity = '1';
+
+    const dotsEl = document.getElementById('intro-dots');
+    let dotCount = 0;
+    const dotInterval = setInterval(() => {
+    dotCount++;
+    dotsEl.textContent = '.'.repeat(dotCount);
+    if (dotCount >= 3) {
+      clearInterval(dotInterval);
+      setTimeout(() => startRippleTransition(), 800);
+    }
+  }, 300);
+    });
 });
 
 gsap.registerPlugin(ScrollTrigger);
@@ -702,8 +743,9 @@ ScrollTrigger.create({
   end: "top center",
   scrub: 1,
   onUpdate: (self) => {
-    gsap.to(section2Wrapper, { y: (-100 * self.progress) + "vh", duration: 0.1, overwrite: "auto" });
-    if (fishTank) gsap.to(fishTank, { opacity: 1 - self.progress, duration: 0.1, overwrite: "auto" });
+    const p = self.progress;
+    section2Wrapper.style.transform = `translateY(${-100 * p}vh)`;
+    if (fishTank) fishTank.style.opacity = 1 - p;
   }
 });
 
@@ -711,14 +753,14 @@ if (fishTank) {
   fishTank.innerHTML = '';
   
   const fishConfig = [
-    { type: 'fish-visual', y: 25, size: 1.0, zIndex: 3, startX: 0, endX: 80, speed: 1.6 },
-    { type: 'fish-canvas', y: 29, size: 0.95, zIndex: 2, startX: 3, endX: 83, speed: 1.8 },
-    { type: 'fish-branding', y: 55, size: 1.2, zIndex: 2, startX: 13, endX: 93, speed: 2.0 },
-    { type: 'fish-product', y: 70, size: 0.98, zIndex: 1, startX: 7, endX: 87, speed: 1.7 },
-    { type: 'fish-narrative', y: 30, size: 1.4, zIndex: 3, startX: -37, endX: 43, speed: 2.2 },
-    { type: 'fish-ux', y: 62, size: 1.0, zIndex: 2, startX: -33, endX: 47, speed: 1.9 },
-    { type: 'fish-ui', y: 70, size: 1.1, zIndex: 3, startX: -30, endX: 50, speed: 2.0 },
-    { type: 'fish-layout', y: 38, size: 0.98, zIndex: 2, startX: -35, endX: 30, speed: 1.8 }
+    { type: 'fish-visual', y: 20, size: 1.0, zIndex: 3, startX: 0, endX: 80, speed: 1.6 },
+    { type: 'fish-canvas', y: 24, size: 0.95, zIndex: 2, startX: 3, endX: 83, speed: 1.8 },
+    { type: 'fish-branding', y: 50, size: 1.2, zIndex: 2, startX: 13, endX: 93, speed: 2.0 },
+    { type: 'fish-product', y: 65, size: 0.98, zIndex: 1, startX: 7, endX: 87, speed: 1.7 },
+    { type: 'fish-narrative', y: 25, size: 1.4, zIndex: 3, startX: -37, endX: 43, speed: 2.2 },
+    { type: 'fish-ux', y: 57, size: 1.0, zIndex: 2, startX: -33, endX: 47, speed: 1.9 },
+    { type: 'fish-ui', y: 65, size: 1.1, zIndex: 3, startX: -30, endX: 50, speed: 2.0 },
+    { type: 'fish-layout', y: 33, size: 0.98, zIndex: 2, startX: -35, endX: 30, speed: 1.8 }
   ];
 
   const fishData = [];
@@ -773,29 +815,6 @@ ScrollTrigger.create({
   }
 });
 
-gsap.fromTo(".sky-text-images", 
-  { scale: 1, opacity: 1 }, 
-  { scale: 0.8, opacity: 0.3, ease: "none", scrollTrigger: { trigger: ".third-section", start: "top bottom", end: "top top", scrub: true } }
-);
-
-gsap.fromTo(".third-title-wrapper", 
-  { scale: 0.8, opacity: 0.3 }, 
-  { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".third-section", start: "top bottom", end: "top top", scrub: true } }
-);
-
-gsap.fromTo([".third-stage"], 
-  { scale: 0.8, opacity: 0.3 }, 
-  { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".third-section", start: "top bottom", end: "top top", scrub: true } }
-);
-
-gsap.timeline({ scrollTrigger: { trigger: ".footer-section", start: "top bottom", end: "top top", scrub: true } })
-  .to([".third-stage"], { scale: 0.8, opacity: 0.3, ease: "none" });
-
-ScrollTrigger.create({
-  trigger: ".third-section",
-  start: "top 75%",
-  onToggle: self => document.body.classList.toggle('reveal-third', self.isActive)
-});
 
 let projectCardsReady = false;
 
@@ -815,18 +834,68 @@ function resetProjectCards() {
 
 resetProjectCards();
 
+function startBubbleFloat() {
+  document.querySelectorAll('.bubble-decor').forEach((bubble, i) => {
+    gsap.to(bubble, {
+      y: "-=12",
+      duration: 1.8 + i * 0.3,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      delay: i * 0.2
+    });
+  });
+}
+
 ScrollTrigger.create({
   trigger: ".third-section",
   start: "top 80%",
-  onEnter: () => {
-    if (!projectCardsReady && !gsap.isTweening(".project-card")) playProjectCardsIn();
-    gsap.to('.bubble-decor, .flower-decor', { opacity: 1, y: 0, duration: 0.7, stagger: 0.1, ease: "power2.out", delay: 0.3 });
-    gsap.fromTo('.flower-decor', { rotation: 0, scale: 0.2 }, { rotation: "+=2160", scale: 1.5, duration: 2.5, stagger: 0.15, ease: "expo.out", delay: 0.3 });
-  },
+  onEnter: () => startBubbleFloat(),
   onLeaveBack: () => {
+    gsap.killTweensOf('.bubble-decor');
+    gsap.set('.bubble-decor', { y: 20, opacity: 0 });
+  },
+  once: false
+});
+
+ScrollTrigger.create({
+  trigger: ".third-section",
+  start: "top 95%",
+onEnter: () => {
+    // Title animates in first
+    gsap.to('.third-title .third-anim', {
+      opacity: 1, y: 0, duration: 0.8, ease: "power2.out", overwrite: true
+    });
+
+// Cards animate in after title
+    setTimeout(() => {
+      playProjectCardsIn();
+    }, 500);
+
+    // Bubbles and flowers after title too
+gsap.fromTo('.bubble-decor',
+  { opacity: 0, y: 30 },
+  { opacity: 1, y: 0, duration: 0.8, stagger: 0.1,
+    ease: "power2.out", delay: 0.4, overwrite: true,
+    onComplete: () => startBubbleFloat()
+  }
+);
+    gsap.fromTo('.flower-decor', 
+      { opacity: 0, y: 20, scale: 0.2, rotation: 0 }, 
+      { opacity: 1, y: 0, scale: 1.5, rotation: 2160, duration: 2.5, stagger: 0.15, 
+        ease: "expo.out", delay: 0.4, overwrite: true }
+    );
+  },
+onLeaveBack: () => {
+    gsap.killTweensOf(".project-card");
     resetProjectCards();
-    gsap.to('.bubble-decor, .flower-decor', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, ease: "power2.in" });
-    gsap.to('.flower-decor', { rotation: 0, scale: 1.5, duration: 0.5, stagger: 0.08, ease: "power2.in" });
+    gsap.set('.third-title .third-anim', { opacity: 0, y: 40 });
+
+    gsap.to('.bubble-decor, .flower-decor', { 
+      opacity: 0, y: 20, duration: 0.4, stagger: 0.06, 
+      ease: "power2.in", overwrite: true
+    });
+gsap.to('.flower-decor', { opacity: 0, y: 20, rotation: 0, scale: 1.5, duration: 0.4, overwrite: true });
   },
   once: false
 });
@@ -912,13 +981,11 @@ projectCards.forEach(card => {
     gsap.to(thirdDecor, { filter: "blur(8px)", opacity: 0.4, duration: 0.15, ease: "power2.out", overwrite: true });
   });
 
-  card.addEventListener("mouseleave", () => {
+card.addEventListener("mouseleave", () => {
     if (!projectCardsReady) return;
     card.classList.remove("is-hovered");
-gsap.to(projectCards, { filter: "blur(0px)", opacity: 1, scale: 1, rotate: 0, duration: 0.18, ease: "power2.out", overwrite: true });
-
-gsap.to(thirdDecor, { filter: "blur(0px)", opacity: 1, duration: 0.2, ease: "power2.out", overwrite: true });
-
+    gsap.to(projectCards, { filter: "none", opacity: 1, scale: 1, rotate: 0, duration: 0.18, ease: "power2.out", overwrite: true });
+    gsap.to(thirdDecor, { filter: "none", opacity: 1, duration: 0.2, ease: "power2.out", overwrite: true });
   });
   
   card.addEventListener('click', () => {

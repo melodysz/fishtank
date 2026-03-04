@@ -1,6 +1,6 @@
 /* KEEP THIS AT THE TOP!!! */
 @import url('https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Xanh+Mono:ital@1&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Xanh+Mono:ital@1&display=swap'); */
 
 /* Big Caslon FB for special characters like apostrophes */
 @font-face {
@@ -121,6 +121,12 @@ body * {
   cursor: none !important;
 }
 
+.nav-right a,
+.nav-center-star,
+.nav-left {
+  opacity: 0;
+}
+
 
 .footer-signature {
   font-family: 'Alex Brush', cursive;
@@ -185,14 +191,15 @@ body * {
 
 
 .intro-text {
-  font-family: Helvetica, sans-serif;
-  font-weight: 400;
-  font-size: 2rem;
+  position: relative;
+  z-index: 3;
+  opacity: 0;
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 1.6rem;
   color: #0313E4;
-  letter-spacing: -0.02em;
-  display: flex;
-  align-items: baseline;
-  gap: 0em;   /* ← controls ALL spacing */
+  letter-spacing: -0.05em;
 }
 
 
@@ -426,7 +433,7 @@ body {
 /* Dangles - very top of section, above fish */
 .dangles-decor {
   position: absolute;
-  top: -5vh;  /* Way up in the negatives */
+  top: -3vh;  /* Way up in the negatives */
   left: 50%;
   transform: translateX(-50%);
   width: 65%;
@@ -974,8 +981,9 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   align-items: center;
   text-align: center;
   padding: 4rem 2rem;
-  overflow: hidden;
-  
+/*   overflow: hidden; */
+    contain: layout style;
+
   transform: translateZ(0);
   isolation: isolate;
 }
@@ -1105,9 +1113,10 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 55; /* Below cards (56) */
+  z-index: 55;
   opacity: 1;
   pointer-events: none;
+  will-change: auto;
 }
 
 /* Bubble decorations */
@@ -1410,7 +1419,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1; /* CHANGED from 5 - now BEHIND fish (2) and dangles (4) */
+  z-index: 1;
   pointer-events: none;
   text-align: center;
   width: 100%;
@@ -1425,7 +1434,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 /* Individual text images */
 .sky-text-img {
   display: block;
-  width: 45%; /* Much smaller - adjust this to your liking */
+  width: 40%; /* Much smaller - adjust this to your liking */
   max-width: 700px; /* Cap the maximum size */
   height: auto;
   object-fit: contain;
@@ -1435,7 +1444,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 .sky-text-img-1 {
-  margin-bottom: -2%; /* Slight overlap for natural spacing */
+  margin-bottom: -4%;
 }
 
 .sky-text-img-2 {
@@ -1444,7 +1453,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 
 /* Updated subtitle positioning - MUCH higher up */
 .sky-subtitle-new {
-  margin-top: 1.5rem; /* Space from "ocean blue" image */
+  margin-top: 1.3rem; /* Space from "ocean blue" image */
   font-size: 18px;
   line-height: 1;
   color: #00CEFF;
@@ -1600,4 +1609,16 @@ html:not(.page-loading) .scroll-tracker,
 html:not(.page-loading) .section-2-wrapper,
 html:not(.page-loading) .third-section {
   opacity: 1;
+}
+
+.bubble-decor,
+.flower-decor,
+.project-card {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+
+.hero-identity-frame {
+  display: none;
 }
