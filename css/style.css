@@ -433,7 +433,7 @@ body {
 /* Dangles - very top of section, above fish */
 .dangles-decor {
   position: absolute;
-  top: 5vh;
+  top: -2vh;  /* Way up in the negatives */
   left: 50%;
   transform: translateX(-50%);
   width: 65%;
