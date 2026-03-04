@@ -386,7 +386,7 @@ lenis.scrollTo(`#${targetId}`, {
 // Show sidebar after scrolling past Overview title
 ScrollTrigger.create({
   trigger: ".overview-section .section-title",
-  start: "top center",
+  start: "top 80%",
   end: "bottom top",
   onEnter: () => {
     document.querySelector('.sidebar-nav').classList.add('visible');
