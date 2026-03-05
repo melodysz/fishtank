@@ -315,13 +315,6 @@ body {
   --blue-mid-stop: 15%;       /* The "Lighter Blue" aura */
   --blue-dark-stop: 60%;     /* The Deep Blue base */
 
-  background: radial-gradient(
-    circle at 50% var(--gradient-y), 
-    #E7A0FE var(--pink-stop),
-    #006EE9 var(--blue-mid-stop), /* Lighter blue stays visible */
-    #000240 var(--blue-dark-stop)
-  );
-  background-attachment: fixed;
 }
 
 
@@ -366,16 +359,19 @@ body {
 
 
 /* --- SKY (Make transparent so background shows through) --- */
-.sky-container { 
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 300vh; 
-  z-index: 0; 
-  /* Setting this to transparent lets the radial gradient show through */
-  background: transparent !important; 
+.sky-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
   pointer-events: none;
+  background: radial-gradient(
+    circle at 50% var(--gradient-y),
+    #E7A0FE var(--pink-stop),
+    #006EE9 var(--blue-mid-stop),
+    #000240 var(--blue-dark-stop)
+  );
 }
 
 
@@ -1569,7 +1565,10 @@ body {
 }
 
 
-
+body {
+  background: transparent;
+  background-attachment: unset;
+}
 
 
 
