@@ -389,6 +389,7 @@ body {
   pointer-events: none;
   opacity: 1;
   will-change: transform, opacity;
+/*   filter: saturate(1.1); */
 }
 
 
@@ -1620,3 +1621,27 @@ html:not(.page-loading) .third-section {
   transform: translateZ(0);
 }
 
+
+
+#exit-ripple-container {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Diamond pattern overlay - beneath fish/text, soft-light over gradient */
+.section-2-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/diamond%20pattern.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+  z-index: 0;  /* Below z-index: 1 elements (light-ray-2, bubbles, flowers) */
+  pointer-events: none;
+  opacity: 0.3;  /* Adjust to taste */
+}

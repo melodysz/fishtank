@@ -1,9 +1,43 @@
-// Force scroll to top IMMEDIATELY before anything renders
-if (!window.location.hash) {
+// Add this as the VERY first thing in your JS, before everything else
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+// Force scroll reset before ANY paint
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+
+// Belt-and-suspenders: also do it on DOMContentLoaded and load
+document.addEventListener('DOMContentLoaded', () => {
   window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
+});
+
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  // Give browser one frame to settle, then refresh ScrollTrigger
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+  });
+});
+
+// On the homepage, kill the entry overlay instantly
+const entryOverlay = document.getElementById('page-entry-overlay');
+if (entryOverlay && document.querySelector('.intro-screen')) {
+  entryOverlay.remove();
 }
+
+window.scrollTo(0, 0);
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+
+window.scrollTo(0, 0);
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+document.documentElement.classList.add('page-loading');
 
 // Add loading class immediately
 document.documentElement.classList.add('page-loading');
@@ -24,26 +58,24 @@ if (window.location.hash) {
     const intro = document.querySelector('.intro-screen');
     if (intro) intro.style.display = 'none';
     
-    // NEW: Force reset the scaling rig mask completely
-setTimeout(() => {
-  const scalingRig = document.querySelector('.scaling-rig');
-  if (scalingRig) {
-    scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-    scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-    scalingRig.style.webkitMaskSize = 'cover';
-    scalingRig.style.maskSize = 'cover';
-    scalingRig.style.webkitMaskPosition = 'center';
-    scalingRig.style.maskPosition = 'center';
-    scalingRig.style.webkitMaskRepeat = 'no-repeat';
-    scalingRig.style.maskRepeat = 'no-repeat';
-  }
+    setTimeout(() => {
+      const scalingRig = document.querySelector('.scaling-rig');
+      if (scalingRig) {
+        scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+        scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+        scalingRig.style.webkitMaskSize = 'cover';
+        scalingRig.style.maskSize = 'cover';
+        scalingRig.style.webkitMaskPosition = 'center';
+        scalingRig.style.maskPosition = 'center';
+        scalingRig.style.webkitMaskRepeat = 'no-repeat';
+        scalingRig.style.maskRepeat = 'no-repeat';
+      }
 
-  playHeroFishIn();
-  playHeroIdentityIn();
-  playHeroOrbitIn();
-}, 100);
+      playHeroFishIn();
+      playHeroIdentityIn();
+      playHeroOrbitIn();
+    }, 100);
 
-    // Initialize hero elements to their default state
     gsap.set(".scaling-rig", { scale: 1, autoAlpha: 1 });
     gsap.set([".hero-peek-layer", ".hero-halo"], { autoAlpha: 1, scale: 1 });
     gsap.set(".hero-orbit", { autoAlpha: 1, scale: 0.9 });
@@ -68,8 +100,40 @@ window.addEventListener('beforeunload', function() {
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
+window.scrollTo(0, 0);
 
 let lenis;
+
+// ============================================
+// NAVIGATE WITH EXIT RIPPLE — TOP LEVEL
+// ============================================
+function navigateTo(url, newTab = false) {
+  if (newTab) { window.open(url, '_blank'); return; }
+
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+
+  const container = document.getElementById('exit-ripple-container');
+  container.innerHTML = '';
+  container.style.pointerEvents = 'all';
+
+  for (let i = 0; i < 2; i++) {
+    setTimeout(() => {
+      const blue = document.createElement('div');
+      blue.className = 'ripple ripple-blue';
+      container.appendChild(blue);
+      setTimeout(() => {
+        const black = document.createElement('div');
+        black.className = 'ripple ripple-black';
+        container.appendChild(black);
+      }, 60);
+    }, i * 180);
+  }
+
+  // Wait for ripple to FULLY cover before navigating
+  // Your ripple animation is 1.3s, so 1.4s gives it breathing room
+  setTimeout(() => { window.location.href = url; }, 1400);
+}
 
 function playHeroFishIn() {
   const fish = [".fish-clown-1", ".fish-clown-2", ".fish-tang"];
@@ -98,8 +162,43 @@ function playHeroIdentityIn() {
 }
 
 window.addEventListener('load', function() {
+  window.scrollTo(0, 0);
   const hasHash = window.location.hash;
-  
+
+  // ============================================
+  // SUB-PAGE ENTRY RIPPLE
+  // Fades out a blue overlay when arriving on
+  // any page that doesn't have .intro-screen
+  // ============================================
+const entryOverlay = document.getElementById('page-entry-overlay');
+if (entryOverlay) {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const maxR = Math.ceil(Math.sqrt(w * w + h * h));
+  const featherPx = 18;
+  const obj = { r: 0 };
+
+  setTimeout(() => {
+    gsap.to(obj, {
+      r: maxR,
+      duration: 1.4,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        entryOverlay.style.webkitMaskImage = `radial-gradient(circle at center, transparent ${obj.r}px, black ${obj.r + featherPx}px)`;
+        entryOverlay.style.maskImage = `radial-gradient(circle at center, transparent ${obj.r}px, black ${obj.r + featherPx}px)`;
+      },
+      onComplete: () => {
+        gsap.to(entryOverlay, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power1.out",
+          onComplete: () => entryOverlay.remove()
+        });
+      }
+    });
+  }, 120);
+}
+
   if (hasHash) {
     const introScreen = document.querySelector('.intro-screen');
     if (introScreen) introScreen.style.display = 'none';
@@ -197,13 +296,13 @@ window.addEventListener('load', function() {
               applyMask(r);
               const t = Math.min(1, r / maxR);
               
-if (!window._heroContentStarted && t > 0.55) {
-  window._heroContentStarted = true;
-  gsap.to('.nav-left', { opacity: 1, duration: 0.4, ease: "power2.out" });
-  gsap.to('.nav-right a', { opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" });
-  gsap.to('.nav-center-star', { opacity: 1, duration: 0.1, ease: "none", onComplete: () => {
-    gsap.to('.nav-center-star', { rotation: "+=720", duration: 1.5, ease: "expo.out" });
-  }});
+              if (!window._heroContentStarted && t > 0.55) {
+                window._heroContentStarted = true;
+                gsap.to('.nav-left', { opacity: 1, duration: 0.4, ease: "power2.out" });
+                gsap.to('.nav-right a', { opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" });
+                gsap.to('.nav-center-star', { opacity: 1, duration: 0.1, ease: "none", onComplete: () => {
+                  gsap.to('.nav-center-star', { rotation: "+=720", duration: 1.5, ease: "expo.out" });
+                }});
 
                 const scalingRig = document.querySelector('.scaling-rig');
                 if (scalingRig) {
@@ -240,10 +339,10 @@ if (!window._heroContentStarted && t > 0.55) {
                 opacity: 0,
                 duration: 0.5,
                 ease: "power1.out",
-onComplete: () => {
-  introScreen.style.display = "none";
-  unlockScroll();
-}
+                onComplete: () => {
+                  introScreen.style.display = "none";
+                  unlockScroll();
+                }
               });
             }
           });
@@ -253,7 +352,7 @@ onComplete: () => {
   }
 
   // Animate dots one by one, then start ripple
-// Wait for Xanh Mono to load before showing intro text
+  // Wait for Xanh Mono to load before showing intro text
   const introText = document.querySelector('.intro-text');
   introText.style.opacity = '0';
 
@@ -263,14 +362,14 @@ onComplete: () => {
     const dotsEl = document.getElementById('intro-dots');
     let dotCount = 0;
     const dotInterval = setInterval(() => {
-    dotCount++;
-    dotsEl.textContent = '.'.repeat(dotCount);
-    if (dotCount >= 3) {
-      clearInterval(dotInterval);
-      setTimeout(() => startRippleTransition(), 800);
-    }
-  }, 300);
-    });
+      dotCount++;
+      dotsEl.textContent = '.'.repeat(dotCount);
+      if (dotCount >= 3) {
+        clearInterval(dotInterval);
+        setTimeout(() => startRippleTransition(), 800);
+      }
+    }, 300);
+  });
 });
 
 gsap.registerPlugin(ScrollTrigger);
@@ -328,7 +427,6 @@ document.addEventListener('visibilitychange', () => {
     lenis.start();
 
     requestAnimationFrame(() => {
-      // Always restore the mask FIRST before anything else
       restoreScalingRigMask();
 
       lenis.raf(performance.now());
@@ -338,7 +436,6 @@ document.addEventListener('visibilitychange', () => {
       const docHeight = document.body.scrollHeight - window.innerHeight;
       const scrollRatio = scrollY / docHeight;
 
-      // Only restore hero state if we're actually near the top
       if (scrollRatio < 0.05) {
         gsap.set('.scaling-rig', { scale: 1, autoAlpha: 1, filter: 'none' });
         gsap.set(['.hero-peek-layer', '.hero-halo'], { autoAlpha: 1, scale: 1 });
@@ -346,7 +443,6 @@ document.addEventListener('visibilitychange', () => {
         gsap.set('.hero-identity-frame', { autoAlpha: 1 });
         gsap.set(['.fish-clown-1', '.fish-clown-2', '.fish-tang'], { x: 0, autoAlpha: 1, scale: 1 });
         gsap.set('.hero-star', { autoAlpha: 1 });
-        // Re-apply mask after gsap.set (gsap can wipe inline styles)
         restoreScalingRigMask();
       }
 
@@ -375,8 +471,6 @@ document.addEventListener('visibilitychange', () => {
 
       ScrollTrigger.refresh();
       ScrollTrigger.update();
-
-      // Final mask insurance after ScrollTrigger.update() runs
       restoreScalingRigMask();
     });
   }
@@ -395,10 +489,6 @@ ScrollTrigger.create({
   end: "30% top",
   scrub: 0.3,
   onUpdate: (self) => {
-    
-        
-
-    
     if (!pageReady) return;
     
     const now = performance.now();
@@ -407,18 +497,16 @@ ScrollTrigger.create({
     
     const p = self.progress;
     
-        // ADD THIS - force repaint when nearly at top
     if (p < 0.05) {
       const scalingRig = document.querySelector('.scaling-rig');
       if (scalingRig) {
         scalingRig.style.willChange = 'auto';
         scalingRig.style.transform = 'translateZ(0)';
-        void scalingRig.offsetHeight; // force reflow
+        void scalingRig.offsetHeight;
         scalingRig.style.willChange = 'transform';
       }
     }
     
-    // Hero text fade
     if (p < 0.33) {
       const textP = p / 0.33;
       if (!heroLineElements) {
@@ -433,13 +521,11 @@ ScrollTrigger.create({
       });
     }
     
-    // Scaling rig - NO BLUR
     gsap.set(".scaling-rig", {
       scale: Math.min(1 + (p * 9), 10),
       opacity: 1 - (p * 1.2)
     });
     
-    // Background layers
     gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], {
       opacity: Math.max(0, 1 - (p * 2))
     });
@@ -447,21 +533,18 @@ ScrollTrigger.create({
     gsap.set(".water-lines", { opacity: Math.max(0, 1 - (p * 3)) });
     gsap.set("#sky-text-container", { autoAlpha: p > 0.05 ? 1 : 0 });
 
-    // Sky text images
     if (p < 0.10) {
       gsap.set(".sky-text-images", { autoAlpha: 0 });
     } else {
       gsap.set(".sky-text-images", { autoAlpha: gsap.utils.clamp(0, 1, (p - 0.10) / 0.15) });
     }
     
-    // Identity frame - NO BLUR
     if (p > 0.02) {
       gsap.set(".hero-identity-frame", {
         opacity: Math.max(0, 1 - (((p - 0.02) / 0.98) * 10))
       });
     }
     
-    // Fish - NO BLUR
     const fishX = window.innerWidth * 1.3 * p;
     gsap.set(".fish-clown-1", { x: fishX, opacity: Math.max(0, 1 - (p * 1.8)), scale: 1 + (p * 0.5) });
     gsap.set(".fish-clown-2", { x: fishX * 1.15, opacity: Math.max(0, 1 - (p * 1.8)), scale: 1 + (p * 0.5) });
@@ -501,7 +584,6 @@ ScrollTrigger.create({
   onLeaveBack: () => {
     starAnimated = false;
     gsap.killTweensOf(".hero-star");
-    // Set opacity first without triggering visibility/display changes
     gsap.set(".hero-star", { opacity: 0 });
     gsap.to(".hero-star", { 
       rotation: 0, opacity: 1, duration: 0.8, 
@@ -510,7 +592,6 @@ ScrollTrigger.create({
   }
 });
 
-// Pre-promote compositor layers
 gsap.set([".sky-text-images", ".dangles-decor", ".sec2-bubble", ".sec2-flower", ".hero-star"], {
   force3D: true
 });
@@ -600,17 +681,13 @@ const navItems = document.querySelectorAll('nav, nav a, .nav-center-star');
 
 navName.addEventListener('click', (e) => {
   e.preventDefault();
-  
-  // If there's a hash, remove it and reload to go home
   if (window.location.hash) {
-    window.location.href = window.location.pathname; // Removes hash and reloads
+    window.location.href = window.location.pathname;
   } else {
-    // If already at top, just reload
     const isAtTop = (lenis && lenis.scroll < 50) || window.scrollY < 50;
     if (isAtTop) {
       window.location.reload();
     } else {
-      // Scroll to top smoothly
       lenis.scrollTo(0, { duration: 1.2 });
     }
   }
@@ -662,15 +739,12 @@ document.querySelectorAll('.nav-swap').forEach(link => {
   });
 });
 
-// [WORK] nav link - HASH-BASED APPROACH (FIXED)
+// [WORK] nav link
 document.querySelector('.nav-swap[data-default="[WORK]"]').addEventListener('click', (e) => {
   e.preventDefault();
-  
-  // If we're already at the hash, just scroll there
   if (window.location.hash === '#third-section') {
     lenis.scrollTo('#third-section', { duration: 1.2 });
   } else {
-    // Add hash and reload
     window.location.hash = '#third-section';
     window.location.reload();
   }
@@ -758,7 +832,6 @@ const skyText = document.getElementById("skyRevealText");
 const fishTank = document.getElementById('fish-tank');
 const section2Wrapper = document.querySelector('.section-2-wrapper');
 
-// AFTER
 ScrollTrigger.create({
   trigger: ".third-section",
   start: "top bottom",
@@ -775,14 +848,14 @@ if (fishTank) {
   fishTank.innerHTML = '';
   
   const fishConfig = [
-    { type: 'fish-visual', y: 20, size: 1.0, zIndex: 3, startX: 0, endX: 80, speed: 1.6 },
-    { type: 'fish-canvas', y: 24, size: 0.95, zIndex: 2, startX: 3, endX: 83, speed: 1.8 },
-    { type: 'fish-branding', y: 50, size: 1.2, zIndex: 2, startX: 13, endX: 93, speed: 2.0 },
-    { type: 'fish-product', y: 65, size: 0.98, zIndex: 1, startX: 7, endX: 87, speed: 1.7 },
-    { type: 'fish-narrative', y: 25, size: 1.4, zIndex: 3, startX: -37, endX: 43, speed: 2.2 },
-    { type: 'fish-ux', y: 57, size: 1.0, zIndex: 2, startX: -33, endX: 47, speed: 1.9 },
-    { type: 'fish-ui', y: 65, size: 1.1, zIndex: 3, startX: -30, endX: 50, speed: 2.0 },
-    { type: 'fish-layout', y: 33, size: 0.98, zIndex: 2, startX: -35, endX: 30, speed: 1.8 }
+    { type: 'fish-visual',    y: 20, size: 1.0,  zIndex: 3, startX: 0,   endX: 80, speed: 1.6 },
+    { type: 'fish-canvas',    y: 24, size: 0.95, zIndex: 2, startX: 3,   endX: 83, speed: 1.8 },
+    { type: 'fish-branding',  y: 50, size: 1.2,  zIndex: 2, startX: 13,  endX: 93, speed: 2.0 },
+    { type: 'fish-product',   y: 65, size: 0.98, zIndex: 1, startX: 7,   endX: 87, speed: 1.7 },
+    { type: 'fish-narrative', y: 25, size: 1.4,  zIndex: 3, startX: -37, endX: 43, speed: 2.2 },
+    { type: 'fish-ux',        y: 57, size: 1.0,  zIndex: 2, startX: -33, endX: 47, speed: 1.9 },
+    { type: 'fish-ui',        y: 65, size: 1.1,  zIndex: 3, startX: -30, endX: 50, speed: 2.0 },
+    { type: 'fish-layout',    y: 33, size: 0.98, zIndex: 2, startX: -35, endX: 30, speed: 1.8 }
   ];
 
   const fishData = [];
@@ -821,8 +894,8 @@ ScrollTrigger.create({
       ease: "power2.out", force3D: true, overwrite: true 
     })
     .fromTo('.dangles-decor', 
-      { y: -40, opacity: 0 },  // reduced from -60 to lessen travel
-      { y: 10, opacity: 1, duration: 0.9, ease: "power3.out", force3D: true },  // removed back.out overshoot
+      { y: -40, opacity: 0 },
+      { y: 10, opacity: 1, duration: 0.9, ease: "power3.out", force3D: true },
       0.1
     )
     .to('.sec2-bubble, .sec2-flower', { 
@@ -836,7 +909,6 @@ ScrollTrigger.create({
     gsap.to('.sec2-bubble, .sec2-flower', { opacity: 0, y: 20, duration: 0.4, stagger: 0.06, ease: "power2.in", force3D: true, overwrite: true });
   }
 });
-
 
 let projectCardsReady = false;
 
@@ -883,41 +955,35 @@ ScrollTrigger.create({
 ScrollTrigger.create({
   trigger: ".third-section",
   start: "top 95%",
-onEnter: () => {
-    // Title animates in first
+  onEnter: () => {
     gsap.to('.third-title .third-anim', {
       opacity: 1, y: 0, duration: 0.8, ease: "power2.out", overwrite: true
     });
-
-// Cards animate in after title
     setTimeout(() => {
       playProjectCardsIn();
     }, 500);
-
-    // Bubbles and flowers after title too
-gsap.fromTo('.bubble-decor',
-  { opacity: 0, y: 30 },
-  { opacity: 1, y: 0, duration: 0.8, stagger: 0.1,
-    ease: "power2.out", delay: 0.4, overwrite: true,
-    onComplete: () => startBubbleFloat()
-  }
-);
+    gsap.fromTo('.bubble-decor',
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.1,
+        ease: "power2.out", delay: 0.4, overwrite: true,
+        onComplete: () => startBubbleFloat()
+      }
+    );
     gsap.fromTo('.flower-decor', 
       { opacity: 0, y: 20, scale: 0.2, rotation: 0 }, 
       { opacity: 1, y: 0, scale: 1.5, rotation: 2160, duration: 2.5, stagger: 0.15, 
         ease: "expo.out", delay: 0.4, overwrite: true }
     );
   },
-onLeaveBack: () => {
+  onLeaveBack: () => {
     gsap.killTweensOf(".project-card");
     resetProjectCards();
     gsap.set('.third-title .third-anim', { opacity: 0, y: 40 });
-
     gsap.to('.bubble-decor, .flower-decor', { 
       opacity: 0, y: 20, duration: 0.4, stagger: 0.06, 
       ease: "power2.in", overwrite: true
     });
-gsap.to('.flower-decor', { opacity: 0, y: 20, rotation: 0, scale: 1.5, duration: 0.4, overwrite: true });
+    gsap.to('.flower-decor', { opacity: 0, y: 20, rotation: 0, scale: 1.5, duration: 0.4, overwrite: true });
   },
   once: false
 });
@@ -934,7 +1000,7 @@ gsap.set(".footer-star-wrapper", { opacity: 0, scale: 0.6 });
 ScrollTrigger.create({
   trigger: ".footer-section", 
   start: "top 75%",
-onEnter: () => {
+  onEnter: () => {
     gsap.to("#footer-main-content", { opacity: 1, y: 0, duration: 1.0, ease: "power2.out" });
     gsap.to('#footer-main-content .footer-anim', { 
       opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out",
@@ -1022,7 +1088,7 @@ projectCards.forEach(card => {
     gsap.to(thirdDecor, { filter: "blur(8px)", opacity: 0.4, duration: 0.15, ease: "power2.out", overwrite: true });
   });
 
-card.addEventListener("mouseleave", () => {
+  card.addEventListener("mouseleave", () => {
     if (!projectCardsReady) return;
     card.classList.remove("is-hovered");
     gsap.to(projectCards, { filter: "none", opacity: 1, scale: 1, rotate: 0, duration: 0.18, ease: "power2.out", overwrite: true });
@@ -1033,18 +1099,14 @@ card.addEventListener("mouseleave", () => {
     if (!projectCardsReady) return;
     const index = parseInt(card.getAttribute('data-index'));
     const projectURLs = [
-'https://melodysz.github.io/fishtank/pent-up/',
-  'https://melodysz.github.io/fishtank/deep24/',
+      'https://melodysz.github.io/fishtank/pent-up/',
+      'https://melodysz.github.io/fishtank/deep24/',
       'https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1086-7743&viewport=-5516%2C392%2C0.36&t=DSUZyNEtafQgqLTf-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=1086%3A7743&hide-ui=1',
       'https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1089-442&viewport=-5516%2C392%2C0.36&t=DSUZyNEtafQgqLTf-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=339%3A2991&hide-ui=1',
       'https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1064-356&viewport=-5516%2C392%2C0.36&t=DSUZyNEtafQgqLTf-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=1064%3A356&hide-ui=1'
     ];
     if (projectURLs[index] && projectURLs[index] !== '#') {
-      if (projectURLs[index].includes('figma.com')) {
-        window.open(projectURLs[index], '_blank');
-      } else {
-        window.location.href = projectURLs[index];
-      }
+      navigateTo(projectURLs[index], projectURLs[index].includes('figma.com'));
     }
   });
 });
@@ -1059,13 +1121,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
 // After ALL ScrollTrigger setup, handle hash load clean state
 window.addEventListener('load', () => {
   if (window.location.hash === '#third-section') {
-    // Wait for ScrollTrigger to fully initialize
     setTimeout(() => {
-      // Force ALL hero elements completely off
       gsap.set(".scaling-rig", { 
         scale: 10, 
         autoAlpha: 0,
@@ -1086,15 +1145,10 @@ window.addEventListener('load', () => {
       gsap.set(".hero-star", { autoAlpha: 0 });
       gsap.set("#blackCover", { opacity: 1 });
       gsap.set(".section-2-wrapper", { y: "-100vh" });
-      
-      // Now force ScrollTrigger to recalculate from current scroll position
       ScrollTrigger.refresh();
-      
-    }, 500); // Give ScrollTrigger time to initialize
+    }, 500);
   }
 });
-
-
 
 document.addEventListener('click', (e) => {
   console.log('CLICK CAUGHT BY:', e.target, '| path:', e.composedPath().map(el => el.className || el.tagName).join(' > '));
