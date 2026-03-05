@@ -374,6 +374,8 @@ if (entryOverlay) {
 
 gsap.registerPlugin(ScrollTrigger);
 
+gsap.set('.sky-text-images .sky-anim', { opacity: 0, y: 0, force3D: true });
+
 gsap.set(".hero-peek-layer", { autoAlpha: 1, scale: 1, force3D: true });
 
 const waterEl = document.querySelector(".water-lines");
