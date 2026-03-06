@@ -1630,3 +1630,21 @@ html:not(.page-loading) .third-section {
   pointer-events: none;
   opacity: 0.3;  /* Adjust to taste */
 }
+
+.grain-overlay-sec2 {
+  position: absolute;
+  inset: 0;
+  background-image: url("https://raw.githubusercontent.com/melodysz/baubles/main/grainy-overlay.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  z-index: 16;
+  pointer-events: none;
+}
+
+body.reveal-sec2 .grain-overlay {
+  opacity: 0 !important;
+  transition: opacity 0.4s ease;
+}
