@@ -318,7 +318,7 @@ document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
     const targetId = href.substring(1);
     
     // ONLY allow the 5 main section IDs - whitelist approach
-    const validSections = ['overview', 'research', 'design', 'launch', 'reflection'];
+    const validSections = ['overview', 'research', 'design', 'launch', 'pivot', 'reflection'];
     
     if (!validSections.includes(targetId)) {
       console.log('Not a main section:', targetId);
