@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (whoNavLink) {
     whoNavLink.addEventListener('click', (e) => {
       e.preventDefault();
-      window.open('https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=852-4986&viewport=-4079%2C1347%2C0.2&t=CsBovf6LvnJhJpB3-1&scaling=scale-down-width&content-scaling=fixed&hide-ui=1', '_blank');
+      window.open('https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1543-6057&viewport=-3319%2C833%2C0.16&t=dK7IDYwtdgixIRNZ-8&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=1089%3A7447&hide-ui=1', '_blank');
     });
   }
 });
