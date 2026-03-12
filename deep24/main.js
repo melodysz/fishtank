@@ -625,3 +625,109 @@ lenis.on('scroll', (e) => {
     });
   }
 });
+
+
+(function initDeep24Hero() {
+ 
+  const WIDGET_COUNT   = 10;
+  const TOTAL_SLOTS    = 20;
+  const ORBIT_RADIUS   = 410;
+  const WIDGET_SIZE    = 66;  // matches CSS .orbit-widget width/height
+ 
+  const BASE_URL = 'https://raw.githubusercontent.com/melodysz/baubles/main/deep24/widget%20';
+ 
+  const inner = document.getElementById('deep24-orbit-inner');
+ 
+  for (let i = 0; i < TOTAL_SLOTS; i++) {
+    const imgNum = (i % WIDGET_COUNT) + 1;
+ 
+    // Evenly distribute around 360°
+    // Start from -90° (top of circle) so widget 1 is at the top
+    const angleDeg = (360 / TOTAL_SLOTS) * i - 90;
+    const angleRad = (angleDeg * Math.PI) / 180;
+ 
+    // Position centre of card on the circle
+    const cx = Math.cos(angleRad) * ORBIT_RADIUS;
+    const cy = Math.sin(angleRad) * ORBIT_RADIUS;
+ 
+    // Tilt so the card's BOTTOM edge is tangent to the circle —
+    // i.e. the card points radially outward from centre.
+    // angleDeg is the angle of the radius to this card's centre.
+    // Adding 90° rotates the card so its face is perpendicular to the radius
+    // (bottom facing outward), which is what "tangent to circle" means visually.
+    const tilt = angleDeg + 90;
+ 
+    const card = document.createElement('div');
+    card.className = 'orbit-widget';
+    card.style.cssText = `
+      left: calc(50% + ${cx}px - ${WIDGET_SIZE / 2}px);
+      top:  calc(50% + ${cy}px - ${WIDGET_SIZE / 2}px);
+      transform: rotate(${tilt}deg);
+    `;
+ 
+    const img = document.createElement('img');
+    img.src = `${BASE_URL}${imgNum}.png`;
+    img.alt = `Widget ${imgNum}`;
+    img.loading = 'lazy';
+ 
+    card.appendChild(img);
+    inner.appendChild(card);
+  }
+ 
+ 
+  // ── 2. Continuous slow spin (matches homepage orbit style) ──
+  gsap.to('#deep24-orbit-inner', {
+    rotation: 360,
+    duration: 90,         // slow — one full revolution every 90s
+    ease: 'none',
+    repeat: -1
+  });
+ 
+ 
+  // ── 3. Spin-in entry (mirrors playHeroOrbitIn) ──────────────
+  function playDeep24OrbitIn() {
+    gsap.killTweensOf('.hero-orbit');
+    gsap.set('.hero-orbit', { autoAlpha: 0, scale: 0.75, rotation: 0 });
+    gsap.to('.hero-orbit', {
+      autoAlpha: 1,
+      scale: 1,
+      rotation: '+=150',
+      duration: 1.5,
+      ease: 'expo.out'
+    });
+  }
+ 
+ 
+  // ── 4. Icon float-up + tagline float-up (staggered) ─────────
+  function playDeep24IdentityIn() {
+    const icon    = document.getElementById('hero-d24-icon');
+    const tagline = document.getElementById('hero-d24-tagline');
+ 
+    gsap.killTweensOf([icon, tagline]);
+ 
+    // Icon
+    gsap.fromTo(icon,
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' }
+    );
+ 
+    // Tagline — slight delay after icon
+    gsap.fromTo(tagline,
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.25 }
+    );
+  }
+ 
+ 
+  // ── 5. Fire animations on page load ─────────────────────────
+  //    (mirrors how your homepage fires playHeroOrbitIn /
+  //     playHeroIdentityIn inside the ripple transition)
+  window.addEventListener('load', () => {
+    // Small delay so the page has settled + feels intentional
+    setTimeout(() => {
+      playDeep24OrbitIn();
+      playDeep24IdentityIn();
+    }, 300);
+  });
+ 
+})();

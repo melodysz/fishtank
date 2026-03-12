@@ -258,24 +258,27 @@ html {
    HERO - FULL BLEED
    ================================ */
 .hero-section {
-  width: 100vw;
-  height: auto;
-  margin: 0;
-  padding: 0;
   position: fixed;
-  top: -20px;
+  top: 0;
   left: 0;
-  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+overflow: hidden;
+  border-radius: 0 0 30px 30px;
+  z-index: 2;
+  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/deep24/HERO.png');
+  background-size: cover;
+  background-position: top center;
 }
 
 .hero-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 80vh; /* Constrain height instead of auto */
-  display: block;
-  object-fit: cover; /* Cover instead of contain */
+  height: 100%;
+  object-fit: cover;
   object-position: top center;
   border-radius: 0 0 30px 30px;
-  background-color: var(--bg-cream);
 }
 
 /* Add padding only to overview */
@@ -1188,12 +1191,6 @@ h3 {
 
 .ideation-section p:last-child {
   margin-bottom: 0;
-}
-
-.hero-section {
-  background: linear-gradient(90deg, #f0ebe8 25%, #e8e0dc 50%, #f0ebe8 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
 }
 
 .dilemma-image img,
@@ -2361,3 +2358,129 @@ color: #83E7FF;
   display: block;
   border-radius: 22px;
 }
+
+ 
+.hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 0 0 30px 30px;
+}
+ 
+/* ── Orbit container ──
+   Center is pushed ~30% below viewport midpoint so the circle's
+   equator sits near the bottom edge — only the top arc is ever
+   visible at any viewport size.
+── */
+.hero-orbit {
+  position: absolute;
+  /* 50% down + 30vh extra pushes center well below fold */
+  top: calc(50% + 30vh);
+  left: 50%;
+  width: 900px;
+  height: 900px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+}
+ 
+/* This inner div is what continuously rotates */
+.hero-orbit-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+}
+ 
+/* Each widget card — NO shadow, smaller */
+.orbit-widget {
+  position: absolute;
+  width: 66px;
+  height: 66px;
+  border-radius: 14px;
+  overflow: hidden;
+  transform-origin: center center;
+}
+ 
+.orbit-widget img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 14px;
+}
+ 
+/* ── Frosted blur band ──
+   backdrop-filter blurs everything below z-index 4.
+   The PNG is used as a mask so the blur has the same
+   soft-edged cloud shape as your image.
+── */
+.hero-blur-band {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 0 0 30px 30px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(185, 210, 225, 0.5) 30%,
+    rgba(185, 210, 225, 0.85) 65%,
+    rgba(185, 210, 225, 1.0) 100%
+  );
+}
+
+.hero-blur-img {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  min-width: unset;
+  height: auto;
+  display: block;
+  opacity: 0.6;
+}
+ 
+/* ── Icon + tagline: same horizontal center as orbit,
+   but positioned relative to viewport bottom third ── */
+.hero-center-identity {
+  position: absolute;
+  /* Sits above the orbit center — tweak top % to taste */
+  top: calc(50% + 12vh);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  pointer-events: none;
+}
+ 
+.hero-d24-icon {
+  width: 72px;   /* slightly smaller than before */
+  height: auto;
+  opacity: 0;
+  transform: translateY(24px);
+  will-change: transform, opacity;
+}
+ 
+.hero-d24-tagline {
+  width: 220px;          /* was 340px — much smaller */
+  max-width: 40vw;
+  height: auto;
+  opacity: 0;
+  transform: translateY(24px);
+  will-change: transform, opacity;
+}
+
+
+
+
