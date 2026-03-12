@@ -930,29 +930,9 @@ function resetProjectCards() {
 
 resetProjectCards();
 
-function startBubbleFloat() {
-  document.querySelectorAll('.bubble-decor').forEach((bubble, i) => {
-    gsap.to(bubble, {
-      y: "-=12",
-      duration: 1.8 + i * 0.3,
-      ease: "sine.inOut",
-      repeat: -1,
-      yoyo: true,
-      delay: i * 0.2
-    });
-  });
-}
 
-ScrollTrigger.create({
-  trigger: ".third-section",
-  start: "top 80%",
-  onEnter: () => startBubbleFloat(),
-  onLeaveBack: () => {
-    gsap.killTweensOf('.bubble-decor');
-    gsap.set('.bubble-decor', { y: 20, opacity: 0 });
-  },
-  once: false
-});
+
+
 
 ScrollTrigger.create({
   trigger: ".third-section",
@@ -968,7 +948,7 @@ ScrollTrigger.create({
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.8, stagger: 0.1,
         ease: "power2.out", delay: 0.4, overwrite: true,
-        onComplete: () => startBubbleFloat()
+        
       }
     );
     gsap.fromTo('.flower-decor', 
