@@ -324,8 +324,12 @@ overflow: hidden;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: var(--spacing-100);
-  padding-top: 80px; /* ADDED - restore spacing above each section */
+  padding-top: 0; /* Remove the 80px */
   overflow: visible;
+}
+
+.content-section + .content-section {
+  padding-top: 80px;
 }
 
 .section-content {
@@ -2277,7 +2281,7 @@ color: #83E7FF;
 }
 
 .style-guide-image-section {
-  margin-bottom: 80px;
+  margin-bottom: 0px;
 }
 
 .style-guide-image-section img {
@@ -2289,7 +2293,7 @@ color: #83E7FF;
 
 
 .constraints-image-section {
-  margin-bottom: 80px;
+  margin-bottom: 0px;
 }
 
 .constraints-image-section img {
@@ -2305,7 +2309,7 @@ color: #83E7FF;
 }
 
 .onboarding-image-section {
-  margin-bottom: 60px;
+  margin-bottom: 0px;
 }
 
 .onboarding-image-section img {
@@ -2338,7 +2342,7 @@ color: #83E7FF;
 }
 
 .chat-layout-image-section {
-  margin-bottom: 60px;
+  margin-bottom: 0px;
 }
 
 .chat-layout-image-section img {
@@ -2349,7 +2353,7 @@ color: #83E7FF;
 }
 
 .pivot-styles-image-section {
-  margin-bottom: 40px;
+  margin-bottom: 0px;
 }
 
 .pivot-styles-image-section img {
@@ -2530,7 +2534,7 @@ color: #83E7FF;
 }
 
 .pivot-chat-buttons-section {
-  margin-bottom: 40px;
+  margin-bottom: 0px;
 }
 
 .pivot-chat-buttons-section img {
@@ -2588,4 +2592,8 @@ color: #83E7FF;
 .main-content .chat-layout-image-section + .content-section,
 .main-content .original-interface-image-section + .content-section {
   padding-top: 30px;
+}
+
+.content-section:has(.section-number) {
+  padding-top: 80px !important;
 }
