@@ -1631,3 +1631,10 @@ html:not(.page-loading) .third-section {
   pointer-events: none;
   opacity: 0.3;  /* Adjust to taste */
 }
+
+.fish-clown-1,
+.fish-clown-2,
+.fish-tang {
+  pointer-events: auto !important;
+}
+
