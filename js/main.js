@@ -146,6 +146,31 @@ function playHeroFishIn() {
   gsap.to(".fish-tang", { x: 0, autoAlpha: 1, duration: 1.0, ease: "power2.out", delay: 0.20 });
 }
 
+document.querySelectorAll('.fish-clown-1, .fish-clown-2, .fish-tang').forEach(fish => {
+  fish.style.pointerEvents = 'auto';
+  
+  const baseScale = 1;
+
+  fish.addEventListener('mouseenter', () => {
+    gsap.to(fish, {
+      scale: baseScale * 1.15,
+      duration: 0.5,
+      ease: "back.out(3)",
+      overwrite: false
+    });
+  });
+
+  fish.addEventListener('mouseleave', () => {
+    gsap.to(fish, {
+      scale: baseScale,
+      duration: 0.4,
+      ease: "back.out(2)",
+      overwrite: false
+    });
+  });
+});
+
+
 gsap.set('.sec2-bubble, .sec2-flower', { opacity: 0, y: 20 });
 gsap.set('.bubble-decor, .flower-decor', { opacity: 0, y: 20 });
 gsap.set('.dangles-decor', { y: -50, opacity: 0 });
@@ -862,29 +887,59 @@ if (fishTank) {
 
   const fishData = [];
 
-  fishConfig.forEach(config => {
-    const fish = document.createElement('div');
-    fish.classList.add('sky-fish', config.type);
-    fish.dataset.scale = config.size;
-    fishData.push({ element: fish, startX: config.startX, endX: config.endX, y: config.y, speed: config.speed });
-    gsap.set(fish, { x: `${config.startX}vw`, y: `${config.y}vh`, scale: config.size, zIndex: config.zIndex, autoAlpha: 1 });
-    fishTank.appendChild(fish);
-  });
+fishConfig.forEach(config => {
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'absolute';
+  wrapper.style.pointerEvents = 'none';
+  
+  const fish = document.createElement('div');
+  fish.classList.add('sky-fish', config.type);
+  fish.dataset.scale = config.size;
+  fish.style.pointerEvents = 'auto';
+  
+  wrapper.appendChild(fish);
+  fishData.push({ element: fish, wrapper: wrapper, startX: config.startX, endX: config.endX, y: config.y, speed: config.speed });
+  gsap.set(wrapper, { x: `${config.startX}vw`, y: `${config.y}vh` });
+  gsap.set(fish, { scale: config.size });
+  fishTank.appendChild(wrapper);
+});
+ 
   
   ScrollTrigger.create({
     trigger: ".scroll-tracker",
     start: "0% top",
     end: "75% top",
     scrub: 0.3,
-    onUpdate: (self) => {
+onUpdate: (self) => {
       if (!pageReady) return;
       fishData.forEach(data => {
         const xPos = data.startX + ((data.endX - data.startX) * self.progress * data.speed);
-        data.element.style.transform = `translate(${xPos}vw, ${data.y}vh) scale(${data.element.dataset.scale})`;
+        data.wrapper.style.transform = `translate(${xPos}vw, ${data.y}vh)`;
       });
     }
+});
+
+  fishData.forEach(data => {
+    data.element.addEventListener('mouseenter', () => {
+      gsap.to(data.element, {
+        scale: parseFloat(data.element.dataset.scale) * 1.15,
+        duration: 0.5,
+        ease: "back.out(3)",
+        overwrite: true
+      });
+    });
+
+    data.element.addEventListener('mouseleave', () => {
+      gsap.to(data.element, {
+        scale: parseFloat(data.element.dataset.scale),
+        duration: 0.4,
+        ease: "back.out(2)",
+        overwrite: true
+      });
+    });
   });
-}
+
+} // ← closes the if (fishTank) block
 
 ScrollTrigger.create({
   trigger: ".scroll-tracker",
@@ -1106,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (whoNavLink) {
     whoNavLink.addEventListener('click', (e) => {
       e.preventDefault();
-      window.open('https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1543-6057&viewport=-3319%2C833%2C0.16&t=dK7IDYwtdgixIRNZ-8&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=1089%3A7447&hide-ui=1', '_blank');
+     navigateTo('/fishtank/who/');
     });
   }
 });
