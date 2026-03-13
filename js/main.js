@@ -932,15 +932,23 @@ resetProjectCards();
 
 
 
-
-
 ScrollTrigger.create({
   trigger: ".third-section",
-  start: "top 95%",
+  start: "top 140%",
   onEnter: () => {
     gsap.to('.third-title .third-anim', {
       opacity: 1, y: 0, duration: 0.8, ease: "power2.out", overwrite: true
     });
+  },
+  onLeaveBack: () => {
+    gsap.set('.third-title .third-anim', { opacity: 0, y: 40 });
+  }
+});
+
+ScrollTrigger.create({
+  trigger: ".third-section",
+  start: "top 70%",
+  onEnter: () => {
     setTimeout(() => {
       playProjectCardsIn();
     }, 500);
