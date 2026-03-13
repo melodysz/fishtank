@@ -117,7 +117,7 @@ navName.addEventListener('mouseleave', () => {
  
 navName.addEventListener('click', (e) => {
   e.preventDefault();
-  navigateTo('/');
+  navigateTo('https://melodysz.github.io/fishtank/');
 });
  
 /* ============================================================
@@ -177,7 +177,7 @@ document.querySelectorAll('.nav-swap').forEach(link => {
 /* [WORK] → home page third section */
 document.querySelector('.nav-swap[data-default="[WORK]"]')?.addEventListener('click', (e) => {
   e.preventDefault();
-  navigateTo('/#third-section');
+navigateTo('https://melodysz.github.io/fishtank/#third-section');
 });
  
 /* [WHO?] → stays on this page (no-op) */
