@@ -1,0 +1,273 @@
+/* ============================================================
+   RESET & ROOT
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  cursor: none !important;
+}
+ 
+:root {
+  --bg: #FFFCF8;
+  --nav-color: #64403E;
+  --outer-padding: 40px; /* matches .content-column-outer */
+}
+ 
+html, body {
+  background: var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+ 
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+.cursor-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #B4D415;
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10001;
+/*   mix-blend-mode: multiply; */
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+.cursor-dot.active { opacity: 1; }
+ 
+/* ============================================================
+   ENTRY OVERLAY
+   ============================================================ */
+#page-entry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--bg);
+  pointer-events: all;
+}
+ 
+/* ============================================================
+   EXIT RIPPLE
+   ============================================================ */
+#exit-ripple-container {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  pointer-events: none;
+  overflow: hidden;
+}
+ 
+.ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150vmax;
+  height: 150vmax;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  will-change: transform, opacity;
+  animation: rippleExpand 1.3s ease-out forwards;
+}
+.ripple-brown { background-color: var(--nav-color); }
+.ripple-cream  { background-color: var(--bg); }
+ 
+@keyframes rippleExpand {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+ 
+/* ============================================================
+   NAV
+   ============================================================ */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  padding: 0 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10000;
+  color: var(--nav-color);
+  background: transparent;
+  pointer-events: none;
+}
+.top-nav > * { pointer-events: auto; }
+ 
+/* Nav left — Chinese name / MELODY toggle */
+.nav-left {
+  position: relative;
+  font-family: 'Zen Old Mincho', serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  height: 30px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+.name-inner {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+ 
+/* Nav right links */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+.nav-right a {
+  color: inherit;
+  text-decoration: none;
+  font-family: Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  padding: 0 0.2rem;
+}
+.nav-right a .nav-inner {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+.nav-left:hover,
+.nav-right a:hover { opacity: 0.7; }
+ 
+/* Center star */
+.nav-center-star {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  color: inherit;
+  pointer-events: auto;
+}
+#nav-star-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+ 
+/* ============================================================
+   PAGE WRAPPER
+   ============================================================ */
+.page-wrapper {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+}
+ 
+/* ============================================================
+   BUBBLE PARTICLE
+   ============================================================ */
+.bubble-particle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background-color: #B4D415;
+  border-radius: 50%;
+  pointer-events: none !important;
+  z-index: 100;
+/*   mix-blend-mode: multiply; */
+  opacity: 0.4;
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+}
+
+.who-content {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 160px 40px 80px 40px;
+  min-height: 100vh;
+}
+
+.who-photo-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.who-photo {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  display: block;
+  border-radius: 22px;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.who-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--nav-color);
+}
+
+.who-text-col p {
+  margin: 0;
+}
+
+.who-text-col strong {
+  font-weight: 700;
+}
+
+.who-link {
+  color: var(--nav-color);
+  text-decoration: underline;
+}
+
+.who-signature {
+  font-family: 'Alex Brush', cursive;
+  font-size: 3rem;
+  color: #B4D415;
+  display: block;
+  margin-top: 10px;
+  align-self: flex-end;
+}
+
+.highlight {
+  padding: 2px 4px;
+  background: linear-gradient(
+    to right,
+    rgba(180, 212, 21, 0.3) 0%,
+    rgba(180, 212, 21, 0.3) 100%
+  );
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.6s ease;
+}
+
+.highlight.animate-in {
+  background-size: 100% 100%;
+}
