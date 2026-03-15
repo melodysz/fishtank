@@ -2597,3 +2597,16 @@ color: #83E7FF;
 .content-section:has(.section-number) {
   padding-top: 80px !important;
 }
+
+.hero-fade-overlay {
+  position: absolute;
+  bottom: -5%;
+  left: 0;
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  z-index: 3;
+  border-radius: 0 0 30px 30px;
+  transform: translateY(-55%);
+}
