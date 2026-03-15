@@ -2381,7 +2381,7 @@ color: #83E7FF;
 ── */
 .hero-orbit {
   position: absolute;
-  top: calc(50% + 10vh);  /* was calc(50% + 30vh) — decrease this value to move up */
+  top: calc(50% + 20vh);  /* was calc(50% + 30vh) — decrease this value to move up */
   left: 50%;
   width: 900px;
   height: 900px;
