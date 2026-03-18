@@ -1617,20 +1617,7 @@ html:not(.page-loading) .third-section {
   overflow: hidden;
 }
 
-/* Diamond pattern overlay - beneath fish/text, soft-light over gradient */
-.section-2-wrapper::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/diamond%20pattern.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: repeat;
-  mix-blend-mode: overlay;
-  z-index: 0;  /* Below z-index: 1 elements (light-ray-2, bubbles, flowers) */
-  pointer-events: none;
-  opacity: 0.3;  /* Adjust to taste */
-}
+
 
 .fish-clown-1,
 .fish-clown-2,
@@ -1638,3 +1625,23 @@ html:not(.page-loading) .third-section {
   pointer-events: auto !important;
 }
 
+
+
+html, body {
+  overscroll-behavior-x: none;
+}
+
+
+.diamond-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/diamond%20pattern.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+  will-change: transform;
+}

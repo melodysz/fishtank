@@ -146,29 +146,29 @@ function playHeroFishIn() {
   gsap.to(".fish-tang", { x: 0, autoAlpha: 1, duration: 1.0, ease: "power2.out", delay: 0.20 });
 }
 
-document.querySelectorAll('.fish-clown-1, .fish-clown-2, .fish-tang').forEach(fish => {
-  fish.style.pointerEvents = 'auto';
+// document.querySelectorAll('.fish-clown-1, .fish-clown-2, .fish-tang').forEach(fish => {
+//   fish.style.pointerEvents = 'auto';
   
-  const baseScale = 1;
+//   const baseScale = 1;
 
-  fish.addEventListener('mouseenter', () => {
-    gsap.to(fish, {
-      scale: baseScale * 1.15,
-      duration: 0.5,
-      ease: "back.out(3)",
-      overwrite: false
-    });
-  });
+//   fish.addEventListener('mouseenter', () => {
+//     gsap.to(fish, {
+//       scale: baseScale * 1.15,
+//       duration: 0.5,
+//       ease: "back.out(3)",
+//       overwrite: false
+//     });
+//   });
 
-  fish.addEventListener('mouseleave', () => {
-    gsap.to(fish, {
-      scale: baseScale,
-      duration: 0.4,
-      ease: "back.out(2)",
-      overwrite: false
-    });
-  });
-});
+//   fish.addEventListener('mouseleave', () => {
+//     gsap.to(fish, {
+//       scale: baseScale,
+//       duration: 0.4,
+//       ease: "back.out(2)",
+//       overwrite: false
+//     });
+//   });
+// });
 
 
 gsap.set('.sec2-bubble, .sec2-flower', { opacity: 0, y: 20 });
@@ -416,13 +416,25 @@ if (waterEl) {
 }
 
 const waterSurface = document.querySelector(".water-surface");
+let waterDrift = 0; // tracks scroll-driven offset separately
+
 if (waterSurface) {
   gsap.ticker.add(() => {
     const t = (performance.now() - waterT0) / 1000;
     const a = (t / 6) * Math.PI * 2;
-    waterSurface.style.transform = `translate(calc(-50% + ${Math.cos(a) * 4}px), ${Math.sin(a) * 3}px)`;
+    waterSurface.style.transform = `translate(calc(-50% + ${Math.cos(a) * 4}px), calc(${Math.sin(a) * 3}px + ${waterDrift}vh))`;
   });
 }
+
+ScrollTrigger.create({
+  trigger: ".scroll-tracker",
+  start: "10% top",
+  end: "75% top",
+  scrub: 3.0,        // slightly laggier than the border for a layered feel
+  onUpdate: (self) => {
+    waterDrift = self.progress * 6;  // max 6vh — a touch more than the border's 4vh
+  }
+});
 
 gsap.set([".fish-clown-1", ".fish-clown-2", ".fish-tang"], { autoAlpha: 0, transformOrigin: "50% 50%" });
 gsap.set('.hero-orbit', { autoAlpha: 0, scale: 0.92, rotation: 0 });
@@ -1205,4 +1217,25 @@ document.querySelector('.btn-touch').addEventListener('click', () => {
   const original = btn.textContent;
   btn.textContent = 'copied!';
   setTimeout(() => btn.textContent = original, 2000);
+});
+
+window.addEventListener('wheel', (e) => {
+  // If scroll is more horizontal than vertical, redirect to vertical
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+    e.preventDefault();
+    lenis.scrollTo(lenis.scroll + e.deltaX * 0.8, { immediate: false });
+  }
+}, { passive: false });
+
+const diamondPattern = document.querySelector('.diamond-pattern');
+ScrollTrigger.create({
+  trigger: ".scroll-tracker",
+  start: "10% top",
+  end: "75% top",
+  scrub: 2.5,
+  onUpdate: (self) => {
+    if (!diamondPattern) return;
+    const drift = self.progress * 5;
+    diamondPattern.style.transform = `translateY(${drift}vh)`;
+  }
 });
