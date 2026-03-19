@@ -931,25 +931,25 @@ onUpdate: (self) => {
     }
 });
 
-  fishData.forEach(data => {
-    data.element.addEventListener('mouseenter', () => {
-      gsap.to(data.element, {
-        scale: parseFloat(data.element.dataset.scale) * 1.15,
-        duration: 0.5,
-        ease: "back.out(3)",
-        overwrite: true
-      });
-    });
+//   fishData.forEach(data => {
+//     data.element.addEventListener('mouseenter', () => {
+//       gsap.to(data.element, {
+//         scale: parseFloat(data.element.dataset.scale) * 1.15,
+//         duration: 0.5,
+//         ease: "back.out(3)",
+//         overwrite: true
+//       });
+//     });
 
-    data.element.addEventListener('mouseleave', () => {
-      gsap.to(data.element, {
-        scale: parseFloat(data.element.dataset.scale),
-        duration: 0.4,
-        ease: "back.out(2)",
-        overwrite: true
-      });
-    });
-  });
+//     data.element.addEventListener('mouseleave', () => {
+//       gsap.to(data.element, {
+//         scale: parseFloat(data.element.dataset.scale),
+//         duration: 0.4,
+//         ease: "back.out(2)",
+//         overwrite: true
+//       });
+//     });
+//   });
 
 } // ← closes the if (fishTank) block
 
