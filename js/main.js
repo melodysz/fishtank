@@ -688,6 +688,9 @@ window.addEventListener("pointermove", (e) => {
   const elements = document.elementsFromPoint(e.clientX, e.clientY);
   const hovered = elements.find(el => {
     if (el.id === 'cursor' || el.classList.contains('bubble-particle') || el.closest(".nav-center-star")) return false;
+    if (el.classList.contains('project-card') && !projectCardsReady) return false;
+    return el.matches?.(".interactable, a[href], button, [role='button'], .btn-touch") ||
+           el.closest?.(".interactable, a[href], button, [role='button'], .btn-touch");
     return el.matches?.(".interactable, a[href], button, [role='button'], .btn-touch") ||
            el.closest?.(".interactable, a[href], button, [role='button'], .btn-touch");
   });
@@ -983,6 +986,8 @@ let projectCardsReady = false;
 
 function playProjectCardsIn() {
   projectCardsReady = false;
+  isHovering = false;
+  gsap.to(cursorMain, { width: '12px', height: '12px', duration: 0.3, ease: "power2.out" });
   const cards = document.querySelectorAll(".project-card");
   cards.forEach((card, index) => {
     gsap.to(card, { opacity: 1, y: 0, duration: 0.8, delay: index * 0.15, ease: "back.out(4)", overwrite: true });
