@@ -1,12 +1,12 @@
 html, body {
-  background: #061a8a !important;
+  background: #fffcf8 !important;
 }
 
 #page-entry-overlay {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: #061a8a;
+  background: #fffcf8;
   pointer-events: all;
 }
 
