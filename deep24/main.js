@@ -1,43 +1,21 @@
+document.addEventListener('DOMContentLoaded', () => {
+
+
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-// ===============================
-// LENIS SMOOTH SCROLL (GLOBAL)
-// ===============================
-
-const lenis = new Lenis({
-  lerp: 0.15,
-  smoothWheel: true,
-  wheelMultiplier: 0.7,
-  touchMultiplier: 1.5,
-  infinite: false,  // ✅ ADDED
-  syncTouch: true   // ✅ ADDED
-});
-
-gsap.ticker.add((time) => {
-  lenis.raf(time * 1000);
-});
-
+const lenis = new Lenis({ lerp: 0.15, smoothWheel: true, wheelMultiplier: 0.7, touchMultiplier: 1.5, infinite: false, syncTouch: true });
+gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
-
-// ✅ IMPROVED - Better sync
-lenis.on('scroll', (e) => {
-  ScrollTrigger.update();
-});
-
+lenis.on('scroll', (e) => { ScrollTrigger.update(); });
 ScrollTrigger.defaults({ markers: false });
 
-
-// ✅ ADDED - Refresh on resize
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    ScrollTrigger.refresh();
-  }, 250);
-});
-
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
+// NOW lenis exists, safe to use it
+const entryOverlay = document.getElementById('page-entry-overlay');
+if (entryOverlay) {
+  gsap.to(entryOverlay, {
+    opacity: 0, duration: 1.0, delay: 0.2, ease: "power2.inOut",
+    onComplete: () => entryOverlay.remove()
+  });
 }
 
 window.addEventListener('load', () => {
@@ -46,39 +24,25 @@ window.addEventListener('load', () => {
   ScrollTrigger.refresh();
 });
 
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-// ===============================
-// CUSTOM CURSOR (NO SCALING - SIZE CHANGE)
-// ===============================
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { ScrollTrigger.refresh(); }, 250);
+});
 
+// CURSOR
 const cursorMain = document.getElementById('cursor');
-let lastMouseX = 0;
-let lastMouseY = 0;
-let isHovering = false;
-
-window.addEventListener("mouseenter", () => {
-  cursorMain.classList.add("active");
-});
-
-window.addEventListener("mouseleave", () => {
-  cursorMain.classList.remove("active");
-});
-
+let lastMouseX = 0, lastMouseY = 0, isHovering = false;
+window.addEventListener("mouseenter", () => cursorMain.classList.add("active"));
+window.addEventListener("mouseleave", () => cursorMain.classList.remove("active"));
 window.addEventListener('mousemove', (e) => {
-  const { clientX: x, clientY: y } = e;
-
   cursorMain.classList.add('active');
-  gsap.to(cursorMain, { 
-    left: x + 'px',
-    top: y + 'px',
-    duration: 0.1 
-  });
-
-  const dist = Math.hypot(x - lastMouseX, y - lastMouseY);
-  if (dist > 15) { 
-    createBubble(x, y);
-    lastMouseX = x;
-    lastMouseY = y;
+  gsap.to(cursorMain, { left: e.clientX + 'px', top: e.clientY + 'px', duration: 0.1 });
+  if (Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY) > 15) {
+    createBubble(e.clientX, e.clientY);
+    lastMouseX = e.clientX; lastMouseY = e.clientY;
   }
 });
 
@@ -86,703 +50,260 @@ function createBubble(x, y) {
   const bubble = document.createElement('div');
   bubble.className = 'bubble-particle';
   document.body.appendChild(bubble);
-
   const baseSize = isHovering ? 12 : 8;
   bubble.style.width = (Math.random() * baseSize + baseSize) + 'px';
   bubble.style.height = bubble.style.width;
   bubble.style.left = x + 'px';
   bubble.style.top = y + 'px';
-
-  gsap.to(bubble, {
-    top: (y - (40 + Math.random() * 60)) + 'px',
-    left: (x + (Math.random() * 30 - 15)) + 'px',
-    opacity: 0,
-    width: '2px',
-    height: '2px',
-    duration: 1.2 + Math.random() * 0.8,
-    ease: "power1.out",
-    onComplete: () => bubble.remove()
-  });
+  gsap.to(bubble, { top: (y - (40 + Math.random() * 60)) + 'px', left: (x + (Math.random() * 30 - 15)) + 'px', opacity: 0, width: '2px', height: '2px', duration: 1.2 + Math.random() * 0.8, ease: "power1.out", onComplete: () => bubble.remove() });
 }
 
 window.addEventListener("pointermove", (e) => {
   const elements = document.elementsFromPoint(e.clientX, e.clientY);
   const hovered = elements.find(el => {
-    if (el.id === 'cursor' || el.classList.contains('bubble-particle')) {
-      return false;
-    }
-    if (el.closest(".nav-center-star")) return false;
-
-    return el.matches?.(".interactable, a[href], button, [role='button']") ||
-           el.closest?.(".interactable, a[href], button, [role='button']");
+    if (el.id === 'cursor' || el.classList.contains('bubble-particle') || el.closest(".nav-center-star")) return false;
+    return el.matches?.(".interactable, a[href], button, [role='button']") || el.closest?.(".interactable, a[href], button, [role='button']");
   });
-
   const next = !!hovered;
   if (next !== isHovering) {
     isHovering = next;
-    gsap.to(cursorMain, {
-      width: next ? '48px' : '12px',
-      height: next ? '48px' : '12px',
-      duration: 0.3,
-      ease: "power2.out"
-    });
+    gsap.to(cursorMain, { width: next ? '48px' : '12px', height: next ? '48px' : '12px', duration: 0.3, ease: "power2.out" });
   }
 });
 
-// ===================================
-// HOME PAGE NAV INTERACTIONS
-// ===================================
-
+// NAV
 const navName = document.getElementById('nav-name');
 const nameInner = navName.querySelector('.name-inner');
-
 navName.addEventListener('mouseenter', () => {
-  gsap.to(nameInner, { 
-    y: -10, 
-    opacity: 0, 
-    duration: 0.2, 
-    onComplete: () => {
-      nameInner.textContent = "MELODY";
-      Object.assign(nameInner.style, { 
-        fontFamily: "'Helvetica Neue', sans-serif", 
-        fontSize: "0.85rem", 
-        letterSpacing: "0.05em", 
-        textTransform: "uppercase" 
-      });
-      gsap.fromTo(nameInner, 
-        { y: 10, opacity: 0 }, 
-        { y: 0, opacity: 1, duration: 0.3 }
-      );
-    }
-  });
+  gsap.to(nameInner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
+    nameInner.textContent = "MELODY";
+    Object.assign(nameInner.style, { fontFamily: "'Helvetica Neue', sans-serif", fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" });
+    gsap.fromTo(nameInner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
+  }});
 });
-
 navName.addEventListener('mouseleave', () => {
-  gsap.to(nameInner, { 
-    y: 10, 
-    opacity: 0, 
-    duration: 0.2, 
-    onComplete: () => {
-      nameInner.textContent = "美迪";
-      Object.assign(nameInner.style, { 
-        fontFamily: "'Zen Old Mincho', serif", 
-        fontSize: "1.2rem", 
-        letterSpacing: "0.05em", 
-        textTransform: "none" 
-      });
-      gsap.fromTo(nameInner, 
-        { y: -10, opacity: 0 }, 
-        { y: 0, opacity: 1, duration: 0.3 }
-      );
-    }
-  });
+  gsap.to(nameInner, { y: 10, opacity: 0, duration: 0.2, onComplete: () => {
+    nameInner.textContent = "美迪";
+    Object.assign(nameInner.style, { fontFamily: "'Zen Old Mincho', serif", fontSize: "1.2rem", letterSpacing: "0.05em", textTransform: "none" });
+    gsap.fromTo(nameInner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
+  }});
 });
 
-// Nav swap links
 document.querySelectorAll('.nav-swap').forEach(link => {
   const originalText = link.textContent.trim();
   link.innerHTML = `<span class="nav-inner">${originalText}</span>`;
-
   const inner = link.querySelector('.nav-inner');
   const defaultText = link.getAttribute('data-default') || originalText;
   const hoverText = link.getAttribute('data-hover') || originalText;
-
   inner.style.display = "inline-block";
   inner.style.willChange = "transform, opacity";
-
   function lockNavWidth() {
     inner.textContent = defaultText;
     const w1 = inner.getBoundingClientRect().width;
     inner.textContent = hoverText;
     const w2 = inner.getBoundingClientRect().width;
-    const w = Math.ceil(Math.max(w1, w2)) + 2;
-    link.style.width = `${w}px`;
+    link.style.width = `${Math.ceil(Math.max(w1, w2)) + 2}px`;
     inner.textContent = defaultText;
   }
-
   lockNavWidth();
   window.addEventListener("resize", lockNavWidth);
-
   link.addEventListener('mouseenter', () => {
-    gsap.to(inner, {
-      y: -10,
-      opacity: 0,
-      duration: 0.2,
-      onComplete: () => {
-        inner.textContent = hoverText;
-        gsap.fromTo(inner, 
-          { y: 10, opacity: 0 }, 
-          { y: 0, opacity: 1, duration: 0.3 }
-        );
-      }
-    });
+    gsap.to(inner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => { inner.textContent = hoverText; gsap.fromTo(inner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 }); }});
   });
-
   link.addEventListener('mouseleave', () => {
-    gsap.to(inner, {
-      y: 10,
-      opacity: 0,
-      duration: 0.2,
-      onComplete: () => {
-        inner.textContent = defaultText;
-        gsap.fromTo(inner, 
-          { y: -10, opacity: 0 }, 
-          { y: 0, opacity: 1, duration: 0.3 }
-        );
-      }
-    });
+    gsap.to(inner, { y: 10, opacity: 0, duration: 0.2, onComplete: () => { inner.textContent = defaultText; gsap.fromTo(inner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 }); }});
   });
 });
-
-// ===============================
-// NAV STAR HOVER SPIN
-// ===============================
 
 const navStarContainer = document.querySelector('.nav-center-star');
 const navStarIcon = document.getElementById('nav-star-icon');
-
 if (navStarContainer && navStarIcon) {
   navStarContainer.addEventListener('mouseenter', () => {
     gsap.killTweensOf(navStarIcon);
-
-    const currentRotation =
-      gsap.getProperty(navStarIcon, "rotation") || 0;
-
-    gsap.to(navStarIcon, {
-      rotation: currentRotation + 720,
-      duration: 2.5,
-      ease: "power2.out",
-      overwrite: "auto"
-    });
+    gsap.to(navStarIcon, { rotation: (gsap.getProperty(navStarIcon, "rotation") || 0) + 720, duration: 2.5, ease: "power2.out", overwrite: "auto" });
   });
 }
 
-
-
-
-// ===================================
-// SIDEBAR NAV SCROLL SPY
-// ===================================
-
-const sections = document.querySelectorAll('.content-section');
+// SIDEBAR SCROLL SPY
 const navItems = document.querySelectorAll('.nav-item');
-const subNavLinks = document.querySelectorAll('.nav-subsections a');
-
 function updateActiveNav() {
   const scrollPos = window.scrollY + 200;
-
-  // ONLY track these 5 main sections
-  const mainSections = ['overview', 'research', 'design', 'launch', 'reflection'];
+  const mainSections = ['overview', 'research', 'design', 'pivot', 'reflection'];
   let currentSection = '';
-
-  // Find which main section we're in
   mainSections.forEach(sectionId => {
     const section = document.getElementById(sectionId);
-    if (section && section.offsetTop <= scrollPos) {
-      currentSection = sectionId;
-    }
+    if (section && section.offsetTop <= scrollPos) currentSection = sectionId;
   });
-
-  // Update nav highlighting
   navItems.forEach(item => {
     item.classList.remove('active');
     const link = item.querySelector('.nav-link');
-    if (link && link.getAttribute('href') === `#${currentSection}`) {
-      item.classList.add('active');
-    }
+    if (link && link.getAttribute('href') === `#${currentSection}`) item.classList.add('active');
   });
 }
-
 window.addEventListener('scroll', updateActiveNav);
 updateActiveNav();
 
-// Bulletproof absolute-top: walks the full offsetParent chain.
-// Can't pass elements to lenis.scrollTo here because .main-content
-// is position:relative, making it the offsetParent for everything
-// inside — lenis uses offsetTop internally which would be relative
-// to .main-content, not the document. This walks the chain manually.
-function getAbsoluteTop(el) {
-  let top = 0;
-  while (el) {
-    top += el.offsetTop;
-    el = el.offsetParent;
-  }
-  return top;
-}
-
-// Smooth scroll - ONLY main sections with CUSTOM OFFSETS
 document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
+  anchor.addEventListener('click', function(e) {
     e.preventDefault();
     const href = this.getAttribute('href');
     const targetId = href.substring(1);
-    
-    // ONLY allow the 5 main section IDs - whitelist approach
-    const validSections = ['overview', 'research', 'design', 'launch', 'pivot', 'reflection'];
-    
-    if (!validSections.includes(targetId)) {
-      console.log('Not a main section:', targetId);
-      return;
-    }
-    
-    // Find the section with this EXACT id using querySelector for precision
+    const validSections = ['overview', 'research', 'design', 'pivot', 'reflection'];
+    if (!validSections.includes(targetId)) return;
     const target = document.querySelector(`section#${targetId}.content-section`);
-    
-    if (!target) {
-      console.log('Target not found:', targetId);
-      return;
-    }
-    
-    console.log('Scrolling to:', targetId);
-    
-    // Custom offset for each section - ADJUST THESE VALUES!
-    let offset;
-    switch(targetId) {
-      case 'overview':
-        offset = -50;  // Adjust this for overview
-        break;
-      case 'research':
-        offset = 15;  // Adjust this for research
-        break;
-      case 'design':
-        offset = 10;   // Adjust this for design (needs to skip dilemmas)
-        break;
-      case 'launch':
-        offset = -150;  // Adjust this for launch
-        break;
-      case 'reflection':
-        offset = -150;  // Adjust this for reflection
-        break;
-      default:
-        offset = -150;
-    }
-    
-//     INSTRUCTIONS:
-// 1. Test each section one by one
-// 2. For each section that lands in the wrong spot, adjust its offset value:
-//    - If title is cut off at TOP → make offset MORE NEGATIVE (e.g., -150 → -200)
-//    - If you're seeing content BEFORE the section → make offset MORE POSITIVE (e.g., -150 → -100)
-//    - If you're landing in dilemmas when clicking design → make design offset MORE POSITIVE (e.g., 200 → 250 → 300)
-
-// 3. Keep adjusting in increments of 50px until each section lands perfectly!
-    
-lenis.scrollTo(`#${targetId}`, {
-  offset: offset,
-  immediate: true  // KEEP THIS - it fixes the inconsistency!
-});
-    
-    // Update active state
+    if (!target) return;
+    const offsets = { overview: -50, research: 15, design: 10, pivot: -150, reflection: -150 };
+    lenis.scrollTo(`#${targetId}`, { offset: offsets[targetId] ?? -150, immediate: true });
     navItems.forEach(item => {
       item.classList.remove('active');
       const link = item.querySelector('.nav-link');
-      if (link && link.getAttribute('href') === href) {
-        item.classList.add('active');
-      }
+      if (link && link.getAttribute('href') === href) item.classList.add('active');
     });
   });
 });
 
-
-// Show sidebar after scrolling past Overview title
-ScrollTrigger.create({
-  trigger: ".overview-section .section-title",
-  start: "top 80%",
-  end: "bottom top",
-  onEnter: () => {
-    document.querySelector('.sidebar-nav').classList.add('visible');
-  },
-  onLeaveBack: () => {
-    document.querySelector('.sidebar-nav').classList.remove('visible');
-  }
-});
-
-
-// ===================================
-// IMAGE LOADING - SKELETON TO FADE
-// ===================================
-
+// IMAGE LOADING
 function handleImageLoad(img) {
   img.classList.add('loaded');
-  
-// AFTER — added .prototype-image
-const container = img.closest(
-  '.dilemma-image, .unsent-project-image, .sidechat-image, .persona-card, ' +
-  '.market-audit-image, .large-image-section, .ideation-image-section, ' +
-  '.prototype-image, .hero-section, .original-interface-image-section, ' +
-  '.style-guide-image-section, .constraints-image-section, .onboarding-image-section, ' +
-  '.chat-layout-image-section, .pivot-styles-image-section, .pivot-chat-buttons-section'
-);
-
-  if (container) {
-    container.classList.add('image-loaded');
-  }
+  const container = img.closest('.dilemma-image, .unsent-project-image, .sidechat-image, .persona-card, .market-audit-image, .large-image-section, .ideation-image-section, .prototype-image, .hero-section, .original-interface-image-section, .style-guide-image-section, .constraints-image-section, .onboarding-image-section, .chat-layout-image-section, .pivot-styles-image-section, .pivot-chat-buttons-section');
+  if (container) container.classList.add('image-loaded');
 }
-
-// Handle all images on the page
 document.querySelectorAll('img').forEach(img => {
-  if (img.complete) {
-    // Image already loaded
-    handleImageLoad(img);
-  } else {
-    // Wait for image to load
+  if (img.complete) { handleImageLoad(img); }
+  else {
     img.addEventListener('load', () => handleImageLoad(img));
-    
-    // Handle load errors
-    img.addEventListener('error', () => {
-      console.warn('Image failed to load:', img.src);
-      handleImageLoad(img); // Still remove skeleton even on error
-    });
+    img.addEventListener('error', () => handleImageLoad(img));
   }
 });
 
-// ===================================
-// RELOCATE DOTS INTO BACKDROP LAYER
-// ===================================
-// .prototype-block has z-index: 2, which creates a stacking context.
-// Anything inside it (including dots at z-index: 0) still renders
-// above siblings at z-index: 1 (the dashed line).
-// Fix: measure each dots img's position, move it out of .prototype-block
-// and into .final-prototype-backdrop as a direct child at z-index: 0.
-// Now dots are behind the line (z-index 1) AND behind the blocks (z-index 2).
-
-// ===================================
-// SCROLL FADE-IN ANIMATIONS
-// ===================================
-
-// Elements to animate on scroll
-const fadeElements = document.querySelectorAll('.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .userflow-image-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .mascot-image, .feedback-section, .feedback-grid, .prototype-block');
-
-
-// Add index to stamp cards for stagger effect
-document.querySelectorAll('.stamp-card').forEach((card, index) => {
-  card.style.setProperty('--index', index);
-});
-
-// Intersection Observer for scroll animations
-const observerOptions = {
-  threshold: 0.9, // Trigger when 15% visible
-  rootMargin: '0px 0px -450px 0px'
-};
-
+// FADE ANIMATIONS
+const fadeElements = document.querySelectorAll('.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .feedback-section, .feedback-grid, .prototype-block');
+document.querySelectorAll('.stamp-card').forEach((card, index) => card.style.setProperty('--index', index));
 const fadeObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
-  });
-}, observerOptions);
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.9, rootMargin: '0px 0px -450px 0px' });
+fadeElements.forEach(element => { element.classList.add('fade-in-element'); fadeObserver.observe(element); });
+document.querySelectorAll('.hero-meta *').forEach(el => { el.classList.remove('fade-in-element'); el.classList.add('visible'); });
 
-// Observe all fade elements
-fadeElements.forEach(element => {
-  element.classList.add('fade-in-element');
-  fadeObserver.observe(element);
-});
-
-// Don't animate hero content (already visible)
-document.querySelectorAll('.hero-meta *').forEach(el => {
-  el.classList.remove('fade-in-element');
-  el.classList.add('visible');
-});
-
-
-// ===================================
-// ANIMATED HIGHLIGHTS ON SCROLL
-// ===================================
-
+// HIGHLIGHTS
 const highlights = document.querySelectorAll('.highlight');
-
-// Group highlights by parent paragraph
 const paragraphGroups = new Map();
-
 highlights.forEach(highlight => {
   const parent = highlight.closest('p, h3, h4, .meta-text, .stamp-text');
-  if (!paragraphGroups.has(parent)) {
-    paragraphGroups.set(parent, []);
-  }
+  if (!paragraphGroups.has(parent)) paragraphGroups.set(parent, []);
   paragraphGroups.get(parent).push(highlight);
 });
-
-// Add index to each highlight within its paragraph for stagger
-paragraphGroups.forEach(group => {
-  group.forEach((highlight, index) => {
-    highlight.style.transitionDelay = `${index * 0.15}s`; // 150ms between each
-  });
-});
-
+paragraphGroups.forEach(group => { group.forEach((h, i) => { h.style.transitionDelay = `${i * 0.15}s`; }); });
 lenis.on('scroll', () => {
   highlights.forEach(highlight => {
     const rect = highlight.getBoundingClientRect();
     const viewH = window.innerHeight;
-    
-    if (rect.top < viewH && rect.bottom > 0) {
-      highlight.classList.add('animate-in');
-    }
-    
-    if (rect.bottom < -1000 || rect.top > viewH + 1000) {
-      highlight.classList.remove('animate-in');
-    }
+    if (rect.top < viewH && rect.bottom > 0) highlight.classList.add('animate-in');
+    if (rect.bottom < -1000 || rect.top > viewH + 1000) highlight.classList.remove('animate-in');
   });
 });
 
-
-// ===================================
-// FOOTER STAR & NAV STAR INTERACTION (from home page)
-// ===================================
-
-// Continuous rotation for footer star (keep this unchanged, runs on page load)
-gsap.to("#case-footer-star-icon", { 
-  rotation: 360, 
-  duration: 25, 
-  ease: "none", 
-  repeat: -1 
-});
-
-// Spin star and land upright (keep this unchanged)
+// FOOTER STAR
+gsap.to("#case-footer-star-icon", { rotation: 360, duration: 25, ease: "none", repeat: -1 });
 function spinStarLandUpright() {
   const star = document.getElementById("nav-star-icon");
   if (!star) return;
   gsap.killTweensOf(star);
   const current = gsap.getProperty(star, "rotation") || 0;
   const normalized = ((current % 360) + 360) % 360;
-  const target = current + (360 - normalized) + 360;
-  gsap.to(star, {
-    rotation: target,
-    duration: 3.5,
-    ease: "power1.out",
-    overwrite: "auto"
-  });
+  gsap.to(star, { rotation: current + (360 - normalized) + 360, duration: 3.5, ease: "power1.out", overwrite: "auto" });
 }
-
-// ── State tracking (so we only fire enter/leave once each) ──
-const footerState = {
-  sidebarHidden: false,
-  navStarHidden: false,
-  footerStarShown: false
-};
-
-// ── The thresholds are distances from the BOTTOM of the viewport.
-//     When the footer's top edge is this many px above the bottom, trigger fires.
-//     Adjust these three values if timing feels off:
-const SIDEBAR_THRESHOLD  = 350;  // sidebar hides first (earliest)
-const NAVSTAR_THRESHOLD  = 200;  // nav star fades second
-const FOOTSTAR_THRESHOLD = 50;   // footer star pops in last (latest — nearly on-screen)
-
-// ── REPLACE your lenis.on('scroll') with this: ──
+const footerState = { sidebarHidden: false, navStarHidden: false, footerStarShown: false };
+const SIDEBAR_THRESHOLD = 350, NAVSTAR_THRESHOLD = 200, FOOTSTAR_THRESHOLD = 50;
 lenis.on('scroll', (e) => {
-  // Keep ScrollTrigger in sync for everything else on the page
   ScrollTrigger.update();
-
-  // Read where the footer actually is RIGHT NOW on screen.
-  // getBoundingClientRect().top = distance from viewport top to footer top.
-  // If footer top is at 800px and viewport is 900px tall,
-  // then distanceFromBottom = 900 - 800 = 100px (footer is 100px from bottom).
   const footer = document.querySelector('.case-footer');
   if (!footer) return;
-
   const rect = footer.getBoundingClientRect();
   const viewH = window.innerHeight;
   const distanceFromBottom = viewH - rect.top;
-  // distanceFromBottom > 0 means footer top has entered the viewport from the bottom.
-  // The larger it is, the more the footer has scrolled up into view.
-
-  // ── SIDEBAR ──
-  if (distanceFromBottom > SIDEBAR_THRESHOLD && !footerState.sidebarHidden) {
-    footerState.sidebarHidden = true;
-    gsap.to('.sidebar-nav', { opacity: 0, duration: 0.3 });
-  } else if (distanceFromBottom <= SIDEBAR_THRESHOLD && footerState.sidebarHidden) {
-    footerState.sidebarHidden = false;
-    gsap.to('.sidebar-nav', { opacity: 1, duration: 0.3 });
-  }
-
-  // ── NAV STAR + NAV COLOR ──
-  if (distanceFromBottom > NAVSTAR_THRESHOLD && !footerState.navStarHidden) {
-    footerState.navStarHidden = true;
-    spinStarLandUpright();
-    gsap.to(".nav-center-star", { opacity: 0, duration: 0.6 });
-    gsap.to(".top-nav", { color: "#83E7FF", duration: 0.6 });
-  } else if (distanceFromBottom <= NAVSTAR_THRESHOLD && footerState.navStarHidden) {
-    footerState.navStarHidden = false;
-    spinStarLandUpright();
-    gsap.to(".nav-center-star", { opacity: 1, duration: 0.6 });
-    gsap.to(".top-nav", { color: "var(--nav-orange)", duration: 0.6 });
-  }
-
-  // ── FOOTER STAR POP-IN ──
-  if (distanceFromBottom > FOOTSTAR_THRESHOLD && !footerState.footerStarShown) {
-    footerState.footerStarShown = true;
-    gsap.to(".case-footer-star-wrapper", { 
-      opacity: 1, 
-      scale: 1, 
-      rotation: "+=720", 
-      duration: 1.5, 
-      ease: "expo.out" 
-    });
-  } else if (distanceFromBottom <= FOOTSTAR_THRESHOLD && footerState.footerStarShown) {
-    footerState.footerStarShown = false;
-    gsap.to(".case-footer-star-wrapper", { 
-      opacity: 0, 
-      scale: 0.6, 
-      duration: 1, 
-      ease: "power2.in" 
-    });
-  }
+  if (distanceFromBottom > SIDEBAR_THRESHOLD && !footerState.sidebarHidden) { footerState.sidebarHidden = true; gsap.to('.sidebar-nav', { opacity: 0, duration: 0.3 }); }
+  else if (distanceFromBottom <= SIDEBAR_THRESHOLD && footerState.sidebarHidden) { footerState.sidebarHidden = false; gsap.to('.sidebar-nav', { opacity: 1, duration: 0.3 }); }
+  if (distanceFromBottom > NAVSTAR_THRESHOLD && !footerState.navStarHidden) { footerState.navStarHidden = true; spinStarLandUpright(); gsap.to(".nav-center-star", { opacity: 0, duration: 0.6 }); gsap.to(".top-nav", { color: "#83E7FF", duration: 0.6 }); }
+  else if (distanceFromBottom <= NAVSTAR_THRESHOLD && footerState.navStarHidden) { footerState.navStarHidden = false; spinStarLandUpright(); gsap.to(".nav-center-star", { opacity: 1, duration: 0.6 }); gsap.to(".top-nav", { color: "var(--nav-orange)", duration: 0.6 }); }
+  if (distanceFromBottom > FOOTSTAR_THRESHOLD && !footerState.footerStarShown) { footerState.footerStarShown = true; gsap.to(".case-footer-star-wrapper", { opacity: 1, scale: 1, rotation: "+=720", duration: 1.5, ease: "expo.out" }); }
+  else if (distanceFromBottom <= FOOTSTAR_THRESHOLD && footerState.footerStarShown) { footerState.footerStarShown = false; gsap.to(".case-footer-star-wrapper", { opacity: 0, scale: 0.6, duration: 1, ease: "power2.in" }); }
 });
 
-
-(function initDeep24Hero() {
- 
-  const WIDGET_COUNT   = 10;
-  const TOTAL_SLOTS    = 20;
-  const ORBIT_RADIUS   = 410;
-  const WIDGET_SIZE    = 66;  // matches CSS .orbit-widget width/height
- 
+// ORBIT WIDGET BUILDER
+(function() {
+  const WIDGET_COUNT = 10, TOTAL_SLOTS = 20, ORBIT_RADIUS = 410, WIDGET_SIZE = 66;
   const BASE_URL = 'https://raw.githubusercontent.com/melodysz/baubles/main/deep24/widget%20';
- 
   const inner = document.getElementById('deep24-orbit-inner');
- 
   for (let i = 0; i < TOTAL_SLOTS; i++) {
     const imgNum = (i % WIDGET_COUNT) + 1;
- 
-    // Evenly distribute around 360°
-    // Start from -90° (top of circle) so widget 1 is at the top
     const angleDeg = (360 / TOTAL_SLOTS) * i - 90;
     const angleRad = (angleDeg * Math.PI) / 180;
- 
-    // Position centre of card on the circle
     const cx = Math.cos(angleRad) * ORBIT_RADIUS;
     const cy = Math.sin(angleRad) * ORBIT_RADIUS;
- 
-    // Tilt so the card's BOTTOM edge is tangent to the circle —
-    // i.e. the card points radially outward from centre.
-    // angleDeg is the angle of the radius to this card's centre.
-    // Adding 90° rotates the card so its face is perpendicular to the radius
-    // (bottom facing outward), which is what "tangent to circle" means visually.
-    const tilt = angleDeg + 90;
- 
     const card = document.createElement('div');
     card.className = 'orbit-widget';
-    card.style.cssText = `
-      left: calc(50% + ${cx}px - ${WIDGET_SIZE / 2}px);
-      top:  calc(50% + ${cy}px - ${WIDGET_SIZE / 2}px);
-      transform: rotate(${tilt}deg);
-    `;
- 
+    card.style.cssText = `left: calc(50% + ${cx}px - ${WIDGET_SIZE / 2}px); top: calc(50% + ${cy}px - ${WIDGET_SIZE / 2}px); transform: rotate(${angleDeg + 90}deg);`;
     const img = document.createElement('img');
     img.src = `${BASE_URL}${imgNum}.png`;
     img.alt = `Widget ${imgNum}`;
     img.loading = 'lazy';
- 
     card.appendChild(img);
     inner.appendChild(card);
   }
- 
- 
-  // ── 2. Continuous slow spin (matches homepage orbit style) ──
-  gsap.to('#deep24-orbit-inner', {
-    rotation: 360,
-    duration: 90,         // slow — one full revolution every 90s
-    ease: 'none',
-    repeat: -1
-  });
- 
- 
-  // ── 3. Spin-in entry (mirrors playHeroOrbitIn) ──────────────
-  function playDeep24OrbitIn() {
-    gsap.killTweensOf('.hero-orbit');
-    gsap.set('.hero-orbit', { autoAlpha: 0, scale: 0.75, rotation: 0 });
-    gsap.to('.hero-orbit', {
-      autoAlpha: 1,
-      scale: 1,
-      rotation: '+=150',
-      duration: 1.5,
-      ease: 'expo.out'
-    });
-  }
- 
- 
-  // ── 4. Icon float-up + tagline float-up (staggered) ─────────
-  function playDeep24IdentityIn() {
-    const icon    = document.getElementById('hero-d24-icon');
-    const tagline = document.getElementById('hero-d24-tagline');
- 
-    gsap.killTweensOf([icon, tagline]);
- 
-    // Icon
-    gsap.fromTo(icon,
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' }
-    );
- 
-    // Tagline — slight delay after icon
-    gsap.fromTo(tagline,
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.25 }
-    );
-  }
- 
- 
-  // ── 5. Fire animations on page load ─────────────────────────
-  //    (mirrors how your homepage fires playHeroOrbitIn /
-  //     playHeroIdentityIn inside the ripple transition)
-  window.addEventListener('load', () => {
-    // Small delay so the page has settled + feels intentional
-    setTimeout(() => {
-      playDeep24OrbitIn();
-      playDeep24IdentityIn();
-    }, 300);
-  });
- 
+  gsap.to('#deep24-orbit-inner', { rotation: 360, duration: 90, ease: 'none', repeat: -1 });
 })();
 
-// Hero image — subtle parallax, no blur
-gsap.to(".hero-image", {
-  yPercent: 10,
-  ease: "none",
-  scrollTrigger: {
-    trigger: ".hero-section",
-    start: "top top",
-    end: "bottom top",
-    scrub: true
+// HERO ANIMATION FUNCTIONS
+function playDeep24OrbitIn() {
+  gsap.killTweensOf('.hero-orbit');
+  gsap.set('.hero-orbit', { autoAlpha: 0, scale: 0.75, rotation: 0 });
+  gsap.to('.hero-orbit', { autoAlpha: 1, scale: 1, rotation: '+=150', duration: 1.5, ease: 'expo.out' });
+}
+function playDeep24IdentityIn() {
+  const icon = document.getElementById('hero-d24-icon');
+  const tagline = document.getElementById('hero-d24-tagline');
+  gsap.killTweensOf([icon, tagline, '.hero-center-identity']);
+  gsap.set('.hero-center-identity', { opacity: 1, filter: 'none', y: 0 });
+  gsap.fromTo(icon, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', overwrite: true });
+  gsap.fromTo(tagline, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.25, overwrite: true });
+}
+
+function initDeep24HeroAnimations() {
+  gsap.set('#hero-d24-icon', { opacity: 0, y: 24 });
+  gsap.set('#hero-d24-tagline', { opacity: 0, y: 24 });
+  gsap.set('.hero-orbit', { autoAlpha: 0, scale: 0.75 });
+  gsap.set('.hero-center-identity', { opacity: 1 });
+
+  gsap.fromTo('#hero-d24-icon',
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.5 }
+  );
+  gsap.fromTo('#hero-d24-tagline',
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.75 }
+  );
+  playDeep24OrbitIn();
+}
+
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    window.location.reload();
+  } else {
+    initDeep24HeroAnimations();
   }
 });
 
-// Hero tagline bg — moves slightly faster + blurs out
-gsap.to(".hero-tagline-bg", {
-  yPercent: 1,
-  opacity: 0,
-  filter: "blur(12px)",
-  ease: "none",
-  scrollTrigger: {
-    trigger: ".hero-section",
-    start: "top top",
-    end: "100% top",
-    scrub: true
-  }
-});
+gsap.to(".hero-image", { yPercent: 10, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "bottom top", scrub: true }});
+gsap.to(".hero-tagline-bg", { yPercent: 1, opacity: 0, filter: "blur(12px)", ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
+gsap.to(".hero-orbit-wrapper", { yPercent: 8, opacity: 0, filter: "blur(8px)", ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
+gsap.to(".hero-center-identity", { yPercent: 12, opacity: 0, filter: "blur(12px)", ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
 
-gsap.to(".hero-orbit-wrapper", {
-  yPercent: 8,
-  opacity: 0,
-  filter: "blur(8px)",
-  ease: "none",
-  scrollTrigger: {
-    trigger: ".hero-section",
-    start: "top top",
-    end: "100% top",
-    scrub: true
-  }
+ScrollTrigger.create({
+  trigger: ".overview-section .section-title",
+  start: "top 80%",
+  onEnter: () => document.querySelector('.sidebar-nav').classList.add('visible'),
+  onLeaveBack: () => document.querySelector('.sidebar-nav').classList.remove('visible')
 });
-
-// Identity + fade overlay — move and blur out
-gsap.to([".hero-center-identity"], {
-  yPercent: 12,
-  opacity: 0,
-  filter: "blur(12px)",
-  ease: "none",
-  scrollTrigger: {
-    trigger: ".hero-section",
-    start: "top top",
-    end: "100% top",
-    scrub: true
-  }
-});
+  
+  });

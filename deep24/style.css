@@ -2472,7 +2472,7 @@ color: #83E7FF;
 .hero-d24-icon {
   width: 72px;   /* slightly smaller than before */
   height: auto;
-  opacity: 0;
+/*   opacity: 0; */
   transform: translateY(24px);
   will-change: transform, opacity;
 }
@@ -2481,7 +2481,7 @@ color: #83E7FF;
   width: 220px;          /* was 340px — much smaller */
   max-width: 40vw;
   height: auto;
-  opacity: 0;
+/*   opacity: 0; */
   transform: translateY(24px);
   will-change: transform, opacity;
 }
@@ -2704,4 +2704,19 @@ color: #83E7FF;
 
 .stamp-card.fade-in-element:nth-child(3) {
   transition-delay: 0.7s;
+}
+
+
+
+.hero-d24-tagline.animated,
+.hero-d24-icon.animated {
+  opacity: 1;
+}
+
+#page-entry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #fffcf8;
+  pointer-events: all;
 }
