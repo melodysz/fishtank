@@ -1164,7 +1164,7 @@ projectCards.forEach(card => {
       'https://melodysz.github.io/fishtank/pent-up/',
       'https://melodysz.github.io/fishtank/deep24/',
       'https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1086-7743&viewport=-5516%2C392%2C0.36&t=DSUZyNEtafQgqLTf-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=1086%3A7743&hide-ui=1',
-      'https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1089-442&viewport=-5516%2C392%2C0.36&t=DSUZyNEtafQgqLTf-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=339%3A2991&hide-ui=1',
+      'https://melodysz.github.io/fishtank/knouri/',
       'https://www.figma.com/proto/JkoTxNMhLWrapPSvopyXEp/portfolio?page-id=310%3A2587&node-id=1064-356&viewport=-5516%2C392%2C0.36&t=DSUZyNEtafQgqLTf-1&scaling=scale-down-width&content-scaling=fixed&starting-point-node-id=1064%3A356&hide-ui=1'
     ];
     if (projectURLs[index] && projectURLs[index] !== '#') {
