@@ -296,8 +296,8 @@ window.addEventListener('pageshow', (e) => {
 
 gsap.to(".hero-image", { yPercent: 10, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "bottom top", scrub: true }});
 gsap.to(".hero-tagline-bg", { yPercent: 1, opacity: 0, filter: "blur(12px)", ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
-gsap.to(".hero-orbit-wrapper", { yPercent: 8, opacity: 0, filter: "blur(8px)", ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
-gsap.to(".hero-center-identity", { yPercent: 12, opacity: 0, filter: "blur(12px)", ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
+gsap.to(".hero-orbit-wrapper", { yPercent: 8, opacity: 0, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
+gsap.to(".hero-center-identity", { yPercent: 12, opacity: 0, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
 
 ScrollTrigger.create({
   trigger: ".overview-section .section-title",
