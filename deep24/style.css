@@ -2367,11 +2367,12 @@ color: #83E7FF;
  
 .hero-image {
   position: absolute;
-  inset: 0;
+  top: -10%;
+  left: 0;
   width: 100%;
-  height: 100%;
+  height: 110%;
   object-fit: cover;
-  object-position: top center;
+  object-position: center 40%;
   border-radius: 0 0 30px 30px;
 }
  
@@ -2663,4 +2664,44 @@ color: #83E7FF;
   animation: none;
   background: transparent;
   min-height: unset;
+}
+
+.hero-tagline-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-orbit-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  will-change: filter, opacity, transform;
+}
+
+.hero-tagline-bg,
+.hero-center-identity,
+.hero-fade-overlay {
+  will-change: filter, opacity, transform;
+}
+
+.stamp-card.fade-in-element {
+  transition-delay: 0.4s;
+}
+
+.stamp-card.fade-in-element:nth-child(2) {
+  transition-delay: 0.55s;
+}
+
+.stamp-card.fade-in-element:nth-child(3) {
+  transition-delay: 0.7s;
 }

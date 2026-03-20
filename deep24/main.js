@@ -460,8 +460,8 @@ document.querySelectorAll('.stamp-card').forEach((card, index) => {
 
 // Intersection Observer for scroll animations
 const observerOptions = {
-  threshold: 0.15, // Trigger when 15% visible
-  rootMargin: '0px 0px -50px 0px' // Start slightly before element enters
+  threshold: 0.9, // Trigger when 15% visible
+  rootMargin: '0px 0px -450px 0px'
 };
 
 const fadeObserver = new IntersectionObserver((entries) => {
@@ -733,3 +733,56 @@ lenis.on('scroll', (e) => {
   });
  
 })();
+
+// Hero image — subtle parallax, no blur
+gsap.to(".hero-image", {
+  yPercent: 10,
+  ease: "none",
+  scrollTrigger: {
+    trigger: ".hero-section",
+    start: "top top",
+    end: "bottom top",
+    scrub: true
+  }
+});
+
+// Hero tagline bg — moves slightly faster + blurs out
+gsap.to(".hero-tagline-bg", {
+  yPercent: 1,
+  opacity: 0,
+  filter: "blur(12px)",
+  ease: "none",
+  scrollTrigger: {
+    trigger: ".hero-section",
+    start: "top top",
+    end: "100% top",
+    scrub: true
+  }
+});
+
+gsap.to(".hero-orbit-wrapper", {
+  yPercent: 8,
+  opacity: 0,
+  filter: "blur(8px)",
+  ease: "none",
+  scrollTrigger: {
+    trigger: ".hero-section",
+    start: "top top",
+    end: "100% top",
+    scrub: true
+  }
+});
+
+// Identity + fade overlay — move and blur out
+gsap.to([".hero-center-identity"], {
+  yPercent: 12,
+  opacity: 0,
+  filter: "blur(12px)",
+  ease: "none",
+  scrollTrigger: {
+    trigger: ".hero-section",
+    start: "top top",
+    end: "100% top",
+    scrub: true
+  }
+});
