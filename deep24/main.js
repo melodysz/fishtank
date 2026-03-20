@@ -408,7 +408,9 @@ function handleImageLoad(img) {
 const container = img.closest(
   '.dilemma-image, .unsent-project-image, .sidechat-image, .persona-card, ' +
   '.market-audit-image, .large-image-section, .ideation-image-section, ' +
-  '.prototype-image, .hero-section, .original-interface-image-section'
+  '.prototype-image, .hero-section, .original-interface-image-section, ' +
+  '.style-guide-image-section, .constraints-image-section, .onboarding-image-section, ' +
+  '.chat-layout-image-section, .pivot-styles-image-section, .pivot-chat-buttons-section'
 );
 
   if (container) {
@@ -448,7 +450,7 @@ document.querySelectorAll('img').forEach(img => {
 // ===================================
 
 // Elements to animate on scroll
-const fadeElements = document.querySelectorAll('.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .large-image-section, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .userflow-image-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .mascot-image, .feedback-section, .feedback-grid, .prototype-block');
+const fadeElements = document.querySelectorAll('.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .userflow-image-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .mascot-image, .feedback-section, .feedback-grid, .prototype-block');
 
 
 // Add index to stamp cards for stagger effect

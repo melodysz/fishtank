@@ -614,6 +614,7 @@ h3 {
 
 .large-image-section {
   margin: 80px 0;
+    min-height: 600px;
 }
 
 .large-image-section img {
@@ -643,7 +644,7 @@ h3 {
   width: 100vw;
   left: 50%;
   transform: translateX(-50%);
-  top: 800px;
+  top: 860px; /* increase this if it moved up */
   z-index: -1;
   pointer-events: none;
 }
@@ -2608,4 +2609,58 @@ color: #83E7FF;
   z-index: 3;
   border-radius: 0 0 30px 30px;
   transform: translateY(-65%);
+}
+
+.dilemma-image,
+.unsent-project-image,
+.sidechat-image,
+.persona-card,
+.market-audit-image,
+.large-image-section,
+.ideation-image-section,
+.prototype-image,
+.original-interface-image-section,
+.style-guide-image-section,
+.constraints-image-section,
+.onboarding-image-section,
+.chat-layout-image-section,
+.pivot-styles-image-section,
+.pivot-chat-buttons-section {
+  background: linear-gradient(90deg, #f0ebe8 25%, #e8e0dc 50%, #f0ebe8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 22px;
+}
+
+.original-interface-image-section img,
+.style-guide-image-section img,
+.constraints-image-section img,
+.onboarding-image-section img,
+.chat-layout-image-section img,
+.pivot-styles-image-section img,
+.pivot-chat-buttons-section img {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.original-interface-image-section img.loaded,
+.style-guide-image-section img.loaded,
+.constraints-image-section img.loaded,
+.onboarding-image-section img.loaded,
+.chat-layout-image-section img.loaded,
+.pivot-styles-image-section img.loaded,
+.pivot-chat-buttons-section img.loaded {
+  opacity: 1;
+}
+
+.original-interface-image-section.image-loaded,
+.style-guide-image-section.image-loaded,
+.constraints-image-section.image-loaded,
+.onboarding-image-section.image-loaded,
+.chat-layout-image-section.image-loaded,
+.pivot-styles-image-section.image-loaded,
+.pivot-chat-buttons-section.image-loaded {
+  animation: none;
+  background: transparent;
+  min-height: unset;
 }
