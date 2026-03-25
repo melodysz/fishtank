@@ -4,7 +4,7 @@
 /* Big Caslon FB for special characters like apostrophes */
 @font-face {
   font-family: 'Big Caslon FB';
-  src: url('https://raw.githubusercontent.com/melodysz/baubles/main/fonts/big-caslon-italic.ttf') format('truetype');
+  src: url('https://melodysz.github.io/baubles/fonts/big-caslon-italic.ttf') format('truetype');
   font-weight: normal;
   font-style: italic;
 }
@@ -503,7 +503,7 @@ body {
   width: 102vw;
   height: 102vh;
   
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/border-top.png');
+  background-image: url('https://melodysz.github.io/baubles/border-top.png');
   background-size: cover;  /* Your original setting */
   background-position: center center;
   background-repeat: no-repeat;
@@ -531,7 +531,7 @@ body {
 .fish-tang-sec2 { 
   width: 135px; 
   height: 90px;  
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/bluetang.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/bluetang.png'); 
 }
 
 #fish-tank {
@@ -620,8 +620,8 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   
   background: black;
 
-  -webkit-mask-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png');
-  mask-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png');
+  -webkit-mask-image: url('https://melodysz.github.io/baubles/mask.png');
+  mask-image: url('https://melodysz.github.io/baubles/mask.png');
   -webkit-mask-size: cover;
   mask-size: cover;
   -webkit-mask-position: center;
@@ -773,7 +773,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   content: "";
   position: absolute;
   inset: -20%;
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/hero/water%20lines.png');
+  background-image: url('https://melodysz.github.io/baubles/hero/water%20lines.png');
   background-size: 30%;
   background-repeat: repeat;
   background-position: 7% 50%;
@@ -795,7 +795,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   transform: translate(-50%, -50%);
   width: 100px;
   height: 100px;
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/hero/hero%20star.png');
+  background-image: url('https://melodysz.github.io/baubles/hero/hero%20star.png');
   background-size: contain;
   background-repeat: no-repeat;
   
@@ -1289,14 +1289,14 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 /* Section 2 Fish Assets - Text versions */
-.fish-canvas     { background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/canvastxt.png'); }
-.fish-layout     { background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/layouttxt.png'); }
-.fish-narrative  {background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/narrativetxt.png'); }
-.fish-product    { background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/producttxt.png'); }
-.fish-ui         { background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/uitxt.png'); }
-.fish-ux         { background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/uxtxt.png'); }
-.fish-visual     { background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/visualtxt.png'); }
-.fish-branding   { background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/brandingtxt.png'); }
+.fish-canvas     { background-image: url('https://melodysz.github.io/baubles/fish/canvastxt.png'); }
+.fish-layout     { background-image: url('https://melodysz.github.io/baubles/fish/layouttxt.png'); }
+.fish-narrative  {background-image: url('https://melodysz.github.io/baubles/fish/narrativetxt.png'); }
+.fish-product    { background-image: url('https://melodysz.github.io/baubles/fish/producttxt.png'); }
+.fish-ui         { background-image: url('https://melodysz.github.io/baubles/fish/uitxt.png'); }
+.fish-ux         { background-image: url('https://melodysz.github.io/baubles/fish/uxtxt.png'); }
+.fish-visual     { background-image: url('https://melodysz.github.io/baubles/fish/visualtxt.png'); }
+.fish-branding   { background-image: url('https://melodysz.github.io/baubles/fish/brandingtxt.png'); }
 
 /* Fish container - covering screen */
 .fish-container {
@@ -1477,19 +1477,19 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 .fish-clown-1 { 
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/clown.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/clown.png'); 
   top: 45%; 
   left: 5%; 
 }
 
 .fish-clown-2 { 
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/smallclown.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/smallclown.png'); 
   top: 58%; 
   left: 0%; 
 }
 
 .fish-tang { 
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/bluetang.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/bluetang.png'); 
   top: 29%; 
   left: 50%; 
 }
@@ -1611,7 +1611,7 @@ html, body {
 .diamond-pattern {
   position: absolute;
   inset: 0;
-  background-image: url('https://raw.githubusercontent.com/melodysz/baubles/main/fish/diamond%20pattern.png');
+  background-image: url('https://melodysz.github.io/baubles/fish/diamond%20pattern.png');
   background-size: cover;
   background-position: center;
   background-repeat: repeat;

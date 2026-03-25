@@ -61,8 +61,8 @@ if (window.location.hash) {
     setTimeout(() => {
       const scalingRig = document.querySelector('.scaling-rig');
       if (scalingRig) {
-        scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-        scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+       scalingRig.style.webkitMaskImage = "url('https://melodysz.github.io/baubles/mask.png')";
+scalingRig.style.maskImage = "url('https://melodysz.github.io/baubles/mask.png')";
         scalingRig.style.webkitMaskSize = 'cover';
         scalingRig.style.maskSize = 'cover';
         scalingRig.style.webkitMaskPosition = 'center';
@@ -333,8 +333,8 @@ if (!window._heroContentStarted && t > 0.55) {
 
   const scalingRig = document.querySelector('.scaling-rig');
   if (scalingRig) {
-    scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-    scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+    scalingRig.style.webkitMaskImage = "url('https://melodysz.github.io/baubles/mask.png')";
+    scalingRig.style.maskImage = "url('https://melodysz.github.io/baubles/mask.png')";
     scalingRig.style.webkitMaskSize = 'cover';
     scalingRig.style.maskSize = 'cover';
     scalingRig.style.webkitMaskPosition = 'center';
@@ -1110,8 +1110,8 @@ function playHeroOrbitIn() {
 function restoreScalingRigMask() {
   const scalingRig = document.querySelector('.scaling-rig');
   if (!scalingRig) return;
-  scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-  scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+scalingRig.style.webkitMaskImage = "url('https://melodysz.github.io/baubles/mask.png')";
+scalingRig.style.maskImage = "url('https://melodysz.github.io/baubles/mask.png')";
   scalingRig.style.webkitMaskSize = 'cover';
   scalingRig.style.maskSize = 'cover';
   scalingRig.style.webkitMaskPosition = 'center';
