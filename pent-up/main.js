@@ -1,3 +1,19 @@
+document.querySelector('.nav-swap[data-default="[WORK]"]')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.location.href = 'https://melodysz.github.io/fishtank/#third-section';
+});
+
+const entryOverlay = document.getElementById('page-entry-overlay');
+if (entryOverlay) {
+  gsap.to(entryOverlay, {
+    opacity: 0,
+    duration: 1.0,
+    delay: 0.2,
+    ease: "power2.inOut",
+    onComplete: () => entryOverlay.remove()
+  });
+}
+
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 // ===============================

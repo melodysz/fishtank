@@ -1,3 +1,8 @@
+if (window.location.hash) {
+  document.querySelector('.intro-screen')?.remove();
+  document.getElementById('page-entry-overlay')?.remove();
+}
+
 // Add this as the VERY first thing in your JS, before everything else
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
@@ -29,10 +34,6 @@ const entryOverlay = document.getElementById('page-entry-overlay');
 if (entryOverlay && document.querySelector('.intro-screen')) {
   entryOverlay.remove();
 }
-
-window.scrollTo(0, 0);
-document.documentElement.scrollTop = 0;
-document.body.scrollTop = 0;
 
 window.scrollTo(0, 0);
 document.documentElement.scrollTop = 0;
@@ -187,7 +188,7 @@ function playHeroIdentityIn() {
 }
 
 window.addEventListener('load', function() {
-  window.scrollTo(0, 0);
+  if (!window.location.hash) window.scrollTo(0, 0);  // ← FIXED
   const hasHash = window.location.hash;
 
   // ============================================
@@ -772,12 +773,7 @@ document.querySelectorAll('.nav-swap').forEach(link => {
 // [WORK] nav link
 document.querySelector('.nav-swap[data-default="[WORK]"]').addEventListener('click', (e) => {
   e.preventDefault();
-  if (window.location.hash === '#third-section') {
-    lenis.scrollTo('#third-section', { duration: 1.2 });
-  } else {
-    window.location.hash = '#third-section';
-    window.location.reload();
-  }
+  lenis.scrollTo('#third-section', { duration: 1.2 });
 });
 
 gsap.to("#footer-star-icon", { rotation: 360, duration: 25, ease: "none", repeat: -1 });
