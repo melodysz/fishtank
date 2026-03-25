@@ -300,7 +300,7 @@ if (entryOverlay) {
 
           if (scalingRig) {
             scalingRig.style.willChange = "filter";
-            scalingRig.style.filter = "brightness(0.25) blur(18px)";
+scalingRig.style.filter = "brightness(0.25)";
           }
           
           const obj = { r: 0 };
@@ -321,36 +321,40 @@ if (entryOverlay) {
               applyMask(r);
               const t = Math.min(1, r / maxR);
               
-              if (!window._heroContentStarted && t > 0.55) {
-                window._heroContentStarted = true;
-                gsap.to('.nav-left', { opacity: 1, duration: 0.4, ease: "power2.out" });
-                gsap.to('.nav-right a', { opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" });
-                gsap.to('.nav-center-star', { opacity: 1, duration: 0.1, ease: "none", onComplete: () => {
-                  gsap.to('.nav-center-star', { rotation: "+=720", duration: 1.5, ease: "expo.out" });
-                }});
+if (!window._heroContentStarted && t > 0.55) {
+  window._heroContentStarted = true;
 
-                const scalingRig = document.querySelector('.scaling-rig');
-                if (scalingRig) {
-                  scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-                  scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
-                  scalingRig.style.webkitMaskSize = 'cover';
-                  scalingRig.style.maskSize = 'cover';
-                  scalingRig.style.webkitMaskPosition = 'center';
-                  scalingRig.style.maskPosition = 'center';
-                  scalingRig.style.webkitMaskRepeat = 'no-repeat';
-                  scalingRig.style.maskRepeat = 'no-repeat';
-                }
+  // nav is cheap, animate immediately
+  gsap.to('.nav-left', { opacity: 1, duration: 0.4, ease: "power2.out" });
+  gsap.to('.nav-right a', { opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" });
+  gsap.to('.nav-center-star', { opacity: 1, duration: 0.1, ease: "none", onComplete: () => {
+    gsap.to('.nav-center-star', { rotation: "+=720", duration: 1.5, ease: "expo.out" });
+  }});
 
-                playHeroFishIn();
-                playHeroIdentityIn();
-                playHeroOrbitIn();
-              }
+  const scalingRig = document.querySelector('.scaling-rig');
+  if (scalingRig) {
+    scalingRig.style.webkitMaskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+    scalingRig.style.maskImage = "url('https://raw.githubusercontent.com/melodysz/baubles/main/mask.png')";
+    scalingRig.style.webkitMaskSize = 'cover';
+    scalingRig.style.maskSize = 'cover';
+    scalingRig.style.webkitMaskPosition = 'center';
+    scalingRig.style.maskPosition = 'center';
+    scalingRig.style.webkitMaskRepeat = 'no-repeat';
+    scalingRig.style.maskRepeat = 'no-repeat';
+  }
+
+  // delay hero elements so they don't pile on during peak mask expansion
+  setTimeout(() => {
+    playHeroFishIn();
+    playHeroIdentityIn();
+    playHeroOrbitIn();
+  }, 200);
+}
               
-              if (scalingRig && t < 0.90) {
-                const blurAmount = 18 * (1 - Math.pow(t, 1.9));
-                const bright = 0.25 + 0.75 * Math.pow(t, 0.6);
-                scalingRig.style.filter = `brightness(${bright}) blur(${blurAmount}px)`;
-              }
+if (scalingRig && t < 0.90) {
+  const bright = 0.25 + 0.75 * Math.pow(t, 0.6);
+  scalingRig.style.filter = `brightness(${bright})`;
+}
 
               if (!window._scrollUnlockedEarly && t > 0.75) {
                 window._scrollUnlockedEarly = true;
@@ -406,25 +410,11 @@ gsap.set(".hero-peek-layer", { autoAlpha: 1, scale: 1, force3D: true });
 const waterEl = document.querySelector(".water-lines");
 let waterT0 = performance.now();
 
-if (waterEl) {
-  gsap.ticker.add(() => {
-    const t = (performance.now() - waterT0) / 1000;
-    const a = (t / 10) * Math.PI * 2;
-    waterEl.style.setProperty("--wx", `${Math.cos(a) * 14}px`);
-    waterEl.style.setProperty("--wy", `${Math.sin(a) * 14}px`);
-  });
-}
 
 const waterSurface = document.querySelector(".water-surface");
 let waterDrift = 0; // tracks scroll-driven offset separately
 
-if (waterSurface) {
-  gsap.ticker.add(() => {
-    const t = (performance.now() - waterT0) / 1000;
-    const a = (t / 6) * Math.PI * 2;
-    waterSurface.style.transform = `translate(calc(-50% + ${Math.cos(a) * 4}px), calc(${Math.sin(a) * 3}px + ${waterDrift}vh))`;
-  });
-}
+
 
 ScrollTrigger.create({
   trigger: ".scroll-tracker",
@@ -635,9 +625,7 @@ gsap.set([".sky-text-images", ".dangles-decor", ".sec2-bubble", ".sec2-flower", 
   force3D: true
 });
 
-gsap.ticker.add((time) => {
-  if (!document.hidden) lenis.raf(time * 1000);
-});
+
 gsap.ticker.lagSmoothing(0);
 ScrollTrigger.refresh();
 
@@ -1243,4 +1231,41 @@ ScrollTrigger.create({
     const drift = self.progress * 5;
     diamondPattern.style.transform = `translateY(${drift}vh)`;
   }
+});
+
+
+ScrollTrigger.create({
+  trigger: ".scroll-tracker",
+  start: "3% top",
+  onEnter: () => {
+    document.getElementById('scrollHint').classList.add('hidden');
+  },
+  onLeaveBack: () => {
+    document.getElementById('scrollHint').classList.remove('hidden');
+  }
+});
+
+let frameCount = 0;
+gsap.ticker.add((time) => {
+  if (document.hidden) return;
+
+  lenis.raf(time * 1000);
+
+  // water updates every 2nd frame — imperceptible but halves the work
+  if (frameCount % 2 === 0) {
+    const t = (performance.now() - waterT0) / 1000;
+
+    if (waterEl) {
+      const a = (t / 10) * Math.PI * 2;
+      waterEl.style.setProperty("--wx", `${Math.cos(a) * 14}px`);
+      waterEl.style.setProperty("--wy", `${Math.sin(a) * 14}px`);
+    }
+
+    if (waterSurface) {
+      const a = (t / 6) * Math.PI * 2;
+      waterSurface.style.transform = `translate(calc(-50% + ${Math.cos(a) * 4}px), calc(${Math.sin(a) * 3}px + ${waterDrift}vh))`;
+    }
+  }
+
+  frameCount++;
 });
