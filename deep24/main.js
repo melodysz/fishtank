@@ -1,3 +1,8 @@
+document.querySelector('.nav-swap[data-default="[WORK]"]')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.location.href = 'https://melodysz.github.io/fishtank/#third-section';
+});
+
 document.addEventListener('DOMContentLoaded', () => {
 
 
