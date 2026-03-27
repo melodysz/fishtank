@@ -205,6 +205,8 @@ if (entryOverlay) {
   const obj = { r: 0 };
 
   setTimeout(() => {
+  introScreen.style.willChange = 'mask-image, -webkit-mask-image';
+  introScreen.style.transform = 'translateZ(0)';
     gsap.to(obj, {
       r: maxR,
       duration: 1.4,
@@ -307,7 +309,7 @@ scalingRig.style.filter = "brightness(0.25)";
           const obj = { r: 0 };
 
           function applyMask(rPx) {
-            introScreen.style.webkitMaskImage = `radial-gradient(circle at center, transparent ${rPx}px, black ${rPx + featherPx}px)`;
+           const r = Math.round(rPx); introScreen.style.webkitMaskImage = `radial-gradient(circle at center, transparent ${rPx}px, black ${rPx + featherPx}px)`;
             introScreen.style.maskImage = `radial-gradient(circle at center, transparent ${rPx}px, black ${rPx + featherPx}px)`;
           }
 
@@ -352,8 +354,8 @@ if (!window._heroContentStarted && t > 0.55) {
   }, 200);
 }
               
-if (scalingRig && t < 0.90) {
-  const bright = 0.25 + 0.75 * Math.pow(t, 0.6);
+if (scalingRig && t < 0.70) {
+  const bright = 0.25 + 0.75 * Math.pow(t / 0.70, 0.6);
   scalingRig.style.filter = `brightness(${bright})`;
 }
 
@@ -1264,4 +1266,28 @@ gsap.ticker.add((time) => {
   }
 
   frameCount++;
+});
+
+ScrollTrigger.create({
+  trigger: ".scroll-tracker",
+  start: "top top",
+  onLeaveBack: () => {
+    // Hard-snap everything to its fully-rested state
+    // so scrub overshoot can't leave things in a weird intermediate
+    gsap.set(".scaling-rig", { scale: 1, opacity: 1 });
+    gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], { opacity: 1 });
+    gsap.set(".water-lines", { opacity: 1 });
+    gsap.set(".sky-text-images", { autoAlpha: 0 });
+    gsap.set("#sky-text-container", { autoAlpha: 0 });
+    gsap.set(".hero-identity-frame", { opacity: 1 });
+    if (heroLineElements) {
+      heroLineElements.forEach(line => {
+        line.style.opacity = 1;
+        line.style.transform = 'translateY(0px)';
+      });
+    }
+    gsap.set(".fish-clown-1", { x: 0, opacity: 1, scale: 1 });
+    gsap.set(".fish-clown-2", { x: 0, opacity: 1, scale: 1 });
+    gsap.set(".fish-tang",   { x: 0, opacity: 1, scale: 1 });
+  }
 });
