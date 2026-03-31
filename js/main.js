@@ -1195,6 +1195,12 @@ window.addEventListener('load', () => {
       ScrollTrigger.refresh();
     }, 500);
   }
+  // Fix nav visibility when skipping intro via hash
+if (window.location.hash) {
+  gsap.set('.nav-left', { opacity: 1 });
+  gsap.set('.nav-right a', { opacity: 1 });
+  gsap.set('.nav-center-star', { opacity: 1 });
+}
 });
 
 document.addEventListener('click', (e) => {
@@ -1237,7 +1243,9 @@ ScrollTrigger.create({
   onEnter: () => {
     document.getElementById('scrollHint').classList.add('hidden');
   },
-  onLeaveBack: () => {
+onLeaveBack: () => {
+  if (!pageReady) return; // add this line at the top
+  gsap.set(".scaling-rig", { scale: 1, opacity: 1 });
     document.getElementById('scrollHint').classList.remove('hidden');
   }
 });
