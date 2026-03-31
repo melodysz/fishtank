@@ -263,7 +263,7 @@ body, html {
   z-index: 1;
 }
 
-.hero-section::after {
+/* .hero-section::after {
   content: "";
   position: absolute;
   inset: 20px 8px 0 8px;
@@ -271,7 +271,7 @@ body, html {
   border-radius: 0 0 30px 30px;
   pointer-events: none;
   z-index: 2;
-}
+} */
 
 .hero-image {
   width: 100%;
