@@ -1,40 +1,26 @@
+document.addEventListener('DOMContentLoaded', () => {
+
 document.querySelector('.nav-swap[data-default="[WORK]"]')?.addEventListener('click', (e) => {
   e.preventDefault();
   window.location.href = 'https://melodysz.github.io/fishtank/#third-section';
 });
 
-const entryOverlay = document.getElementById('page-entry-overlay');
-if (entryOverlay) {
-  gsap.to(entryOverlay, {
-    opacity: 0,
-    duration: 1.0,
-    delay: 0.2,
-    ease: "power2.inOut",
-    onComplete: () => entryOverlay.remove()
-  });
+function initHeroAnimations() {
+  const entryOverlay = document.getElementById('page-entry-overlay');
+  if (entryOverlay) {
+    gsap.to(entryOverlay, {
+      opacity: 0, duration: 0.8, delay: 0.1, ease: "power2.inOut",
+      onComplete: () => entryOverlay.remove()
+    });
+  }
+
+  gsap.set('.hero-image', { opacity: 0, y: 20 });
+  gsap.to('.hero-image', { opacity: 1, y: 0, duration: 1.6, ease: "power2.out", delay: 0.3 });
+
+  const heroLines = document.querySelectorAll('.hero-identity-line');
+  gsap.set(heroLines, { opacity: 0, y: 15 });
+  gsap.to(heroLines, { opacity: 1, y: 0, duration: 0.9, ease: "power2.out", stagger: 0.15, delay: 0.6 });
 }
-
-// Animate hero image in first, then logo + tagline
-gsap.set('.hero-image', { opacity: 0, y: 20 });
-gsap.to('.hero-image', {
-  opacity: 1,
-  y: 0,
-  duration: 1.6,
-  ease: "power2.out",
-  delay: 0.4
-});
-
-// Animate hero logo + tagline in on page load
-const heroLines = document.querySelectorAll('.hero-identity-line');
-gsap.set(heroLines, { opacity: 0, y: 15 });
-gsap.to(heroLines, {
-  opacity: 1,
-  y: 0,
-  duration: 0.9,
-  ease: "power2.out",
-  stagger: 0.15,
-  delay: 1.2  // starts after the entry overlay fades
-});
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -79,6 +65,7 @@ window.addEventListener('load', () => {
   window.scrollTo(0, 0);
   lenis.scrollTo(0, { immediate: true });
   ScrollTrigger.refresh();
+  initHeroAnimations(); // ← add this line
 });
 
 
@@ -704,3 +691,5 @@ gsap.to(".hero-identity-frame", {
 //     }
 //   });
 // })();
+  
+  });
