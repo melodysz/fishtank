@@ -15,13 +15,13 @@ lenis.on('scroll', (e) => { ScrollTrigger.update(); });
 ScrollTrigger.defaults({ markers: false });
 
 // NOW lenis exists, safe to use it
-const entryOverlay = document.getElementById('page-entry-overlay');
-if (entryOverlay) {
-  gsap.to(entryOverlay, {
-    opacity: 0, duration: 1.0, delay: 0.2, ease: "power2.inOut",
-    onComplete: () => entryOverlay.remove()
-  });
-}
+// const entryOverlay = document.getElementById('page-entry-overlay');
+// if (entryOverlay) {
+//   gsap.to(entryOverlay, {
+//     opacity: 0, duration: 1.0, delay: 0.2, ease: "power2.inOut",
+//     onComplete: () => entryOverlay.remove()
+//   });
+// }
 
 window.addEventListener('load', () => {
   window.scrollTo(0, 0);
@@ -275,6 +275,15 @@ function playDeep24IdentityIn() {
 }
 
 function initDeep24HeroAnimations() {
+  // Fade overlay out in sync with animations starting
+  const entryOverlay = document.getElementById('page-entry-overlay');
+  if (entryOverlay) {
+    gsap.to(entryOverlay, {
+      opacity: 0, duration: 0.8, delay: 0.1, ease: "power2.inOut",
+      onComplete: () => entryOverlay.remove()
+    });
+  }
+
   gsap.set('#hero-d24-icon', { opacity: 0, y: 24 });
   gsap.set('#hero-d24-tagline', { opacity: 0, y: 24 });
   gsap.set('.hero-orbit', { autoAlpha: 0, scale: 0.75 });
@@ -294,9 +303,14 @@ function initDeep24HeroAnimations() {
 window.addEventListener('pageshow', (e) => {
   if (e.persisted) {
     window.location.reload();
-  } else {
-    initDeep24HeroAnimations();
   }
+});
+
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+  lenis.scrollTo(0, { immediate: true });
+  ScrollTrigger.refresh();
+  initDeep24HeroAnimations(); // ← moved here
 });
 
 gsap.to(".hero-image", { yPercent: 10, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "bottom top", scrub: true }});
