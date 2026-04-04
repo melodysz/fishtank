@@ -173,7 +173,12 @@ function playHeroFishIn() {
 
 
 gsap.set('.sec2-bubble, .sec2-flower', { opacity: 0, y: 20 });
+gsap.set('#scrollHint', { opacity: 0, y: -18 });
 gsap.set('.bubble-decor, .flower-decor', { opacity: 0, y: 20 });
+const tilts = [8, -6, 10, -9];
+document.querySelectorAll(".project-card").forEach((card, i) => {
+  gsap.set(card, { opacity: 1, y: 0, rotate: tilts[i] });
+});
 gsap.set('.dangles-decor', { y: -50, opacity: 0 });
 
 function playHeroIdentityIn() {
@@ -371,10 +376,14 @@ if (scalingRig && t < 0.70) {
                 opacity: 0,
                 duration: 0.5,
                 ease: "power1.out",
-                onComplete: () => {
-                  introScreen.style.display = "none";
-                  unlockScroll();
-                }
+onComplete: () => {
+  introScreen.style.display = "none";
+  unlockScroll();
+  gsap.fromTo('#scrollHint',
+    { top: '0vh', opacity: 0 },
+    { top: 'calc(100vh - 2.5rem)', opacity: 1, duration: 1.1, ease: "power3.out", delay: 0 }
+  );
+}
               });
             }
           });
@@ -789,7 +798,7 @@ ScrollTrigger.create({
   }, 
   onLeaveBack: () => {
     document.body.classList.remove('reveal-sec2');
-    gsap.to(navItems, { color: "#0313E4", duration: 0.4 });
+    gsap.to(navItems, { color: "#006EE9", duration: 0.4 });
   }
 });
 
@@ -976,36 +985,23 @@ function playProjectCardsIn() {
   gsap.to(cursorMain, { width: '12px', height: '12px', duration: 0.3, ease: "power2.out" });
   const cards = document.querySelectorAll(".project-card");
   cards.forEach((card, index) => {
-    gsap.to(card, { opacity: 1, y: 0, duration: 0.8, delay: index * 0.15, ease: "back.out(4)", overwrite: true });
+    gsap.to(card, { rotate: 0, duration: 1.0, delay: index * 0.12, ease: "elastic.out(1, 0.5)", overwrite: true });
   });
-  setTimeout(() => { projectCardsReady = true; }, ((cards.length - 1) * 0.15 + 0.8) * 1000);
+  setTimeout(() => { projectCardsReady = true; }, ((cards.length - 1) * 0.12 + 1.0) * 1000);
 }
 
 function resetProjectCards() {
   projectCardsReady = false;
-  gsap.set(".project-card", { opacity: 0, y: 60 });
+  const tilts = [8, -6, 10, -9];
+  document.querySelectorAll(".project-card").forEach((card, i) => {
+    gsap.set(card, { opacity: 1, y: 0, rotate: tilts[i] });
+  });
 }
 
-resetProjectCards();
-
-
 
 ScrollTrigger.create({
   trigger: ".third-section",
-  start: "top 140%",
-  onEnter: () => {
-    gsap.to('.third-title .third-anim', {
-      opacity: 1, y: 0, duration: 0.8, ease: "power2.out", overwrite: true
-    });
-  },
-  onLeaveBack: () => {
-    gsap.set('.third-title .third-anim', { opacity: 0, y: 40 });
-  }
-});
-
-ScrollTrigger.create({
-  trigger: ".third-section",
-  start: "top 70%",
+  start: "top 69.8%",
   onEnter: () => {
     setTimeout(() => {
       playProjectCardsIn();
@@ -1025,8 +1021,6 @@ ScrollTrigger.create({
   },
   onLeaveBack: () => {
     gsap.killTweensOf(".project-card");
-    resetProjectCards();
-    gsap.set('.third-title .third-anim', { opacity: 0, y: 40 });
     gsap.to('.bubble-decor, .flower-decor', { 
       opacity: 0, y: 20, duration: 0.4, stagger: 0.06, 
       ease: "power2.in", overwrite: true

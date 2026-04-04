@@ -148,13 +148,6 @@ body * {
   isolation: isolate; /* 🔑 creates a local stacking context */
 }
 
-/* Text must be above ripples */
-.intro-text {
-  position: relative;
-  z-index: 3;
-  opacity: 1;
-}
-
 /* Ripples must be above black background */
 .ripple-container {
   position: absolute;
@@ -270,7 +263,7 @@ body * {
   --bg-beige: #F9F5EC;
   --text-dark: #1A1A1A;
   --blue-accent: #2563EB;
-  --hero-text-blue: #0313E4;
+  --hero-text-blue: #006EE9;
   --hover-yellow: #C28500;
   --gold-text: #FFF3BF;
   --accent-pink: #E7A0FE;
@@ -334,7 +327,7 @@ body {
   left: 0;
   width: 8px;
   height: 8px;
-  background-color: #0313E4;
+  background-color: #006EE9;
   border-radius: 50%;
   pointer-events: none !important; /* Make sure this is here */
   z-index: 100; /* Changed from 10000 - puts bubbles BELOW nav and interactive elements */
@@ -541,13 +534,13 @@ body {
 }
 
 /* --- NAV --- */
-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 10000; color: var(--hero-text-blue); }
+nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 10000; color: #006EE9; }
 .nav-left { position: relative; font-family: 'Zen Old Mincho', serif; font-size: 1.2rem; letter-spacing: 0.05em; cursor: pointer; display: flex; align-items: center; height: 30px; overflow: hidden; }
 .name-inner { display: inline-block; will-change: transform, opacity; }
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 2rem;            /* replaces margin-left */
+  gap: 3rem;            /* replaces margin-left */
 }
 
 
@@ -1054,12 +1047,10 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 
-/* Animation reveals */
 .third-anim {
   display: block;
-  transform: translateY(40px);
-  opacity: 0;
-  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0px);
+  opacity: 1;
   will-change: transform, opacity;
 }
 
@@ -1155,22 +1146,6 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   transition: filter 0.4s ease, opacity 0.4s ease;
   transform-origin: center center;
   will-change: transform, opacity;
-}
-
-
-
-
-.third-anim {
-  display: block;
-  transform: translateY(40px);
-  opacity: 0;
-  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-}
-
-.reveal-third .third-anim {
-  transform: translateY(0);
-  opacity: 1;
 }
 
 
@@ -1630,13 +1605,13 @@ html, body {
 
 .scroll-hint {
   position: fixed;
-  bottom: 2.5rem;
   left: 50%;
-  transform: translateX(-50%);
+  top: calc(100vh - 2.5rem);
+  transform: translateX(-50%) translateY(-100%);
   z-index: 9999;
   pointer-events: none;
-  will-change: opacity;
-  transition: opacity 0.6s ease;
+  mix-blend-mode: difference;
+  opacity: 0;
 }
 
 .scroll-hint.hidden {
