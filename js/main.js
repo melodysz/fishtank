@@ -1734,9 +1734,9 @@ gsap.set(".hero-identity-frame", { autoAlpha: 1 });
         line.style.transform = 'translateY(0px)';
       });
     }
-    gsap.set(".fish-clown-1", { x: 0, opacity: 1, scale: 1 });
-    gsap.set(".fish-clown-2", { x: 0, opacity: 1, scale: 1 });
-    gsap.set(".fish-tang",   { x: 0, opacity: 1, scale: 1 });
+gsap.set(".fish-clown-1", { x: 0, autoAlpha: 1, scale: 1 });
+gsap.set(".fish-clown-2", { x: 0, autoAlpha: 1, scale: 1 });
+gsap.set(".fish-tang",   { x: 0, autoAlpha: 1, scale: 1 });
     restoreScalingRigMask(); // ← add this
     gsap.set(".hero-star", { autoAlpha: 1 });
   }
