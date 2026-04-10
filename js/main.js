@@ -1697,8 +1697,6 @@ ScrollTrigger.create({
   trigger: ".scroll-tracker",
   start: "top top",
   onLeaveBack: () => {
-    // Hard-snap everything to its fully-rested state
-    // so scrub overshoot can't leave things in a weird intermediate
     gsap.set(".scaling-rig", { scale: 1, opacity: 1 });
     gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], { opacity: 1 });
     gsap.set(".water-lines", { opacity: 1 });
@@ -1714,5 +1712,6 @@ ScrollTrigger.create({
     gsap.set(".fish-clown-1", { x: 0, opacity: 1, scale: 1 });
     gsap.set(".fish-clown-2", { x: 0, opacity: 1, scale: 1 });
     gsap.set(".fish-tang",   { x: 0, opacity: 1, scale: 1 });
+    restoreScalingRigMask(); // ← add this
   }
 });
