@@ -9,16 +9,65 @@
   font-style: italic;
 }
 
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-thin.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-book.woff2') format('woff2');
+  font-weight: 400; /* keep 400 so browser uses it as default */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-italic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+}
+
 .project-cards-container,
 .project-card {
   pointer-events: auto !important;
 }
 
-.nav-right a,
+/* .nav-right a,
 .nav-center-star,
 .nav-left {
   opacity: 0;
-}
+} */
 
 
 .footer-signature {
@@ -220,10 +269,15 @@ background-color: #0313E4;
 
 .cursor-dot.is-blob {
   width: var(--blob-w, 48px);
-  height: var(--blob-w, 48px);
+  height: var(--blob-h, 48px);
   border-radius: 50%;
   opacity: 0.4;
   mix-blend-mode: normal;
+}
+
+.cursor-dot.is-blob.is-pill {
+  border-radius: 999px;
+  opacity: 0.35;
 }
 
 .bubble-particle {
@@ -439,43 +493,40 @@ background-color: #0313E4;
 }
 
 /* --- NAV --- */
-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 10000; color: #0033FF; }
+/* nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 10000; color: #0033FF; }
 .nav-left { position: relative; font-family: 'Zen Old Mincho', serif; font-size: 1.2rem; letter-spacing: 0.05em; cursor: pointer; display: flex; align-items: center; height: 30px; overflow: hidden; }
-.name-inner { display: inline-block; will-change: transform, opacity; }
-.nav-right {
+.name-inner { display: inline-block; will-change: transform, opacity; } */
+/* .nav-right {
   display: flex;
   align-items: center;
-  gap: 3rem;            /* replaces margin-left */
-}
+  gap: 3rem;
+} */
 
-
-.nav-right a {
+/* .nav-right a {
   color: inherit;
   text-decoration: none;
-  font-family: Helvetica, sans-serif;
+  font-family: 'PP Neue Montreal', sans-serif;
   font-weight: 400;
   font-size: 0.85rem;
   text-transform: uppercase;
-
-  /* keeps each item from reflowing the others */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 30px;
   overflow: hidden;
   flex: 0 0 auto;
-  padding: 0 0.2rem;     /* optional: consistent click target */
-}
+  padding: 0 0.2rem;
+} */
 
-.nav-right a .nav-inner {
+/* .nav-right a .nav-inner {
   display: inline-block;
   white-space: nowrap;
   will-change: transform, opacity;
-}
+} */
 
-.nav-left:hover, .nav-right a:hover { opacity: 1; color: var(--hover-yellow) !important; }
+/* .nav-left:hover, .nav-right a:hover { opacity: 1; color: var(--hover-yellow) !important; } */
 
-.nav-center-star {
+/* .nav-center-star {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -483,14 +534,150 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   height: 40px;
   color: inherit;
   transition: opacity 0.4s ease;
-  pointer-events: auto; /* Still allows hover detection */
-}
+  pointer-events: auto;
+} */
 
-#nav-star-icon {
+/* #nav-star-icon {
   width: 100%;
   height: 100%;
   display: block;
+} */
+
+
+/* Replace all existing nav { } rules with: */
+.nav-pill-wrap {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(1320px, calc(100vw - 80px));
+  pointer-events: none;
+  opacity: 0;
 }
+
+.nav-pill {
+  position: relative;
+  height: 52px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  display: flex;
+  align-items: center;
+  width: 52px;
+  white-space: nowrap;
+  pointer-events: auto;
+  transition: width 0.55s cubic-bezier(0.32, 0, 0.08, 1);
+}
+
+.nav-pill.expanded {
+  width: 100%;
+    pointer-events: none;
+}
+
+.nav-asterisk {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  padding-right: 20px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s;
+  pointer-events: none;
+}
+
+.nav-pill.expanded .nav-content {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: none;
+}
+
+.nav-pill.expanded .nav-wordmark,
+.nav-pill.expanded .nav-link-item {
+  pointer-events: auto;
+}
+
+.nav-wordmark {
+  color: inherit;
+  display: flex;
+  align-items: baseline;
+  flex-shrink: 0;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.nav-pill.expanded .nav-wordmark {
+  opacity: 1;
+  transition: opacity 0.25s ease 0.45s;
+}
+
+.wm-melody {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+}
+
+.wm-zhang {
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.nav-link-item {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  color: inherit;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  position: relative;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: transparent;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: color 0.25s ease, opacity 0.3s ease, transform 0.3s ease;
+}
+
+.nav-pill.expanded .nav-link-item:nth-child(1) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.55s, transform 0.3s ease 0.55s, color 0.25s ease;
+}
+
+.nav-pill.expanded .nav-link-item:nth-child(2) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.68s, transform 0.3s ease 0.68s, color 0.25s ease;
+}
+
+
 
 /* --- SCROLL RIG --- */
 .scroll-tracker { 
@@ -764,7 +951,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 .id-small{
-  font-family: Helvetica, sans-serif;
+  font-family: 'PP Neue Montreal', sans-serif;
   font-weight: 300;
   font-size: clamp(28px, 3.6vw, 40px);
   text-transform: none;
@@ -800,7 +987,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 .id-tagline .helv{
-  font-family: Helvetica, sans-serif;
+  font-family: 'PP Neue Montreal', sans-serif;
   font-weight: 300;
 }
 
@@ -884,8 +1071,8 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 .third-title .helvetica-text {
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
   text-transform: lowercase;
 }
 
@@ -914,7 +1101,6 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 
 /* Individual cards */
 .project-card {
-  position: relative;
   z-index: 56;
   pointer-events: none;
   background-size: contain;
@@ -953,7 +1139,7 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 .third-text {
-  font-family: Helvetica, sans-serif;
+  font-family: 'PP Neue Montreal', sans-serif;
   font-size: 1.2rem;
   max-width: 600px;
   line-height: 1.6;
@@ -1044,8 +1230,8 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 
 /* Reusable text styles (used in footer AND section 3) */
 .helvetica-text {
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
 }
 
 .italic-text {
@@ -1093,8 +1279,8 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 }
 
 .footer-tagline .helvetica-text {
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
   font-size: 50px;
   text-transform: lowercase;
 }
@@ -1109,14 +1295,14 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
 .footer-anim { display: block; transform: translateY(40px); opacity: 0; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
 .reveal .footer-anim { transform: translateY(0); opacity: 1; }
 .btn-touch { display: inline-block; 
-  border: 1px solid #E7A0FE; border-radius: 999px; padding: 0.8rem 2.4rem; font-family: Helvetica, sans-serif; font-size: 1.3rem; text-decoration: none; color: #E7A0FE !important;
+  border: 1px solid #E7A0FE; border-radius: 999px; padding: 0.8rem 2.4rem; font-family: 'PP Neue Montreal', sans-serif; font-size: 1.3rem; text-decoration: none; color: #E7A0FE !important;
  background-color: transparent; transition: background-color 0.3s ease, color 0.3s ease; pointer-events: auto !important;   pointer-events: auto !important; }
 .btn-touch:hover { background-color: #E7A0FE !important; 
   color: #000000 !important; }
 .footer-bottom { position: absolute; bottom: 0; left: 0; width: 100%; padding: 3rem; display: grid; grid-template-columns: 1fr 1fr; align-items: end; z-index: 60; transform-origin: center bottom; will-change: transform, opacity; pointer-events: auto; }
-.footer-left { text-align: left; display: flex; flex-direction: column; gap: 0.4rem; font-family: Helvetica, sans-serif; }
+.footer-left { text-align: left; display: flex; flex-direction: column; gap: 0.4rem; font-family: 'PP Neue Montreal', sans-serif; }
 .footer-right { text-align: right; display: flex; flex-direction: column; gap: 0.6rem; pointer-events: auto; }
-.footer-right a { font-size: 0.85rem; text-transform: uppercase; color: #D1FFA4; text-decoration: none; font-family: Helvetica, sans-serif; letter-spacing: 0.05em; pointer-events: auto; }
+.footer-right a { font-size: 0.85rem; text-transform: uppercase; color: #D1FFA4; text-decoration: none; font-family: 'PP Neue Montreal', sans-serif; letter-spacing: 0.05em; pointer-events: auto; }
 
 .footer-star-wrapper { 
   width: 80px;
@@ -1176,79 +1362,6 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   opacity: 1;
 }
 
-
-/* #skyRevealText {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 5;
-  pointer-events: none;
-  text-align: center;
-  
-  color: #D1FFA4;
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
-  font-size: 50px;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  text-transform: lowercase;
-  
-  opacity: 1;
-  will-change: opacity, transform;
-}
-
-.sky-text-line {
-  display: block;
-}
-
-#skyRevealText .italic-text {
-  font-family: 'Xanh Mono', monospace;
-  font-style: italic;
-  font-size: 50px;
-  text-transform: none;
-  letter-spacing: -0.1em;
-}
-
-#skyRevealText .helvetica-text {
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
-  font-size: 50px;
-  text-transform: lowercase;
-}
-
-.sky-subtitle {
-  margin-top: 0.4rem;
-  font-size: 18px;
-  line-height: 1;
-  color: #83FFCD;
-  letter-spacing: -0.05em;
-  text-transform: none;
-}
-
-.sky-subtitle .helvetica-text {
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
-  font-size: 18px !important;
-  text-transform: lowercase;
-}
-
-.sky-subtitle .xanh-regular {
-  font-family: 'Xanh Mono', monospace;
-  font-style: normal;
-  font-size: 18px !important;
-}
-
-.sky-subtitle .italic-text {
-  font-family: 'Xanh Mono', monospace;
-  font-style: italic;
-  font-size: 18px !important;
-  letter-spacing: -0.1em;
-} */
-
-
-/* Add this to your CSS file */
-
 /* Hide old text version */
 #skyRevealText {
   display: none !important;
@@ -1296,14 +1409,14 @@ nav { position: fixed; top: 0; left: 0; width: 100%; height: 100px; padding: 0 3
   font-size: 18px;
   line-height: 1;
   color: #00CEFF;
-  letter-spacing: -0.05em;
+/*   letter-spacing: -0.05em; */
   text-transform: none;
   text-align: center;
 }
 
 .sky-subtitle-new .helvetica-text {
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
   font-size: 18px !important;
   text-transform: lowercase;
 }
@@ -1582,10 +1695,10 @@ html, body {
 }
 
 /* Prevent pointer on nav star */
-.nav-center-star,
+/* .nav-center-star,
 .nav-center-star * {
   cursor: default !important;
-}
+} */
 
 /* Prevent pointer on footer links */
 .footer-right a,
@@ -1629,11 +1742,11 @@ a, button, [role="button"] {
 .work-nav-pill {
   background: rgba(0, 110, 233, 0.5);
   color: #2584EE;
-  font-family: Helvetica, sans-serif;
+  font-family: 'PP Neue Montreal', sans-serif;
   font-size: 0.95rem;
-  font-weight: 400;
+  font-weight: 500;
   text-transform: lowercase;
-  letter-spacing: 0.03em;
+/*   letter-spacing: 0.03em; */
   padding: 0.4rem 1.1rem;
   border-radius: 10px;
   opacity: 0;

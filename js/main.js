@@ -338,12 +338,18 @@ scalingRig.style.filter = "brightness(0.25)";
 if (!window._heroContentStarted && t > 0.55) {
   window._heroContentStarted = true;
 
-  // nav is cheap, animate immediately
-  gsap.to('.nav-left', { opacity: 1, duration: 0.4, ease: "power2.out" });
-  gsap.to('.nav-right a', { opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" });
-  gsap.to('.nav-center-star', { opacity: 1, duration: 0.1, ease: "none", onComplete: () => {
-    gsap.to('.nav-center-star', { rotation: "+=720", duration: 1.5, ease: "expo.out" });
-  }});
+  setTimeout(() => {
+    const navPill = document.getElementById('navPill');
+    const navAsteriskSvg = document.querySelector('#navAsterisk svg');
+    gsap.set('#navWrap', { opacity: 1 });
+    gsap.set(navAsteriskSvg, { rotation: 0 });
+    navPill.classList.add('expanded');
+    gsap.to(navAsteriskSvg, {
+      rotation: -378,
+      duration: 1.2,
+      ease: "back.out(1.4)"
+    });
+  }, 600);
 
   const scalingRig = document.querySelector('.scaling-rig');
   if (scalingRig) {
@@ -671,16 +677,28 @@ animateCursor();
 
 const BLOB_HEIGHT = 40;
 
-function expandToBlob() {
+function expandToBlob(el, pill = false) {
+  const rect = el.getBoundingClientRect();
   isBlobMode = true;
-  cursorMain.style.setProperty('--blob-w', '48px');
-  cursorMain.classList.add('is-blob');
+  if (pill) {
+    cursorMain.style.setProperty('--blob-w', rect.width + 'px');
+    cursorMain.style.setProperty('--blob-h', '40px');
+    cursorMain.classList.add('is-blob');
+    cursorMain.classList.add('is-pill');
+  } else {
+    cursorMain.style.setProperty('--blob-w', '48px');
+    cursorMain.style.setProperty('--blob-h', '48px');
+    cursorMain.classList.add('is-blob');
+    cursorMain.classList.remove('is-pill');
+  }
 }
 
 function shrinkBlob() {
   isBlobMode = false;
   cursorMain.classList.remove('is-blob');
+  cursorMain.classList.remove('is-pill');
   cursorMain.style.removeProperty('--blob-w');
+  cursorMain.style.removeProperty('--blob-h');
 }
 
 window.addEventListener("mouseenter", () => cursorMain.classList.add("active"));
@@ -726,9 +744,18 @@ window.addEventListener("pointermove", (e) => {
     return el.matches?.("a[href], button, [role='button'], .btn-touch, .work-nav-pill") ||
            el.closest?.("a[href], button, [role='button'], .btn-touch, .work-nav-pill");
   });
-  if (hovered && !isBlobMode) expandToBlob();
+if (hovered && !isBlobMode) expandToBlob(hovered, false);
   else if (!hovered && isBlobMode) shrinkBlob();
 });
+
+document.querySelectorAll('.nav-link-item').forEach(link => {
+  link.addEventListener('mouseenter', () => expandToBlob(link, true));
+  link.addEventListener('mouseleave', () => shrinkBlob());
+});
+
+const navWordmarkEl = document.querySelector('.nav-wordmark');
+navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl, true));
+navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
 
 // Nav name
 const navName = document.getElementById('nav-name');
@@ -736,7 +763,7 @@ const nameInner = navName.querySelector('.name-inner');
 navName.addEventListener('mouseenter', () => {
   gsap.to(nameInner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
     nameInner.textContent = "MELODY";
-    Object.assign(nameInner.style, { fontFamily: "'Helvetica Neue', sans-serif", fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" });
+    Object.assign(nameInner.style, { fontFamily: "'PP Neue Montreal', 'Helvetica Neue', sans-serif", fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" });
     gsap.fromTo(nameInner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
   }});
 });
@@ -748,7 +775,22 @@ navName.addEventListener('mouseleave', () => {
   }});
 });
 
-const navItems = document.querySelectorAll('nav, nav a, .nav-center-star');
+const navItems = document.querySelectorAll('.nav-pill, .nav-wordmark, .nav-link-item, .nav-asterisk');
+
+gsap.set(navItems, { color: "#0033FF" });
+gsap.set('#navWrap', { opacity: 0 });
+const navAsteriskSvg = document.querySelector('#navAsterisk svg');
+gsap.set(navAsteriskSvg, { rotation: -378 });
+gsap.set('.nav-content', { opacity: 1 }); // let CSS handle individual item transitions
+
+document.getElementById('navAsterisk').addEventListener('mouseenter', () => {
+  gsap.killTweensOf(navAsteriskSvg);
+  gsap.to(navAsteriskSvg, {
+    rotation: '-=720',
+    duration: 1.8,
+    ease: "power2.out"
+  });
+});
 
 navName.addEventListener('click', (e) => {
   e.preventDefault();
@@ -782,18 +824,7 @@ document.querySelectorAll('.nav-swap').forEach(link => {
   const hoverText = link.getAttribute('data-hover') || originalText;
   inner.style.display = "inline-block";
   inner.style.willChange = "transform, opacity";
-
-  function lockNavWidth() {
-    inner.textContent = defaultText;
-    const w1 = inner.getBoundingClientRect().width;
-    inner.textContent = hoverText;
-    const w2 = inner.getBoundingClientRect().width;
-    link.style.width = `${Math.ceil(Math.max(w1, w2)) + 2}px`;
-    inner.textContent = defaultText;
-  }
-
-  lockNavWidth();
-  window.addEventListener("resize", lockNavWidth);
+  inner.textContent = defaultText;
 
   link.addEventListener('mouseenter', () => {
     gsap.to(inner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
@@ -811,14 +842,21 @@ document.querySelectorAll('.nav-swap').forEach(link => {
 });
 
 // [WORK] nav link
-document.querySelector('.nav-swap[data-default="[WORK]"]').addEventListener('click', (e) => {
+document.querySelector('.nav-swap[data-default="work"]').addEventListener('click', (e) => {
   e.preventDefault();
   const thirdSection = document.querySelector('#third-section');
-  const nav = document.querySelector('nav');
-  const navHeight = nav ? nav.getBoundingClientRect().height : 0;
   const sectionTop = thirdSection.offsetTop;
-  gsap.set('#blackCover', { opacity: 0 }); // ← add this
-  lenis.scrollTo(sectionTop - navHeight + 50, { duration: 1.2 });
+  gsap.set('#blackCover', { opacity: 0 });
+  
+  gsap.set('.scaling-rig', { scale: 10, autoAlpha: 0, clearProps: 'filter,willChange' });
+  gsap.set(['.hero-peek-layer', '.hero-halo', '.hero-orbit'], { autoAlpha: 0 });
+  gsap.set('.hero-identity-frame', { autoAlpha: 0 });
+  gsap.set(['.fish-clown-1', '.fish-clown-2', '.fish-tang'], { autoAlpha: 0 });
+  gsap.set('.hero-star', { autoAlpha: 0 });
+  gsap.set('.section-2-wrapper', { y: '-100vh' });
+  restoreScalingRigMask();
+  
+  lenis.scrollTo(sectionTop, { duration: 1.2 });
 });
 
 gsap.to("#footer-star-icon", { rotation: 360, duration: 25, ease: "none", repeat: -1 });
@@ -1134,13 +1172,13 @@ if (settled === 2) {
   const myToken = ++awardToken;
   setTimeout(() => {
     if (myToken === awardToken && !isInteracting) showAward();
-  }, 200);
+  }, 0);
 }
 if (settled === 3) {
   const myToken = ++awardToken;
   setTimeout(() => {
     if (myToken === awardToken && !isInteracting) showBadge();
-  }, 200);
+  }, 0);
 }
 }
   }
@@ -1151,7 +1189,7 @@ carouselEl.addEventListener('pointerdown', (e) => {
   if (!carouselReady) return;
   isInteracting = true;
   spinToAborted = true;
-  hideAward();
+  // hideAward();
   // hideBadge();
   dragging = true;
   didDrag = false;
@@ -1256,8 +1294,8 @@ if (badge) {
   badge._targetLift = (hoveredCard === iproDentalCard) ? -50 : 0;
 }
 
-  const onCard = !!hoveredCard;
-  if (onCard && !isBlobMode) expandToBlob();
+const onCard = !!hoveredCard;
+if (onCard && !isBlobMode) expandToBlob(hoveredCard, false);
   else if (!onCard && isBlobMode) {
     const hovered = document.elementsFromPoint(e.clientX, e.clientY).find(el =>
       el.matches?.("a[href], button, [role='button'], .btn-touch") ||
@@ -1297,7 +1335,7 @@ let awardToken = 0;
 let lastHideTime = 0;
 
 function showAward() {
-  if (performance.now() - lastHideTime < 500) return;
+  // if (performance.now() - lastHideTime < 500) return;
   awardVisible = true;
   const award = awardEl;
 
@@ -1316,16 +1354,16 @@ function hideBadge() {
 
   if (!badge) return;
   gsap.killTweensOf(badge);
-  badge.style.opacity = '0';
-  badge.style.transition = 'opacity 0.15s ease';
+  gsap.to(badge, { opacity: 0, duration: 0.15, ease: "power1.out", overwrite: true });
+  badge.style.transition = '';
 }
 
 function showBadge() {
-  if (performance.now() - lastHideTime < 500) return;
   const badge = badgeEl;
 
   if (!badge) return;
   badge.style.transition = '';
+  badge.style.opacity = '';  // clear any inline opacity hideBadge() set
   gsap.killTweensOf(badge);
   gsap.fromTo(badge,
     { opacity: 0, rotate: 25, scale: 0.9 },
@@ -1341,9 +1379,8 @@ function hideAward() {
 
   if (!award) return;
   gsap.killTweensOf(award);
-  award.style.opacity = '0';
-  award.style.transition = 'opacity 0.15s ease';
-  // hideBadge();
+  gsap.to(award, { opacity: 0, duration: 0.15, ease: "power1.out", overwrite: true });
+  award.style.transition = '';
 }
 
 function animateWorkNavIn() {
@@ -1405,6 +1442,18 @@ function renderLoop() {
     const target = card._targetLift || 0;
     card._currentLift = card._currentLift || 0;
     card._currentLift += (target - card._currentLift) * 0.12;
+
+    // Calculate how far the card has actually lifted (0 = resting, 1 = fully up)
+    const liftProgress = Math.max(0, -card._currentLift / 30); // 30 = max lift amount
+    const shadowBlur = liftProgress * 40;
+    const shadowY = liftProgress * 20;
+    const shadowOpacity = liftProgress * 0.6;
+
+    if (liftProgress > 0.01) {
+      card.style.filter = `drop-shadow(0px ${shadowY}px ${shadowBlur}px rgba(0,0,0,${shadowOpacity}))`;
+    } else {
+      card.style.filter = 'none';
+    }
   });
   layoutCards();
 
@@ -1419,13 +1468,15 @@ function renderLoop() {
     gsap.set(award, { y: award._currentLift });
   }
   
-  const badge = badgeEl;
+const badge = badgeEl;
 
 if (badge) {
   badge._currentLift = badge._currentLift || 0;
   badge._targetLift = badge._targetLift || 0;
   badge._currentLift += (badge._targetLift - badge._currentLift) * 0.12;
-  gsap.set(badge, { y: badge._currentLift });
+  if (gsap.getProperty(badge, 'opacity') > 0.01) {
+    gsap.set(badge, { y: badge._currentLift });
+  }
 }
 
   updateWorkNavHighlight();
@@ -1438,7 +1489,7 @@ let carouselAnimPlayed = false;
 
 ScrollTrigger.create({
   trigger: ".third-section",
-  start: "top 69.8%",
+  start: "top 100%",
   onEnter: () => {
     carouselReady = true;
     if (!carouselAnimPlayed) {
@@ -1477,7 +1528,7 @@ ScrollTrigger.create({
       { opacity: 1, y: 0, scale: 1.5, rotation: 2160, duration: 2.5, stagger: 0.15, ease: "expo.out", delay: 0.4, overwrite: true }
     );
   },
-  onLeaveBack: () => {
+onLeaveBack: () => {
     carouselAnimPlayed = false;
     carouselReady = false;
     window._carouselFade = 0;
@@ -1487,7 +1538,14 @@ ScrollTrigger.create({
     layoutCards();
     hideAward();
     hideBadge();
-    const pills = workNavPills;
+    // Hard reset badge and award to avoid stuck state
+    gsap.killTweensOf(badgeEl);
+    gsap.killTweensOf(awardEl);
+    if (badgeEl) { badgeEl.style.opacity = '0'; badgeEl.style.transition = ''; }
+    if (awardEl) { awardEl.style.opacity = '0'; awardEl.style.transition = ''; }
+      if (badgeEl) { badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
+    if (awardEl) { awardEl._currentLift = 0; awardEl._targetLift = 0; }  
+  const pills = workNavPills;
     pills.forEach(pill => {
       gsap.to(pill, { opacity: 0, duration: 0.3 });
       pill.classList.remove('active');
@@ -1586,7 +1644,7 @@ const projectCards = document.querySelectorAll(".project-card");
 const thirdDecor = document.querySelectorAll(".third-decor");
 
 document.addEventListener('DOMContentLoaded', () => {
-  const whoNavLink = document.querySelector('.nav-right a[data-default="[WHO?]"]');
+  const whoNavLink = document.querySelector('.nav-swap[data-default="who"]');
   if (whoNavLink) {
     whoNavLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1624,9 +1682,8 @@ window.addEventListener('load', () => {
   }
   // Fix nav visibility when skipping intro via hash
 if (window.location.hash) {
-  gsap.set('.nav-left', { opacity: 1 });
-  gsap.set('.nav-right a', { opacity: 1 });
-  gsap.set('.nav-center-star', { opacity: 1 });
+  gsap.set('#navWrap', { opacity: 1 });
+  document.getElementById('navPill').classList.add('expanded');
 }
 });
 
@@ -1739,5 +1796,22 @@ gsap.set(".fish-clown-2", { x: 0, autoAlpha: 1, scale: 1 });
 gsap.set(".fish-tang",   { x: 0, autoAlpha: 1, scale: 1 });
     restoreScalingRigMask(); // ← add this
     gsap.set(".hero-star", { autoAlpha: 1 });
+  },
+onEnterBack: () => {
+    const scrollY = window.scrollY;
+    const scrollTracker = document.querySelector('.scroll-tracker');
+    const trackerHeight = scrollTracker ? scrollTracker.offsetHeight : 0;
+    const trackerTop = scrollTracker ? scrollTracker.offsetTop : 0;
+    // Only restore hero if we're back at the very top (hero section)
+    // scroll-tracker is 200vh, hero is only visible in first ~30% of it
+    const heroEnd = trackerTop + trackerHeight * 0.30;
+    if (scrollY > heroEnd) return;
+    gsap.set('.scaling-rig', { scale: 1, autoAlpha: 1, clearProps: 'filter,willChange' });
+    restoreScalingRigMask();
+    gsap.set(['.hero-peek-layer', '.hero-halo', '.hero-orbit'], { autoAlpha: 1 });
+    gsap.set('.hero-identity-frame', { autoAlpha: 1 });
+    playHeroFishIn();
+    playHeroOrbitIn();
+    playHeroIdentityIn();
   }
 });
