@@ -1,23 +1,67 @@
-document.querySelector('.nav-swap[data-default="[WORK]"]')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  window.location.href = 'https://melodysz.github.io/fishtank/#third-section';
-});
-
-const entryOverlay = document.getElementById('page-entry-overlay');
-if (entryOverlay) {
-  gsap.to(entryOverlay, {
-    opacity: 0,
-    duration: 1.0,
-    delay: 0.2,
-    ease: "power2.inOut",
-    onComplete: () => entryOverlay.remove()
-  });
-}
+document.addEventListener('DOMContentLoaded', () => {
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 // ===============================
-// LENIS SMOOTH SCROLL (GLOBAL)
+// PILL NAV — EXPAND / COLLAPSE + SPIN
+// ===============================
+
+const navWrap = document.getElementById('navWrap');
+const navPill = document.getElementById('navPill');
+const navAsterisk = document.getElementById('navAsterisk');
+const navAsteriskImg = navAsterisk.querySelector('img');
+
+gsap.set(navAsteriskImg, { rotation: 0 });
+
+// Nav intro animation
+gsap.set(navPill, { opacity: 0 });
+gsap.set(navAsteriskImg, { rotation: -720 });
+
+window.addEventListener('load', () => {
+  gsap.timeline({ delay: 0.8 })
+    .to(navPill, { opacity: 1, duration: 0.4, ease: "power2.out", clearProps: "opacity" })
+    .to(navAsteriskImg, { rotation: 0, duration: 2.5, ease: "power2.out" }, "<0.1");
+});
+
+let leaveTimer = null;
+let navIsAnimating = false;
+
+function onNavEnter() {
+  clearTimeout(leaveTimer);
+  if (navPill.classList.contains('expanded')) return;
+  navPill.classList.add('expanded');
+  navIsAnimating = true;
+  setTimeout(() => {
+    navIsAnimating = false;
+    positionBubble();
+  }, 560);
+  gsap.killTweensOf(navAsteriskImg);
+  gsap.to(navAsteriskImg, { rotation: -378, duration: 1.2, ease: "back.out(1.4)" });
+}
+
+function onNavLeave(e) {
+  if (workBubble.contains(e.relatedTarget)) return;
+  leaveTimer = setTimeout(() => {
+    if (bubbleOpen) return;
+    navPill.classList.remove('expanded');
+    navIsAnimating = true;
+    setTimeout(() => { navIsAnimating = false; }, 560);
+    gsap.killTweensOf(navAsteriskImg);
+    gsap.to(navAsteriskImg, { rotation: 0, duration: 1.2, ease: "back.out(1.4)" });
+  }, 400);
+}
+
+navWrap.addEventListener('mouseenter', onNavEnter);
+navWrap.addEventListener('mouseleave', onNavLeave);
+
+navAsterisk.addEventListener('mouseenter', () => {
+  if (!navPill.classList.contains('expanded')) return;
+  gsap.killTweensOf(navAsteriskImg);
+  gsap.to(navAsteriskImg, { rotation: '-=720', duration: 1.8, ease: "power2.out" });
+});
+
+// ===============================
+// LENIS SMOOTH SCROLL
 // ===============================
 
 const lenis = new Lenis({
@@ -25,391 +69,299 @@ const lenis = new Lenis({
   smoothWheel: true,
   wheelMultiplier: 0.7,
   touchMultiplier: 1.5,
-  infinite: false,  // ✅ ADDED
-  syncTouch: true   // ✅ ADDED
+  infinite: false,
+  syncTouch: true
 });
 
-gsap.ticker.add((time) => {
-  lenis.raf(time * 1000);
-});
-
+gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
-
-// ✅ IMPROVED - Better sync
-lenis.on('scroll', (e) => {
-  ScrollTrigger.update();
-});
-
+lenis.on('scroll', (e) => { ScrollTrigger.update(); });
 ScrollTrigger.defaults({ markers: false });
 
-
-// ✅ ADDED - Refresh on resize
 let resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    ScrollTrigger.refresh();
-  }, 250);
+  resizeTimer = setTimeout(() => { ScrollTrigger.refresh(); }, 250);
 });
 
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
-}
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
 window.addEventListener('load', () => {
   window.scrollTo(0, 0);
   lenis.scrollTo(0, { immediate: true });
   ScrollTrigger.refresh();
-});
 
-
-// ===============================
-// CUSTOM CURSOR (NO SCALING - SIZE CHANGE)
-// ===============================
-
-const cursorMain = document.getElementById('cursor');
-let lastMouseX = 0;
-let lastMouseY = 0;
-let isHovering = false;
-
-window.addEventListener("mouseenter", () => {
-  cursorMain.classList.add("active");
-});
-
-window.addEventListener("mouseleave", () => {
-  cursorMain.classList.remove("active");
-});
-
-window.addEventListener('mousemove', (e) => {
-  const { clientX: x, clientY: y } = e;
-
-  cursorMain.classList.add('active');
-  gsap.to(cursorMain, { 
-    left: x + 'px',
-    top: y + 'px',
-    duration: 0.1 
-  });
-
-  const dist = Math.hypot(x - lastMouseX, y - lastMouseY);
-  if (dist > 15) { 
-    createBubble(x, y);
-    lastMouseX = x;
-    lastMouseY = y;
-  }
-});
-
-function createBubble(x, y) {
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble-particle';
-  document.body.appendChild(bubble);
-
-  const baseSize = isHovering ? 12 : 8;
-  bubble.style.width = (Math.random() * baseSize + baseSize) + 'px';
-  bubble.style.height = bubble.style.width;
-  bubble.style.left = x + 'px';
-  bubble.style.top = y + 'px';
-
-  gsap.to(bubble, {
-    top: (y - (40 + Math.random() * 60)) + 'px',
-    left: (x + (Math.random() * 30 - 15)) + 'px',
-    opacity: 0,
-    width: '2px',
-    height: '2px',
-    duration: 1.2 + Math.random() * 0.8,
-    ease: "power1.out",
-    onComplete: () => bubble.remove()
-  });
-}
-
-window.addEventListener("pointermove", (e) => {
-  const elements = document.elementsFromPoint(e.clientX, e.clientY);
-  const hovered = elements.find(el => {
-    if (el.id === 'cursor' || el.classList.contains('bubble-particle')) {
-      return false;
-    }
-    if (el.closest(".nav-center-star")) return false;
-
-    return el.matches?.(".interactable, a[href], button, [role='button']") ||
-           el.closest?.(".interactable, a[href], button, [role='button']");
-  });
-
-  const next = !!hovered;
-  if (next !== isHovering) {
-    isHovering = next;
-    gsap.to(cursorMain, {
-      width: next ? '48px' : '12px',
-      height: next ? '48px' : '12px',
-      duration: 0.3,
-      ease: "power2.out"
+  // Entry overlay fade
+  const entryOverlay = document.getElementById('page-entry-overlay');
+  if (entryOverlay) {
+    gsap.to(entryOverlay, {
+      opacity: 0, duration: 0.8, delay: 0.1, ease: "power2.inOut",
+      onComplete: () => entryOverlay.remove()
     });
   }
 });
 
-// ===================================
-// HOME PAGE NAV INTERACTIONS
-// ===================================
+// ===============================
+// SCROLL PROGRESS BAR
+// ===============================
 
-const navName = document.getElementById('nav-name');
-const nameInner = navName.querySelector('.name-inner');
+const scrollProgress = document.getElementById('scroll-progress');
 
-navName.addEventListener('mouseenter', () => {
-  gsap.to(nameInner, { 
-    y: -10, 
-    opacity: 0, 
-    duration: 0.2, 
-    onComplete: () => {
-      nameInner.textContent = "MELODY";
-      Object.assign(nameInner.style, { 
-        fontFamily: "'Helvetica Neue', sans-serif", 
-        fontSize: "0.85rem", 
-        letterSpacing: "0.05em", 
-        textTransform: "uppercase" 
-      });
-      gsap.fromTo(nameInner, 
-        { y: 10, opacity: 0 }, 
-        { y: 0, opacity: 1, duration: 0.3 }
-      );
-    }
-  });
+lenis.on('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = (scrollTop / docHeight) * 100;
+  scrollProgress.style.width = pct + '%';
+  scrollProgress.style.height = pct > 99 ? '0px' : '5px';
 });
 
-navName.addEventListener('mouseleave', () => {
-  gsap.to(nameInner, { 
-    y: 10, 
-    opacity: 0, 
-    duration: 0.2, 
-    onComplete: () => {
-      nameInner.textContent = "美迪";
-      Object.assign(nameInner.style, { 
-        fontFamily: "'Zen Old Mincho', serif", 
-        fontSize: "1.2rem", 
-        letterSpacing: "0.05em", 
-        textTransform: "none" 
-      });
-      gsap.fromTo(nameInner, 
-        { y: -10, opacity: 0 }, 
-        { y: 0, opacity: 1, duration: 0.3 }
-      );
-    }
-  });
+// ===============================
+// CUSTOM CURSOR — BLOB STYLE
+// ===============================
+
+const cursorMain = document.getElementById('cursor');
+
+let mouseX = 0, mouseY = 0;
+let curX = 0, curY = 0;
+let isBlobMode = false;
+const LERP_NORMAL = 0.12;
+const LERP_BLOB = 0.10;
+const BLOB_HEIGHT = 40;
+
+function animateCursor() {
+  const lerp = isBlobMode ? LERP_BLOB : LERP_NORMAL;
+  curX += (mouseX - curX) * lerp;
+  curY += (mouseY - curY) * lerp;
+  cursorMain.style.left = curX + 'px';
+  cursorMain.style.top = curY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+window.addEventListener('mouseenter', () => cursorMain.classList.add('active'));
+window.addEventListener('mouseleave', () => cursorMain.classList.remove('active'));
+window.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorMain.classList.add('active');
 });
 
-// Nav swap links
-document.querySelectorAll('.nav-swap').forEach(link => {
-  const originalText = link.textContent.trim();
-  link.innerHTML = `<span class="nav-inner">${originalText}</span>`;
+function expandToBlob(el) {
+  const rect = el.getBoundingClientRect();
+  isBlobMode = true;
+  cursorMain.style.setProperty('--blob-w', rect.width + 'px');
+  cursorMain.style.setProperty('--blob-h', BLOB_HEIGHT + 'px');
+  cursorMain.classList.add('is-blob');
+  mouseX = rect.left + rect.width / 2;
+  mouseY = rect.top + BLOB_HEIGHT / 2;
+}
 
-  const inner = link.querySelector('.nav-inner');
-  const defaultText = link.getAttribute('data-default') || originalText;
-  const hoverText = link.getAttribute('data-hover') || originalText;
+function shrinkBlob() {
+  isBlobMode = false;
+  cursorMain.classList.remove('is-blob');
+}
 
-  inner.style.display = "inline-block";
-  inner.style.willChange = "transform, opacity";
-
-  function lockNavWidth() {
-    inner.textContent = defaultText;
-    const w1 = inner.getBoundingClientRect().width;
-    inner.textContent = hoverText;
-    const w2 = inner.getBoundingClientRect().width;
-    const w = Math.ceil(Math.max(w1, w2)) + 2;
-    link.style.width = `${w}px`;
-    inner.textContent = defaultText;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    isBlobMode = false;
+    cursorMain.classList.remove('is-blob');
+    gsap.set(cursorMain, { clearProps: 'width,height' });
+    clearTimeout(leaveTimer);
+    gsap.killTweensOf(navAsteriskImg);
   }
+});
 
-  lockNavWidth();
-  window.addEventListener("resize", lockNavWidth);
+// Blob on sidebar/footer links
+const clickableEls = document.querySelectorAll(
+  '.case-footer a, .case-footer-right a, .case-footer-links a, .sidebar-nav a, .nav-link'
+);
+
+const navWordmarkEl = document.querySelector('.nav-wordmark');
+navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl));
+navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
+
+clickableEls.forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    if (isBlobMode) return;
+    cursorMain.classList.add('is-blob');
+    gsap.to(cursorMain, { width: '48px', height: '48px', duration: 0.3, ease: "power2.out" });
+  });
+  el.addEventListener('mouseleave', () => {
+    if (isBlobMode) return;
+    cursorMain.classList.remove('is-blob');
+    gsap.to(cursorMain, { width: '18px', height: '18px', duration: 0.3, ease: "power2.out" });
+  });
+});
+
+// Nav link items — flip text on hover + blob cursor
+document.querySelectorAll('.nav-link-item').forEach(link => {
+  const defaultText = link.getAttribute('data-default');
+  const hoverText = link.getAttribute('data-hover');
+
+  link.innerHTML = `<span class="nav-link-inner" style="display:inline-block;will-change:transform,opacity;">${defaultText}</span>`;
+  const inner = link.querySelector('.nav-link-inner');
+  inner.style.setProperty('cursor', 'pointer', 'important');
 
   link.addEventListener('mouseenter', () => {
+    expandToBlob(link);
     gsap.to(inner, {
-      y: -10,
-      opacity: 0,
-      duration: 0.2,
+      y: -10, opacity: 0, duration: 0.18, ease: "power2.in",
       onComplete: () => {
         inner.textContent = hoverText;
-        gsap.fromTo(inner, 
-          { y: 10, opacity: 0 }, 
-          { y: 0, opacity: 1, duration: 0.3 }
-        );
+        inner.style.color = '#000000';
+        inner.style.fontWeight = '500';
+        inner.style.setProperty('cursor', 'pointer', 'important');
+        gsap.fromTo(inner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power2.out" });
       }
     });
   });
 
   link.addEventListener('mouseleave', () => {
+    shrinkBlob();
     gsap.to(inner, {
-      y: 10,
-      opacity: 0,
-      duration: 0.2,
+      y: 10, opacity: 0, duration: 0.18, ease: "power2.in",
       onComplete: () => {
         inner.textContent = defaultText;
-        gsap.fromTo(inner, 
-          { y: -10, opacity: 0 }, 
-          { y: 0, opacity: 1, duration: 0.3 }
-        );
+        inner.style.color = '#181812';
+        inner.style.fontWeight = '400';
+        inner.style.setProperty('cursor', 'pointer', 'important');
+        gsap.fromTo(inner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power2.out" });
       }
     });
   });
 });
 
-// ===============================
-// NAV STAR HOVER SPIN
-// ===============================
+// ===================================
+// WORK DROPDOWN THOUGHT BUBBLE
+// ===================================
 
-const navStarContainer = document.querySelector('.nav-center-star');
-const navStarIcon = document.getElementById('nav-star-icon');
+const workWrap = document.getElementById('navWorkWrap');
+const workBubble = document.getElementById('workBubble');
+const dotsWrap = document.getElementById('bubbleDotsWrap');
+const dotSm = dotsWrap.querySelector('.bubble-dot-sm');
+const dotMd = dotsWrap.querySelector('.bubble-dot-md');
+const dotLg = dotsWrap.querySelector('.bubble-dot-lg');
+const bubbleMenu = workBubble.querySelector('.bubble-menu');
 
-if (navStarContainer && navStarIcon) {
-  navStarContainer.addEventListener('mouseenter', () => {
-    gsap.killTweensOf(navStarIcon);
+let bubbleLeaveTimer = null;
+let bubbleOpen = false;
 
-    const currentRotation =
-      gsap.getProperty(navStarIcon, "rotation") || 0;
-
-    gsap.to(navStarIcon, {
-      rotation: currentRotation + 720,
-      duration: 2.5,
-      ease: "power2.out",
-      overwrite: "auto"
-    });
-  });
+function positionBubble() {
+  const rect = workWrap.getBoundingClientRect();
+  const menuWidth = bubbleMenu.offsetWidth;
+  workBubble.style.left = (rect.left + rect.width / 2 - menuWidth / 2) + 'px';
+  workBubble.style.top = (rect.bottom + 16) + 'px';
+  dotsWrap.style.left = workBubble.style.left;
+  dotsWrap.style.top = workBubble.style.top;
 }
 
+function openBubble() {
+  if (bubbleOpen) return;
+  bubbleOpen = true;
+  positionBubble();
+  workBubble.style.pointerEvents = 'auto';
+  workBubble.setAttribute('aria-hidden', 'false');
+  gsap.killTweensOf([dotSm, dotMd, dotLg, bubbleMenu]);
+  gsap.fromTo(dotSm, { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2.5)', delay: 0 });
+  gsap.fromTo(dotMd, { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.38, ease: 'back.out(2.5)', delay: 0.09 });
+  gsap.fromTo(dotLg, { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.40, ease: 'back.out(2.5)', delay: 0.18 });
+  gsap.fromTo(bubbleMenu, { opacity: 0, scale: 0.88, y: -6 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)', delay: 0.28 });
+}
 
+function closeBubble() {
+  bubbleOpen = false;
+  workBubble.style.pointerEvents = 'none';
+  workBubble.setAttribute('aria-hidden', 'true');
+  gsap.killTweensOf([dotSm, dotMd, dotLg, bubbleMenu]);
+  gsap.to(bubbleMenu, { opacity: 0, scale: 0.88, y: -6, duration: 0.20, ease: 'power2.in' });
+  gsap.to(dotLg, { opacity: 0, scale: 0.3, duration: 0.16, ease: 'power2.in', delay: 0.04 });
+  gsap.to(dotMd, { opacity: 0, scale: 0.3, duration: 0.14, ease: 'power2.in', delay: 0.08 });
+  gsap.to(dotSm, { opacity: 0, scale: 0.3, duration: 0.12, ease: 'power2.in', delay: 0.12 });
+}
 
+workWrap.addEventListener('mouseenter', () => {
+  clearTimeout(bubbleLeaveTimer);
+  if (navPill.classList.contains('expanded') && !navIsAnimating) openBubble();
+});
+
+workWrap.addEventListener('mouseleave', () => {
+  bubbleLeaveTimer = setTimeout(closeBubble, 120);
+});
+
+workBubble.addEventListener('mouseenter', () => {
+  clearTimeout(bubbleLeaveTimer);
+  clearTimeout(leaveTimer);
+});
+workBubble.addEventListener('mouseleave', (e) => {
+  bubbleLeaveTimer = setTimeout(closeBubble, 120);
+  if (!navWrap.contains(e.relatedTarget)) {
+    leaveTimer = setTimeout(() => {
+      navPill.classList.remove('expanded');
+      navIsAnimating = true;
+      setTimeout(() => { navIsAnimating = false; }, 560);
+      gsap.killTweensOf(navAsteriskImg);
+      gsap.to(navAsteriskImg, { rotation: 0, duration: 1.2, ease: "back.out(1.4)" });
+    }, 200);
+  }
+});
+
+navWrap.addEventListener('mouseleave', (e) => {
+  if (!workBubble.contains(e.relatedTarget)) closeBubble();
+});
+
+document.querySelectorAll('.bubble-item').forEach(item => {
+  item.addEventListener('mouseenter', () => expandToBlob(item));
+  item.addEventListener('mouseleave', () => shrinkBlob());
+});
 
 // ===================================
 // SIDEBAR NAV SCROLL SPY
 // ===================================
 
-const sections = document.querySelectorAll('.content-section');
 const navItems = document.querySelectorAll('.nav-item');
-const subNavLinks = document.querySelectorAll('.nav-subsections a');
 
 function updateActiveNav() {
   const scrollPos = window.scrollY + 200;
-
-  // ONLY track these 5 main sections
   const mainSections = ['overview', 'research', 'design', 'launch', 'reflection'];
   let currentSection = '';
-
-  // Find which main section we're in
   mainSections.forEach(sectionId => {
     const section = document.getElementById(sectionId);
-    if (section && section.offsetTop <= scrollPos) {
-      currentSection = sectionId;
-    }
+    if (section && section.offsetTop <= scrollPos) currentSection = sectionId;
   });
-
-  // Update nav highlighting
   navItems.forEach(item => {
     item.classList.remove('active');
     const link = item.querySelector('.nav-link');
-    if (link && link.getAttribute('href') === `#${currentSection}`) {
-      item.classList.add('active');
-    }
+    if (link && link.getAttribute('href') === `#${currentSection}`) item.classList.add('active');
   });
 }
 
 window.addEventListener('scroll', updateActiveNav);
 updateActiveNav();
 
-// Bulletproof absolute-top: walks the full offsetParent chain.
-// Can't pass elements to lenis.scrollTo here because .main-content
-// is position:relative, making it the offsetParent for everything
-// inside — lenis uses offsetTop internally which would be relative
-// to .main-content, not the document. This walks the chain manually.
-function getAbsoluteTop(el) {
-  let top = 0;
-  while (el) {
-    top += el.offsetTop;
-    el = el.offsetParent;
-  }
-  return top;
-}
-
-// Smooth scroll - ONLY main sections with CUSTOM OFFSETS
 document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
+  anchor.addEventListener('click', function(e) {
     e.preventDefault();
     const href = this.getAttribute('href');
     const targetId = href.substring(1);
-    
-    // ONLY allow the 5 main section IDs - whitelist approach
     const validSections = ['overview', 'research', 'design', 'launch', 'reflection'];
-    
-    if (!validSections.includes(targetId)) {
-      console.log('Not a main section:', targetId);
-      return;
-    }
-    
-    // Find the section with this EXACT id using querySelector for precision
+    if (!validSections.includes(targetId)) return;
     const target = document.querySelector(`section#${targetId}.content-section`);
-    
-    if (!target) {
-      console.log('Target not found:', targetId);
-      return;
-    }
-    
-    console.log('Scrolling to:', targetId);
-    
-    // Custom offset for each section - ADJUST THESE VALUES!
-    let offset;
-    switch(targetId) {
-      case 'overview':
-        offset = -50;  // Adjust this for overview
-        break;
-      case 'research':
-        offset = 15;  // Adjust this for research
-        break;
-      case 'design':
-        offset = 10;   // Adjust this for design (needs to skip dilemmas)
-        break;
-      case 'launch':
-        offset = -150;  // Adjust this for launch
-        break;
-      case 'reflection':
-        offset = -150;  // Adjust this for reflection
-        break;
-      default:
-        offset = -150;
-    }
-    
-//     INSTRUCTIONS:
-// 1. Test each section one by one
-// 2. For each section that lands in the wrong spot, adjust its offset value:
-//    - If title is cut off at TOP → make offset MORE NEGATIVE (e.g., -150 → -200)
-//    - If you're seeing content BEFORE the section → make offset MORE POSITIVE (e.g., -150 → -100)
-//    - If you're landing in dilemmas when clicking design → make design offset MORE POSITIVE (e.g., 200 → 250 → 300)
-
-// 3. Keep adjusting in increments of 50px until each section lands perfectly!
-    
-lenis.scrollTo(`#${targetId}`, {
-  offset: offset,
-  immediate: true  // KEEP THIS - it fixes the inconsistency!
-});
-    
-    // Update active state
+    if (!target) return;
+    const offsets = { overview: -50, research: 15, design: 10, launch: -150, reflection: -150 };
+    lenis.scrollTo(`#${targetId}`, { offset: offsets[targetId] ?? -150, immediate: true });
     navItems.forEach(item => {
       item.classList.remove('active');
       const link = item.querySelector('.nav-link');
-      if (link && link.getAttribute('href') === href) {
-        item.classList.add('active');
-      }
+      if (link && link.getAttribute('href') === href) item.classList.add('active');
     });
   });
 });
 
-
-// Show sidebar after scrolling past Overview title
 ScrollTrigger.create({
   trigger: ".overview-section .section-title",
   start: "top 80%",
-  end: "bottom top",
-  onEnter: () => {
-    document.querySelector('.sidebar-nav').classList.add('visible');
-  },
-  onLeaveBack: () => {
-    document.querySelector('.sidebar-nav').classList.remove('visible');
-  }
+  onEnter: () => document.querySelector('.sidebar-nav').classList.add('visible'),
+  onLeaveBack: () => document.querySelector('.sidebar-nav').classList.remove('visible')
 });
 
 // ===================================
@@ -418,25 +370,21 @@ ScrollTrigger.create({
 
 const modal = document.getElementById('imageModal');
 const modalImg = document.getElementById('modalImage');
-const personaImages = document.querySelectorAll('.persona-image');
 const closeModal = document.querySelector('.modal-close');
 
-// Open modal when clicking persona images
-personaImages.forEach(img => {
+document.querySelectorAll('.persona-image').forEach(img => {
   img.addEventListener('click', function() {
     modal.classList.add('active');
     modalImg.src = this.src;
-    document.body.style.overflow = 'hidden'; // Prevent scrolling
+    document.body.style.overflow = 'hidden';
   });
 });
 
-// Close modal when clicking X
 closeModal.addEventListener('click', () => {
   modal.classList.remove('active');
-  document.body.style.overflow = ''; // Re-enable scrolling
+  document.body.style.overflow = '';
 });
 
-// Close modal when clicking outside the image
 modal.addEventListener('click', (e) => {
   if (e.target === modal) {
     modal.classList.remove('active');
@@ -444,7 +392,6 @@ modal.addEventListener('click', (e) => {
   }
 });
 
-// Close modal with Escape key
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && modal.classList.contains('active')) {
     modal.classList.remove('active');
@@ -452,189 +399,83 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-
 // ===================================
-// IMAGE LOADING - SKELETON TO FADE
+// IMAGE LOADING
 // ===================================
 
 function handleImageLoad(img) {
   img.classList.add('loaded');
-  
-// AFTER — added .prototype-image
-const container = img.closest('.dilemma-image, .unsent-project-image, .sidechat-image, .persona-card, .market-audit-image, .large-image-section, .ideation-image-section, .prototype-image, .hero-section');
-  if (container) {
-    container.classList.add('image-loaded');
-  }
+  const container = img.closest('.dilemma-image, .unsent-project-image, .sidechat-image, .persona-card, .market-audit-image, .large-image-section, .ideation-image-section, .prototype-image, .hero-section');
+  if (container) container.classList.add('image-loaded');
 }
 
-// Handle all images on the page
 document.querySelectorAll('img').forEach(img => {
-  if (img.complete) {
-    // Image already loaded
-    handleImageLoad(img);
-  } else {
-    // Wait for image to load
+  if (img.complete && img.naturalHeight !== 0) { handleImageLoad(img); }
+  else {
     img.addEventListener('load', () => handleImageLoad(img));
-    
-    // Handle load errors
-    img.addEventListener('error', () => {
-      console.warn('Image failed to load:', img.src);
-      handleImageLoad(img); // Still remove skeleton even on error
-    });
+    img.addEventListener('error', () => handleImageLoad(img));
   }
 });
-
-// ===================================
-// RELOCATE DOTS INTO BACKDROP LAYER
-// ===================================
-// .prototype-block has z-index: 2, which creates a stacking context.
-// Anything inside it (including dots at z-index: 0) still renders
-// above siblings at z-index: 1 (the dashed line).
-// Fix: measure each dots img's position, move it out of .prototype-block
-// and into .final-prototype-backdrop as a direct child at z-index: 0.
-// Now dots are behind the line (z-index 1) AND behind the blocks (z-index 2).
 
 // ===================================
 // SCROLL FADE-IN ANIMATIONS
 // ===================================
 
-// Elements to animate on scroll
-const fadeElements = document.querySelectorAll('.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .large-image-section, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .userflow-image-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .mascot-image, .feedback-section, .feedback-grid, .prototype-block');
+const fadeElements = document.querySelectorAll('.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .large-image-section, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .feedback-section, .feedback-grid, .prototype-block');
 
-
-// Add index to stamp cards for stagger effect
-document.querySelectorAll('.stamp-card').forEach((card, index) => {
-  card.style.setProperty('--index', index);
-});
-
-// Intersection Observer for scroll animations
-const observerOptions = {
-  threshold: 0.15, // Trigger when 15% visible
-  rootMargin: '0px 0px -50px 0px' // Start slightly before element enters
-};
+document.querySelectorAll('.stamp-card').forEach((card, index) => card.style.setProperty('--index', index));
 
 const fadeObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
-  });
-}, observerOptions);
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 
-// Observe all fade elements
-fadeElements.forEach(element => {
-  element.classList.add('fade-in-element');
-  fadeObserver.observe(element);
-});
-
-// Don't animate hero content (already visible)
-document.querySelectorAll('.hero-meta *').forEach(el => {
-  el.classList.remove('fade-in-element');
-  el.classList.add('visible');
-});
-
+fadeElements.forEach(element => { element.classList.add('fade-in-element'); fadeObserver.observe(element); });
+document.querySelectorAll('.hero-meta *').forEach(el => { el.classList.remove('fade-in-element'); el.classList.add('visible'); });
 
 // ===================================
-// ANIMATED HIGHLIGHTS ON SCROLL
+// ANIMATED HIGHLIGHTS
 // ===================================
 
 const highlights = document.querySelectorAll('.highlight');
-
-// Group highlights by parent paragraph
 const paragraphGroups = new Map();
-
 highlights.forEach(highlight => {
   const parent = highlight.closest('p, h3, h4, .meta-text, .stamp-text');
-  if (!paragraphGroups.has(parent)) {
-    paragraphGroups.set(parent, []);
-  }
+  if (!paragraphGroups.has(parent)) paragraphGroups.set(parent, []);
   paragraphGroups.get(parent).push(highlight);
 });
-
-// Add index to each highlight within its paragraph for stagger
-paragraphGroups.forEach(group => {
-  group.forEach((highlight, index) => {
-    highlight.style.transitionDelay = `${index * 0.15}s`; // 150ms between each
-  });
-});
+paragraphGroups.forEach(group => { group.forEach((h, i) => { h.style.transitionDelay = `${i * 0.15}s`; }); });
 
 lenis.on('scroll', () => {
   highlights.forEach(highlight => {
     const rect = highlight.getBoundingClientRect();
     const viewH = window.innerHeight;
-    
-    if (rect.top < viewH && rect.bottom > 0) {
-      highlight.classList.add('animate-in');
-    }
-    
-    if (rect.bottom < -1000 || rect.top > viewH + 1000) {
-      highlight.classList.remove('animate-in');
-    }
+    if (rect.top < viewH && rect.bottom > 0) highlight.classList.add('animate-in');
+    if (rect.bottom < -1000 || rect.top > viewH + 1000) highlight.classList.remove('animate-in');
   });
 });
 
-
 // ===================================
-// FOOTER STAR & NAV STAR INTERACTION (from home page)
+// FOOTER STAR + NAV FOOTER MODE
 // ===================================
 
-// Continuous rotation for footer star (keep this unchanged, runs on page load)
-gsap.to("#case-footer-star-icon", { 
-  rotation: 360, 
-  duration: 25, 
-  ease: "none", 
-  repeat: -1 
-});
+gsap.to("#case-footer-star-icon", { rotation: 360, duration: 25, ease: "none", repeat: -1 });
 
-// Spin star and land upright (keep this unchanged)
-function spinStarLandUpright() {
-  const star = document.getElementById("nav-star-icon");
-  if (!star) return;
-  gsap.killTweensOf(star);
-  const current = gsap.getProperty(star, "rotation") || 0;
-  const normalized = ((current % 360) + 360) % 360;
-  const target = current + (360 - normalized) + 360;
-  gsap.to(star, {
-    rotation: target,
-    duration: 3.5,
-    ease: "power1.out",
-    overwrite: "auto"
-  });
-}
+const footerState = { sidebarHidden: false, navHidden: false, footerStarShown: false, navFaded: false };
+const SIDEBAR_THRESHOLD = 350;
+const NAV_THRESHOLD = 200;
+const FOOTSTAR_THRESHOLD = 50;
+const NAV_FADE_THRESHOLD = 400;
 
-// ── State tracking (so we only fire enter/leave once each) ──
-const footerState = {
-  sidebarHidden: false,
-  navStarHidden: false,
-  footerStarShown: false
-};
-
-// ── The thresholds are distances from the BOTTOM of the viewport.
-//     When the footer's top edge is this many px above the bottom, trigger fires.
-//     Adjust these three values if timing feels off:
-const SIDEBAR_THRESHOLD  = 350;  // sidebar hides first (earliest)
-const NAVSTAR_THRESHOLD  = 200;  // nav star fades second
-const FOOTSTAR_THRESHOLD = 50;   // footer star pops in last (latest — nearly on-screen)
-
-// ── REPLACE your lenis.on('scroll') with this: ──
 lenis.on('scroll', (e) => {
-  // Keep ScrollTrigger in sync for everything else on the page
   ScrollTrigger.update();
 
-  // Read where the footer actually is RIGHT NOW on screen.
-  // getBoundingClientRect().top = distance from viewport top to footer top.
-  // If footer top is at 800px and viewport is 900px tall,
-  // then distanceFromBottom = 900 - 800 = 100px (footer is 100px from bottom).
   const footer = document.querySelector('.case-footer');
   if (!footer) return;
-
   const rect = footer.getBoundingClientRect();
   const viewH = window.innerHeight;
   const distanceFromBottom = viewH - rect.top;
-  // distanceFromBottom > 0 means footer top has entered the viewport from the bottom.
-  // The larger it is, the more the footer has scrolled up into view.
 
-  // ── SIDEBAR ──
+  // Hide sidebar near footer
   if (distanceFromBottom > SIDEBAR_THRESHOLD && !footerState.sidebarHidden) {
     footerState.sidebarHidden = true;
     gsap.to('.sidebar-nav', { opacity: 0, duration: 0.3 });
@@ -643,36 +484,40 @@ lenis.on('scroll', (e) => {
     gsap.to('.sidebar-nav', { opacity: 1, duration: 0.3 });
   }
 
-  // ── NAV STAR + NAV COLOR ──
-  if (distanceFromBottom > NAVSTAR_THRESHOLD && !footerState.navStarHidden) {
-    footerState.navStarHidden = true;
-    spinStarLandUpright();
-    gsap.to(".nav-center-star", { opacity: 0, duration: 0.6 });
-    gsap.to(".top-nav", { color: "#FFF3BF", duration: 0.6 });
-  } else if (distanceFromBottom <= NAVSTAR_THRESHOLD && footerState.navStarHidden) {
-    footerState.navStarHidden = false;
-    spinStarLandUpright();
-    gsap.to(".nav-center-star", { opacity: 1, duration: 0.6 });
-    gsap.to(".top-nav", { color: "var(--nav-orange)", duration: 0.6 });
+  // Fade nav pill
+  if (distanceFromBottom > NAV_FADE_THRESHOLD && !footerState.navFaded) {
+    footerState.navFaded = true;
+    navWrap.classList.add('nav-hidden');
+  } else if (distanceFromBottom <= NAV_FADE_THRESHOLD && footerState.navFaded) {
+    footerState.navFaded = false;
+    navWrap.classList.remove('nav-hidden');
+    isBlobMode = false;
+    cursorMain.classList.remove('is-blob');
+    cursorMain.style.removeProperty('--blob-w');
+    cursorMain.style.removeProperty('--blob-h');
+    gsap.set(cursorMain, { clearProps: 'width,height' });
+    navPill.classList.remove('expanded');
+    clearTimeout(leaveTimer);
+    gsap.killTweensOf(navAsteriskImg);
   }
 
-  // ── FOOTER STAR POP-IN ──
+  // Tint pill nav for footer (yellow tones to match pent up footer)
+  if (distanceFromBottom > NAV_THRESHOLD && !footerState.navHidden) {
+    footerState.navHidden = true;
+    navPill.classList.add('footer-mode');
+  } else if (distanceFromBottom <= NAV_THRESHOLD && footerState.navHidden) {
+    footerState.navHidden = false;
+    navPill.classList.remove('footer-mode');
+  }
+
+  // Footer star entrance
   if (distanceFromBottom > FOOTSTAR_THRESHOLD && !footerState.footerStarShown) {
     footerState.footerStarShown = true;
-    gsap.to(".case-footer-star-wrapper", { 
-      opacity: 1, 
-      scale: 1, 
-      rotation: "+=720", 
-      duration: 1.5, 
-      ease: "expo.out" 
-    });
+    gsap.to(".case-footer-star-wrapper", { opacity: 1, scale: 1, rotation: "+=720", duration: 1.5, ease: "expo.out" });
   } else if (distanceFromBottom <= FOOTSTAR_THRESHOLD && footerState.footerStarShown) {
     footerState.footerStarShown = false;
-    gsap.to(".case-footer-star-wrapper", { 
-      opacity: 0, 
-      scale: 0.6, 
-      duration: 1, 
-      ease: "power2.in" 
-    });
+    gsap.to(".case-footer-star-wrapper", { opacity: 0, scale: 0.6, duration: 1, ease: "power2.in" });
   }
+});
+
 });

@@ -22,30 +22,53 @@
 </head>
 <body>
 
+<div id="scroll-progress"></div>
+
 <div id="page-entry-overlay"></div>
 
 <!-- Custom Cursor -->
 <div class="cursor-dot" id="cursor"></div>
 
-<!-- Top Nav Bar -->
-<nav class="top-nav">
-<a href="https://melodysz.github.io/fishtank/" class="nav-left interactable" id="nav-name">
-  <span class="name-inner">美迪</span>
-</a>
-  
-  <div class="nav-center-star">
-    <svg id="nav-star-icon" width="40" height="40" viewBox="0 0 110 110" fill="none">
-      <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" fill="currentColor"/>
-      <circle cx="55" cy="55" r="41.5" stroke="currentColor"/>
-    </svg>
+<!-- New Pill Nav -->
+<div class="nav-pill-wrap" id="navWrap">
+  <div class="nav-pill" id="navPill">
+<div class="nav-asterisk" id="navAsterisk">
+  <img src="https://cdn.jsdelivr.net/gh/melodysz/baubles@main/asterisk.svg" 
+       alt="*" style="width:28px;height:28px;display:block;">
+</div>
+    <div class="nav-content">
+      <a href="https://melodysz.github.io/fishtank/" class="nav-wordmark interactable" style="cursor:pointer!important">
+        <span class="wm-melody">melody</span><span class="wm-zhang">zhang</span>
+      </a>
+<div class="nav-links">
+  <div class="nav-work-wrap" id="navWorkWrap">
+    <a href="https://melodysz.github.io/fishtank/" class="interactable nav-link-item" data-default="work" data-hover="work!">work</a>
   </div>
-  
-  <div class="nav-right">
-    <a href="https://melodysz.github.io/fishtank/" class="interactable nav-swap" data-default="[WORK]" data-hover="[STUFF!]">[WORK]</a>
-    <a href="https://melodysz.github.io/fishtank/who/" class="interactable nav-swap" data-default="[WHO?]" data-hover="[ME!]">[WHO?]</a>
-<!--     <a href="#" class="interactable nav-swap" data-default="[PLAY!]" data-hover="[YAY!]">[PLAY!]</a> -->
+  <a href="https://melodysz.github.io/fishtank/who/" class="interactable nav-link-item" data-default="who" data-hover="who?">who</a>
+</div>
+    </div>
   </div>
-</nav>
+</div>
+
+<!-- Thought bubble — outside nav pill so backdrop-filter works -->
+<div class="bubble-dots-wrap" id="bubbleDotsWrap">
+  <div class="bubble-dot bubble-dot-sm"></div>
+  <div class="bubble-dot bubble-dot-md"></div>
+  <div class="bubble-dot bubble-dot-lg"></div>
+</div>
+<div class="work-bubble" id="workBubble" aria-hidden="true">
+  <div class="bubble-menu">
+    <a href="https://melodysz.github.io/fishtank/deep24" class="bubble-item interactable">
+      <span class="bubble-num">01</span>deep24
+    </a>
+    <a href="https://melodysz.github.io/fishtank/pent-up" class="bubble-item interactable">
+      <span class="bubble-num">02</span>pent up
+    </a>
+    <a href="https://melodysz.github.io/fishtank/knouri" class="bubble-item interactable">
+      <span class="bubble-num">03</span>knouri
+    </a>
+  </div>
+</div>
 
 <!-- Fixed Sidebar Navigation -->
 <nav class="sidebar-nav">
@@ -417,23 +440,20 @@
         <svg id="case-footer-star-icon" width="80" height="80" viewBox="0 0 110 110" fill="none">
           <defs>
             <radialGradient id="caseStarGradient" cx="50%" cy="50%">
-<stop offset="0%" stop-color="#D1FFA4" />
-<stop offset="100%" stop-color="#D1FFA4" />
-
+              <stop offset="0%" stop-color="#D1FFA4" />
+              <stop offset="100%" stop-color="#D1FFA4" />
             </radialGradient>
           </defs>
           <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" fill="url(#caseStarGradient)"/>
           <circle cx="55" cy="55" r="41.5" stroke="#D1FFA4"/>
-
         </svg>
       </div>
       <h2 class="case-footer-tagline">
         <span class="case-footer-helv">what's </span><span class="case-footer-italic">next</span><span class="case-footer-helv">?</span>
       </h2>
       <ul class="case-footer-links">
-        <li><a href="https://melodysz.github.io/fishtank/deep24">Deep24</a></li>
-                <li><a href="https://melodysz.github.io/fishtank/pent-up">Pent Up</a></li>
-<!--         <li><a href="#">iPRO DENTAL</a></li> -->
+<li><a href="https://melodysz.github.io/fishtank/deep24" class="interactable">Deep24</a></li>
+  <li><a href="https://melodysz.github.io/fishtank/pent-up" class="interactable">Pent Up</a></li>
       </ul>
     </div>
   </div>
@@ -443,8 +463,8 @@
       <span class="case-footer-copy">© 2026</span>
     </div>
     <div class="case-footer-right">
-      <a href="mailto:melodyserenazhang@gmail.com">[EMAIL]</a>
-      <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank">[LINKEDIN]</a>
+<a href="mailto:melodyserenazhang@gmail.com" class="interactable">[EMAIL]</a>
+<a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank" class="interactable">[LINKEDIN]</a>
     </div>
   </div>
 </footer>
@@ -455,6 +475,7 @@
   <span class="modal-close">&times;</span>
   <img class="modal-content" id="modalImage" loading="lazy">
 </div>
+
 
 
 
