@@ -1347,6 +1347,7 @@ function animateWorkNavIn() {
 document.querySelectorAll('.work-nav-pill').forEach(pill => {
 pill.addEventListener('click', () => {
   hideAward();
+  hideBadge(); // ← add this
   spinToAborted = false;
   const target = parseInt(pill.dataset.index);
     const current = ((Math.round(offset) % N) + N) % N;
