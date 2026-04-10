@@ -1,5 +1,5 @@
 /* ============================================================
-   ENTRY OVERLAY — radial wipe reveal
+   ENTRY OVERLAY
    ============================================================ */
 window.addEventListener('load', () => {
   const overlay = document.getElementById('page-entry-overlay');
@@ -36,150 +36,289 @@ function navigateTo(url, newTab = false) {
 }
 
 /* ============================================================
-   CURSOR + BUBBLE TRAIL
+   PILL NAV — EXPAND / COLLAPSE + SPIN
    ============================================================ */
-const cursorEl = document.getElementById('cursor');
-let lastX = 0, lastY = 0, isHovering = false;
 
-window.addEventListener('mouseenter', () => cursorEl.classList.add('active'));
-window.addEventListener('mouseleave', () => cursorEl.classList.remove('active'));
+const navWrap      = document.getElementById('navWrap');
+const navPill      = document.getElementById('navPill');
+const navAsterisk  = document.getElementById('navAsterisk');
+const navAsteriskImg = navAsterisk.querySelector('img');
 
-window.addEventListener('mousemove', (e) => {
-  cursorEl.classList.add('active');
-  gsap.to(cursorEl, { left: e.clientX + 'px', top: e.clientY + 'px', duration: 0.1 });
-  if (Math.hypot(e.clientX - lastX, e.clientY - lastY) > 25) {
-    createBubble(e.clientX, e.clientY);
-    lastX = e.clientX; lastY = e.clientY;
-  }
+gsap.set(navAsteriskImg, { rotation: 0 });
+gsap.set(navPill, { opacity: 0 });
+gsap.set(navAsteriskImg, { rotation: -720 });
+
+window.addEventListener('load', () => {
+  gsap.timeline({ delay: 0.8 })
+    .to(navPill, { opacity: 1, duration: 0.4, ease: "power2.out", clearProps: "opacity" })
+    .to(navAsteriskImg, { rotation: 0, duration: 2.5, ease: "power2.out" }, "<0.1");
 });
 
-// function createBubble(x, y) {
-//   const b = document.createElement('div');
-//   b.className = 'bubble-particle';
-//   document.body.appendChild(b);
-//   const sz = (Math.random() * 4 + 4) + 'px';
-//   b.style.width = sz; b.style.height = sz;
-//   b.style.left = x + 'px'; b.style.top = y + 'px';
-//   gsap.to(b, {
-//     top:  (y - (40 + Math.random() * 60)) + 'px',
-//     left: (x + (Math.random() * 30 - 15)) + 'px',
-//     opacity: 0, width: '2px', height: '2px',
-//     duration: 1.2 + Math.random() * 0.8,
-//     ease: 'power1.out',
-//     onComplete: () => b.remove()
-//   });
-// }
+let leaveTimer = null;
+let navIsAnimating = false;
 
-window.addEventListener('pointermove', (e) => {
-  const els = document.elementsFromPoint(e.clientX, e.clientY);
-  const hovered = els.find(el => {
-    if (el.id === 'cursor' || el.classList.contains('bubble-particle') || el.closest('.nav-center-star')) return false;
-    return el.matches?.('.interactable, a[href], button, [role="button"]') ||
-           el.closest?.('.interactable, a[href], button, [role="button"]');
-  });
-  const next = !!hovered;
-  if (next !== isHovering) {
-    isHovering = next;
-    gsap.to(cursorEl, { width: next ? '40px' : '12px', height: next ? '40px' : '12px', duration: 0.3, ease: 'power2.out' });
-  }
+function onNavEnter() {
+  clearTimeout(leaveTimer);
+  if (navPill.classList.contains('expanded')) return;
+  navPill.classList.add('expanded');
+  navIsAnimating = true;
+  setTimeout(() => {
+    navIsAnimating = false;
+    positionBubble();
+  }, 560);
+  gsap.killTweensOf(navAsteriskImg);
+  gsap.to(navAsteriskImg, { rotation: -378, duration: 1.2, ease: "back.out(1.4)" });
+}
+
+function onNavLeave(e) {
+  if (workBubble.contains(e.relatedTarget)) return;
+  leaveTimer = setTimeout(() => {
+    if (bubbleOpen) return;
+    navPill.classList.remove('expanded');
+    navIsAnimating = true;
+    setTimeout(() => { navIsAnimating = false; }, 560);
+    gsap.killTweensOf(navAsteriskImg);
+    gsap.to(navAsteriskImg, { rotation: 0, duration: 1.2, ease: "back.out(1.4)" });
+  }, 400);
+}
+
+navWrap.addEventListener('mouseenter', onNavEnter);
+navWrap.addEventListener('mouseleave', onNavLeave);
+
+navAsterisk.addEventListener('mouseenter', () => {
+  if (!navPill.classList.contains('expanded')) return;
+  gsap.killTweensOf(navAsteriskImg);
+  gsap.to(navAsteriskImg, { rotation: '-=720', duration: 1.8, ease: "power2.out" });
 });
 
 /* ============================================================
-   NAV NAME HOVER (Chinese ↔ MELODY)
+   WORK DROPDOWN THOUGHT BUBBLE
    ============================================================ */
-const navName   = document.getElementById('nav-name');
-const nameInner = navName.querySelector('.name-inner');
 
-navName.addEventListener('mouseenter', () => {
-  gsap.to(nameInner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
-    nameInner.textContent = 'MELODY';
-    Object.assign(nameInner.style, {
-      fontFamily: "'Helvetica Neue', sans-serif",
-      fontSize: '0.85rem',
-      letterSpacing: '0.05em',
-      textTransform: 'uppercase'
-    });
-    gsap.fromTo(nameInner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-  }});
-});
-navName.addEventListener('mouseleave', () => {
-  gsap.to(nameInner, { y: 10, opacity: 0, duration: 0.2, onComplete: () => {
-    nameInner.textContent = '美迪';
-    Object.assign(nameInner.style, {
-      fontFamily: "'Zen Old Mincho', serif",
-      fontSize: '1.2rem',
-      letterSpacing: '0.05em',
-      textTransform: 'none'
-    });
-    gsap.fromTo(nameInner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-  }});
+const workWrap  = document.getElementById('navWorkWrap');
+const workBubble = document.getElementById('workBubble');
+const dotsWrap  = document.getElementById('bubbleDotsWrap');
+const dotSm     = dotsWrap.querySelector('.bubble-dot-sm');
+const dotMd     = dotsWrap.querySelector('.bubble-dot-md');
+const dotLg     = dotsWrap.querySelector('.bubble-dot-lg');
+const bubbleMenu = workBubble.querySelector('.bubble-menu');
+
+let bubbleLeaveTimer = null;
+let bubbleOpen = false;
+
+function positionBubble() {
+  const rect = workWrap.getBoundingClientRect();
+  const menuWidth = bubbleMenu.offsetWidth;
+  workBubble.style.left = (rect.left + rect.width / 2 - menuWidth / 2) + 'px';
+  workBubble.style.top  = (rect.bottom + 16) + 'px';
+  dotsWrap.style.left   = workBubble.style.left;
+  dotsWrap.style.top    = workBubble.style.top;
+}
+
+function openBubble() {
+  if (bubbleOpen) return;
+  bubbleOpen = true;
+  positionBubble();
+  workBubble.style.pointerEvents = 'auto';
+  workBubble.setAttribute('aria-hidden', 'false');
+  gsap.killTweensOf([dotSm, dotMd, dotLg, bubbleMenu]);
+  gsap.fromTo(dotSm, { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2.5)', delay: 0 });
+  gsap.fromTo(dotMd, { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.38, ease: 'back.out(2.5)', delay: 0.09 });
+  gsap.fromTo(dotLg, { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.40, ease: 'back.out(2.5)', delay: 0.18 });
+  gsap.fromTo(bubbleMenu, { opacity: 0, scale: 0.88, y: -6 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)', delay: 0.28 });
+}
+
+function closeBubble() {
+  bubbleOpen = false;
+  workBubble.style.pointerEvents = 'none';
+  workBubble.setAttribute('aria-hidden', 'true');
+  gsap.killTweensOf([dotSm, dotMd, dotLg, bubbleMenu]);
+  gsap.to(bubbleMenu, { opacity: 0, scale: 0.88, y: -6, duration: 0.20, ease: 'power2.in' });
+  gsap.to(dotLg, { opacity: 0, scale: 0.3, duration: 0.16, ease: 'power2.in', delay: 0.04 });
+  gsap.to(dotMd, { opacity: 0, scale: 0.3, duration: 0.14, ease: 'power2.in', delay: 0.08 });
+  gsap.to(dotSm, { opacity: 0, scale: 0.3, duration: 0.12, ease: 'power2.in', delay: 0.12 });
+}
+
+workWrap.addEventListener('mouseenter', () => {
+  clearTimeout(bubbleLeaveTimer);
+  if (navPill.classList.contains('expanded') && !navIsAnimating) openBubble();
 });
 
-navName.addEventListener('click', (e) => {
+workWrap.addEventListener('mouseleave', () => {
+  bubbleLeaveTimer = setTimeout(closeBubble, 120);
+});
+
+workBubble.addEventListener('mouseenter', () => {
+  clearTimeout(bubbleLeaveTimer);
+  clearTimeout(leaveTimer);
+});
+
+workBubble.addEventListener('mouseleave', (e) => {
+  bubbleLeaveTimer = setTimeout(closeBubble, 120);
+  if (!navWrap.contains(e.relatedTarget)) {
+    leaveTimer = setTimeout(() => {
+      navPill.classList.remove('expanded');
+      navIsAnimating = true;
+      setTimeout(() => { navIsAnimating = false; }, 560);
+      gsap.killTweensOf(navAsteriskImg);
+      gsap.to(navAsteriskImg, { rotation: 0, duration: 1.2, ease: "back.out(1.4)" });
+    }, 200);
+  }
+});
+
+navWrap.addEventListener('mouseleave', (e) => {
+  if (!workBubble.contains(e.relatedTarget)) closeBubble();
+});
+
+/* ============================================================
+   CURSOR — BLOB STYLE
+   ============================================================ */
+
+const cursorEl = document.getElementById('cursor');
+
+let mouseX = 0, mouseY = 0;
+let curX = 0, curY = 0;
+let isBlobMode = false;
+const LERP_NORMAL = 0.12;
+const LERP_BLOB   = 0.10;
+const BLOB_HEIGHT = 40;
+
+function animateCursor() {
+  const lerp = isBlobMode ? LERP_BLOB : LERP_NORMAL;
+  curX += (mouseX - curX) * lerp;
+  curY += (mouseY - curY) * lerp;
+  cursorEl.style.left = curX + 'px';
+  cursorEl.style.top  = curY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+window.addEventListener('mouseenter', () => cursorEl.classList.add('active'));
+window.addEventListener('mouseleave', () => cursorEl.classList.remove('active'));
+window.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorEl.classList.add('active');
+});
+
+function expandToBlob(el) {
+  const rect = el.getBoundingClientRect();
+  isBlobMode = true;
+  cursorEl.style.setProperty('--blob-w', rect.width + 'px');
+  cursorEl.style.setProperty('--blob-h', BLOB_HEIGHT + 'px');
+  cursorEl.classList.add('is-blob');
+  mouseX = rect.left + rect.width / 2;
+  mouseY = rect.top + BLOB_HEIGHT / 2;
+}
+
+function shrinkBlob() {
+  isBlobMode = false;
+  cursorEl.classList.remove('is-blob');
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    isBlobMode = false;
+    cursorEl.classList.remove('is-blob');
+    gsap.set(cursorEl, { clearProps: 'width,height' });
+    clearTimeout(leaveTimer);
+    gsap.killTweensOf(navAsteriskImg);
+  }
+});
+
+// Blob on general interactables
+const clickableEls = document.querySelectorAll('a[href], .who-link');
+clickableEls.forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    if (isBlobMode) return;
+    cursorEl.classList.add('is-blob');
+    gsap.to(cursorEl, { width: '48px', height: '48px', duration: 0.3, ease: "power2.out" });
+  });
+  el.addEventListener('mouseleave', () => {
+    if (isBlobMode) return;
+    cursorEl.classList.remove('is-blob');
+    gsap.to(cursorEl, { width: '18px', height: '18px', duration: 0.3, ease: "power2.out" });
+  });
+});
+
+// Nav wordmark blob
+const navWordmarkEl = document.querySelector('.nav-wordmark');
+navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl));
+navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
+
+// Nav link items — flip text + blob
+document.querySelectorAll('.nav-link-item').forEach(link => {
+  const defaultText = link.getAttribute('data-default');
+  const hoverText   = link.getAttribute('data-hover');
+
+  link.innerHTML = `<span class="nav-link-inner" style="display:inline-block;will-change:transform,opacity;">${defaultText}</span>`;
+  const inner = link.querySelector('.nav-link-inner');
+  inner.style.setProperty('cursor', 'pointer', 'important');
+
+  link.addEventListener('mouseenter', () => {
+    expandToBlob(link);
+    gsap.to(inner, {
+      y: -10, opacity: 0, duration: 0.18, ease: "power2.in",
+      onComplete: () => {
+        inner.textContent = hoverText;
+        inner.style.color = '#000000';
+        inner.style.fontWeight = '500';
+        inner.style.setProperty('cursor', 'pointer', 'important');
+        gsap.fromTo(inner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power2.out" });
+      }
+    });
+  });
+
+  link.addEventListener('mouseleave', () => {
+    shrinkBlob();
+    gsap.to(inner, {
+      y: 10, opacity: 0, duration: 0.18, ease: "power2.in",
+      onComplete: () => {
+        inner.textContent = defaultText;
+        inner.style.color = '#181812';
+        inner.style.fontWeight = '400';
+        inner.style.setProperty('cursor', 'pointer', 'important');
+        gsap.fromTo(inner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power2.out" });
+      }
+    });
+  });
+});
+
+// Bubble items blob
+document.querySelectorAll('.bubble-item').forEach(item => {
+  item.addEventListener('mouseenter', () => expandToBlob(item));
+  item.addEventListener('mouseleave', () => shrinkBlob());
+});
+
+/* ============================================================
+   BUBBLE ITEM NAVIGATION (thought bubble links)
+   ============================================================ */
+document.querySelectorAll('.bubble-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    navigateTo(item.getAttribute('href'));
+  });
+});
+
+/* ============================================================
+   NAV WORDMARK — navigate home
+   ============================================================ */
+navWordmarkEl.addEventListener('click', (e) => {
   e.preventDefault();
   navigateTo('https://melodysz.github.io/fishtank/');
 });
 
 /* ============================================================
-   NAV STAR HOVER SPIN
+   WORK LINK — navigate to work section
    ============================================================ */
-const starContainer = document.querySelector('.nav-center-star');
-const starIcon      = document.getElementById('nav-star-icon');
-
-gsap.to(starIcon, { rotation: 360, duration: 25, ease: 'none', repeat: -1 });
-
-if (starContainer && starIcon) {
-  starContainer.addEventListener('mouseenter', () => {
-    gsap.killTweensOf(starIcon);
-    const cur = gsap.getProperty(starIcon, 'rotation') || 0;
-    gsap.to(starIcon, { rotation: cur + 720, duration: 2.5, ease: 'power2.out', overwrite: 'auto' });
-  });
-}
-
-/* ============================================================
-   NAV SWAP LINKS (text flip on hover)
-   ============================================================ */
-document.querySelectorAll('.nav-swap').forEach(link => {
-  const original = link.textContent.trim();
-  link.innerHTML = `<span class="nav-inner">${original}</span>`;
-  const inner       = link.querySelector('.nav-inner');
-  const defaultText = link.getAttribute('data-default') || original;
-  const hoverText   = link.getAttribute('data-hover')   || original;
-  inner.style.display = 'inline-block';
-  inner.style.willChange = 'transform, opacity';
-
-  function lockWidth() {
-    inner.textContent = defaultText;
-    const w1 = inner.getBoundingClientRect().width;
-    inner.textContent = hoverText;
-    const w2 = inner.getBoundingClientRect().width;
-    link.style.width = `${Math.ceil(Math.max(w1, w2)) + 2}px`;
-    inner.textContent = defaultText;
-  }
-  lockWidth();
-  window.addEventListener('resize', lockWidth);
-
-  link.addEventListener('mouseenter', () => {
-    gsap.to(inner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
-      inner.textContent = hoverText;
-      gsap.fromTo(inner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-    }});
-  });
-  link.addEventListener('mouseleave', () => {
-    gsap.to(inner, { y: 10, opacity: 0, duration: 0.2, onComplete: () => {
-      inner.textContent = defaultText;
-      gsap.fromTo(inner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-    }});
-  });
-});
-
-/* [WORK] → home page third section */
-document.querySelector('.nav-swap[data-default="[WORK]"]')?.addEventListener('click', (e) => {
+document.querySelector('.nav-link-item[data-default="work"]')?.addEventListener('click', (e) => {
   e.preventDefault();
   navigateTo('https://melodysz.github.io/fishtank/#third-section');
 });
 
-/* [WHO?] → stays on this page (no-op) */
-document.querySelector('.nav-swap[data-default="[WHO?]"]')?.addEventListener('click', (e) => {
+/* ============================================================
+   WHO LINK — no-op (already here)
+   ============================================================ */
+document.querySelector('.nav-link-item[data-default="who"]')?.addEventListener('click', (e) => {
   e.preventDefault();
 });

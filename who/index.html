@@ -21,29 +21,59 @@
 <body>
 
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Zen+Old+Mincho&family=Alex+Brush&display=swap" rel="stylesheet">
+
 <div id="page-entry-overlay"></div>
 <div id="exit-ripple-container"></div>
+
+<!-- Custom Cursor -->
 <div class="cursor-dot" id="cursor"></div>
 
-<nav class="top-nav">
-  <div class="nav-left interactable" id="nav-name"><span class="name-inner">美迪</span></div>
-
-  <div class="nav-center-star">
-    <svg id="nav-star-icon" width="40" height="40" viewBox="0 0 110 110" fill="none">
-      <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" fill="currentColor"/>
-      <circle cx="55" cy="55" r="41.5" stroke="currentColor"/>
-    </svg>
+<!-- New Pill Nav -->
+<div class="nav-pill-wrap" id="navWrap">
+  <div class="nav-pill" id="navPill">
+    <div class="nav-asterisk" id="navAsterisk">
+      <img src="https://cdn.jsdelivr.net/gh/melodysz/baubles@main/asterisk.svg"
+           alt="*" style="width:28px;height:28px;display:block;">
+    </div>
+    <div class="nav-content">
+      <a href="https://melodysz.github.io/fishtank/" class="nav-wordmark interactable" style="cursor:pointer!important">
+        <span class="wm-melody">melody</span><span class="wm-zhang">zhang</span>
+      </a>
+      <div class="nav-links">
+        <div class="nav-work-wrap" id="navWorkWrap">
+          <a href="https://melodysz.github.io/fishtank/#third-section" class="interactable nav-link-item" data-default="work" data-hover="work!">work</a>
+        </div>
+        <a href="https://melodysz.github.io/fishtank/who/" class="interactable nav-link-item" data-default="who" data-hover="who?">who</a>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div class="nav-right">
-    <a href="#" class="interactable nav-swap" data-default="[WORK]" data-hover="[STUFF!]">[WORK]</a>
-    <a href="#" class="interactable nav-swap" data-default="[WHO?]" data-hover="[ME!]">[WHO?]</a>
+<!-- Thought bubble -->
+<div class="bubble-dots-wrap" id="bubbleDotsWrap">
+  <div class="bubble-dot bubble-dot-sm"></div>
+  <div class="bubble-dot bubble-dot-md"></div>
+  <div class="bubble-dot bubble-dot-lg"></div>
+</div>
+<div class="work-bubble" id="workBubble" aria-hidden="true">
+  <div class="bubble-menu">
+    <a href="https://melodysz.github.io/fishtank/deep24" class="bubble-item interactable">
+      <span class="bubble-num">01</span>deep24
+    </a>
+    <a href="https://melodysz.github.io/fishtank/pent-up" class="bubble-item interactable">
+      <span class="bubble-num">02</span>pent up
+    </a>
+    <a href="https://melodysz.github.io/fishtank/knouri" class="bubble-item interactable">
+      <span class="bubble-num">03</span>knouri
+    </a>
   </div>
-</nav>
+</div>
 
 <div class="page-wrapper">
   <div class="who-card">
-
     <div class="who-photo-col">
       <img
         src="https://raw.githubusercontent.com/melodysz/baubles/main/who%3F/me.png"
@@ -51,30 +81,21 @@
         alt="Melody"
       >
     </div>
-
     <div class="who-text-col">
       <h1 class="who-title"><em>Hi,</em> I'm Melody!</h1>
-
       <p>I'm a junior at the <span class="hl">University of Pennsylvania</span> studying <span class="hl">Design</span> and <span class="hl">Consumer Psychology</span> to decode why users click, scroll, and stay.</p>
-
       <p>I specialize in <span class="hl">0-to-1 Product Design and Visual Systems</span>. My goal is to find that sweet spot where functionality meets fun, creating colorful, accessible identities.</p>
-
       <p>My experience spans various industries, including <span class="hl">health tech</span>, <span class="hl">AI lifestyle</span>, and <span class="hl">entertainment</span>. I'm at my best when I'm bridging the gap between design and development, managing creative teams, or facilitating workshops that turn messy ideas into shipped products. I <span class="hl">thrive in chatty environments</span> where designers and developers work side-by-side to solve complex problems.</p>
-
       <p><span class="hl">Offline, I read horror novels for fun</span>—because whether it's a scary story or a user journey, I'm obsessed with understanding human reaction.</p>
-
       <p>Let's Chat: <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank" class="interactable who-link">LinkedIn</a> | melodyserenazhang@gmail.com</p>
-
       <img
         src="https://raw.githubusercontent.com/melodysz/baubles/main/who%3F/signature.png"
         class="who-signature-img"
         alt="xoxo Mz"
       >
     </div>
-
   </div>
 </div>
-
 
 
 
