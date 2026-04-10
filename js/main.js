@@ -1494,8 +1494,8 @@ ScrollTrigger.create({
     carouselReady = true;
     if (!carouselAnimPlayed) {
       carouselAnimPlayed = true;
-      offset = 3;
-      velX = -3 / 20;
+      offset = -1;
+velX = 1 / 20;
       window._carouselFade = 0;
       carouselEl.style.opacity = '1';
       cancelAnimationFrame(rafId);
@@ -1677,6 +1677,10 @@ window.addEventListener('load', () => {
       gsap.set(".hero-star", { autoAlpha: 0 });
       gsap.set("#blackCover", { opacity: 1 });
       gsap.set(".section-2-wrapper", { y: "-100vh" });
+      gsap.killTweensOf(badgeEl);
+gsap.killTweensOf(awardEl);
+if (badgeEl) { badgeEl.style.opacity = '0'; badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
+if (awardEl) { awardEl.style.opacity = '0'; awardEl._currentLift = 0; awardEl._targetLift = 0; }
       ScrollTrigger.refresh();
     }, 800);
   }
