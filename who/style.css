@@ -1,61 +1,84 @@
-/* ============================================================
-   RESET & ROOT
-   ============================================================ */
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-thin.woff2') format('woff2');
+  font-weight: 300; font-style: normal;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-book.woff2') format('woff2');
+  font-weight: 400; font-style: normal;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-medium.woff2') format('woff2');
+  font-weight: 500; font-style: normal;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-bold.woff2') format('woff2');
+  font-weight: 700; font-style: normal;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-semibold.woff2') format('woff2');
+  font-weight: 600; font-style: normal;
+}
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-italic.woff2') format('woff2');
+  font-weight: 300; font-style: italic;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   cursor: none !important;
 }
- 
+
 :root {
-  --bg: #FFFCF8;
-  --nav-color: #64403E;
-  --outer-padding: 40px; /* matches .content-column-outer */
+  --bg: #ffffff;
+  --nav-color: #1D1D1F;
+  --text: #1D1D1F;
+  --card-bg: #F5F5F7;
 }
- 
+
+/* force white everywhere — overrides CodePen's body defaults */
 html, body {
-  background: var(--bg);
-  min-height: 100vh;
-  overflow-x: hidden;
+  background: #ffffff !important;
+  height: 100%;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
- 
-/* ============================================================
-   CUSTOM CURSOR
-   ============================================================ */
+
+/* CURSOR */
 .cursor-dot {
   width: 12px;
   height: 12px;
-  background-color: #B4D415;
+  background-color: #83E7FF;
   border-radius: 50%;
   position: fixed;
   top: 0;
   left: 0;
   pointer-events: none;
   z-index: 10001;
-/*   mix-blend-mode: multiply; */
   transform: translate(-50%, -50%);
   opacity: 0;
   transition: opacity 0.3s ease;
   will-change: transform;
 }
 .cursor-dot.active { opacity: 1; }
- 
-/* ============================================================
-   ENTRY OVERLAY
-   ============================================================ */
+
+/* ENTRY OVERLAY */
 #page-entry-overlay {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: var(--bg);
+  background: #ffffff;
   pointer-events: all;
 }
- 
-/* ============================================================
-   EXIT RIPPLE
-   ============================================================ */
+
+/* EXIT RIPPLE */
 #exit-ripple-container {
   position: fixed;
   inset: 0;
@@ -63,7 +86,6 @@ html, body {
   pointer-events: none;
   overflow: hidden;
 }
- 
 .ripple {
   position: absolute;
   top: 50%;
@@ -76,20 +98,17 @@ html, body {
   animation: rippleExpand 1.3s ease-out forwards;
 }
 .ripple-brown { background-color: var(--nav-color); }
-.ripple-cream  { background-color: var(--bg); }
- 
+.ripple-cream  { background-color: #ffffff; }
+
 @keyframes rippleExpand {
   0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
- 
-/* ============================================================
-   NAV
-   ============================================================ */
+
+/* NAV */
 .top-nav {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 100%;
   height: 100px;
   padding: 0 3rem;
@@ -102,8 +121,7 @@ html, body {
   pointer-events: none;
 }
 .top-nav > * { pointer-events: auto; }
- 
-/* Nav left — Chinese name / MELODY toggle */
+
 .nav-left {
   position: relative;
   font-family: 'Zen Old Mincho', serif;
@@ -120,8 +138,7 @@ html, body {
   display: inline-block;
   will-change: transform, opacity;
 }
- 
-/* Nav right links */
+
 .nav-right {
   display: flex;
   align-items: center;
@@ -149,8 +166,7 @@ html, body {
 }
 .nav-left:hover,
 .nav-right a:hover { opacity: 0.7; }
- 
-/* Center star */
+
 .nav-center-star {
   position: absolute;
   left: 50%;
@@ -165,109 +181,111 @@ html, body {
   height: 100%;
   display: block;
 }
- 
-/* ============================================================
-   PAGE WRAPPER
-   ============================================================ */
+
+/* PAGE WRAPPER */
 .page-wrapper {
-  position: relative;
-  min-height: 100vh;
-  background: var(--bg);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
 }
- 
-/* ============================================================
-   BUBBLE PARTICLE
-   ============================================================ */
+
+/* BUBBLE PARTICLE */
 .bubble-particle {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 8px;
   height: 8px;
   background-color: #B4D415;
   border-radius: 50%;
   pointer-events: none !important;
   z-index: 100;
-/*   mix-blend-mode: multiply; */
   opacity: 0.4;
   transform: translate(-50%, -50%);
   will-change: transform, opacity;
 }
 
-.who-content {
-  position: relative;
-  z-index: 10;
+.who-card {
+  background: var(--card-bg);
+  border-radius: 30px;
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: center;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 160px 40px 80px 40px;
-  min-height: 100vh;
+  position: relative;
 }
 
 .who-photo-col {
+  padding: 32px 16px 32px 32px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .who-photo {
-  width: 100%;
-  max-width: 520px;
-  height: auto;
-  display: block;
-  border-radius: 22px;
+  height: 85%;
+  width: auto;
   object-fit: cover;
   object-position: top center;
+  border-radius: 14px;
+  display: block;
 }
 
 .who-text-col {
+  padding: 32px 80px 32px 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  font-family: 'Helvetica Neue', Helvetica, sans-serif;
-  font-weight: 300;
-  font-size: 16px;
-  line-height: 1.8;
-  color: var(--nav-color);
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+}
+
+.who-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 84px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+.who-title em {
+  font-style: italic;
 }
 
 .who-text-col p {
+  font-family: 'PP Neue Montreal', 'Helvetica Neue', Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--text);
   margin: 0;
 }
 
-.who-text-col strong {
-  font-weight: 700;
+/* HIGHLIGHTS */
+.hl {
+  background-color: rgba(185, 228, 240, 0.65);
+  padding: 1px 3px;
+  border-radius: 3px;
 }
 
 .who-link {
-  color: var(--nav-color);
+  color: var(--text);
   text-decoration: underline;
 }
 
-.who-signature {
-  font-family: 'Alex Brush', cursive;
-  font-size: 3rem;
-  color: #B4D415;
+/* SIGNATURE — bigger */
+.who-signature-img {
+  position: absolute;
+  bottom: 32px;
+  right: 40px;
+  height: 130px;
+  width: auto;
   display: block;
-  margin-top: 10px;
-  align-self: flex-end;
-}
-
-.highlight {
-  padding: 2px 4px;
-  background: linear-gradient(
-    to right,
-    rgba(180, 212, 21, 0.3) 0%,
-    rgba(180, 212, 21, 0.3) 100%
-  );
-  background-size: 0% 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.6s ease;
-}
-
-.highlight.animate-in {
-  background-size: 100% 100%;
 }
