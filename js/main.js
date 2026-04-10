@@ -233,10 +233,18 @@ if (entryOverlay) {
   if (hasHash) {
     const introScreen = document.querySelector('.intro-screen');
     if (introScreen) introScreen.style.display = 'none';
-    setTimeout(() => {
-      const targetSection = document.querySelector(hasHash);
-      if (targetSection) targetSection.scrollIntoView({ behavior: 'instant' });
-    }, 100);
+setTimeout(() => {
+  if (hasHash === '#third-section') {
+    const thirdSection = document.querySelector('#third-section');
+    const nav = document.querySelector('nav');
+    const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+    const sectionTop = thirdSection.offsetTop - navHeight + 50;
+    window.scrollTo({ top: sectionTop, behavior: 'instant' });
+  } else {
+    const targetSection = document.querySelector(hasHash);
+    if (targetSection) targetSection.scrollIntoView({ behavior: 'instant' });
+  }
+}, 100);
     return;
   }
 
@@ -1612,7 +1620,7 @@ window.addEventListener('load', () => {
       gsap.set("#blackCover", { opacity: 1 });
       gsap.set(".section-2-wrapper", { y: "-100vh" });
       ScrollTrigger.refresh();
-    }, 500);
+    }, 800);
   }
   // Fix nav visibility when skipping intro via hash
 if (window.location.hash) {
@@ -1730,5 +1738,6 @@ gsap.set(".hero-identity-frame", { autoAlpha: 1 });
     gsap.set(".fish-clown-2", { x: 0, opacity: 1, scale: 1 });
     gsap.set(".fish-tang",   { x: 0, opacity: 1, scale: 1 });
     restoreScalingRigMask(); // ← add this
+    gsap.set(".hero-star", { autoAlpha: 1 });
   }
 });
