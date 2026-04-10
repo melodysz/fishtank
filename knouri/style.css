@@ -423,7 +423,7 @@ a[href], button, [role="button"], .interactable {
 
 .nav-link {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 0.9rem;
   color: var(--text-dark);
   text-decoration: none;
@@ -440,7 +440,7 @@ a[href], button, [role="button"], .interactable {
 
 .nav-item.active > .nav-link {
   color: var(--nav-orange);
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .nav-subsections {
@@ -471,7 +471,7 @@ a[href], button, [role="button"], .interactable {
 
 .nav-subsections a.active {
   color: var(--nav-orange);
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .sidebar-nav {
@@ -716,7 +716,7 @@ h3 {
 
 .meta-text {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-dark);
@@ -724,7 +724,7 @@ h3 {
 
 .meta-orange {
   color: var(--nav-orange);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .content-column {
@@ -774,7 +774,7 @@ h3 {
 
 .hero-title .letterp {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: -0.1em;
 }
 
@@ -1000,7 +1000,7 @@ h3 {
 
 .results-text {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 16px;
   line-height: 1.6;
   margin: 0;
@@ -1055,7 +1055,7 @@ h3 {
 
 .conclusion-text {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 16px;
   line-height: 1.6;
   margin: 0;
@@ -1157,7 +1157,7 @@ h3 {
 
 .audit-bullet-list li {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 16px;
   line-height: 1.7;
   margin-bottom: 16px;
@@ -1224,7 +1224,7 @@ h3 {
 
 .finding-label {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-dark);
@@ -1412,7 +1412,7 @@ h3 {
 
 .prototype-summary {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 16px;
   line-height: 1.6;
   margin-bottom: 16px;
@@ -1489,7 +1489,7 @@ h3 {
 
 .fin-title {
   font-family: "SD Georgia Light", Georgia, serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 50px;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -1558,7 +1558,7 @@ h3 {
 
 .case-footer-tagline {
   font-family: "SD Georgia Light", Georgia, serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 50px;
   line-height: 0.9;
   letter-spacing: -0.03em;
@@ -1568,7 +1568,7 @@ h3 {
 
 .case-footer-helv {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 50px;
   text-transform: lowercase;
   color: #D1FFA4;
@@ -1595,7 +1595,7 @@ h3 {
 
 .case-footer-links a {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 1rem;
   color: #D1FFA4;
   text-decoration: none;

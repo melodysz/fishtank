@@ -438,7 +438,7 @@ body, html { margin: 0; padding: 0; }
 
 .nav-link {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 0.9rem;
   color: var(--text-dark);
   text-decoration: none;
@@ -450,7 +450,7 @@ body, html { margin: 0; padding: 0; }
 }
 
 .nav-link:hover { color: var(--nav-orange); }
-.nav-item.active > .nav-link { color: var(--nav-orange); font-weight: 300; }
+.nav-item.active > .nav-link { color: var(--nav-orange); font-weight: 400; }
 
 /* ================================
    HERO
@@ -646,13 +646,13 @@ h3 {
 
 .meta-text {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-dark);
 }
 
-.meta-orange { color: var(--nav-orange); font-weight: 400; }
+.meta-orange { color: var(--nav-orange); font-weight: 500; }
 
 .content-column {
   max-width: 960px;
@@ -846,7 +846,7 @@ h3 {
 
 .results-text {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 16px;
   line-height: 1.6;
   margin: 0;
@@ -922,7 +922,7 @@ h3 {
   flex-shrink: 0;
 }
 
-.audit-name { font-family: 'PP Neue Montreal', sans-serif; font-weight: 300; font-size: 16px; line-height: 1.5; }
+.audit-name { font-family: 'PP Neue Montreal', sans-serif; font-weight: 400; font-size: 16px; line-height: 1.5; }
 
 .pills-overlay {
   position: absolute;
@@ -1310,10 +1310,10 @@ h3 {
 .case-footer-inner { display: flex; flex-direction: column; align-items: center; gap: 2.2rem; }
 .case-footer-main { display: flex; flex-direction: column; align-items: center; gap: 2.2rem; }
 .case-footer-tagline { font-family: "SD Georgia Light", Georgia, serif; font-weight: 300; font-size: 50px; line-height: 0.9; letter-spacing: -0.03em; margin: 0; color: #fff3bf; }
-.case-footer-helv { font-family: 'PP Neue Montreal', sans-serif; font-weight: 300; font-size: 50px; text-transform: lowercase; color: #fff3bf; letter-spacing: -0.03em; }
+.case-footer-helv { font-family: 'PP Neue Montreal', sans-serif; font-weight: 400; font-size: 50px; text-transform: lowercase; color: #fff3bf; letter-spacing: -0.03em; }
 .case-footer-italic { font-family: "Xanh Mono", monospace; font-style: italic; font-size: 50px; letter-spacing: -0.1em; color: #fff3bf; }
 .case-footer-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
-.case-footer-links a { font-family: 'PP Neue Montreal', sans-serif; font-weight: 300; font-size: 1rem; color: #fff3bf; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; transition: opacity 0.3s ease; }
+.case-footer-links a { font-family: 'PP Neue Montreal', sans-serif; font-weight: 400; font-size: 1rem; color: #fff3bf; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; transition: opacity 0.3s ease; }
 .case-footer-links a:hover { opacity: 0.6; }
 
 .case-footer-bottom { position: absolute; bottom: 0; left: 0; width: 100%; padding: 3rem; display: grid; grid-template-columns: 1fr 1fr; align-items: end; }
