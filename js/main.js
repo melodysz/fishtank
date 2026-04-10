@@ -105,6 +105,8 @@ window.scrollTo(0, 0);
 
 let lenis;
 
+let projectCardsReady = true;
+
 // ============================================
 // NAVIGATE WITH EXIT RIPPLE — TOP LEVEL
 // ============================================
@@ -175,10 +177,6 @@ function playHeroFishIn() {
 gsap.set('.sec2-bubble, .sec2-flower', { opacity: 0, y: 20 });
 gsap.set('#scrollHint', { opacity: 0, y: -18 });
 gsap.set('.bubble-decor, .flower-decor', { opacity: 0, y: 20 });
-const tilts = [8, -6, 10, -9];
-document.querySelectorAll(".project-card").forEach((card, i) => {
-  gsap.set(card, { opacity: 1, y: 0, rotate: tilts[i] });
-});
 gsap.set('.dangles-decor', { y: -50, opacity: 0 });
 
 function playHeroIdentityIn() {
@@ -448,7 +446,7 @@ lenis = new Lenis({
   smoothWheel: true,
   wheelMultiplier: 0.7,
   touchMultiplier: 1.5,
-  prevent: (node) => node.classList.contains('btn-touch')
+  prevent: (node) => node.classList.contains('btn-touch') || !!node.closest('#circularCarousel')
 });
 
 let pageReady = false;
@@ -651,19 +649,34 @@ requestAnimationFrame(() => {
 // Cursor
 const cursorMain = document.getElementById('cursor');
 let lastMouseX = 0, lastMouseY = 0, isHovering = false;
+let isBlobMode = false;
+let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+
+function animateCursor() {
+  curX += (mouseX - curX) * 0.12;
+  curY += (mouseY - curY) * 0.12;
+  cursorMain.style.left = curX + 'px';
+  cursorMain.style.top = curY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+const BLOB_HEIGHT = 40;
+
+function expandToBlob() {
+  isBlobMode = true;
+  cursorMain.style.setProperty('--blob-w', '48px');
+  cursorMain.classList.add('is-blob');
+}
+
+function shrinkBlob() {
+  isBlobMode = false;
+  cursorMain.classList.remove('is-blob');
+  cursorMain.style.removeProperty('--blob-w');
+}
 
 window.addEventListener("mouseenter", () => cursorMain.classList.add("active"));
 window.addEventListener("mouseleave", () => cursorMain.classList.remove("active"));
-
-window.addEventListener('mousemove', (e) => {
-  cursorMain.classList.add('active');
-  gsap.to(cursorMain, { left: e.clientX + 'px', top: e.clientY + 'px', duration: 0.1 });
-  if (Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY) > 25) {
-    createBubble(e.clientX, e.clientY);
-    lastMouseX = e.clientX;
-    lastMouseY = e.clientY;
-  }
-});
 
 function createBubble(x, y) {
   const bubble = document.createElement('div');
@@ -684,21 +697,29 @@ function createBubble(x, y) {
   });
 }
 
+window.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorMain.classList.add('active');
+  if (!isBlobMode) {
+    if (Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY) > 25) {
+      createBubble(e.clientX, e.clientY);
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    }
+  }
+});
+
 window.addEventListener("pointermove", (e) => {
   const elements = document.elementsFromPoint(e.clientX, e.clientY);
   const hovered = elements.find(el => {
-    if (el.id === 'cursor' || el.classList.contains('bubble-particle') || el.closest(".nav-center-star")) return false;
-    if (el.classList.contains('project-card') && !projectCardsReady) return false;
-    return el.matches?.(".interactable, a[href], button, [role='button'], .btn-touch") ||
-           el.closest?.(".interactable, a[href], button, [role='button'], .btn-touch");
-    return el.matches?.(".interactable, a[href], button, [role='button'], .btn-touch") ||
-           el.closest?.(".interactable, a[href], button, [role='button'], .btn-touch");
+    if (el.id === 'cursor' || el.classList.contains('bubble-particle')) return false;
+    if (el.classList.contains('project-card') || el.closest('.project-card')) return false;
+    return el.matches?.("a[href], button, [role='button'], .btn-touch, .work-nav-pill") ||
+           el.closest?.("a[href], button, [role='button'], .btn-touch, .work-nav-pill");
   });
-  const next = !!hovered;
-  if (next !== isHovering) {
-    isHovering = next;
-    gsap.to(cursorMain, { width: next ? '48px' : '12px', height: next ? '48px' : '12px', duration: 0.3, ease: "power2.out" });
-  }
+  if (hovered && !isBlobMode) expandToBlob();
+  else if (!hovered && isBlobMode) shrinkBlob();
 });
 
 // Nav name
@@ -784,7 +805,12 @@ document.querySelectorAll('.nav-swap').forEach(link => {
 // [WORK] nav link
 document.querySelector('.nav-swap[data-default="[WORK]"]').addEventListener('click', (e) => {
   e.preventDefault();
-  lenis.scrollTo('#third-section', { duration: 1.2 });
+  const thirdSection = document.querySelector('#third-section');
+  const nav = document.querySelector('nav');
+  const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+  const sectionTop = thirdSection.offsetTop;
+  gsap.set('#blackCover', { opacity: 0 }); // ← add this
+  lenis.scrollTo(sectionTop - navHeight + 50, { duration: 1.2 });
 });
 
 gsap.to("#footer-star-icon", { rotation: 360, duration: 25, ease: "none", repeat: -1 });
@@ -798,7 +824,7 @@ ScrollTrigger.create({
   }, 
   onLeaveBack: () => {
     document.body.classList.remove('reveal-sec2');
-    gsap.to(navItems, { color: "#006EE9", duration: 0.4 });
+    gsap.to(navItems, { color: "#0033FF", duration: 0.4 });
   }
 });
 
@@ -835,6 +861,29 @@ ScrollTrigger.create({
   end: "bottom 50%",
   onEnter: () => gsap.to(navItems, { color: "#E7A0FE", duration: 0.4 }),
   onLeaveBack: () => gsap.to(navItems, { color: "#83E7FF", duration: 0.4 })
+});
+
+const workFooterGradient = document.querySelector('.work-footer-gradient');
+
+ScrollTrigger.create({
+  trigger: ".third-section",
+  start: "top bottom",
+  end: "bottom top",
+  scrub: 1.5,
+  onUpdate: (self) => {
+    if (!workFooterGradient) return;
+    const p = self.progress;
+    const w = 5 + (p * 120);        // 5% → 125%
+    const h = 20 + (p * 80);         // 4% → 84%
+    const midStop = 20 + (p * 40);  // 20% → 55%
+    const darkStop = 55 + (p * 50); // 35% → 70%
+    workFooterGradient.style.opacity = Math.min(1, p * 2.5);
+const r = Math.round(0 + (p * 0));
+const g = Math.round(1 + (p * 109));
+const b = Math.round(128 + (p * 105));
+const centerOpacity = Math.min(1, p * 3);
+workFooterGradient.style.background = `radial-gradient(ellipse ${w}% ${h}% at 50% 100%, rgba(${r}, ${g}, ${b}, ${centerOpacity}) 0%, rgba(${r}, ${g}, ${b}, ${centerOpacity}) 5%, #000180 ${midStop}%, #000000 ${darkStop}%)`;
+  }
 });
 
 gsap.fromTo("#footer-main-content", 
@@ -977,58 +1026,454 @@ ScrollTrigger.create({
   }
 });
 
-let projectCardsReady = false;
+const carouselEl = document.getElementById('circularCarousel');
+const cards = Array.from(carouselEl.querySelectorAll('.project-card'));
 
-function playProjectCardsIn() {
-  projectCardsReady = false;
-  isHovering = false;
-  gsap.to(cursorMain, { width: '12px', height: '12px', duration: 0.3, ease: "power2.out" });
-  const cards = document.querySelectorAll(".project-card");
-  cards.forEach((card, index) => {
-    gsap.to(card, { rotate: 0, duration: 1.0, delay: index * 0.12, ease: "elastic.out(1, 0.5)", overwrite: true });
+
+const N = cards.length;
+
+const projectURLs = [
+  'https://melodysz.github.io/fishtank/deep24/',
+  'https://melodysz.github.io/fishtank/knouri/',
+  'https://melodysz.github.io/fishtank/pent-up/',
+  '',
+];
+
+let offset = 0;
+let dragging = false;
+let startX = 0;
+let startOffset = 0;
+let velX = 0;
+let lastX = 0;
+let didDrag = false;
+let rafId;
+let carouselReady = false;
+let spinToAborted = false;
+let isInteracting = false;
+
+function layoutCards() {
+  cards.forEach((card, i) => {
+    let pos = i - offset;
+    // Wrap into (-N/2, N/2] — using strict less-than avoids the boundary flip at exactly N/2
+    pos = ((pos % N) + N) % N;
+    if (pos > N / 2) pos -= N;
+
+    const absDist = Math.abs(pos);
+    const angle = pos * 26;
+    const rad = angle * Math.PI / 180;
+    const RADIUS = 1400;
+    const x = Math.sin(rad) * RADIUS;
+    const y = RADIUS - Math.cos(rad) * RADIUS;
+
+    card.style.position = 'absolute';
+    card.style.width = '380px';
+    card.style.transformOrigin = 'center center';
+    card.style.transition = 'none';
+    const lift = card._currentLift || 0;
+
+card.style.transform = `translate(-50%, -50%) translateX(${x}px) translateY(${y + lift}px) rotate(${angle}deg)`;
+const distOpacity = absDist > 2.5 ? 0 : Math.max(0, 1 - (absDist - 1.5) * 0.7);
+card.style.opacity = String(distOpacity * (window._carouselFade ?? 1));
+    card.style.zIndex = String(Math.round(100 - absDist * 10));
   });
-  setTimeout(() => { projectCardsReady = true; }, ((cards.length - 1) * 0.12 + 1.0) * 1000);
 }
 
-function resetProjectCards() {
-  projectCardsReady = false;
-  const tilts = [8, -6, 10, -9];
-  document.querySelectorAll(".project-card").forEach((card, i) => {
-    gsap.set(card, { opacity: 1, y: 0, rotate: tilts[i] });
+function snapToNearest() {
+  cancelAnimationFrame(rafId);
+  velX = 0;
+  const target = Math.round(offset);
+  function step() {
+    const remaining = target - offset;
+    if (Math.abs(remaining) < 0.001) {
+      offset = target;
+      layoutCards();
+      return;
+    }
+    offset += remaining * 0.14;
+    layoutCards();
+    rafId = requestAnimationFrame(step);
+  }
+  rafId = requestAnimationFrame(step);
+}
+
+// REPLACE applyMomentum entirely:
+function applyMomentum() {
+  hideAward();
+  cancelAnimationFrame(rafId);
+  
+  const target = Math.round(offset + velX * 8);
+  const distToTarget = target - offset;
+  velX = distToTarget * 0.18;
+  
+  function step() {
+    offset += velX;
+    velX *= 0.82;
+    layoutCards();
+    
+    if (Math.abs(velX) > 0.0001) {
+      rafId = requestAnimationFrame(step);
+} else {
+  offset = target;
+  velX = 0;
+  isInteracting = false;
+  layoutCards();
+  updateWorkNav();
+const settled = ((target % N) + N) % N;
+if (settled === 2) {
+  const myToken = ++awardToken;
+  setTimeout(() => {
+    if (myToken === awardToken && !isInteracting) showAward();
+  }, 200);
+}
+if (settled === 3) {
+  const myToken = ++awardToken;
+  setTimeout(() => {
+    if (myToken === awardToken && !isInteracting) showBadge();
+  }, 200);
+}
+}
+  }
+  step();
+}
+
+carouselEl.addEventListener('pointerdown', (e) => {
+  if (!carouselReady) return;
+  isInteracting = true;
+  spinToAborted = true;
+  hideAward();
+  // hideBadge();
+  dragging = true;
+  didDrag = false;
+  startX = e.clientX; startOffset = offset; velX = 0; lastX = e.clientX;
+  carouselEl.setPointerCapture(e.pointerId);
+  cancelAnimationFrame(rafId);
+});
+
+carouselEl.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  if (Math.abs(e.clientX - startX) > 6) {
+    didDrag = true;
+    hideAward();
+    hideBadge(); // ← only hides once actual drag movement detected
+  }
+  const rawDelta = -(e.clientX - lastX) / 360;
+  velX = rawDelta;
+  offset += rawDelta;
+  lastX = e.clientX;
+  layoutCards();
+});
+
+carouselEl.addEventListener('pointerup', (e) => {
+  if (!dragging) return;
+  dragging = false;
+  if (!didDrag) {
+    // Use elementFromPoint to find what's visually under the click
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const clickedCard = el?.closest('.project-card');
+    if (clickedCard) {
+      const idx = ((Math.round(offset) % N) + N) % N;
+      const url = projectURLs[clickedCard.getAttribute('data-index')];
+      if (url) navigateTo(url);
+    }
+    return;
+  }
+  applyMomentum();
+});
+
+carouselEl.addEventListener('touchstart', (e) => {
+  if (!carouselReady) return;
+  isInteracting = true;
+  hideAward();
+  hideBadge();
+  lenis.stop();
+  dragging = true; didDrag = false;
+  startX = e.touches[0].clientX;
+  startOffset = offset;
+  velX = 0;
+  lastX = e.touches[0].clientX;
+  cancelAnimationFrame(rafId);
+}, { passive: true });
+
+carouselEl.addEventListener('touchmove', (e) => {
+  if (!dragging) return;
+  const dx = e.touches[0].clientX - startX;
+  if (Math.abs(dx) > 6) {
+    didDrag = true;
+    hideAward(); // ← add this
+  }
+  velX = -(e.touches[0].clientX - lastX) / 360;
+  offset = startOffset - dx / 360;
+  lastX = e.touches[0].clientX;
+  layoutCards();
+}, { passive: false });
+
+carouselEl.addEventListener('touchend', () => {
+  if (!dragging) return;
+  dragging = false;
+  lenis.start();
+  console.log('touchend fired, isInteracting:', isInteracting, 'didDrag:', didDrag);
+  if (!didDrag) {
+    const idx = ((Math.round(offset) % N) + N) % N;
+    const url = projectURLs[cards[idx]?.getAttribute('data-index')];
+    if (url) navigateTo(url);
+    return;
+  }
+  applyMomentum();
+});
+
+window._carouselFade = 0;
+carouselEl.style.opacity = '0';
+layoutCards();
+
+carouselEl.addEventListener('mousemove', (e) => {
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const hoveredCard = el?.classList.contains('project-card') ? el : el?.closest('.project-card');
+  cards.forEach(card => { card._targetLift = card === hoveredCard ? -30 : 0; });
+  
+  // Move award with pent up card when it's hovered
+  const pentUpCard = cards[2];
+  const award = document.querySelector('.pent-up-award');
+  if (award && awardVisible) {
+    pentUpCard._targetLift === pentUpCard._targetLift; // already set above
+    award._targetLift = award._targetLift || 0;
+    award._targetLift = (hoveredCard === pentUpCard) ? -50 : 0;
+  }
+  
+  const iproDentalCard = cards[3];
+const badge = document.querySelector('.coming-soon-badge');
+if (badge) {
+  badge._targetLift = (hoveredCard === iproDentalCard) ? -50 : 0;
+}
+
+  const onCard = !!hoveredCard;
+  if (onCard && !isBlobMode) expandToBlob();
+  else if (!onCard && isBlobMode) {
+    const hovered = document.elementsFromPoint(e.clientX, e.clientY).find(el =>
+      el.matches?.("a[href], button, [role='button'], .btn-touch") ||
+      el.closest?.("a[href], button, [role='button'], .btn-touch")
+    );
+    if (!hovered) shrinkBlob();
+  }
+});
+
+carouselEl.addEventListener('mouseleave', () => {
+  cards.forEach(card => { card._targetLift = 0; });
+  shrinkBlob();
+});
+
+carouselEl.addEventListener('mouseleave', () => {
+  cards.forEach(card => { card._hoverLift = 0; });
+  shrinkBlob();
+});
+
+carouselEl.addEventListener('mouseleave', () => shrinkBlob());
+
+function updateWorkNavHighlight() {
+  const pills = document.querySelectorAll('.work-nav-pill');
+  const active = ((Math.round(offset) % N) + N) % N;
+  pills.forEach(pill => {
+    const isActive = parseInt(pill.dataset.index) === active;
+    pill.classList.toggle('active', isActive);
   });
 }
 
+function updateWorkNav() {
+  updateWorkNavHighlight();
+}
+
+let awardVisible = false;
+let awardToken = 0;
+let lastHideTime = 0;
+
+function showAward() {
+  if (performance.now() - lastHideTime < 500) return;
+  awardVisible = true;
+  const award = document.querySelector('.pent-up-award');
+  if (award) {
+    gsap.killTweensOf(award);
+    gsap.fromTo(award,
+      { opacity: 0, rotate: -25, scale: 0.9 },
+      { opacity: 1, rotate: 12.46, scale: 1, duration: 0.5, ease: "back.out(4)" }
+    );
+  }
+}
+
+function hideBadge() {
+  lastHideTime = performance.now();
+  const badge = document.querySelector('.coming-soon-badge');
+  if (!badge) return;
+  gsap.killTweensOf(badge);
+  badge.style.opacity = '0';
+  badge.style.transition = 'opacity 0.15s ease';
+}
+
+function showBadge() {
+  if (performance.now() - lastHideTime < 500) return;
+  const badge = document.querySelector('.coming-soon-badge');
+  if (!badge) return;
+  badge.style.transition = '';
+  gsap.killTweensOf(badge);
+  gsap.fromTo(badge,
+    { opacity: 0, rotate: 25, scale: 0.9 },
+    { opacity: 1, rotate: -12.46, scale: 1, duration: 0.5, ease: "back.out(4)" }
+  );
+}
+
+function hideAward() {
+  awardVisible = false;
+  awardToken++;
+  lastHideTime = performance.now();
+  const award = document.querySelector('.pent-up-award');
+  if (!award) return;
+  gsap.killTweensOf(award);
+  award.style.opacity = '0';
+  award.style.transition = 'opacity 0.15s ease';
+  // hideBadge();
+}
+
+function animateWorkNavIn() {
+  const pills = document.querySelectorAll('.work-nav-pill');
+  pills.forEach((pill, i) => {
+    setTimeout(() => {
+      gsap.to(pill, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out",
+        onComplete: () => {
+          if (i === pills.length - 1) setTimeout(() => updateWorkNav(), 50);
+        }
+      });
+    }, i * 80);
+  });
+}
+
+document.querySelectorAll('.work-nav-pill').forEach(pill => {
+pill.addEventListener('click', () => {
+  hideAward();
+  spinToAborted = false;
+  const target = parseInt(pill.dataset.index);
+    const current = ((Math.round(offset) % N) + N) % N;
+    if (target === current) return;
+
+    let delta = target - current;
+    if (delta > N / 2) delta -= N;
+    if (delta < -N / 2) delta += N;
+
+    const destination = Math.round(offset) + delta;
+    cancelAnimationFrame(rafId);
+    velX = (destination - offset) * 0.18;
+
+function spinTo() {
+  if (spinToAborted) return;
+  offset += velX;
+  velX *= 0.82;
+  layoutCards();
+  if (Math.abs(destination - offset) > 0.001) {
+    rafId = requestAnimationFrame(spinTo);
+  } else {
+    offset = destination;
+    velX = 0;
+    layoutCards();
+    updateWorkNav();
+const settled = ((destination % N) + N) % N;
+if (settled === 2) showAward();
+if (settled === 3) showBadge();
+  }
+}
+    rafId = requestAnimationFrame(spinTo);
+  });
+});
+
+// Continuous redraw for hover lift
+function renderLoop() {
+  cards.forEach(card => {
+    const target = card._targetLift || 0;
+    card._currentLift = card._currentLift || 0;
+    card._currentLift += (target - card._currentLift) * 0.12;
+  });
+  layoutCards();
+
+  // Animate award lift in sync with pent up card
+  const award = document.querySelector('.pent-up-award');
+  if (award && awardVisible) {
+    award._currentLift = award._currentLift || 0;
+    award._targetLift = award._targetLift || 0;
+    award._currentLift += (award._targetLift - award._currentLift) * 0.12;
+    const currentY = gsap.getProperty(award, 'y') || 0;
+    gsap.set(award, { y: award._currentLift });
+  }
+  
+  const badge = document.querySelector('.coming-soon-badge');
+if (badge) {
+  badge._currentLift = badge._currentLift || 0;
+  badge._targetLift = badge._targetLift || 0;
+  badge._currentLift += (badge._targetLift - badge._currentLift) * 0.12;
+  gsap.set(badge, { y: badge._currentLift });
+}
+
+  updateWorkNavHighlight();
+  requestAnimationFrame(renderLoop);
+}
+requestAnimationFrame(renderLoop);
+
+// REPLACE the first ScrollTrigger.create at "top 69.8%" with:
+let carouselAnimPlayed = false;
 
 ScrollTrigger.create({
   trigger: ".third-section",
   start: "top 69.8%",
   onEnter: () => {
-    setTimeout(() => {
-      playProjectCardsIn();
-    }, 500);
+    carouselReady = true;
+
+    if (!carouselAnimPlayed) {
+      carouselAnimPlayed = true;
+
+offset = 3;
+// Calculate exact velocity needed to coast to 0 given friction 0.95
+// Sum of geometric series: offset = velX * (1 / (1 - 0.95)) = velX * 20
+// So velX = offset / 20
+velX = -3 / 20;  // = -0.15, but now mathematically lands on 0
+window._carouselFade = 0;
+carouselEl.style.opacity = '1';
+
+cancelAnimationFrame(rafId);
+
+function spinIn() {
+  offset += velX;
+  velX *= 0.95;
+  window._carouselFade = Math.min(1, window._carouselFade + 0.02);
+  layoutCards();
+
+  if (Math.abs(velX) > 0.0001) {
+    rafId = requestAnimationFrame(spinIn);
+  } else {
+    offset = Math.round(offset);
+    window._carouselFade = 1;
+    layoutCards();
+    setTimeout(() => animateWorkNavIn(), 400);
+const settled = ((Math.round(offset) % N) + N) % N;
+if (settled === 2) showAward();
+if (settled === 3) showBadge();
+  }
+}
+rafId = requestAnimationFrame(spinIn);
+setTimeout(() => animateWorkNavIn(), 400); // ← separate, earlier trigger
+    }
+
     gsap.fromTo('.bubble-decor',
       { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.1,
-        ease: "power2.out", delay: 0.4, overwrite: true,
-        
-      }
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out", delay: 0.4, overwrite: true }
     );
-    gsap.fromTo('.flower-decor', 
-      { opacity: 0, y: 20, scale: 0.2, rotation: 0 }, 
-      { opacity: 1, y: 0, scale: 1.5, rotation: 2160, duration: 2.5, stagger: 0.15, 
-        ease: "expo.out", delay: 0.4, overwrite: true }
+    gsap.fromTo('.flower-decor',
+      { opacity: 0, y: 20, scale: 0.2, rotation: 0 },
+      { opacity: 1, y: 0, scale: 1.5, rotation: 2160, duration: 2.5, stagger: 0.15, ease: "expo.out", delay: 0.4, overwrite: true }
     );
   },
   onLeaveBack: () => {
-    gsap.killTweensOf(".project-card");
-    gsap.to('.bubble-decor, .flower-decor', { 
-      opacity: 0, y: 20, duration: 0.4, stagger: 0.06, 
-      ease: "power2.in", overwrite: true
+    gsap.to('.bubble-decor, .flower-decor', {
+      opacity: 0, y: 20, duration: 0.4, stagger: 0.06, ease: "power2.in", overwrite: true
     });
     gsap.to('.flower-decor', { opacity: 0, y: 20, rotation: 0, scale: 1.5, duration: 0.4, overwrite: true });
-  },
-  once: false
+  }
 });
+
 
 document.querySelectorAll('.footer-anim').forEach(el => {
   el.style.transitionDelay = '';
@@ -1115,43 +1560,6 @@ scalingRig.style.maskImage = "url('https://melodysz.github.io/baubles/mask.png')
 const projectCards = document.querySelectorAll(".project-card");
 const thirdDecor = document.querySelectorAll(".third-decor");
 
-projectCards.forEach(card => {
-  card.addEventListener("mouseenter", () => {
-    if (!projectCardsReady) return;    
-    card.classList.add("is-hovered");
-    projectCards.forEach(c => {
-      if (c === card) {
-        const tilt = Math.random() > 0.5 ? (Math.random() * 6 + 6).toFixed(2) : -(Math.random() * 6 + 6).toFixed(2);
-        gsap.to(c, { filter: "blur(0px)", opacity: 1, scale: 1.18, rotate: tilt, duration: 0.28, ease: "back.out(2.5)", overwrite: true });
-      } else {
-        gsap.to(c, { filter: "blur(8px)", opacity: 0.4, scale: 1, rotate: 0, duration: 0.15, ease: "power2.out", overwrite: true });
-      }
-    });
-    gsap.to(thirdDecor, { filter: "blur(8px)", opacity: 0.4, duration: 0.15, ease: "power2.out", overwrite: true });
-  });
-
-  card.addEventListener("mouseleave", () => {
-    if (!projectCardsReady) return;
-    card.classList.remove("is-hovered");
-    gsap.to(projectCards, { filter: "none", opacity: 1, scale: 1, rotate: 0, duration: 0.18, ease: "power2.out", overwrite: true });
-    gsap.to(thirdDecor, { filter: "none", opacity: 1, duration: 0.2, ease: "power2.out", overwrite: true });
-  });
-  
-  card.addEventListener('click', () => {
-    if (!projectCardsReady) return;
-    const index = parseInt(card.getAttribute('data-index'));
-    const projectURLs = [
-       'https://melodysz.github.io/fishtank/deep24/',
-  'https://melodysz.github.io/fishtank/pent-up/',
-     
-       'https://melodysz.github.io/fishtank/knouri/',
-    ];
-    if (projectURLs[index] && projectURLs[index] !== '#') {
-      navigateTo(projectURLs[index], projectURLs[index].includes('figma.com'));
-    }
-  });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
   const whoNavLink = document.querySelector('.nav-right a[data-default="[WHO?]"]');
   if (whoNavLink) {
@@ -1210,7 +1618,23 @@ document.querySelector('.btn-touch').addEventListener('click', () => {
 });
 
 window.addEventListener('wheel', (e) => {
-  // If scroll is more horizontal than vertical, redirect to vertical
+  const overCarousel = carouselEl.contains(e.target) || e.target === carouselEl;
+
+  if (overCarousel) {
+    e.preventDefault();
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      hideAward();
+hideBadge(); // ← add this
+      cancelAnimationFrame(rafId);
+      velX = e.deltaX / 600;
+      offset += e.deltaX / 360;
+      layoutCards();
+      clearTimeout(window._carouselSnapTimer);
+      window._carouselSnapTimer = setTimeout(() => applyMomentum(), 80);
+    }
+    return;
+  }
+
   if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
     e.preventDefault();
     lenis.scrollTo(lenis.scroll + e.deltaX * 0.8, { immediate: false });
