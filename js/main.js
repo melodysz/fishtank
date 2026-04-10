@@ -1663,7 +1663,8 @@ ScrollTrigger.create({
   },
 onLeaveBack: () => {
   if (!pageReady) return; // add this line at the top
-  gsap.set(".scaling-rig", { scale: 1, opacity: 1 });
+  gsap.set(".scaling-rig", { scale: 1, autoAlpha: 1 });
+restoreScalingRigMask();
     document.getElementById('scrollHint').classList.remove('hidden');
   }
 });
@@ -1703,6 +1704,8 @@ ScrollTrigger.create({
     gsap.set(".sky-text-images", { autoAlpha: 0 });
     gsap.set("#sky-text-container", { autoAlpha: 0 });
     gsap.set(".hero-identity-frame", { opacity: 1 });
+    gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], { autoAlpha: 1 });
+gsap.set(".hero-identity-frame", { autoAlpha: 1 });
     if (heroLineElements) {
       heroLineElements.forEach(line => {
         line.style.opacity = 1;
