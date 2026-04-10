@@ -1050,6 +1050,9 @@ let rafId;
 let carouselReady = false;
 let spinToAborted = false;
 let isInteracting = false;
+const awardEl = document.querySelector('.pent-up-award');
+const badgeEl = document.querySelector('.coming-soon-badge');
+const workNavPills = document.querySelectorAll('.work-nav-pill');
 
 function layoutCards() {
   cards.forEach((card, i) => {
@@ -1211,7 +1214,7 @@ carouselEl.addEventListener('touchend', () => {
   if (!dragging) return;
   dragging = false;
   lenis.start();
-  console.log('touchend fired, isInteracting:', isInteracting, 'didDrag:', didDrag);
+  
   if (!didDrag) {
     const idx = ((Math.round(offset) % N) + N) % N;
     const url = projectURLs[cards[idx]?.getAttribute('data-index')];
@@ -1232,7 +1235,7 @@ carouselEl.addEventListener('mousemove', (e) => {
   
   // Move award with pent up card when it's hovered
   const pentUpCard = cards[2];
-  const award = document.querySelector('.pent-up-award');
+  const award = awardEl;
   if (award && awardVisible) {
     pentUpCard._targetLift === pentUpCard._targetLift; // already set above
     award._targetLift = award._targetLift || 0;
@@ -1240,7 +1243,7 @@ carouselEl.addEventListener('mousemove', (e) => {
   }
   
   const iproDentalCard = cards[3];
-const badge = document.querySelector('.coming-soon-badge');
+const badge = badgeEl;
 if (badge) {
   badge._targetLift = (hoveredCard === iproDentalCard) ? -50 : 0;
 }
@@ -1269,7 +1272,7 @@ carouselEl.addEventListener('mouseleave', () => {
 carouselEl.addEventListener('mouseleave', () => shrinkBlob());
 
 function updateWorkNavHighlight() {
-  const pills = document.querySelectorAll('.work-nav-pill');
+  const pills = workNavPills;
   const active = ((Math.round(offset) % N) + N) % N;
   pills.forEach(pill => {
     const isActive = parseInt(pill.dataset.index) === active;
@@ -1288,7 +1291,8 @@ let lastHideTime = 0;
 function showAward() {
   if (performance.now() - lastHideTime < 500) return;
   awardVisible = true;
-  const award = document.querySelector('.pent-up-award');
+  const award = awardEl;
+
   if (award) {
     gsap.killTweensOf(award);
     gsap.fromTo(award,
@@ -1300,7 +1304,8 @@ function showAward() {
 
 function hideBadge() {
   lastHideTime = performance.now();
-  const badge = document.querySelector('.coming-soon-badge');
+  const badge = badgeEl;
+
   if (!badge) return;
   gsap.killTweensOf(badge);
   badge.style.opacity = '0';
@@ -1309,7 +1314,8 @@ function hideBadge() {
 
 function showBadge() {
   if (performance.now() - lastHideTime < 500) return;
-  const badge = document.querySelector('.coming-soon-badge');
+  const badge = badgeEl;
+
   if (!badge) return;
   badge.style.transition = '';
   gsap.killTweensOf(badge);
@@ -1323,7 +1329,8 @@ function hideAward() {
   awardVisible = false;
   awardToken++;
   lastHideTime = performance.now();
-  const award = document.querySelector('.pent-up-award');
+  const award = awardEl;
+
   if (!award) return;
   gsap.killTweensOf(award);
   award.style.opacity = '0';
@@ -1332,7 +1339,8 @@ function hideAward() {
 }
 
 function animateWorkNavIn() {
-  const pills = document.querySelectorAll('.work-nav-pill');
+  const pills = workNavPills;
+
   pills.forEach((pill, i) => {
     setTimeout(() => {
       gsap.to(pill, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out",
@@ -1344,7 +1352,8 @@ function animateWorkNavIn() {
   });
 }
 
-document.querySelectorAll('.work-nav-pill').forEach(pill => {
+workNavPills.forEach(pill => {
+
 pill.addEventListener('click', () => {
   hideAward();
   hideBadge(); // ← add this
@@ -1392,7 +1401,8 @@ function renderLoop() {
   layoutCards();
 
   // Animate award lift in sync with pent up card
-  const award = document.querySelector('.pent-up-award');
+  const award = awardEl;
+
   if (award && awardVisible) {
     award._currentLift = award._currentLift || 0;
     award._targetLift = award._targetLift || 0;
@@ -1401,7 +1411,8 @@ function renderLoop() {
     gsap.set(award, { y: award._currentLift });
   }
   
-  const badge = document.querySelector('.coming-soon-badge');
+  const badge = badgeEl;
+
 if (badge) {
   badge._currentLift = badge._currentLift || 0;
   badge._targetLift = badge._targetLift || 0;
@@ -1468,7 +1479,7 @@ ScrollTrigger.create({
     layoutCards();
     hideAward();
     hideBadge();
-    const pills = document.querySelectorAll('.work-nav-pill');
+    const pills = workNavPills;
     pills.forEach(pill => {
       gsap.to(pill, { opacity: 0, duration: 0.3 });
       pill.classList.remove('active');
@@ -1611,9 +1622,6 @@ if (window.location.hash) {
 }
 });
 
-document.addEventListener('click', (e) => {
-  console.log('CLICK CAUGHT BY:', e.target, '| path:', e.composedPath().map(el => el.className || el.tagName).join(' > '));
-}, true);
 
 document.querySelector('.btn-touch').addEventListener('click', () => {
   navigator.clipboard.writeText('melodyserenazhang@gmail.com');
