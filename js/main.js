@@ -1422,42 +1422,33 @@ ScrollTrigger.create({
   start: "top 69.8%",
   onEnter: () => {
     carouselReady = true;
-
     if (!carouselAnimPlayed) {
       carouselAnimPlayed = true;
-
-offset = 3;
-// Calculate exact velocity needed to coast to 0 given friction 0.95
-// Sum of geometric series: offset = velX * (1 / (1 - 0.95)) = velX * 20
-// So velX = offset / 20
-velX = -3 / 20;  // = -0.15, but now mathematically lands on 0
-window._carouselFade = 0;
-carouselEl.style.opacity = '1';
-
-cancelAnimationFrame(rafId);
-
-function spinIn() {
-  offset += velX;
-  velX *= 0.95;
-  window._carouselFade = Math.min(1, window._carouselFade + 0.02);
-  layoutCards();
-
-  if (Math.abs(velX) > 0.0001) {
-    rafId = requestAnimationFrame(spinIn);
-  } else {
-    offset = Math.round(offset);
-    window._carouselFade = 1;
-    layoutCards();
-    setTimeout(() => animateWorkNavIn(), 400);
-const settled = ((Math.round(offset) % N) + N) % N;
-if (settled === 2) showAward();
-if (settled === 3) showBadge();
-  }
-}
-rafId = requestAnimationFrame(spinIn);
-setTimeout(() => animateWorkNavIn(), 400); // ← separate, earlier trigger
+      offset = 3;
+      velX = -3 / 20;
+      window._carouselFade = 0;
+      carouselEl.style.opacity = '1';
+      cancelAnimationFrame(rafId);
+      function spinIn() {
+        offset += velX;
+        velX *= 0.95;
+        window._carouselFade = Math.min(1, window._carouselFade + 0.02);
+        layoutCards();
+        if (Math.abs(velX) > 0.0001) {
+          rafId = requestAnimationFrame(spinIn);
+        } else {
+          offset = Math.round(offset);
+          window._carouselFade = 1;
+          layoutCards();
+          setTimeout(() => animateWorkNavIn(), 400);
+          const settled = ((Math.round(offset) % N) + N) % N;
+          if (settled === 2) showAward();
+          if (settled === 3) showBadge();
+        }
+      }
+      rafId = requestAnimationFrame(spinIn);
+      setTimeout(() => animateWorkNavIn(), 400);
     }
-
     gsap.fromTo('.bubble-decor',
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out", delay: 0.4, overwrite: true }
@@ -1468,6 +1459,20 @@ setTimeout(() => animateWorkNavIn(), 400); // ← separate, earlier trigger
     );
   },
   onLeaveBack: () => {
+    carouselAnimPlayed = false;
+    carouselReady = false;
+    window._carouselFade = 0;
+    carouselEl.style.opacity = '0';
+    offset = 3;
+    velX = 0;
+    layoutCards();
+    hideAward();
+    hideBadge();
+    const pills = document.querySelectorAll('.work-nav-pill');
+    pills.forEach(pill => {
+      gsap.to(pill, { opacity: 0, duration: 0.3 });
+      pill.classList.remove('active');
+    });
     gsap.to('.bubble-decor, .flower-decor', {
       opacity: 0, y: 20, duration: 0.4, stagger: 0.06, ease: "power2.in", overwrite: true
     });
