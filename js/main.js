@@ -234,11 +234,9 @@ if (entryOverlay) {
     const introScreen = document.querySelector('.intro-screen');
     if (introScreen) introScreen.style.display = 'none';
 setTimeout(() => {
-  if (hasHash === '#third-section') {
+if (hasHash === '#third-section') {
     const thirdSection = document.querySelector('#third-section');
-    const nav = document.querySelector('nav');
-    const navHeight = nav ? nav.getBoundingClientRect().height : 0;
-    const sectionTop = thirdSection.offsetTop - navHeight + 50;
+    const sectionTop = thirdSection.offsetTop;
     window.scrollTo({ top: sectionTop, behavior: 'instant' });
   } else {
     const targetSection = document.querySelector(hasHash);
