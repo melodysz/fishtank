@@ -937,7 +937,7 @@ h3 {
 
 .unsent-project-image {
   width: 100%;
-  margin-top: -130px !important;
+  margin-top: 30px !important;
   margin-bottom: 30px;
   position: relative;
   min-height: 500px;
