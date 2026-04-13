@@ -1211,10 +1211,10 @@ h3 {
 
 .final-prototype-backdrop .prototype-block:nth-child(3) .prototype-text { margin-top: -50px !important; }
 .final-prototype-backdrop .prototype-block:nth-child(3) .prototype-image { margin-left: calc(-50vw + 50% + 10px) !important; margin-top: 60px !important; }
-.final-prototype-backdrop .prototype-block:nth-child(4) .prototype-text { margin-top: -320px !important; }
-.final-prototype-backdrop .prototype-block:nth-child(4) .prototype-image { margin-right: calc(-50vw + 50% + 10px) !important; margin-top: -270px !important; }
+.final-prototype-backdrop .prototype-block:nth-child(4) .prototype-text { margin-top: -300px !important; }
+.final-prototype-backdrop .prototype-block:nth-child(4) .prototype-image { margin-right: calc(-50vw + 50% + 10px) !important; margin-top: -220px !important; }
 .final-prototype-backdrop .prototype-block:nth-child(5) .prototype-text { margin-top: -300px !important; }
-.final-prototype-backdrop .prototype-block:nth-child(5) .prototype-image { margin-left: calc(-50vw + 50% + 10px) !important; margin-top: -250px !important; }
+.final-prototype-backdrop .prototype-block:nth-child(5) .prototype-image { margin-left: calc(-50vw + 50% + 10px) !important; margin-top: -210px !important; }
 
 .prototype-number { font-size: 23px; margin-bottom: 16px; }
 .prototype-heading { font-family: "Xanh Mono", monospace; font-style: italic; font-weight: 400; font-size: 30px; letter-spacing: -0.05em; line-height: 1.2; margin-top: 0; margin-bottom: 16px; color: var(--text-dark); }
