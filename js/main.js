@@ -1909,9 +1909,6 @@ onLeaveBack: () => {
     gsap.set(".sky-text-images", { autoAlpha: 0 });
     gsap.set("#sky-text-container", { autoAlpha: 0 });
     gsap.to(".hero-identity-frame", { opacity: 1, autoAlpha: 1, duration: 0.4, ease: "power2.out" });
-  playHeroFishIn();
-    playHeroOrbitIn();
-    playHeroIdentityIn();
     if (heroLineElements) {
       heroLineElements.forEach(line => {
         line.style.opacity = 1;
