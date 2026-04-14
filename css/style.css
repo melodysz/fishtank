@@ -1788,3 +1788,56 @@ a, button, [role="button"] {
   opacity: 0;
   will-change: transform, opacity;
 }
+
+/* === CORAL DECORATIONS - Section 2 Bottom === */
+.coral-decor {
+  position: absolute;
+  bottom: 0;
+  pointer-events: none;
+  object-fit: contain;
+  z-index: 3; /* above light rays, below border (18) */
+  will-change: transform, opacity;
+}
+
+/* Back layer: midnight coral */
+.coral-back-midnight {
+  width: 16%;
+  max-width: 200px;
+}
+.coral-back-left  { left: -2%;  bottom: 5vh; }
+.coral-back-right { right: -2%; bottom: 5vh; transform: scaleX(-1); }
+
+/* Back layer: navy coral */
+.coral-back-navy {
+  width: 13%;
+  max-width: 170px;
+}
+.coral-navy-left  { left: 10%;  bottom: 5vh; }
+.coral-navy-right { right: 10%; bottom: 5vh; transform: scaleX(-1); }
+
+/* Middle layer: green coral */
+.coral-middle {
+  width: 9%;
+  max-width: 120px;
+}
+.coral-green-left  { left: 20%; bottom: 3vh; }
+.coral-green-right { right: 20%; bottom: 3vh; transform: scaleX(-1); }
+
+/* Middle layer: orange coral */
+.coral-orange-left  { left: 28%;  bottom: 5vh; }
+.coral-orange-right { right: 28%; bottom: 5vh; transform: scaleX(-1); }
+
+/* Front layer: light blue coral */
+.coral-front {
+  width: 11%;
+  max-width: 140px;
+}
+.coral-front-left  { left: 14%; bottom: 3vh; }
+.coral-front-right { right: 14%; bottom: 3vh; transform: scaleX(-1); }
+
+#work-wipe-overlay {
+  transform: translateY(100%);
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+}

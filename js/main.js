@@ -1,3 +1,7 @@
+document.addEventListener('click', (e) => {
+  console.log('click target:', e.target, e.target.className, e.target.closest('[data-default="work"]'));
+}, true);
+
 if (window.location.hash) {
   document.querySelector('.intro-screen')?.remove();
   document.getElementById('page-entry-overlay')?.remove();
@@ -539,6 +543,7 @@ ScrollTrigger.create({
   start: "top top",
   end: "30% top",
   scrub: 0.3,
+  invalidateOnRefresh: true,
   onUpdate: (self) => {
     if (!pageReady) return;
     
@@ -572,10 +577,11 @@ ScrollTrigger.create({
       });
     }
     
-    gsap.set(".scaling-rig", {
-      scale: Math.min(1 + (p * 9), 10),
-      opacity: 1 - (p * 1.2)
-    });
+gsap.set(".scaling-rig", {
+  scale: Math.min(1 + (p * 9), 10),
+  opacity: 1 - (p * 1.2),
+  overwrite: true
+});
     
     gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], {
       opacity: Math.max(0, 1 - (p * 2))
@@ -815,6 +821,11 @@ function spinStarLandUpright() {
 }
 
 document.querySelectorAll('.nav-swap').forEach(link => {
+  
+    link.addEventListener('click', (e) => {
+    e.preventDefault();
+  });
+  
   const originalText = link.textContent.trim();
   link.innerHTML = `<span class="nav-inner">${originalText}</span>`;
   const inner = link.querySelector('.nav-inner');
@@ -839,23 +850,125 @@ document.querySelectorAll('.nav-swap').forEach(link => {
   });
 });
 
+
 // [WORK] nav link
-document.querySelector('.nav-swap[data-default="work"]').addEventListener('click', (e) => {
+let wipeInProgress = false;
+
+document.getElementById('navWrap').addEventListener('click', (e) => {
+  const workLink = e.target.closest('[data-default="work"]');
+  if (!workLink) return;
   e.preventDefault();
+  e.stopPropagation();
+  if (wipeInProgress) return;
+
   const thirdSection = document.querySelector('#third-section');
   const sectionTop = thirdSection.offsetTop;
-  gsap.set('#blackCover', { opacity: 0 });
+  const alreadyInWork = window.scrollY >= sectionTop - 100;
+
+  if (alreadyInWork) {
+    lenis.scrollTo(sectionTop, { duration: 1.2 });
+    return;
+  }
+
+  wipeInProgress = true;
   
-  gsap.set('.scaling-rig', { scale: 10, autoAlpha: 0, clearProps: 'filter,willChange' });
-  gsap.set(['.hero-peek-layer', '.hero-halo', '.hero-orbit'], { autoAlpha: 0 });
-  gsap.set('.hero-identity-frame', { autoAlpha: 0 });
-  gsap.set(['.fish-clown-1', '.fish-clown-2', '.fish-tang'], { autoAlpha: 0 });
-  gsap.set('.hero-star', { autoAlpha: 0 });
-  gsap.set('.section-2-wrapper', { y: '-100vh' });
-  restoreScalingRigMask();
-  
-  lenis.scrollTo(sectionTop, { duration: 1.2 });
+    gsap.set('#blackCover', { opacity: 0 }); // 👈 add this
+
+
+  const overlay = document.getElementById('work-wipe-overlay');
+  const text = document.getElementById('work-wipe-text');
+
+  lenis.stop();
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  overlay.style.pointerEvents = 'all';
+
+  gsap.killTweensOf(overlay);
+  gsap.killTweensOf(text);
+  gsap.set(overlay, { y: window.innerHeight });
+
+  gsap.set(text, { opacity: 0 });
+
+gsap.to(overlay, {
+    y: 0,
+    duration: 0.7,
+    ease: "power3.inOut",
+onStart: () => {
+  gsap.fromTo(text,
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.25 }
+  );
+},
+    onComplete: () => {
+      window.scrollTo(0, sectionTop);
+
+
+      gsap.set('.scaling-rig', { scale: 10, autoAlpha: 0, clearProps: 'filter,willChange' });
+      gsap.set(['.hero-peek-layer', '.hero-halo', '.hero-orbit'], { autoAlpha: 0 });
+      gsap.set('.hero-identity-frame', { autoAlpha: 0 });
+      gsap.set(['.fish-clown-1', '.fish-clown-2', '.fish-tang'], { autoAlpha: 0 });
+      gsap.set('.hero-star', { autoAlpha: 0 });
+      gsap.set('.section-2-wrapper', { y: '-100vh' });
+      gsap.set('#blackCover', { opacity: 1 });
+      restoreScalingRigMask();
+
+      carouselAnimPlayed = false;
+      carouselReady = false;
+      window._carouselFade = 0;
+      carouselEl.style.opacity = '0';
+      offset = 0;
+      velX = 0;
+      layoutCards();
+      hideAward();
+      hideBadge();
+      gsap.killTweensOf(badgeEl);
+      gsap.killTweensOf(awardEl);
+      if (badgeEl) { badgeEl.style.opacity = '0'; badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
+      if (awardEl) { awardEl.style.opacity = '0'; awardEl._currentLift = 0; awardEl._targetLift = 0; }
+
+      workNavPills.forEach(pill => {
+        gsap.set(pill, { opacity: 0 });
+        pill.classList.remove('active');
+      });
+
+      setTimeout(() => {
+gsap.to(overlay, {
+  y: -(window.innerHeight + 40),
+  duration: 0.7,
+          ease: "power3.inOut",
+          delay: 0.15,
+onStart: () => {
+  gsap.to(text, { opacity: 0, y: -30, duration: 0.4, ease: "power2.in" });
+  gsap.fromTo({ scroll: sectionTop - 80 }, 
+    { scroll: sectionTop - 80 },
+    {
+      scroll: sectionTop,
+      duration: 0.85,
+      ease: "power2.inOut",
+      onUpdate: function() {
+        window.scrollTo(0, this.targets()[0].scroll);
+      }
+    }
+  );
+},
+          onComplete: () => {
+            gsap.set(overlay, { y: window.innerHeight + 40 });
+            overlay.style.pointerEvents = 'none';
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            wipeInProgress = false;
+setTimeout(() => {
+  ScrollTrigger.refresh();
+  ScrollTrigger.update();
+  lenis.start();
+}, 100);
+          }
+        });
+      }, 600);
+    }
+  });
 });
+
 
 gsap.to("#footer-star-icon", { rotation: 360, duration: 25, ease: "none", repeat: -1 });
 
@@ -1484,38 +1597,47 @@ requestAnimationFrame(renderLoop);
 
 // REPLACE the first ScrollTrigger.create at "top 69.8%" with:
 let carouselAnimPlayed = false;
+let scrollEnteredWork = false; // 👈 add this
+
 
 ScrollTrigger.create({
   trigger: ".third-section",
   start: "top 100%",
-  onEnter: () => {
+onEnter: () => {
+      scrollEnteredWork = true; // 👈 add this
+
     carouselReady = true;
     if (!carouselAnimPlayed) {
       carouselAnimPlayed = true;
-      offset = -1;
-velX = 1 / 20;
-      window._carouselFade = 0;
-      carouselEl.style.opacity = '1';
-      cancelAnimationFrame(rafId);
-      function spinIn() {
-        offset += velX;
-        velX *= 0.95;
-        window._carouselFade = Math.min(1, window._carouselFade + 0.02);
-        layoutCards();
-        if (Math.abs(velX) > 0.0001) {
-          rafId = requestAnimationFrame(spinIn);
-        } else {
-          offset = Math.round(offset);
-          window._carouselFade = 1;
+
+      setTimeout(() => {
+        offset = -1;
+        velX = 1 / 20;
+        window._carouselFade = 0;
+        carouselEl.style.opacity = '1';
+        cancelAnimationFrame(rafId);
+        function spinIn() {
+          offset += velX;
+          velX *= 0.95;
+          window._carouselFade = Math.min(1, window._carouselFade + 0.02);
           layoutCards();
-          setTimeout(() => animateWorkNavIn(), 400);
-          const settled = ((Math.round(offset) % N) + N) % N;
-          if (settled === 2) showAward();
-          if (settled === 3) showBadge();
+          if (Math.abs(velX) > 0.0001) {
+            rafId = requestAnimationFrame(spinIn);
+          } else {
+            offset = Math.round(offset);
+            window._carouselFade = 1;
+            layoutCards();
+setTimeout(() => { if (scrollEnteredWork) animateWorkNavIn(); }, 400);
+
+            const settled = ((Math.round(offset) % N) + N) % N;
+if (settled === 2 && scrollEnteredWork) showAward();
+if (settled === 3 && scrollEnteredWork) showBadge();
+          }
         }
-      }
-      rafId = requestAnimationFrame(spinIn);
-      setTimeout(() => animateWorkNavIn(), 400);
+        rafId = requestAnimationFrame(spinIn);
+setTimeout(() => { if (scrollEnteredWork) animateWorkNavIn(); }, 400);
+
+      }, 500);  // ← adjust this delay to taste
     }
     gsap.fromTo('.bubble-decor',
       { opacity: 0, y: 30 },
@@ -1527,6 +1649,8 @@ velX = 1 / 20;
     );
   },
 onLeaveBack: () => {
+      scrollEnteredWork = false; // 👈 add this
+
     carouselAnimPlayed = false;
     carouselReady = false;
     window._carouselFade = 0;
@@ -1690,6 +1814,7 @@ if (window.location.hash) {
 });
 
 
+
 document.querySelector('.btn-touch').addEventListener('click', () => {
   navigator.clipboard.writeText('melodyserenazhang@gmail.com');
   const btn = document.querySelector('.btn-touch');
@@ -1778,15 +1903,16 @@ gsap.ticker.add((time) => {
 ScrollTrigger.create({
   trigger: ".scroll-tracker",
   start: "top top",
-  onLeaveBack: () => {
-    gsap.set(".scaling-rig", { scale: 1, opacity: 1 });
-    gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], { opacity: 1 });
-    gsap.set(".water-lines", { opacity: 1 });
+onLeaveBack: () => {
+    gsap.to(".scaling-rig", { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
+    gsap.to([".hero-peek-layer", ".hero-halo", ".hero-orbit"], { opacity: 1, autoAlpha: 1, duration: 0.4, ease: "power2.out" });
+    gsap.to(".water-lines", { opacity: 1, duration: 0.4, ease: "power2.out" });
     gsap.set(".sky-text-images", { autoAlpha: 0 });
     gsap.set("#sky-text-container", { autoAlpha: 0 });
-    gsap.set(".hero-identity-frame", { opacity: 1 });
-    gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], { autoAlpha: 1 });
-gsap.set(".hero-identity-frame", { autoAlpha: 1 });
+    gsap.to(".hero-identity-frame", { opacity: 1, autoAlpha: 1, duration: 0.4, ease: "power2.out" });
+  playHeroFishIn();
+    playHeroOrbitIn();
+    playHeroIdentityIn();
     if (heroLineElements) {
       heroLineElements.forEach(line => {
         line.style.opacity = 1;

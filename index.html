@@ -37,6 +37,26 @@
 
 <div id="exit-ripple-container"></div>
 
+<div id="work-wipe-overlay" style="
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: #000180;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+">
+  <span style="
+    font-family: 'Xanh Mono', monospace;
+    font-style: italic;
+    font-size: 1.6rem;
+    color: #D1FFA4;
+    letter-spacing: -0.05em;
+    opacity: 0;
+  " id="work-wipe-text">[ work ]</span>
+</div>
+
 <div class="intro-screen">
   <div class="intro-text">
     <span id="intro-base">feeding the fish</span><span id="intro-dots"></span>
@@ -59,7 +79,7 @@
         <span class="wm-melody">melody</span><span class="wm-zhang">zhang</span>
       </a>
       <div class="nav-links">
-<a href="#" class="interactable nav-link-item nav-swap" data-default="work" data-hover="work!">work</a>
+<a href="javascript:void(0)" class="interactable nav-link-item nav-swap" data-default="work" data-hover="work!">work</a>
 <a href="https://melodysz.github.io/fishtank/who/" class="interactable nav-link-item nav-swap" data-default="who" data-hover="who?">who</a>
       </div>
     </div>
@@ -87,6 +107,18 @@
   <img src="https://melodysz.github.io/baubles/2bubble3.png" class="sec2-bubble sec2-bubble-3" alt="">
   <img src="https://melodysz.github.io/baubles/blueflower.png" class="sec2-flower sec2-flower-1" alt="">
   <img src="https://melodysz.github.io/baubles/blueflower.png" class="sec2-flower sec2-flower-2" alt="">
+  
+  <!-- Coral decorations - bottom of section 2 -->
+<img src="https://melodysz.github.io/baubles/fish/coral%20back%20midnight.png" class="coral-decor coral-back-midnight coral-back-left" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20back%20midnight.png" class="coral-decor coral-back-midnight coral-back-right" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20back%20navy.png" class="coral-decor coral-back-navy coral-navy-left" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20back%20navy.png" class="coral-decor coral-back-navy coral-navy-right" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20middle%20green.png" class="coral-decor coral-middle coral-green-left" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20middle%20green.png" class="coral-decor coral-middle coral-green-right" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20middle%20orange.png" class="coral-decor coral-middle coral-orange-left" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20middle%20orange.png" class="coral-decor coral-middle coral-orange-right" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20front%20blue.png" class="coral-decor coral-front coral-front-left" alt="">
+<img src="https://melodysz.github.io/baubles/fish/coral%20front%20blue.png" class="coral-decor coral-front coral-front-right" alt="">
   
   <div class="sky-border-top" aria-hidden="true"></div>
   
