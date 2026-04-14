@@ -579,8 +579,7 @@ ScrollTrigger.create({
     
 gsap.set(".scaling-rig", {
   scale: Math.min(1 + (p * 9), 10),
-  opacity: 1 - (p * 1.2),
-  overwrite: true
+  opacity: 1 - (p * 1.2)
 });
     
     gsap.set([".hero-peek-layer", ".hero-halo", ".hero-orbit"], {
