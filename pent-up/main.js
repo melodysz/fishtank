@@ -1,6 +1,102 @@
 document.addEventListener('DOMContentLoaded', () => {
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+  
+window.addEventListener('scroll', () => {
+  heroBgImg.style.transform = `translateY(${window.scrollY * 1.3}px)`;
+  document.getElementById('heroPostcards').style.transform = `translateY(${window.scrollY * 0.09}px)`;
+});
+
+const heroBgImg     = document.getElementById('heroBgImg');
+const postcardFront = document.getElementById('postcardFront');
+const postcardBack  = document.getElementById('postcardBack');
+const stampOrange   = document.getElementById('stampOrange');
+const stampRed      = document.getElementById('stampRed');
+const stampBlue     = document.getElementById('stampBlue');
+const stampGreen    = document.getElementById('stampGreen');
+
+gsap.set(postcardBack,  { x: 0, y: 0, rotation: 0, opacity: 0, scale: 0.92 });
+gsap.set(postcardFront, { x: 0, y: 500, rotation: 0, opacity: 0, scale: 0.92 });
+gsap.set(stampOrange, { opacity: 0, scale: 0, rotation: -15 });
+gsap.set(stampRed,    { opacity: 0, scale: 0, rotation: 10 });
+gsap.set(stampBlue,   { opacity: 0, scale: 0, rotation: -8 });
+gsap.set(stampGreen,  { opacity: 0, scale: 0, rotation: 12 });
+
+window.addEventListener('load', () => {
+  heroBgImg.style.transform = `translateY(-80px)`;
+  setTimeout(() => {
+    heroBgImg.style.transition = 'transform 1.2s cubic-bezier(0.22, 1, 0.36, 1)';
+    heroBgImg.style.transform = `translateY(0px)`;
+    setTimeout(() => { heroBgImg.style.transition = ''; }, 1300);
+  }, 100);
+
+  const tl = gsap.timeline({ delay: 1.2 });
+
+  tl.to(postcardFront, {
+    opacity: 1, scale: 1, y: 0,
+    duration: 0.7, ease: 'power3.out'
+  })
+  .to(postcardFront, {
+    x: '-45%', y: '-10%', rotation: -6,
+    duration: 0.5, ease: 'back.out(1.7)'
+  }, '-=0.15')
+  .to(postcardBack, {
+    opacity: 1, scale: 1,
+    x: '45%', y: '-32%', rotation: 4,
+    duration: 0.5, ease: 'back.out(1.7)'
+  }, '<')
+  .to(stampOrange, { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)' }, '<')
+  .to(stampRed,    { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)', delay: 0.05 }, '<')
+  .to(stampBlue,   { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)', delay: 0.1 }, '<')
+  .to(stampGreen,  { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)', delay: 0.15 }, '<');
+
+  // Momentum hover on stamps
+  [stampOrange, stampRed, stampBlue, stampGreen].forEach(stamp => {
+    let mx = 0, my = 0;
+    let vx = 0, vy = 0;
+    let cx = 0, cy = 0;
+
+let lastX = 0, lastY = 0;
+    document.addEventListener('mousemove', (e) => {
+      const rect = stamp.getBoundingClientRect();
+      const stampCenterX = rect.left + rect.width / 2;
+      const stampCenterY = rect.top + rect.height / 2;
+      const dist = Math.sqrt(
+        Math.pow(e.clientX - stampCenterX, 2) +
+        Math.pow(e.clientY - stampCenterY, 2)
+      );
+      const maxDist = 300;
+      if (dist < maxDist) {
+        const influence = (1 - dist / maxDist) * 0.3;
+        mx = (e.clientX - lastX) * influence;
+        my = (e.clientY - lastY) * influence;
+      } else {
+        mx = 0;
+        my = 0;
+      }
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    function update() {
+      vx += (mx - vx) * 0.08;
+      vy += (my - vy) * 0.08;
+      cx += vx;
+      cy += vy;
+      cx *= 0.9;
+      cy *= 0.9;
+      vx *= 0.9;
+      vy *= 0.9;
+      gsap.set(stamp, { x: cx, y: cy });
+      requestAnimationFrame(update);
+    }
+
+    update();
+  });
+});
+                           
+
+  
 
 // ===============================
 // PILL NAV — EXPAND / COLLAPSE + SPIN
@@ -107,7 +203,7 @@ window.addEventListener('load', () => {
 
 const scrollProgress = document.getElementById('scroll-progress');
 
-lenis.on('scroll', () => {
+lenis.on('scroll', ({ scroll }) => {
   const scrollTop = window.scrollY;
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
   const pct = (scrollTop / docHeight) * 100;
