@@ -51,7 +51,8 @@ function onNavLeave(e) {
   }, 400);
 }
 
-navWrap.addEventListener('mouseenter', onNavEnter);
+// AFTER
+navAsterisk.addEventListener('mouseenter', onNavEnter);
 navWrap.addEventListener('mouseleave', onNavLeave);
 
 navAsterisk.addEventListener('mouseenter', () => {

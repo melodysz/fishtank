@@ -55,9 +55,10 @@ function onNavEnter() {
 }
  
 
-navWrap.addEventListener('mouseenter', onNavEnter);
+// AFTER
+navAsterisk.addEventListener('mouseenter', onNavEnter);
 navWrap.addEventListener('mouseleave', onNavLeave);
-
+  
 navAsterisk.addEventListener('mouseenter', () => {
   if (!navPill.classList.contains('expanded')) return;
   gsap.killTweensOf(navAsteriskImg); // kill any previous before starting fresh
