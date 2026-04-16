@@ -328,6 +328,7 @@ background-color: #0313E4;
   opacity: 1;
   will-change: transform, opacity;
 /*   filter: saturate(1.1); */
+  overflow: visible;
 }
 
 
@@ -489,7 +490,8 @@ background-color: #0313E4;
 #fish-tank {
   position: absolute;
   inset: 0;
-  z-index: 2; /* Middle: Between borders */
+  z-index: 2;
+  overflow: visible;
 }
 
 /* --- NAV --- */
@@ -663,6 +665,8 @@ background-color: #0313E4;
   opacity: 0;
   transform: translateX(-10px);
   transition: color 0.25s ease, opacity 0.3s ease, transform 0.3s ease;
+  min-width: 80px;
+  text-align: center;
 }
 
 .nav-pill.expanded .nav-link-item:nth-child(1) {
@@ -681,7 +685,7 @@ background-color: #0313E4;
 
 /* --- SCROLL RIG --- */
 .scroll-tracker { 
-  height: 200vh;
+  height: 160vh;
   position: relative; 
   z-index: 10; 
 }

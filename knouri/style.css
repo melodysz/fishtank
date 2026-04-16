@@ -311,6 +311,8 @@ body, html {
   transform: translateX(-10px);
   transition: color 0.25s ease, opacity 0.3s ease, transform 0.3s ease, text-shadow 0.4s ease;
     text-shadow: 0 0 0px transparent; /* explicit start state for smooth transition */
+  min-width: 80px;
+  text-align: center;
 }
 
 .nav-link-item:hover {

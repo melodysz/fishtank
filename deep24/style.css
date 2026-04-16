@@ -311,6 +311,8 @@ body, html {
   transition: color 0.25s ease, opacity 0.3s ease, transform 0.3s ease;
   overflow: hidden;
   cursor: pointer !important;
+  min-width: 80px;
+  text-align: center;
 }
 
 .nav-pill.expanded .nav-link-item:nth-child(1) {
