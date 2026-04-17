@@ -513,21 +513,14 @@ document.querySelectorAll('img').forEach(img => {
   }
 });
 
-// ===================================
-// SCROLL FADE-IN ANIMATIONS
-// ===================================
-
-const fadeElements = document.querySelectorAll('.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .large-image-section, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .feedback-section, .feedback-grid, .prototype-block');
-
-document.querySelectorAll('.stamp-card').forEach((card, index) => card.style.setProperty('--index', index));
-
-const fadeObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
-
-fadeElements.forEach(element => { element.classList.add('fade-in-element'); fadeObserver.observe(element); });
-document.querySelectorAll('.hero-meta *').forEach(el => { el.classList.remove('fade-in-element'); el.classList.add('visible'); });
-
+  // REPLACE with:
+document.querySelectorAll(
+  '.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .large-image-section, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .feedback-section, .feedback-grid, .prototype-block, .persona-card'
+).forEach(el => {
+  el.style.opacity = '1';
+  el.style.transform = 'none';
+});
+  
 // ===================================
 // ANIMATED HIGHLIGHTS
 // ===================================

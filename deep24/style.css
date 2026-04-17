@@ -1138,48 +1138,6 @@ h3 {
   100% { background-position: 200% 0; }
 }
 
-.fade-in-element {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.fade-in-element.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.stamp-card {
-  transition-delay: calc(var(--index) * 0.1s);
-}
-
-.stamp-card.fade-in-element {
-  transition-delay: 0.4s;
-}
-.stamp-card.fade-in-element:nth-child(2) {
-  transition-delay: 0.55s;
-}
-.stamp-card.fade-in-element:nth-child(3) {
-  transition-delay: 0.7s;
-}
-
-.overview-block,
-.dilemma-text,
-.market-audit-text,
-.personas-intro {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.overview-block.visible,
-.dilemma-text.visible,
-.market-audit-text.visible,
-.personas-intro.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* Images shimmer states */
 .dilemma-image,
 .unsent-project-image,
