@@ -233,12 +233,12 @@ const clickableEls = document.querySelectorAll(
   '.case-footer a, .case-footer-right a, .case-footer-links a, .sidebar-nav a, .nav-link'
 );
   
-  const navWordmarkEl = document.querySelector('.nav-wordmark');
-navWordmarkEl.addEventListener('mouseenter', () => {
-  expandToBlob(navWordmarkEl);
-});
-navWordmarkEl.addEventListener('mouseleave', () => {
-  shrinkBlob();
+const navWordmarkEl = document.querySelector('.nav-wordmark');
+navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl));
+navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
+navWordmarkEl.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.location.href = '/fishtank/#skip';
 });
 
 clickableEls.forEach(el => {

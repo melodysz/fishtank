@@ -241,10 +241,13 @@ clickableEls.forEach(el => {
   });
 });
 
-// Nav wordmark blob
 const navWordmarkEl = document.querySelector('.nav-wordmark');
 navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl));
 navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
+navWordmarkEl.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.location.href = '/fishtank/#skip';
+});
 
 // Nav link items — flip text + blob
 document.querySelectorAll('.nav-link-item').forEach(link => {
