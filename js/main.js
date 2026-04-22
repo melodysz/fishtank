@@ -797,15 +797,12 @@ document.getElementById('navAsterisk').addEventListener('mouseenter', () => {
 
 navName.addEventListener('click', (e) => {
   e.preventDefault();
-  if (window.location.hash) {
-    window.location.href = window.location.pathname;
+  const isAtTop = (lenis && lenis.scroll < 50) || window.scrollY < 50;
+  if (isAtTop) {
+    // already home and at top — do nothing
+    return;
   } else {
-    const isAtTop = (lenis && lenis.scroll < 50) || window.scrollY < 50;
-    if (isAtTop) {
-      window.location.reload();
-    } else {
-      lenis.scrollTo(0, { duration: 1.2 });
-    }
+    lenis.scrollTo(0, { duration: 1.2 });
   }
 });
 
