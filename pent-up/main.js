@@ -48,15 +48,65 @@ window.addEventListener('load', () => {
   .to(stampOrange, { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)' }, '<')
   .to(stampRed,    { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)', delay: 0.05 }, '<')
   .to(stampBlue,   { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)', delay: 0.1 }, '<')
-  .to(stampGreen,  { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)', delay: 0.15 }, '<');
+  .to(stampGreen,  { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(3)', delay: 0.15 }, '<')
+  .call(() => {
+    [postcardFront, postcardBack].forEach(card => {
+const baseX = card === postcardFront
+        ? -card.offsetWidth * 0.45
+        : card.offsetWidth * 0.45;
+      const baseY = card === postcardFront
+        ? -card.offsetHeight * 0.10
+        : -card.offsetHeight * 0.32;
+      let mx = 0, my = 0;
+      let vx = 0, vy = 0;
+      let cx = 0, cy = 0;
+      let lastX = 0, lastY = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenterX = rect.left + rect.width / 2;
+        const cardCenterY = rect.top + rect.height / 2;
+        const dist = Math.sqrt(
+          Math.pow(e.clientX - cardCenterX, 2) +
+          Math.pow(e.clientY - cardCenterY, 2)
+        );
+        const maxDist = 500;
+        if (dist < maxDist) {
+          const influence = (1 - dist / maxDist) * 0.08;
+          mx = (e.clientX - lastX) * influence;
+          my = (e.clientY - lastY) * influence;
+        } else {
+          mx = 0;
+          my = 0;
+        }
+        lastX = e.clientX;
+        lastY = e.clientY;
+      });
+
+      function update() {
+        vx += (mx - vx) * 0.04;
+        vy += (my - vy) * 0.04;
+        cx += vx;
+        cy += vy;
+        cx *= 0.95;
+        cy *= 0.95;
+        vx *= 0.95;
+        vy *= 0.95;
+        gsap.set(card, { x: baseX + cx, y: baseY + cy });
+        requestAnimationFrame(update);
+      }
+
+      update();
+    });
+  });
 
   // Momentum hover on stamps
   [stampOrange, stampRed, stampBlue, stampGreen].forEach(stamp => {
     let mx = 0, my = 0;
     let vx = 0, vy = 0;
     let cx = 0, cy = 0;
+    let lastX = 0, lastY = 0;
 
-let lastX = 0, lastY = 0;
     document.addEventListener('mousemove', (e) => {
       const rect = stamp.getBoundingClientRect();
       const stampCenterX = rect.left + rect.width / 2;
@@ -195,6 +245,21 @@ window.addEventListener('load', () => {
       onComplete: () => entryOverlay.remove()
     });
   }
+});
+  
+  // ===============================
+// SCROLL SHRINK — POSTCARDS + STAMPS
+// ===============================
+
+lenis.on('scroll', ({ scroll }) => {
+  const shrinkStart = 0;
+  const shrinkEnd = 600;
+  const progress = Math.min(Math.max((scroll - shrinkStart) / (shrinkEnd - shrinkStart), 0), 1);
+  const cardScale = 1 - progress * 0.05;
+  const stampScale = 1 - progress * 0.05;
+
+  gsap.set([postcardFront, postcardBack], { scale: cardScale });
+  gsap.set([stampOrange, stampRed, stampBlue, stampGreen], { scale: stampScale });
 });
 
 // ===============================

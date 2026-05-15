@@ -480,6 +480,30 @@ document.addEventListener('visibilitychange', () => {
   } else {
     gsap.ticker.wake();
     lenis.start();
+    
+    // Restart fish animations
+    gsap.killTweensOf(fishData.map(d => d.wrapper));
+    fishData.forEach((data, i) => {
+      const duration = 14;
+      const pairIndex = Math.floor(i / 2);
+      const withinPair = i % 2;
+      const delay = (pairIndex / 4) * duration + (withinPair * 0.4);
+      const progress = delay / duration;
+      const initialX = data.startX + (data.endX - data.startX) * progress;
+      function swim() {
+        gsap.fromTo(data.wrapper,
+          { x: `${data.startX}vw` },
+          { x: `${data.endX}vw`, duration: duration, ease: "none", onComplete: swim }
+        );
+      }
+      gsap.set(data.wrapper, { x: `${initialX}vw` });
+      gsap.to(data.wrapper, {
+        x: `${data.endX}vw`,
+        duration: duration * (1 - progress),
+        ease: "none",
+        onComplete: swim
+      });
+    });
 
     requestAnimationFrame(() => {
       restoreScalingRigMask();
@@ -1083,21 +1107,21 @@ ScrollTrigger.create({
   }
 });
 
+const fishData = [];
+
 if (fishTank) {
   fishTank.innerHTML = '';
   
-  const fishConfig = [
-    { type: 'fish-visual',    y: 20, size: 1.0,  zIndex: 3, startX: 0,   endX: 80, speed: 1.6 },
-    { type: 'fish-canvas',    y: 24, size: 0.95, zIndex: 2, startX: 3,   endX: 83, speed: 1.8 },
-    { type: 'fish-branding',  y: 50, size: 1.2,  zIndex: 2, startX: 13,  endX: 93, speed: 2.0 },
-    { type: 'fish-product',   y: 65, size: 0.98, zIndex: 1, startX: 7,   endX: 87, speed: 1.7 },
-    { type: 'fish-narrative', y: 25, size: 1.4,  zIndex: 3, startX: -37, endX: 43, speed: 2.2 },
-    { type: 'fish-ux',        y: 57, size: 1.0,  zIndex: 2, startX: -33, endX: 47, speed: 1.9 },
-    { type: 'fish-ui',        y: 65, size: 1.1,  zIndex: 3, startX: -30, endX: 50, speed: 2.0 },
-    { type: 'fish-layout',    y: 33, size: 0.98, zIndex: 2, startX: -35, endX: 30, speed: 1.8 }
-  ];
-
-  const fishData = [];
+const fishConfig = [
+  { type: 'fish-visual',    y: 20, size: 1.1,  zIndex: 3, startX: -20, endX: 110 },
+  { type: 'fish-canvas',    y: 34, size: 1.05, zIndex: 2, startX: -20, endX: 110 },
+  { type: 'fish-branding',  y: 50, size: 1.3,  zIndex: 2, startX: -20, endX: 110 },
+  { type: 'fish-product',   y: 65, size: 1.08, zIndex: 1, startX: -20, endX: 110 },
+  { type: 'fish-narrative', y: 25, size: 1.5,  zIndex: 3, startX: -20, endX: 110 },
+  { type: 'fish-ux',        y: 57, size: 1.1,  zIndex: 2, startX: -20, endX: 110 },
+  { type: 'fish-ui',        y: 75, size: 1.2,  zIndex: 3, startX: -20, endX: 110 },
+  { type: 'fish-layout',    y: 43, size: 1.08, zIndex: 2, startX: -20, endX: 110 },
+];
 
 fishConfig.forEach(config => {
   const wrapper = document.createElement('div');
@@ -1117,39 +1141,38 @@ fishConfig.forEach(config => {
 });
  
   
-  ScrollTrigger.create({
-    trigger: ".scroll-tracker",
-    start: "0% top",
-    end: "75% top",
-    scrub: 0.3,
-onUpdate: (self) => {
-      if (!pageReady) return;
-      fishData.forEach(data => {
-        const xPos = data.startX + ((data.endX - data.startX) * self.progress * data.speed);
-        data.wrapper.style.transform = `translate(${xPos}vw, ${data.y}vh)`;
-      });
-    }
+fishData.forEach((data, i) => {
+  const duration = 14;
+  const totalFish = fishData.length;
+  // Group fish into 4 pairs, spread pairs evenly but keep pairs close
+const pairIndex = Math.floor(i / 2);
+const withinPair = i % 2;
+const delay = (pairIndex / 4) * duration + (withinPair * 0.4);
+
+  function swim() {
+    gsap.fromTo(data.wrapper,
+      { x: `${data.startX}vw` },
+      {
+        x: `${data.endX}vw`,
+        duration: duration,
+        ease: "none",
+        onComplete: swim
+      }
+    );
+  }
+
+  // Start mid-cycle based on delay so they're spread out
+  const progress = delay / duration;
+  const initialX = data.startX + (data.endX - data.startX) * progress;
+  
+  gsap.set(data.wrapper, { x: `${initialX}vw` });
+  gsap.to(data.wrapper, {
+    x: `${data.endX}vw`,
+    duration: duration * (1 - progress),
+    ease: "none",
+    onComplete: swim
+  });
 });
-
-//   fishData.forEach(data => {
-//     data.element.addEventListener('mouseenter', () => {
-//       gsap.to(data.element, {
-//         scale: parseFloat(data.element.dataset.scale) * 1.15,
-//         duration: 0.5,
-//         ease: "back.out(3)",
-//         overwrite: true
-//       });
-//     });
-
-//     data.element.addEventListener('mouseleave', () => {
-//       gsap.to(data.element, {
-//         scale: parseFloat(data.element.dataset.scale),
-//         duration: 0.4,
-//         ease: "back.out(2)",
-//         overwrite: true
-//       });
-//     });
-//   });
 
 } // ← closes the if (fishTank) block
 
@@ -1844,16 +1867,16 @@ hideBadge(); // ← add this
 }, { passive: false });
 
 const diamondPattern = document.querySelector('.diamond-pattern');
-ScrollTrigger.create({
-  trigger: ".scroll-tracker",
-  start: "10% top",
-  end: "75% top",
-  scrub: 2.5,
-  onUpdate: (self) => {
-    if (!diamondPattern) return;
-    const drift = self.progress * 5;
-    diamondPattern.style.transform = `translateY(${drift}vh)`;
-  }
+let diamondOffset = 0;
+let lastDiamondTime = performance.now();
+
+gsap.ticker.add((time) => {
+  if (!diamondPattern || document.hidden) return;
+  const now = performance.now();
+  const delta = now - lastDiamondTime;
+  lastDiamondTime = now;
+  diamondOffset += delta * 0.015; // speed: lower = slower, raise to taste
+  diamondPattern.style.backgroundPosition = `${diamondOffset}px center`;
 });
 
 

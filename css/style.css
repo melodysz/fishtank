@@ -1031,10 +1031,10 @@ background-color: #0313E4;
 .third-section {
   position: relative;
   z-index: 50;
-  min-height: 120vh;
+  min-height: 110vh;
   padding-bottom: 200px;
   justify-content: center;
-  background: transparent;
+background: linear-gradient(to bottom, #000000 30%, transparent 100%);
   color: #F9F5EC;
   display: flex;
   flex-direction: column;
@@ -1596,9 +1596,9 @@ html, body {
   position: absolute;
   inset: 0;
   background-image: url('https://melodysz.github.io/baubles/fish/diamond%20pattern.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: repeat;
+  background-size: auto 100%;  /* tile at natural width, full height */
+  background-position: 0 center;
+  background-repeat: repeat-x;
   mix-blend-mode: overlay;
   z-index: 0;
   pointer-events: none;
@@ -1621,6 +1621,8 @@ html, body {
   pointer-events: none;
   mix-blend-mode: difference;
   opacity: 0;
+    display: none;
+
 }
 
 .scroll-hint.hidden {
@@ -1752,7 +1754,7 @@ a, button, [role="button"] {
   text-transform: lowercase;
 /*   letter-spacing: 0.03em; */
   padding: 0.4rem 1.1rem;
-  border-radius: 10px;
+  border-radius: 6px;
   opacity: 0;
   cursor: default;
   white-space: nowrap;
@@ -1801,6 +1803,7 @@ a, button, [role="button"] {
   object-fit: contain;
   z-index: 3; /* above light rays, below border (18) */
   will-change: transform, opacity;
+    display: none;
 }
 
 /* Back layer: midnight coral */
