@@ -962,7 +962,7 @@ onStart: () => {
   gsap.fromTo({ scroll: sectionTop - 80 }, 
     { scroll: sectionTop - 80 },
     {
-      scroll: sectionTop,
+    scroll: sectionTop - 60,
       duration: 0.85,
       ease: "power2.inOut",
       onUpdate: function() {
