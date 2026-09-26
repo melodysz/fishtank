@@ -1,0 +1,58 @@
+/* ================================
+   PAGE WIPE — shared by the project pages
+   The page opens under the same navy splash the homepage slid up before
+   navigating, then the splash slides away (same look as the [ work ] wipe).
+   ================================ */
+
+/* Keep the old page on screen until this one is ready to draw: no blank flash */
+@view-transition {
+  navigation: auto;
+}
+
+#page-entry-overlay.page-wipe,
+.page-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000180;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+  will-change: transform;
+}
+
+.page-wipe-label {
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-size: 1.6rem;
+  color: #D1FFA4;
+  letter-spacing: -0.05em;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+/* only show the label once its font is ready, so it never flashes in a fallback font */
+.page-wipe.label-ready .page-wipe-label {
+  opacity: 1;
+}
+
+/* Nav links ("work" / "who"): medium weight at rest; Xanh Mono italic on hover
+   (same font as "zhang" in the wordmark — free Google Font, no credit needed) */
+.nav-hover-italic {
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Cursor dot fades out while the mouse is outside the browser window */
+.cursor-dot.is-away {
+  opacity: 0 !important;
+}
+
+
+/* Cursor dot blends with the page like translucent ink (project + who pages) */
+.cursor-dot,
+.cursor-dot.is-blob {
+  mix-blend-mode: multiply;
+}

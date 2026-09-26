@@ -238,13 +238,7 @@ window.addEventListener('load', () => {
   ScrollTrigger.refresh();
 
   // Entry overlay fade
-  const entryOverlay = document.getElementById('page-entry-overlay');
-  if (entryOverlay) {
-    gsap.to(entryOverlay, {
-      opacity: 0, duration: 0.8, delay: 0.1, ease: "power2.inOut",
-      onComplete: () => entryOverlay.remove()
-    });
-  }
+  // (entry splash is handled by ../js/page-wipe.js)
 });
   
   // ===============================
@@ -273,7 +267,7 @@ lenis.on('scroll', ({ scroll }) => {
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
   const pct = (scrollTop / docHeight) * 100;
   scrollProgress.style.width = pct + '%';
-  scrollProgress.style.height = pct > 99 ? '0px' : '5px';
+  scrollProgress.style.height = pct > 99 ? '0px' : '3px';
 });
 
 // ===============================
@@ -289,12 +283,23 @@ const LERP_NORMAL = 0.12;
 const LERP_BLOB = 0.10;
 const BLOB_HEIGHT = 40;
 
+// Cursor dot follows the mouse with a little lag. The further behind it is
+// (i.e. the faster the mouse moves), the bigger it swells — up to ~1.7x —
+// then it eases back to normal size as it catches up. Stays normal size while
+// it's a hover blob over links. Moves with transform (cheap) instead of left/top.
+let cursorScale = 1;
 function animateCursor() {
-  const lerp = isBlobMode ? LERP_BLOB : LERP_NORMAL;
-  curX += (mouseX - curX) * lerp;
-  curY += (mouseY - curY) * lerp;
-  cursorMain.style.left = curX + 'px';
-  cursorMain.style.top = curY + 'px';
+  const dx = mouseX - curX, dy = mouseY - curY;
+  const lag = Math.hypot(dx, dy);
+  const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
+  const scaleChanging = Math.abs(targetScale - cursorScale) > 0.002;
+  if (lag > 0.05 || scaleChanging) {
+    const lerp = isBlobMode ? LERP_BLOB : LERP_NORMAL;
+    curX += dx * lerp;
+    curY += dy * lerp;
+    cursorScale += (targetScale - cursorScale) * 0.18;
+    cursorMain.style.transform = `translate3d(${curX}px, ${curY}px, 0) translate(-50%, -50%) scale(${cursorScale})`;
+  }
   requestAnimationFrame(animateCursor);
 }
 animateCursor();
@@ -342,7 +347,7 @@ navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl));
 navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
 navWordmarkEl.addEventListener('click', (e) => {
   e.preventDefault();
-  window.location.href = '/fishtank/#skip';
+  window.location.href = '../';
 });
 
 clickableEls.forEach(el => {
@@ -370,13 +375,13 @@ document.querySelectorAll('.nav-link-item').forEach(link => {
   link.addEventListener('mouseenter', () => {
     expandToBlob(link);
     gsap.to(inner, {
-      y: -10, opacity: 0, duration: 0.18, ease: "power2.in",
+      y: -10, opacity: 0, duration: 0.1, ease: "power2.in",
       onComplete: () => {
         inner.textContent = hoverText;
         inner.style.color = '#000000';
-        inner.style.fontWeight = '500';
+        inner.classList.add('nav-hover-italic');
         inner.style.setProperty('cursor', 'pointer', 'important');
-        gsap.fromTo(inner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power2.out" });
+        gsap.fromTo(inner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.14, ease: "power2.out" });
       }
     });
   });
@@ -384,13 +389,13 @@ document.querySelectorAll('.nav-link-item').forEach(link => {
   link.addEventListener('mouseleave', () => {
     shrinkBlob();
     gsap.to(inner, {
-      y: 10, opacity: 0, duration: 0.18, ease: "power2.in",
+      y: 10, opacity: 0, duration: 0.1, ease: "power2.in",
       onComplete: () => {
         inner.textContent = defaultText;
         inner.style.color = '#181812';
-        inner.style.fontWeight = '400';
+        inner.classList.remove('nav-hover-italic');
         inner.style.setProperty('cursor', 'pointer', 'important');
-        gsap.fromTo(inner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.22, ease: "power2.out" });
+        gsap.fromTo(inner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.14, ease: "power2.out" });
       }
     });
   });

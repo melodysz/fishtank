@@ -1,14 +1,6 @@
 /* KEEP THIS AT THE TOP!!! */
 @import url('https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap');
 
-/* Big Caslon FB for special characters like apostrophes */
-@font-face {
-  font-family: 'Big Caslon FB';
-  src: url('https://melodysz.github.io/baubles/fonts/big-caslon-italic.ttf') format('truetype');
-  font-weight: normal;
-  font-style: italic;
-}
-
 @font-face {
   font-family: 'PP Neue Montreal';
   src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-thin.woff2') format('woff2');
@@ -264,7 +256,7 @@ background-color: #0313E4;
 }
 
 .cursor-dot.active {
-  opacity: 1;
+  opacity: 0.55; /* see-through; a blend mode here would bring back scroll stutter */
 }
 
 .cursor-dot.is-blob {
@@ -327,6 +319,7 @@ background-color: #0313E4;
   pointer-events: none;
   opacity: 1;
   will-change: transform, opacity;
+  clip-path: inset(0 0 0 0); /* set from the start; JS trims it as section 3 covers it */
 /*   filter: saturate(1.1); */
   overflow: visible;
 }
@@ -366,7 +359,6 @@ background-color: #0313E4;
   mix-blend-mode: soft-light;
   z-index: 3;
   transform-origin: center center;
-  will-change: transform;
 }
 
 
@@ -456,7 +448,7 @@ background-color: #0313E4;
   width: 102vw;
   height: 102vh;
   
-  background-image: url('https://melodysz.github.io/baubles/border-top.png');
+  background-image: url('https://melodysz.github.io/baubles/border-top.webp');
   background-size: cover;  /* Your original setting */
   background-position: center center;
   background-repeat: no-repeat;
@@ -464,6 +456,7 @@ background-color: #0313E4;
   pointer-events: none;
   opacity: 1;
   z-index: 18;
+  will-change: transform; /* slides up with section 3 (see updateSection2Curtain) */
 }
 
 /* NEW: Add a black extension below the border to cover any gap */
@@ -484,7 +477,7 @@ background-color: #0313E4;
 .fish-tang-sec2 { 
   width: 135px; 
   height: 90px;  
-  background-image: url('https://melodysz.github.io/baubles/fish/bluetang.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/bluetang.webp'); 
 }
 
 #fish-tank {
@@ -653,7 +646,7 @@ background-color: #0313E4;
 
 .nav-link-item {
   font-family: 'PP Neue Montreal', sans-serif;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 18px;
   color: inherit;
   text-decoration: none;
@@ -704,18 +697,15 @@ background-color: #0313E4;
   transform: translateZ(0);
   backface-visibility: hidden;
   contain: paint;
+  /* the black surround + porthole is drawn on .scaling-rig-canvas (drawHeroWindow in main.js) */
+}
 
-  
-  background: black;
-
-  -webkit-mask-image: url('https://melodysz.github.io/baubles/mask.png');
-  mask-image: url('https://melodysz.github.io/baubles/mask.png');
-  -webkit-mask-size: cover;
-  mask-size: cover;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+.scaling-rig-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .scaling-rig, .hero-peek-layer, .hero-halo {
@@ -860,9 +850,9 @@ background-color: #0313E4;
 .water-lines::before{
   content: "";
   position: absolute;
-  inset: -20%;
-  background-image: url('https://melodysz.github.io/baubles/hero/water%20lines.png');
-  background-size: 30%;
+  inset: -20px; /* just enough room for the ±14px drift (was -20%: a much bigger layer) */
+  background-image: url('https://melodysz.github.io/baubles/hero/water%20lines.webp');
+  background-size: 42vw auto; /* same ripple size as before (30% of the old 140%-wide layer) */
   background-repeat: repeat;
   background-position: 7% 50%;
 
@@ -995,7 +985,7 @@ background-color: #0313E4;
   font-weight: 300;
 }
 
-.id-tagline .caslon{
+.id-tagline .caslon{ /* class name is historical — the font is Xanh Mono */
   font-family: 'Xanh Mono', monospace;
   font-style: italic;
   letter-spacing: -0.1em; /* -10% */
@@ -1007,7 +997,8 @@ background-color: #0313E4;
 .id-top-left .id-small,
 .id-bottom-right .id-small,
 .id-bottom-right .id-big,
-.id-bottom-right .id-tagline {
+.id-bottom-right .id-tagline,
+.id-scroll-arrow {
   opacity: 0;
   will-change: transform, opacity;
 }
@@ -1024,24 +1015,30 @@ background-color: #0313E4;
   width: 100%;
   min-height: 100vh;
   transform-origin: center center;
-  will-change: transform, opacity;
+  /* (no will-change: nothing animates this; the hint kept a full-screen layer in graphics memory) */
 }
 
 
 .third-section {
+  /* extra space above the cards: everything below the project pills (cards,
+     decor, background gradient) moves down together; the pills stay put */
+  --work-top-space: 40px;
   position: relative;
   z-index: 50;
-  min-height: 110vh;
+  min-height: calc(110vh + var(--work-top-space));
+  padding-top: var(--work-top-space);
   padding-bottom: 200px;
   justify-content: center;
-background: linear-gradient(to bottom, #000000 30%, transparent 100%);
+  /* solid black strip for the extra space, then the original gradient, unchanged */
+  background:
+    linear-gradient(#000000, #000000) top / 100% var(--work-top-space) no-repeat,
+    linear-gradient(to bottom, #000000 30%, transparent 100%) 0 var(--work-top-space) / 100% calc(100% - var(--work-top-space)) no-repeat;
   color: #F9F5EC;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   overflow: visible !important;
-  transform: translateZ(0);
 /*   isolation: isolate; */
 }
 
@@ -1289,12 +1286,6 @@ background: linear-gradient(to bottom, #000000 30%, transparent 100%);
   text-transform: lowercase;
 }
 
-.footer-tagline .caslon-text {
-  font-family: 'Big Caslon FB', 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 50px;
-  letter-spacing: -0.1em;
-}
 .block { display: block; }
 .footer-anim { display: block; transform: translateY(40px); opacity: 0; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
 .reveal .footer-anim { transform: translateY(0); opacity: 1; }
@@ -1347,14 +1338,14 @@ background: linear-gradient(to bottom, #000000 30%, transparent 100%);
 }
 
 /* Section 2 Fish Assets - Text versions */
-.fish-canvas     { background-image: url('https://melodysz.github.io/baubles/fish/canvastxt.png'); }
-.fish-layout     { background-image: url('https://melodysz.github.io/baubles/fish/layouttxt.png'); }
-.fish-narrative  {background-image: url('https://melodysz.github.io/baubles/fish/narrativetxt.png'); }
-.fish-product    { background-image: url('https://melodysz.github.io/baubles/fish/producttxt.png'); }
-.fish-ui         { background-image: url('https://melodysz.github.io/baubles/fish/uitxt.png'); }
-.fish-ux         { background-image: url('https://melodysz.github.io/baubles/fish/uxtxt.png'); }
-.fish-visual     { background-image: url('https://melodysz.github.io/baubles/fish/visualtxt.png'); }
-.fish-branding   { background-image: url('https://melodysz.github.io/baubles/fish/brandingtxt.png'); }
+.fish-canvas     { background-image: url('https://melodysz.github.io/baubles/fish/canvastxt.webp'); }
+.fish-layout     { background-image: url('https://melodysz.github.io/baubles/fish/layouttxt.webp'); }
+.fish-narrative  {background-image: url('https://melodysz.github.io/baubles/fish/narrativetxt.webp'); }
+.fish-product    { background-image: url('https://melodysz.github.io/baubles/fish/producttxt.webp'); }
+.fish-ui         { background-image: url('https://melodysz.github.io/baubles/fish/uitxt.webp'); }
+.fish-ux         { background-image: url('https://melodysz.github.io/baubles/fish/uxtxt.webp'); }
+.fish-visual     { background-image: url('https://melodysz.github.io/baubles/fish/visualtxt.webp'); }
+.fish-branding   { background-image: url('https://melodysz.github.io/baubles/fish/brandingtxt.webp'); }
 
 /* Fish container - covering screen */
 .fish-container {
@@ -1462,19 +1453,19 @@ background: linear-gradient(to bottom, #000000 30%, transparent 100%);
 }
 
 .fish-clown-1 { 
-  background-image: url('https://melodysz.github.io/baubles/fish/clown.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/clown.webp'); 
   top: 45%; 
   left: 5%; 
 }
 
 .fish-clown-2 { 
-  background-image: url('https://melodysz.github.io/baubles/fish/smallclown.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/smallclown.webp'); 
   top: 58%; 
   left: 0%; 
 }
 
 .fish-tang { 
-  background-image: url('https://melodysz.github.io/baubles/fish/bluetang.png'); 
+  background-image: url('https://melodysz.github.io/baubles/fish/bluetang.webp'); 
   top: 29%; 
   left: 50%; 
 }
@@ -1595,7 +1586,7 @@ html, body {
 .diamond-pattern {
   position: absolute;
   inset: 0;
-  background-image: url('https://melodysz.github.io/baubles/fish/diamond%20pattern.png');
+  background-image: url('https://melodysz.github.io/baubles/fish/diamond%20pattern.webp');
   background-size: auto 100%;  /* tile at natural width, full height */
   background-position: 0 center;
   background-repeat: repeat-x;
@@ -1736,7 +1727,7 @@ a, button, [role="button"] {
   top: 3rem; /* distance from top of third-section, adjust this */
   left: 0;
   right: 0;
-  z-index: 70;
+  z-index: 150; /* above the cards and badges, which scroll under it while it's pinned */
   display: flex;
   flex-direction: row;
   gap: 2px;
@@ -1747,6 +1738,9 @@ a, button, [role="button"] {
 
 .work-nav-pill {
   background: rgba(0, 110, 233, 0.5);
+  /* frosted glass: blur whatever passes behind the pill (cards, glow) */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   color: #2584EE;
   font-family: 'PP Neue Montreal', sans-serif;
   font-size: 0.95rem;
@@ -1761,14 +1755,22 @@ a, button, [role="button"] {
 }
 
 .work-nav-pill.active {
-  border-radius: 30px;
+  /* half the pill's height = fully round. (30px looked the same but rounded
+     fully within the first ~third of the transition, so it read as a jump) */
+  border-radius: 16px;
   background: rgba(0, 110, 233, 0.8);
   color: #F5B7FF;
 }
 
+/* Unselected pill sitting over a project card: darker text so it stays readable
+   (toggled by updatePillContrast in main.js; fades via the color transition below) */
+.work-nav-pill.over-card:not(.active) {
+  color: #000180;
+}
+
 .work-nav-pill,
 .work-nav-pill.active {
-  transition: background 0.3s ease, color 0.3s ease, border-radius 0.1s ease !important;
+  transition: background 0.3s ease, color 0.3s ease, border-radius 0.3s ease !important;
 }
 
 .pent-up-award {
@@ -1847,4 +1849,432 @@ a, button, [role="button"] {
   min-height: 100dvh;
   height: 100dvh;
   overflow: hidden;
+}
+/* --- PROJECT CARD CTA BUTTON ---
+   Sits exactly on top of the "dive in" button painted into each card image,
+   so it can grow when the card is hovered. Sizes use cqw (1% of the card's
+   width) so it stays lined up at any card size. */
+.circular-carousel .project-card {
+  container-type: inline-size;
+}
+
+.card-cta {
+  /* resting length, and how much it grows on hover to fit the arrow circle
+     (card units: 1 design px = 0.2237cqw; grows 19.3 design px) */
+  --cta-w: calc(23.49cqw + 1px);  /* +1px hides the painted button's soft edge */
+  --cta-grow: 4.32cqw;
+  position: absolute;
+  left: calc(50% - var(--cta-w) / 2);  /* left edge stays put — the button grows to the right */
+  top: 114.54cqw;               /* button's position in the card art */
+  width: var(--cta-w);
+  height: calc(8.95cqw + 1px);
+  transform: translateY(-0.5px) scale(1);
+  transform-origin: calc(var(--cta-w) / 2) 50%;  /* scale around the label's centre, so the text stays put */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000180;
+  border-radius: 999px;
+  font-family: 'PP Neue Montreal', 'Helvetica Neue', sans-serif;
+  font-weight: 500;
+  font-size: 3.74cqw;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-cta--wide {
+  --cta-w: calc(31.1cqw + 1px);
+  --cta-grow: 0px; /* "coming soon!" has nowhere to go yet: no arrow, it only enlarges */
+}
+
+.project-card.cta-hover .card-cta {
+  width: calc(var(--cta-w) + var(--cta-grow));
+  transform: translateY(-0.5px) scale(1.1);   /* grows 10% as well as lengthening */
+}
+
+/* the label never moves: it stays centred on the button's resting length */
+.cta-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--cta-w);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Arrow circle (same colour as the button's text). It's pinned to the button's right
+   end, so while the button grows it rides along with a constant margin, fading in.
+   Leaving: it fades out quickly in place (it counter-slides exactly as far as the
+   shrinking end moves, so it doesn't travel). */
+.cta-arrow {
+  --cta-arrow-size: 7.2cqw;      /* 32 design px */
+  position: absolute;
+  right: 0.72cqw;                /* ~3 design px margin */
+  top: 50%;
+  width: var(--cta-arrow-size);
+  height: var(--cta-arrow-size);
+  margin-top: calc(var(--cta-arrow-size) / -2);
+  border-radius: 50%;
+  background: currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateX(var(--cta-grow));
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.12s ease;
+}
+
+.cta-arrow img {
+  width: 52%;
+  height: auto;
+  display: block;
+}
+
+.project-card.cta-hover .cta-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  /* entering: jump to the pinned spot at once, then just ride the growing edge */
+  transition: transform 0s, opacity 0.35s ease 0.05s;
+}
+
+/* Intro reveal: canvas that draws the black + blue ripple and cuts the growing hole */
+.reveal-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.intro-screen.is-canvas-reveal {
+  background: transparent;
+}
+
+.intro-screen.is-canvas-reveal::before {
+  display: none;
+}
+
+
+/* Keep this page on screen until the next page is ready to draw (no blank flash
+   between the homepage and project pages) */
+@view-transition {
+  navigation: auto;
+}
+
+/* Arriving from a project page: the splash starts covering the screen */
+.arrive-wipe #work-wipe-overlay {
+  transform: none;
+  pointer-events: all !important;
+}
+
+/* Nav links ("work" / "who"): medium weight at rest; Xanh Mono italic on hover
+   (same font as "zhang" in the wordmark — free Google Font, no credit needed) */
+.nav-hover-italic {
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Cursor dot fades out while the mouse is outside the browser window */
+.cursor-dot.is-away {
+  opacity: 0 !important;
+}
+
+
+/* Everything inside the porthole — blurred by JS as section 3 covers it.
+   Sits just below the frame (.sky-border-top, z-index 18). */
+.section-2-contents {
+  position: absolute;
+  inset: 0;
+  z-index: 17;
+  pointer-events: none;
+}
+
+/* The blur: one overlay above the aquarium (below the frame) that blurs
+   whatever is behind it. JS grows its blur from ~0 to 12px as section 3
+   covers the aquarium. It's always on (at 0.01px when idle) so it never has
+   to be set up mid-scroll. */
+.section-2-blur {
+  position: absolute;
+  inset: 0;
+  z-index: 17;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(0.01px);
+  backdrop-filter: blur(0.01px);
+}
+
+
+/* Copy of .sky-container + #blackCover inside the section 2 layer (see index.html).
+   The sky is redrawn by JS on a small canvas (1/8 size) and stretched to fill the
+   screen — a soft gradient looks the same, and redrawing it is ~64× cheaper. */
+.section-2-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.section-2-backdrop-sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.section-2-backdrop-black {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  opacity: 0;
+}
+
+/* Hero layers switched fully off once scrolled past (they're transparent by
+   then anyway) so they stop using graphics memory. See setHeroActive().
+   (.scaling-rig is a canvas picture now, so hiding/showing it is always safe.) */
+body.hero-offscreen .scaling-rig,
+body.hero-offscreen .hero-peek-layer,
+body.hero-offscreen .hero-halo,
+body.hero-offscreen .hero-orbit,
+body.hero-offscreen .hero-star,
+body.hero-offscreen .hero-fish-layer,
+body.hero-offscreen .hero-text-layer {
+  visibility: hidden !important;
+}
+
+.work-footer-gradient {
+  visibility: hidden; /* shown by JS once the work section arrives */
+}
+
+/* Section 2 switched off while the hero fully covers it (top of the page) */
+body.section2-offscreen .section-2-wrapper {
+  visibility: hidden !important;
+}
+
+/* Work nav pills: label wrapper for the hover font swap (see main.js) */
+.work-nav-pill {
+  text-align: center;
+}
+
+.pill-inner {
+  display: inline-block;
+}
+
+/* Solid black stitched onto the bottom of the section 2 frame too, so no gap
+   ever opens between the frame and section 3 (which would show the blue aquarium). */
+.section-2-wrapper > .sky-border-top::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 2vh);
+  height: 60vh;
+  background: #000000;
+  pointer-events: none;
+}
+
+/* Solid black stitched onto the top of the section 2 frame, so its top edge is
+   never visible while it rises in (overlaps 2vh into the frame's own black band
+   to hide the image's thin see-through edge). */
+.section-2-wrapper > .sky-border-top::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 2vh);
+  height: 120vh;
+  background: #000000;
+  pointer-events: none;
+}
+
+/* ================================
+   LIVE PROJECT CARD (built in HTML instead of a flat image) — experimental
+   Laid out in the card's design units: the Figma frame is 447 × 584, so
+   --u = 1 design px, scaled to whatever size the carousel shows the card.
+   ================================ */
+@font-face {
+  font-family: 'Haffer XH Mono';
+  src: url('../fonts/HafferXHMono-TRIAL-SemiBold.otf') format('opentype'); /* TRIAL font: local testing only */
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+.circular-carousel .project-card--live {
+  background: none !important;
+}
+
+.pc-card {
+  --u: calc(100cqw / 447);
+  --pc-bg: #D2ABFF;
+  --pc-tag: #C496F8;
+  --pc-ink: #000180;
+  position: absolute;
+  left: 0;
+  top: calc((133.333cqw - 584 * var(--u)) / 2); /* centred in the 3:4 card box, like the old image */
+  width: calc(447 * var(--u));
+  height: calc(584 * var(--u));
+  border-radius: calc(20 * var(--u));
+  overflow: hidden;              /* clipping mask: nothing spills past the rounded card */
+  background: var(--pc-bg);
+  color: var(--pc-ink);
+  text-align: center;
+  pointer-events: none;
+}
+
+.pc-tags {
+  position: absolute;
+  top: calc(45 * var(--u));
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: calc(1 * var(--u));
+}
+
+.pc-tag {
+  height: calc(29.5 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pc-tag);
+  font-size: calc(15.4 * var(--u));
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pc-date {
+  width: calc(50.8 * var(--u));
+  border-radius: 999px;
+  font-family: 'Haffer XH Mono', monospace;
+  font-weight: 600;
+}
+
+.pc-category {
+  width: calc(159 * var(--u));
+  border-radius: calc(4 * var(--u));
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.pc-asterisk {
+  position: absolute;
+  top: calc(93.8 * var(--u));
+  transform: rotate(-12.8deg); /* = 12.8° in Figma (Figma measures rotation the opposite way) */
+  left: calc(209 * var(--u));
+  width: calc(28.8 * var(--u));
+  height: calc(29.4 * var(--u));
+  fill: var(--pc-ink);
+}
+
+.pc-title {
+  position: absolute;
+  top: calc(133.5 * var(--u));
+  left: calc(-3.9 * var(--u)); /* optical nudge: tight letter-spacing shifts the centred word right */
+  right: 0;
+  margin: 0;
+  font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: calc(75 * var(--u));
+  letter-spacing: -0.07em;
+  line-height: 1;
+}
+
+.pc-desc {
+  position: absolute;
+  top: calc(228.5 * var(--u));
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  font-size: calc(18 * var(--u));
+  line-height: calc(21.7 * var(--u));
+}
+
+.pc-graphic {
+  position: absolute;
+  width: calc(515 * var(--u));
+  height: auto;
+  display: block;
+}
+
+.pc-graphic--back  { left: calc(-29.25 * var(--u)); top: calc(307.25 * var(--u)); }
+.pc-graphic--front { left: calc(-1 * var(--u));     top: calc(339 * var(--u)); }
+
+/* bottom of the card: blur that ramps in, then the card colour washing over it */
+.pc-fade-color {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: calc(425 * var(--u));
+}
+
+/* Progressive blur: the blur really gets stronger toward the bottom. Four copies of
+   the graphic, blurred 1 → 2 → 4 → 8 design px, each fading into the next down the
+   card (474u → 546u). Fixed blur amounts, so nothing is recalculated while the
+   carousel moves (a masked backdrop-filter lost its soft edge whenever it moved). */
+.pc-sharp,
+.pc-blur {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pc-blur-1 .pc-graphic { filter: blur(calc(1 * var(--u))); }
+.pc-blur-2 .pc-graphic { filter: blur(calc(2 * var(--u))); }
+.pc-blur-3 .pc-graphic { filter: blur(calc(4 * var(--u))); }
+.pc-blur-4 .pc-graphic { filter: blur(calc(8 * var(--u))); }
+
+/* Each stronger step fades in over the one before it and stays — it never fades
+   back out, so the layers never thin out mid-handover (that showed as light bands). */
+.pc-blur-1 { -webkit-mask-image: linear-gradient(to bottom, transparent calc(474 * var(--u)), #000 calc(492 * var(--u)));
+                     mask-image: linear-gradient(to bottom, transparent calc(474 * var(--u)), #000 calc(492 * var(--u))); }
+.pc-blur-2 { -webkit-mask-image: linear-gradient(to bottom, transparent calc(492 * var(--u)), #000 calc(510 * var(--u)));
+                     mask-image: linear-gradient(to bottom, transparent calc(492 * var(--u)), #000 calc(510 * var(--u))); }
+.pc-blur-3 { -webkit-mask-image: linear-gradient(to bottom, transparent calc(510 * var(--u)), #000 calc(528 * var(--u)));
+                     mask-image: linear-gradient(to bottom, transparent calc(510 * var(--u)), #000 calc(528 * var(--u))); }
+.pc-blur-4 { -webkit-mask-image: linear-gradient(to bottom, transparent calc(528 * var(--u)), #000 calc(546 * var(--u)));
+                     mask-image: linear-gradient(to bottom, transparent calc(528 * var(--u)), #000 calc(546 * var(--u))); }
+
+.pc-fade-color {
+  /* card lilac: 80% at the bottom edge, tapering to 0% toward the top */
+  background: linear-gradient(to bottom, rgba(210, 171, 255, 0) 8%, rgba(210, 171, 255, 0.8) 100%);
+}
+
+/* Hero scroll cue: a small down arrow hanging just below the bottom-right text
+   block (absolutely placed, so the text itself doesn't move). Bobbing is driven
+   by the hero's 30fps ticker in main.js. */
+.id-scroll-arrow {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 14px);
+  width: 16px;
+  color: var(--accent-pink);
+}
+
+.id-scroll-arrow svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Cards (and the images inside them) can't be dragged out as links/pictures —
+   dragging them spins the carousel instead */
+.circular-carousel .project-card,
+.circular-carousel .project-card * {
+  -webkit-user-drag: none;
+  user-select: none;
 }

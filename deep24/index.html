@@ -10,13 +10,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Zen+Old+Mincho&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Xanh+Mono:ital@1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
   
-<link rel="preload" as="image" href="https://melodysz.github.io/baubles/mask.png">
+<link rel="preload" as="image" href="https://melodysz.github.io/baubles/mask.webp">
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/hero/hero%20star.png">
-<link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.png">
+<link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=6">
+  <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
+  <link rel="expect" href="#page-entry-overlay" blocking="render">
 <link rel="icon" type="image/x-icon" href="https://melodysz.github.io/baubles/favicon.ico">
 
 </head>
@@ -36,7 +40,11 @@
 <!-- Scroll Progress Bar -->
 <div id="scroll-progress"></div>
 
-<div id="page-entry-overlay"></div>
+<div id="page-entry-overlay" class="page-wipe"><span class="page-wipe-label">[ deep24 ]</span></div>
+<script>
+  // show the splash label as soon as its font is ready
+  document.fonts.load("italic 1.6rem 'Xanh Mono'").then(() => document.getElementById('page-entry-overlay')?.classList.add('label-ready'));
+</script>
 
 <!-- Custom Cursor -->
 <div class="cursor-dot" id="cursor"></div>
@@ -49,13 +57,13 @@
            alt="*" style="width:28px;height:28px;display:block;">
     </div>
     <div class="nav-content">
-      <a href="https://melodysz.github.io/fishtank/" class="nav-wordmark interactable" style="cursor:pointer!important">
+      <a href="../" class="nav-wordmark interactable" style="cursor:pointer!important">
         <span class="wm-melody">melody</span><span class="wm-zhang">zhang</span>
       </a>
       <div class="nav-links">
         <div class="nav-work-wrap" id="navWorkWrap">
-<a href="https://melodysz.github.io/fishtank/#third-section" class="interactable nav-link-item" data-default="work" data-hover="work!">work</a>        </div>
-        <a href="https://melodysz.github.io/fishtank/who/" class="interactable nav-link-item" data-default="who" data-hover="who?">who</a>
+<a href="../#third-section" class="interactable nav-link-item" data-default="work" data-hover="work!">work</a>        </div>
+        <a href="../who/" class="interactable nav-link-item" data-default="who" data-hover="who?">who</a>
       </div>
     </div>
   </div>
@@ -69,13 +77,13 @@
 </div>
 <div class="work-bubble" id="workBubble" aria-hidden="true">
   <div class="bubble-menu">
-    <a href="https://melodysz.github.io/fishtank/deep24" class="bubble-item interactable">
+    <a href="../deep24/" class="bubble-item interactable">
       <span class="bubble-num">01</span>deep24
     </a>
-    <a href="https://melodysz.github.io/fishtank/pent-up" class="bubble-item interactable">
+    <a href="../pent-up/" class="bubble-item interactable">
       <span class="bubble-num">02</span>pent up
     </a>
-    <a href="https://melodysz.github.io/fishtank/knouri" class="bubble-item interactable">
+    <a href="../knouri/" class="bubble-item interactable">
       <span class="bubble-num">03</span>knouri
     </a>
   </div>
@@ -103,7 +111,7 @@
 </nav>
 
 <section class="hero-section">
-  <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/HERO.png"
+  <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/HERO.webp"
        alt="Deep24 Hero" class="hero-image">
   
   <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/hero%20tagline.png"
@@ -122,7 +130,7 @@
          alt="Meet your accountability coach" class="hero-d24-tagline" id="hero-d24-tagline">
   </div>
   
-  <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/hero%20fade.png"
+  <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/hero%20fade.webp"
        alt="" class="hero-fade-overlay" aria-hidden="true">
 </section>
 
@@ -154,7 +162,7 @@
   <!-- Large Image -->
   <section class="large-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/large%20img.png" alt="Deep24 Interface">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/large%20img.webp" alt="Deep24 Interface">
     </div>
   </section>
 
@@ -205,7 +213,7 @@
       <!-- Stamp Cards -->
       <div class="stamp-cards-grid">
         <div class="stamp-card">
-          <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/stamp.png" alt="Stamp" class="stamp-bg" loading="lazy">
+          <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/stamp.webp" alt="Stamp" class="stamp-bg" loading="lazy">
           <div class="stamp-content">
             <div class="stamp-number">01</div>
             <h4 class="stamp-title">Cohesive Visual Identity</h4>
@@ -213,7 +221,7 @@
           </div>
         </div>
         <div class="stamp-card">
-          <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/stamp.png" alt="Stamp" class="stamp-bg" loading="lazy">
+          <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/stamp.webp" alt="Stamp" class="stamp-bg" loading="lazy">
           <div class="stamp-content">
             <div class="stamp-number">02</div>
             <h4 class="stamp-title">Clear & Intuitive Navigation</h4>
@@ -221,7 +229,7 @@
           </div>
         </div>
         <div class="stamp-card">
-          <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/stamp.png" alt="Stamp" class="stamp-bg" loading="lazy">
+          <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/stamp.webp" alt="Stamp" class="stamp-bg" loading="lazy">
           <div class="stamp-content">
             <div class="stamp-number">03</div>
             <h4 class="stamp-title">Evolving Design</h4>
@@ -262,19 +270,19 @@
 
   <section class="original-interface-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/onboarding%20screens.png" alt="Onboarding Screens" loading="lazy">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/onboarding%20screens.webp" alt="Onboarding Screens" loading="lazy">
     </div>
   </section>
 
   <section class="original-interface-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/primary%20functions.png" alt="Primary Functions" loading="lazy">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/primary%20functions.webp" alt="Primary Functions" loading="lazy">
     </div>
   </section>
 
   <section class="original-interface-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/alarm%20screens.png" alt="Alarm Screens" loading="lazy">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/alarm%20screens.webp" alt="Alarm Screens" loading="lazy">
     </div>
   </section>
 
@@ -291,7 +299,7 @@
   <!-- Market Audit image -->
   <section class="original-interface-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/market%20audit%20large%20img.png" alt="Market Audit" loading="lazy">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/market%20audit%20large%20img.webp" alt="Market Audit" loading="lazy">
     </div>
   </section>
 
@@ -344,7 +352,7 @@
 
   <section class="style-guide-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/style%20guide.png" alt="Style Guide" loading="lazy">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/style%20guide.webp" alt="Style Guide" loading="lazy">
     </div>
   </section>
 
@@ -359,7 +367,7 @@
 
 <section class="constraints-image-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/constraints%20img.png" alt="Constraints – three gradient states" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/constraints%20img.webp" alt="Constraints – three gradient states" loading="lazy">
   </div>
 </section>
 
@@ -381,7 +389,7 @@
 
   <section class="onboarding-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/onboarding%201.png" alt="Onboarding Direction 1" loading="lazy">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/onboarding%201.webp" alt="Onboarding Direction 1" loading="lazy">
     </div>
   </section>
 
@@ -393,7 +401,7 @@
 
   <section class="onboarding-image-section">
     <div class="content-column-outer">
-      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/onboarding%202.png" alt="Onboarding Direction 2" loading="lazy">
+      <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/onboarding%202.webp" alt="Onboarding Direction 2" loading="lazy">
     </div>
   </section>
 
@@ -413,7 +421,7 @@
         <p>It was my job to translate these into interactive screens <span class="highlight">that fit into the visual ecosystem I had already created.</span></p>
       </div>
       <div class="chat-intro-image">
-        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/chat%20sketch%20images.png" alt="Chat sketches" loading="lazy">
+        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/chat%20sketch%20images.webp" alt="Chat sketches" loading="lazy">
       </div>
     </div>
   </div>
@@ -421,13 +429,13 @@
 
 <section class="chat-layout-image-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/chat%20layout.png" alt="Chat layout, prompts, and pins" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/chat%20layout.webp" alt="Chat layout, prompts, and pins" loading="lazy">
   </div>
 </section>
 
 <section class="chat-layout-image-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/quick%20notifs.png" alt="Quick notifications iterations" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/quick%20notifs.webp" alt="Quick notifications iterations" loading="lazy">
   </div>
 </section>
   
@@ -448,7 +456,7 @@
 
 <section class="pivot-styles-image-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20main%20screens.png" alt="Pivot main screens" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20main%20screens.webp" alt="Pivot main screens" loading="lazy">
   </div>
 </section>
 
@@ -459,7 +467,7 @@
 
     <div class="chat-dilemma-grid">
       <div class="chat-dilemma-image">
-        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20button%20image.png" alt="Chat button in interface" loading="lazy">
+        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20button%20image.webp" alt="Chat button in interface" loading="lazy">
         <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20arrow.png" alt="Arrow" class="pivot-arrow-overlap" loading="lazy">
       </div>
       <div class="chat-dilemma-text">
@@ -474,7 +482,7 @@
 
 <section class="pivot-chat-buttons-section pivot-chat-buttons-small">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20buttons.png" alt="Chat button explorations" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20buttons.webp" alt="Chat button explorations" loading="lazy">
   </div>
 </section>
 
@@ -487,7 +495,7 @@
 
 <section class="pivot-chat-buttons-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20experimentation.png" alt="Chat button nav explorations" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20experimentation.webp" alt="Chat button nav explorations" loading="lazy">
   </div>
 </section>
 
@@ -499,7 +507,7 @@
 
 <section class="pivot-chat-buttons-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20final.png" alt="Final chat button" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/pivot%20chat%20final.webp" alt="Final chat button" loading="lazy">
   </div>
 </section>
   
@@ -513,19 +521,19 @@
 
 <section class="pivot-styles-image-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/default.png" alt="Default style" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/default.webp" alt="Default style" loading="lazy">
   </div>
 </section>
 
 <section class="pivot-styles-image-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/editorial.png" alt="Editorial soft glass style" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/editorial.webp" alt="Editorial soft glass style" loading="lazy">
   </div>
 </section>
 
 <section class="pivot-styles-image-section">
   <div class="content-column-outer">
-    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/luminous.png" alt="Luminous tech style" loading="lazy">
+    <img src="https://raw.githubusercontent.com/melodysz/baubles/main/deep24/luminous.webp" alt="Luminous tech style" loading="lazy">
   </div>
 </section>
  
@@ -578,8 +586,8 @@
         </h2>
         
         <ul class="case-footer-links">
-          <li><a href="https://melodysz.github.io/fishtank/pent-up">Pent Up</a></li>
-          <li><a href="https://melodysz.github.io/fishtank/knouri/">Knouri</a></li>
+          <li><a href="../pent-up/">Pent Up</a></li>
+          <li><a href="../knouri/">Knouri</a></li>
         </ul>
         
       </div>
@@ -603,6 +611,8 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
-<script src="main.js"></script>
+<script src="../js/favicon.js?v=1"></script>
+<script src="../js/page-wipe.js?v=8"></script>
+<script src="main.js?v=10"></script>
 </body>
 </html>

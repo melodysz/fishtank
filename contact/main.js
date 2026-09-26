@@ -234,7 +234,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // Blob on general interactables
-const clickableEls = document.querySelectorAll('a[href], .who-link');
+const clickableEls = document.querySelectorAll('a[href], button, .receipt-check');
 clickableEls.forEach(el => {
   el.addEventListener('mouseenter', () => {
     if (isBlobMode) return;
@@ -327,8 +327,9 @@ document.querySelector('.nav-link-item[data-default="work"]')?.addEventListener(
 });
 
 /* ============================================================
-   WHO LINK — no-op (already here)
+   WHO LINK — go to the who page
    ============================================================ */
 document.querySelector('.nav-link-item[data-default="who"]')?.addEventListener('click', (e) => {
   e.preventDefault();
+  navigateTo('../who/');
 });
