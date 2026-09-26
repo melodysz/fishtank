@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Zen+Old+Mincho&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Zen+Old+Mincho&family=Instrument+Serif:ital@0;1&family=Unbounded:wght@700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Xanh+Mono:ital@1&display=swap" rel="stylesheet">
   
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/mask.webp">
@@ -16,7 +16,7 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="css/style.css?v=64">
+  <link rel="stylesheet" href="css/style.css?v=83">
   <!-- hold the first frame until the splash exists, so arriving from a project stays seamless -->
   <link rel="expect" href="#work-wipe-overlay" blocking="render">
   <script>
@@ -78,7 +78,9 @@
 
 <div class="intro-screen">
   <div class="intro-text">
-    <span id="intro-base">feeding the fish</span><span id="intro-dots"></span>
+    <!-- spinning asterisk (same shape + tempo as the tab icon), dead centre -->
+    <svg class="intro-star" viewBox="0 0 27 26" aria-hidden="true"><path d="M7.5816 25.686L3.61691 22.8086L11.5953 14.2034C11.6515 14.1428 11.6734 14.0579 11.6535 13.9777C11.6306 13.8849 11.5558 13.8139 11.462 13.7958L0 11.5798L1.53023 6.94786L12.0107 11.9241C12.11 11.9713 12.2273 11.9592 12.315 11.8929C12.3989 11.8294 12.4426 11.726 12.4296 11.6216L10.9898 0H15.8588L14.419 11.6216C14.4061 11.726 14.4498 11.8294 14.5336 11.8929C14.6213 11.9592 14.7386 11.9713 14.8379 11.9241L25.3184 6.94786L26.7791 11.5798L15.3865 13.7956C15.2927 13.8139 15.2181 13.8848 15.1951 13.9776C15.1752 14.0579 15.1971 14.1428 15.2534 14.2035L23.2317 22.8086L19.267 25.686L13.6304 15.4213C13.5891 15.3461 13.5101 15.2993 13.4243 15.2993C13.3385 15.2993 13.2595 15.3461 13.2182 15.4213L7.5816 25.686Z" fill="currentColor"/></svg>
+    <div class="intro-label"><span id="intro-base">feeding the fish</span><span id="intro-dots"></span></div>
   </div>
 </div>
 
@@ -99,7 +101,8 @@
       </a>
       <div class="nav-links">
 <a href="javascript:void(0)" class="interactable nav-link-item nav-swap" data-default="work" data-hover="work!">work</a>
-<a href="who/" class="interactable nav-link-item nav-swap" data-default="who" data-hover="who?">who</a>
+<a href="#who" class="interactable nav-link-item nav-swap" data-default="who" data-hover="who?">who</a>
+<a href="#play" class="interactable nav-link-item nav-swap" data-default="play" data-hover="play!">play</a>
       </div>
     </div>
   </div>
@@ -259,11 +262,11 @@
   
   
 <div class="work-nav" id="workNav">
-  <div class="work-nav-pill" data-index="0">01 creatify</div>
-  <div class="work-nav-pill" data-index="1">02 deep24</div>
-  <div class="work-nav-pill" data-index="2">03 knouri</div>
-  <div class="work-nav-pill" data-index="3">04 pent up</div>
-  <div class="work-nav-pill" data-index="4">05 settlyfe</div>
+  <div class="work-nav-pill" data-index="0" style="--pill-color:#D2ABFF">01 creatify</div>
+  <div class="work-nav-pill" data-index="1" style="--pill-color:#83E7FF">02 settlyfe</div>
+  <div class="work-nav-pill" data-index="2" style="--pill-color:#EFEDF8">03 deep24</div>
+  <div class="work-nav-pill" data-index="3" style="--pill-color:#F5B7FF">04 pent up</div>
+  <div class="work-nav-pill" data-index="4" style="--pill-color:#D1FFA4">05 knouri</div>
 </div>
   
 <div class="third-stage">
@@ -314,10 +317,65 @@
   </div>
   <span class="card-cta" style="color:#D2ABFF"><span class="cta-label">dive in</span><span class="cta-arrow" aria-hidden="true"><img src="images/arrow-icon.png" alt=""></span></span>
 </a>
-<a href="deep24/" class="project-card interactable" draggable="false" data-index="1" style="background-image:url('https://melodysz.github.io/baubles/projcard%20deep24.webp')"><span class="card-cta" style="color:#EFEDF8"><span class="cta-label">dive in</span><span class="cta-arrow" aria-hidden="true"><img src="images/arrow-icon.png" alt=""></span></span></a>
-<a href="knouri/" class="project-card interactable" draggable="false" data-index="2" style="background-image:url('https://melodysz.github.io/baubles/projcard%20knouri.webp')"><span class="card-cta" style="color:#D1FFA4"><span class="cta-label">dive in</span><span class="cta-arrow" aria-hidden="true"><img src="images/arrow-icon.png" alt=""></span></span></a>
+<!-- settlyfe: live HTML card, same build as creatify's -->
+<a href="#" class="project-card project-card--live interactable" draggable="false" data-index="1">
+  <div class="pc-card pc-card--settlyfe">
+    <div class="pc-tags"><span class="pc-tag pc-date">2026</span><span class="pc-tag pc-category">AI Rental App</span></div>
+    <svg class="pc-asterisk" viewBox="0 0 27 26" preserveAspectRatio="none" aria-hidden="true"><path d="M7.5816 25.686L3.61691 22.8086L11.5953 14.2034C11.6515 14.1428 11.6734 14.0579 11.6535 13.9777C11.6306 13.8849 11.5558 13.8139 11.462 13.7958L0 11.5798L1.53023 6.94786L12.0107 11.9241C12.11 11.9713 12.2273 11.9592 12.315 11.8929C12.3989 11.8294 12.4426 11.726 12.4296 11.6216L10.9898 0H15.8588L14.419 11.6216C14.4061 11.726 14.4498 11.8294 14.5336 11.8929C14.6213 11.9592 14.7386 11.9713 14.8379 11.9241L25.3184 6.94786L26.7791 11.5798L15.3865 13.7956C15.2927 13.8139 15.2181 13.8848 15.1951 13.9776C15.1752 14.0579 15.1971 14.1428 15.2534 14.2035L23.2317 22.8086L19.267 25.686L13.6304 15.4213C13.5891 15.3461 13.5101 15.2993 13.4243 15.2993C13.3385 15.2993 13.2595 15.3461 13.2182 15.4213L7.5816 25.686Z"/></svg>
+    <h3 class="pc-title">settlyfe</h3>
+    <p class="pc-desc">Designing a comprehensive AI-<br>powered rental experience for IOS.</p>
+    <div class="pc-sharp">
+      <img class="pc-graphic pc-graphic--back" src="images/settlyfe-card-1.webp" alt="">
+      <img class="pc-graphic pc-graphic--front" src="images/settlyfe-card-2.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-1" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--back" src="images/settlyfe-card-1.webp" alt="">
+      <img class="pc-graphic pc-graphic--front" src="images/settlyfe-card-2.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-2" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--back" src="images/settlyfe-card-1.webp" alt="">
+      <img class="pc-graphic pc-graphic--front" src="images/settlyfe-card-2.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-3" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--back" src="images/settlyfe-card-1.webp" alt="">
+      <img class="pc-graphic pc-graphic--front" src="images/settlyfe-card-2.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-4" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--back" src="images/settlyfe-card-1.webp" alt="">
+      <img class="pc-graphic pc-graphic--front" src="images/settlyfe-card-2.webp" alt="">
+    </div>
+    <div class="pc-fade-color"></div>
+  </div>
+  <span class="card-cta card-cta--wide" style="color:#83E7FF"><span class="cta-label">coming soon!</span></span>
+</a>
+<!-- deep24: live HTML card; on hover its photo circle pops back in from nothing -->
+<a href="deep24/" class="project-card project-card--live interactable" draggable="false" data-index="2" data-hover-anim="circle">
+  <div class="pc-card pc-card--deep24">
+    <div class="pc-tags"><span class="pc-tag pc-date">2025</span><span class="pc-tag pc-category">0→1 Product Design</span></div>
+    <svg class="pc-asterisk" viewBox="0 0 27 26" preserveAspectRatio="none" aria-hidden="true"><path d="M7.5816 25.686L3.61691 22.8086L11.5953 14.2034C11.6515 14.1428 11.6734 14.0579 11.6535 13.9777C11.6306 13.8849 11.5558 13.8139 11.462 13.7958L0 11.5798L1.53023 6.94786L12.0107 11.9241C12.11 11.9713 12.2273 11.9592 12.315 11.8929C12.3989 11.8294 12.4426 11.726 12.4296 11.6216L10.9898 0H15.8588L14.419 11.6216C14.4061 11.726 14.4498 11.8294 14.5336 11.8929C14.6213 11.9592 14.7386 11.9713 14.8379 11.9241L25.3184 6.94786L26.7791 11.5798L15.3865 13.7956C15.2927 13.8139 15.2181 13.8848 15.1951 13.9776C15.1752 14.0579 15.1971 14.1428 15.2534 14.2035L23.2317 22.8086L19.267 25.686L13.6304 15.4213C13.5891 15.3461 13.5101 15.2993 13.4243 15.2993C13.3385 15.2993 13.2595 15.3461 13.2182 15.4213L7.5816 25.686Z"/></svg>
+    <h3 class="pc-title">deep24</h3>
+    <p class="pc-desc">Founding design for an IOS coaching<br>app, from onboarding to core flows.</p>
+    <div class="pc-sharp">
+      <img class="pc-graphic pc-graphic--circle" src="images/deep24-card.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-1" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--circle" src="images/deep24-card.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-2" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--circle" src="images/deep24-card.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-3" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--circle" src="images/deep24-card.webp" alt="">
+    </div>
+    <div class="pc-blur pc-blur-4" aria-hidden="true">
+      <img class="pc-graphic pc-graphic--circle" src="images/deep24-card.webp" alt="">
+    </div>
+    <div class="pc-fade-color"></div>
+  </div>
+  <span class="card-cta" style="color:#EFEDF8"><span class="cta-label">dive in</span><span class="cta-arrow" aria-hidden="true"><img src="images/arrow-icon.png" alt=""></span></span>
+</a>
 <a href="pent-up/" class="project-card interactable" draggable="false" data-index="3" style="background-image:url('https://melodysz.github.io/baubles/projcard%20pent%20up.webp')"><span class="card-cta" style="color:#F5B7FF"><span class="cta-label">dive in</span><span class="cta-arrow" aria-hidden="true"><img src="images/arrow-icon.png" alt=""></span></span></a>
-<a href="#" class="project-card interactable" draggable="false" data-index="4" style="background-image:url('https://melodysz.github.io/baubles/projcard%20settlyfe.webp?v=2')"><span class="card-cta card-cta--wide" style="color:#83E7FF"><span class="cta-label">coming soon!</span></span></a>
+<a href="knouri/" class="project-card interactable" draggable="false" data-index="4" style="background-image:url('https://melodysz.github.io/baubles/projcard%20knouri.webp')"><span class="card-cta" style="color:#D1FFA4"><span class="cta-label">dive in</span><span class="cta-arrow" aria-hidden="true"><img src="images/arrow-icon.png" alt=""></span></span></a>
     
       <img src="https://melodysz.github.io/baubles/pent%20up%20award.webp" class="pent-up-award" alt="Winner of Best Red Project">
     
@@ -366,6 +424,66 @@
   </div>
 </section>
 
+<!-- ============================================================
+     WHO + PLAY: panels that open over the homepage (no page load),
+     behind the same navy splash wipe. See js/panels.js.
+     ============================================================ -->
+<div class="home-panel home-panel--who" id="whoPanel" aria-hidden="true" data-lenis-prevent>
+  <div class="who-wrapper">
+  <div class="who-card">
+    <div class="who-photo-col">
+      <img
+        src="https://melodysz.github.io/baubles/who%3F/me.webp"
+        class="who-photo"
+        alt="Melody"
+      >
+    </div>
+    <div class="who-text-col">
+      <h1 class="who-title"><em>Hi,</em> I'm Melody!</h1>
+      <p>I'm a junior at the <span class="hl">University of Pennsylvania</span> studying <span class="hl">Design</span> and <span class="hl">Consumer Psychology</span> to decode why users click, scroll, and stay.</p>
+      <p>I specialize in <span class="hl">0-to-1 Product Design and Visual Systems</span>. My goal is to find that sweet spot where functionality meets fun, creating colorful, accessible identities.</p>
+      <p>My experience spans various industries, including <span class="hl">health tech</span>, <span class="hl">AI lifestyle</span>, and <span class="hl">entertainment</span>. I'm at my best when I'm bridging the gap between design and development, managing creative teams, or facilitating workshops that turn messy ideas into shipped products. I <span class="hl">thrive in chatty environments</span> where designers and developers work side-by-side to solve complex problems.</p>
+      <p><span class="hl">Offline, I read horror novels for fun</span>—because whether it's a scary story or a user journey, I'm obsessed with understanding human reaction.</p>
+      <p>Let's Chat: <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank" class="interactable who-link">LinkedIn</a> | melodyserenazhang@gmail.com</p>
+      <img
+        src="https://melodysz.github.io/baubles/who%3F/signature.png"
+        class="who-signature-img"
+        alt="xoxo Mz"
+      >
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="home-panel home-panel--play" id="playPanel" aria-hidden="true" data-lenis-prevent>
+  <div class="play-content">
+  <aside class="play-sidebar">
+    <div class="play-title-wrap">
+      <svg class="play-star" viewBox="0 0 110 110" fill="none" aria-hidden="true">
+        <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" stroke="currentColor" stroke-width="0.8"/>
+        <circle cx="55" cy="55" r="41.5" stroke="currentColor" stroke-width="0.8"/>
+      </svg>
+      <h1 class="play-title">Scrapbook</h1>
+      <p class="play-subtitle">m.s.z.’s hither-thither tidbits</p>
+    </div>
+    <nav class="play-cats" aria-label="Categories">
+      <button class="play-cat is-active interactable" data-cat="all" data-heading="The whole shebang">Everything!</button>
+      <button class="play-cat interactable" data-cat="illustration">Illustrations</button>
+      <button class="play-cat interactable" data-cat="magazine">Magazine design</button>
+      <button class="play-cat interactable" data-cat="graphic">Graphic design</button>
+      <button class="play-cat interactable" data-cat="merch">Merch design</button>
+    </nav>
+  </aside>
+  <div class="play-main">
+    <div class="play-grid" id="playGrid">
+      <div class="play-col play-col--left">
+        <p class="play-heading" id="playHeading">The whole shebang</p>
+      </div>
+      <div class="play-col play-col--right"></div>
+    </div>
+  </div>
+  </div>
+</div>
 
 
   <!-- GSAP & Lenis Libraries (at the end, before closing </body>) -->
@@ -374,7 +492,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   
   <!-- Your JavaScript -->
-  <script src="js/favicon.js?v=1"></script>
-  <script src="js/main.js?v=80"></script>
+  <script src="js/favicon.js?v=2"></script>
+  <script src="js/main.js?v=93"></script>
+  <script src="js/panels.js?v=3"></script>
 </body>
 </html>

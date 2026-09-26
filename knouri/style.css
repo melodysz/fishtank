@@ -370,6 +370,12 @@ a[href], button, [role="button"], .interactable {
   transition: opacity 0.3s ease 0.68s, transform 0.3s ease 0.68s, color 0.25s ease;
 }
 
+.nav-pill.expanded .nav-link-item:nth-child(3) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.81s, transform 0.3s ease 0.81s, color 0.25s ease;
+}
+
 /* collapsed state — slide them back left */
 .nav-link-item {
   transform: translateX(-10px);

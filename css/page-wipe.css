@@ -56,3 +56,8 @@
 .cursor-dot.is-blob {
   mix-blend-mode: multiply;
 }
+
+/* PLAY is still being built: hidden on the live site, shown on the local
+   preview (js/favicon.js adds .show-play on localhost). To launch it, remove
+   the line marked PLAY SWITCH in js/favicon.js. */
+html:not(.show-play) .nav-link-item[data-default="play"] { display: none; }

@@ -331,5 +331,5 @@ document.querySelector('.nav-link-item[data-default="work"]')?.addEventListener(
    ============================================================ */
 document.querySelector('.nav-link-item[data-default="who"]')?.addEventListener('click', (e) => {
   e.preventDefault();
-  navigateTo('../who/');
+  navigateTo('../#who');
 });

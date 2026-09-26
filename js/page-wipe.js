@@ -5,7 +5,7 @@
 //  • Leaving: links to the homepage or another project first slide the splash
 //    up over the screen, then navigate — the next page opens under the same splash.
 (function () {
-  const PROJECT_LABELS = { 'deep24': '[ deep24 ]', 'knouri': '[ knouri ]', 'pent-up': '[ pent up ]', 'who': '[ who ]', 'contact': '[ say hi ]' };
+  const PROJECT_LABELS = { 'deep24': '[ deep24 ]', 'knouri': '[ knouri ]', 'pent-up': '[ pent up ]', 'contact': '[ say hi ]' };
 
   // ---------- entering ----------
   const overlay = document.getElementById('page-entry-overlay');
@@ -45,7 +45,8 @@
     const seg = u.pathname.replace(/^\/fishtank/, '').split('/').filter(Boolean)[0] || '';
     if (seg === '' || seg === 'index.html') {
       const hash = u.hash && u.hash !== '#' && u.hash !== '#skip' ? u.hash : '';
-      return { url: '../' + hash, label: hash === '#third-section' ? '[ work ]' : '[ home ]', home: true };
+      const HASH_LABELS = { '#third-section': '[ work ]', '#who': '[ who ]', '#play': '[ play ]' };
+      return { url: '../' + hash, label: HASH_LABELS[hash] || '[ home ]', home: true };
     }
     if (PROJECT_LABELS[seg]) return { url: '../' + seg + '/', label: PROJECT_LABELS[seg] };
     return null;

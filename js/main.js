@@ -17,6 +17,19 @@ if (skipIntro) {
   document.getElementById('page-entry-overlay')?.remove();
 }
 
+// DEV ONLY — shows on the local preview, never on the live site: a small
+// "replay intro" button (bottom-left) that forgets the intro was seen and reloads.
+if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+  const devBtn = document.createElement('button');
+  devBtn.className = 'dev-replay-intro';
+  devBtn.textContent = '↻ replay intro';
+  devBtn.addEventListener('click', () => {
+    try { sessionStorage.removeItem('fishtankIntroSeen'); sessionStorage.removeItem('fishtankWipe'); } catch (e) {}
+    window.location.href = window.location.pathname; // (drops any #section, which would skip the intro)
+  });
+  document.body.appendChild(devBtn);
+}
+
 // Add this as the VERY first thing in your JS, before everything else
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
@@ -355,6 +368,15 @@ if (entryOverlay) {
   function startRippleTransition() {
     const introScreen = document.querySelector('.intro-screen');
     const introText = document.querySelector('.intro-text');
+
+    // Get the heavy one-time graphics setup out of the way now, while the screen
+    // is still black (the hero is hidden behind it): darken the hero onto its own
+    // layer here instead of in the very frame the hole starts opening.
+    const rigEarly = document.querySelector('.scaling-rig');
+    if (rigEarly) {
+      rigEarly.style.willChange = 'transform, opacity, filter';
+      rigEarly.style.filter = 'brightness(0.25)';
+    }
     
     gsap.to(introText, { opacity: 0, duration: 0.4, ease: "power2.out" });
     
@@ -929,6 +951,7 @@ document.getElementById('navAsterisk').addEventListener('mouseenter', () => {
 
 navName.addEventListener('click', (e) => {
   e.preventDefault();
+  if (window.fishtankPanels?.isOpen()) { window.fishtankPanels.close(); return; } // a who/play panel is open: back to home
   const isAtTop = (lenis && lenis.scroll < 50) || window.scrollY < 50;
   if (isAtTop) {
     // already home and at top — do nothing
@@ -990,6 +1013,12 @@ document.getElementById('navWrap').addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
   if (wipeInProgress) return;
+
+  // a who/play panel is open: close it and land on the work section
+  if (window.fishtankPanels?.isOpen()) {
+    window.fishtankPanels.close({ label: '[ work ]', then: () => lenis.scrollTo(document.querySelector('#third-section').offsetTop, { immediate: true, force: true }) });
+    return;
+  }
 
   const thirdSection = document.querySelector('#third-section');
   const sectionTop = thirdSection.offsetTop;
@@ -1136,20 +1165,36 @@ ScrollTrigger.create({
   }
 });
 
+// In the work section the main nav takes the colour of the project card in
+// front (the same colour as its selected pill), and follows as the carousel turns.
+let navInWork = false, navCardColor = null;
+function syncNavToCard() {
+  if (!navInWork) return;
+  let c = '#E7A0FE';
+  try {   // (the carousel may not be set up yet on the very first load)
+    const i = ((Math.round(offset) % N) + N) % N;
+    c = workNavPills[i].style.getPropertyValue('--pill-color').trim() || c;
+  } catch (e) {}
+  if (c === navCardColor) return;
+  navCardColor = c;
+  gsap.to(navItems, { color: c, duration: 0.4, overwrite: 'auto' });
+}
+function setNavInWork(on) { navInWork = on; navCardColor = null; if (on) syncNavToCard(); }
+
 ScrollTrigger.create({
   trigger: ".footer-section",
   start: "top 50%",
   end: "bottom 50%",
-  onEnter: () => gsap.to(navItems, { color: "#D1FFA4", duration: 0.4 }),
-  onLeaveBack: () => gsap.to(navItems, { color: "#E7A0FE", duration: 0.4 })
+  onEnter: () => { setNavInWork(false); gsap.to(navItems, { color: "#D1FFA4", duration: 0.4, overwrite: 'auto' }); },
+  onLeaveBack: () => setNavInWork(true)
 });
 
 ScrollTrigger.create({
   trigger: ".third-section",
   start: "top 50%",
   end: "bottom 50%",
-  onEnter: () => gsap.to(navItems, { color: "#E7A0FE", duration: 0.4 }),
-  onLeaveBack: () => gsap.to(navItems, { color: "#83E7FF", duration: 0.4 })
+  onEnter: () => setNavInWork(true),
+  onLeaveBack: () => { setNavInWork(false); gsap.to(navItems, { color: "#83E7FF", duration: 0.4, overwrite: 'auto' }); }
 });
 
 const workFooterGradient = document.querySelector('.work-footer-gradient');
@@ -1330,11 +1375,13 @@ const WORK_DIAL = {
   tickSpacing: 8,                   // css px between ticks along the circle
   tickWidth: 1,                     // css px
 };
-// The dial turns with the carousel: one card = 26°, the same angle the cards move.
+// Angle between neighbouring project cards on the carousel wheel (smaller = cards closer together).
+var CARD_ANGLE = 24;
+// The dial turns with the carousel: one card = CARD_ANGLE, the same angle the cards move.
 var workDialPhase = 0;           // radians (var: the carousel can ask for a redraw before this line runs)
 let workDialDrawnPhase = null;
 function turnWorkDial(carouselOffset) {
-  const phase = -carouselOffset * 26 * Math.PI / 180;   // same direction the cards travel
+  const phase = -carouselOffset * CARD_ANGLE * Math.PI / 180;   // same direction the cards travel
   if (phase === workDialDrawnPhase) return;              // nothing moved (e.g. hover-lift redraws)
   workDialPhase = phase;
   drawWorkDial();
@@ -1570,14 +1617,14 @@ const N = cards.length;
 // Carousel order (matches the cards and pills in index.html)
 const projectURLs = [
   '',          // 0 creatify — live HTML card (no case study page yet)
-  'deep24/',   // 1
-  'knouri/',   // 2
+  '',          // 1 settlyfe (coming soon)
+  'deep24/',   // 2
   'pent-up/',  // 3
-  '',          // 4 settlyfe (coming soon)
+  'knouri/',   // 4
 ];
 const PENT_UP_INDEX = 3;   // card that shows the "winner" award
-const SETTLYFE_INDEX = 4;  // card that shows the "coming soon" badge
-const projectWipeLabels = ['[ creatify ]', '[ deep24 ]', '[ knouri ]', '[ pent up ]', ''];
+const SETTLYFE_INDEX = 1;  // card that shows the "coming soon" badge
+const projectWipeLabels = ['[ creatify ]', '', '[ deep24 ]', '[ pent up ]', '[ knouri ]'];
 
 // Slide the navy splash up (same as the [ work ] wipe), then open the project.
 // The project page starts under the same splash and slides it away, so the
@@ -1633,7 +1680,7 @@ function revealWipeOverlay(delay = 0.15) {
       overlay.style.pointerEvents = 'none';
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
-      lenis.start();
+      if (!window.fishtankPanelOpen) lenis.start(); // (a who/play panel keeps the homepage still)
     }
   });
 }
@@ -1670,46 +1717,48 @@ const awardEl = document.querySelector('.pent-up-award');
 const badgeEl = document.querySelector('.coming-soon-badge');
 const workNavPills = document.querySelectorAll('.work-nav-pill');
 
-// Pill hover: the label slides out and back in as Xanh Mono italic — the same
-// swap as the "work" / "who" nav links. The text lives in an inner span so the
-// pills' own fade in/out isn't disturbed.
+// Pills show just their number. While hovered — or while its card is the one
+// in front (selected) — a pill springs wider and its name fades in; the other
+// pills slide along to make room. (The spring is a CSS easing curve on the
+// width, see .work-nav-pill in style.css.)
 workNavPills.forEach((pill) => {
   const label = pill.textContent.trim();
-  pill.innerHTML = `<span class="pill-inner">${label}</span>`;
-  const inner = pill.querySelector('.pill-inner');
-
-  pill.addEventListener('mouseenter', () => {
-    gsap.to(inner, { y: -10, opacity: 0, duration: 0.1, overwrite: true, onComplete: () => {
-      inner.classList.add('nav-hover-italic');
-      gsap.fromTo(inner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.16 });
-    }});
-  });
-  pill.addEventListener('mouseleave', () => {
-    gsap.to(inner, { y: 10, opacity: 0, duration: 0.1, overwrite: true, onComplete: () => {
-      inner.classList.remove('nav-hover-italic');
-      gsap.fromTo(inner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.16 });
-    }});
-  });
+  const m = label.match(/^(\d+)\s+(.*)$/);
+  pill.innerHTML = m
+    ? `<span class="pill-num">${m[1]}</span><span class="pill-name">${m[2]}</span>`
+    : `<span class="pill-name">${label}</span>`;
+  pill._hover = false;
+  pill.addEventListener('mouseenter', () => { pill._hover = true; setPillOpen(pill); });
+  pill.addEventListener('mouseleave', () => { pill._hover = false; setPillOpen(pill); });
 });
 
-// Give each pill a fixed width that fits its label in both fonts, so the
-// font swap never nudges the neighbouring pills sideways.
+function setPillOpen(pill, force) {
+  const open = pill._hover || pill.classList.contains('active');
+  if (pill._open === open && !force) return;
+  pill._open = open;
+  pill.classList.toggle('is-open', open);
+  if (pill._wOpen) pill.style.width = (open ? pill._wOpen : pill._wClosed) + 'px';
+}
+
+// Measure each pill's two widths: number only, and number + name.
 function sizeWorkNavPills() {
   workNavPills.forEach((pill) => {
-    const inner = pill.querySelector('.pill-inner');
-    if (!inner) return;
-    const hovering = inner.classList.contains('nav-hover-italic');
-    pill.style.width = '';
-    inner.classList.remove('nav-hover-italic');
-    const plain = pill.getBoundingClientRect().width;
-    inner.classList.add('nav-hover-italic');
-    const italic = pill.getBoundingClientRect().width;
-    inner.classList.toggle('nav-hover-italic', hovering);
-    pill.style.boxSizing = 'border-box'; // measured width already includes padding
-    pill.style.width = Math.ceil(Math.max(plain, italic)) + 'px';
+    const num = pill.querySelector('.pill-num');
+    const name = pill.querySelector('.pill-name');
+    const cs = getComputedStyle(pill);
+    const pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const numW = num ? num.getBoundingClientRect().width : 0;
+    const nameW = name.getBoundingClientRect().width + parseFloat(getComputedStyle(name).marginLeft);
+    pill._wClosed = Math.ceil(pad + numW);
+    pill._wOpen = Math.ceil(pad + numW + nameW);
+    pill.style.transition = 'none';               // jump straight to the right size
+    setPillOpen(pill, true);
+    void pill.offsetWidth;
+    pill.style.transition = '';
   });
 }
 document.fonts.ready.then(sizeWorkNavPills);
+document.fonts.load("300 16px 'HafferXH'").then(sizeWorkNavPills); // re-measure once the numbers' font arrives
 window.addEventListener('resize', sizeWorkNavPills);
 
 function layoutCards() {
@@ -1720,7 +1769,7 @@ function layoutCards() {
     if (pos > N / 2) pos -= N;
 
     const absDist = Math.abs(pos);
-    const angle = pos * 26;
+    const angle = pos * CARD_ANGLE;
     const rad = angle * Math.PI / 180;
     const RADIUS = 1400;
     const x = Math.sin(rad) * RADIUS;
@@ -1984,9 +2033,6 @@ if (badge) {
   badge._targetLift = (hoveredCard === settlyfeCard) ? -50 : 0;
 }
 
-// hovering a card with a badge tilts that badge the opposite way
-setBadgeTilt(awardEl, hoveredCard === pentUpCard, AWARD_TILT);
-setBadgeTilt(badgeEl, hoveredCard === settlyfeCard, BADGE_TILT);
 
 const onCard = !!hoveredCard;
 if (onCard && !isBlobMode) expandToBlob(hoveredCard, false);
@@ -2019,7 +2065,9 @@ function updateWorkNavHighlight() {
   pills.forEach(pill => {
     const isActive = parseInt(pill.dataset.index) === active;
     pill.classList.toggle('active', isActive);
+    setPillOpen(pill);
   });
+  syncNavToCard();
 }
 
 function updateWorkNav() {
@@ -2032,6 +2080,8 @@ let awardVisible = false;
 // quick vertical bounce that settles back into place — the back image first, the
 // front one a beat later. (Each image also has blurred copies; all move together.)
 function jostleCardGraphics(card) {
+  // some live cards have their own hover animation
+  if (card.dataset.hoverAnim === 'circle') return regrowPhotoCircle(card);
   const back = card.querySelectorAll('.pc-graphic--back');
   const front = card.querySelectorAll('.pc-graphic--front');
   if (!back.length && !front.length) return;               // image-only cards: nothing to jostle
@@ -2044,6 +2094,20 @@ function jostleCardGraphics(card) {
   };
   bounce(back, 0);
   bounce(front, 0.08);
+}
+
+// deep24: the photo circle fades away, then springs back from its centre —
+// growing fast, overshooting a touch, and settling at its usual size.
+function regrowPhotoCircle(card) {
+  const pc = card.querySelector('.pc-card');
+  const photos = card.querySelectorAll('.pc-graphic--circle');
+  if (!pc || !photos.length) return;
+  gsap.killTweensOf([pc, photos]);
+  gsap.timeline()
+    .to(photos, { opacity: 0, duration: 0.2, ease: 'power1.out' })          // fade away
+    .set(pc, { '--circle-r': 0 })
+    .set(photos, { opacity: 1 })
+    .to(pc, { '--circle-r': 204.26, duration: 0.65, ease: 'back.out(1.5)' }); // pop back in
 }
 
 // Resting tilt of each badge (degrees); hovering its card flips it to the opposite tilt
@@ -2341,7 +2405,10 @@ document.querySelectorAll('.footer-anim').forEach(el => {
   el.style.transition = '';
 });
 
-gsap.set("#footer-main-content", { opacity: 0, y: 20 });
+// (the block itself only drifts up — each line does its own fade + slide. The
+// block used to fade in too, which hid the first line's slide: it moved while
+// the whole block was still nearly invisible.)
+gsap.set("#footer-main-content", { y: 20 });
 gsap.set('.footer-anim', { opacity: 0, y: 40 });
 gsap.set(".footer-star-wrapper", { opacity: 0, scale: 0.6 });
 
@@ -2349,7 +2416,7 @@ ScrollTrigger.create({
   trigger: ".footer-section", 
   start: "top 75%",
   onEnter: () => {
-    gsap.to("#footer-main-content", { opacity: 1, y: 0, duration: 1.0, ease: "power2.out" });
+    gsap.to("#footer-main-content", { y: 0, duration: 1.0, ease: "power2.out" });
     gsap.to('#footer-main-content .footer-anim', { 
       opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out",
       onComplete: () => {
@@ -2362,7 +2429,7 @@ ScrollTrigger.create({
     gsap.to(".footer-star-wrapper", { opacity: 1, scale: 1, rotation: "+=720", duration: 1.5, ease: "expo.out" });
   },
   onLeaveBack: () => {
-    gsap.to("#footer-main-content", { opacity: 0, y: 20, duration: 0.6, ease: "power2.in" });
+    gsap.to("#footer-main-content", { y: 20, duration: 0.6, ease: "power2.in" });
     gsap.to('.footer-anim', { opacity: 0, y: 20, duration: 0.6, stagger: 0.15, ease: "power2.in" });
     gsap.to(".footer-star-wrapper", { opacity: 0, scale: 0.6, duration: 1, ease: "power2.in" });
   }
@@ -2380,7 +2447,10 @@ ScrollTrigger.create({
     gsap.killTweensOf("#footer-main-content");
     gsap.killTweensOf('.footer-anim');
     gsap.killTweensOf(".footer-star-wrapper");
-    gsap.set("#footer-main-content", { opacity: 0, y: 20 });
+    // (the block itself only drifts up — each line does its own fade + slide. The
+// block used to fade in too, which hid the first line's slide: it moved while
+// the whole block was still nearly invisible.)
+gsap.set("#footer-main-content", { y: 20 });
     gsap.set('.footer-anim', { opacity: 0, y: 20 });
     gsap.set(".footer-star-wrapper", { opacity: 0, scale: 0.6 });
   }
@@ -2473,7 +2543,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (whoNavLink) {
     whoNavLink.addEventListener('click', (e) => {
       e.preventDefault();
-     wipeToPage('who/', '[ who ]');
+      window.fishtankPanels?.open('who');   // opens over the homepage (js/panels.js)
+    });
+  }
+  const playNavLink = document.querySelector('.nav-swap[data-default="play"]');
+  if (playNavLink) {
+    playNavLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.fishtankPanels?.open('play');
     });
   }
   // footer "with me!" button → contact page

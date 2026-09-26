@@ -2,6 +2,10 @@
 // Browsers don't play animated favicons (except Firefox), so this pre-draws the
 // asterisk at a set of angles once, then swaps the tab icon through them.
 // Works in Chrome, Edge and Firefox; Safari keeps showing the still icon.
+// PLAY SWITCH — "play" only shows on the local preview until it's ready.
+// (To launch it on the live site, delete this line.)
+if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) document.documentElement.classList.add('show-play');
+
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 

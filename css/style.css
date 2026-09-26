@@ -129,6 +129,47 @@
   letter-spacing: -0.05em;
 }
 
+/* Loading asterisk: like the tab icon's spin but slower + chunkier (one turn per 5s, in 18° ticks), in blue.
+   It sits dead centre; the "feeding the fish..." line hangs just below it. */
+.intro-star {
+  display: block;
+  width: 40px;
+  height: auto;
+  color: #0313E4;
+  animation: intro-star-spin 5s steps(20) infinite;   /* 18° ticks, 4 per second */
+}
+@keyframes intro-star-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .intro-star { animation: none; } }
+
+.intro-label {
+  position: absolute;
+  top: calc(100% + 18px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+/* the dots grow off the end, so "feeding the fish" itself stays centred */
+#intro-dots { position: absolute; left: 100%; }
+
+/* DEV ONLY (local preview): replay-the-intro button */
+.dev-replay-intro {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 100001;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px dashed rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font: 12px/1 'PP Neue Montreal', sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.dev-replay-intro:hover { background: #0313E4; border-style: solid; }
+
 
 
 /* Ripple transition */
@@ -679,6 +720,12 @@ background-color: #0313E4;
   opacity: 1;
   transform: translateX(0);
   transition: opacity 0.3s ease 0.68s, transform 0.3s ease 0.68s, color 0.25s ease;
+}
+
+.nav-pill.expanded .nav-link-item:nth-child(3) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.81s, transform 0.3s ease 0.81s, color 0.25s ease;
 }
 
 
@@ -1292,7 +1339,7 @@ background-color: #0313E4;
 }
 
 .block { display: block; }
-.footer-anim { display: block; transform: translateY(40px); opacity: 0; transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
+.footer-anim { display: block; transform: translateY(40px); opacity: 0; will-change: transform, opacity; } /* animated by GSAP (a CSS transition on top made it lag) */
 .reveal .footer-anim { transform: translateY(0); opacity: 1; }
 /* Footer "with me!" button — same hover as the project cards' "dive in":
    it lengthens to the right, grows 10% and fills in pink, and a round hole
@@ -1818,7 +1865,7 @@ a, button, [role="button"] {
   font-weight: 500;
   text-transform: lowercase;
 /*   letter-spacing: 0.03em; */
-  padding: 0.4rem 1.1rem;
+  padding: 0.5rem 0.7rem;   /* top/bottom, left/right */
   border-radius: 6px;
   opacity: 0;
   cursor: default;
@@ -1828,9 +1875,9 @@ a, button, [role="button"] {
 .work-nav-pill.active {
   /* half the pill's height = fully round. (30px looked the same but rounded
      fully within the first ~third of the transition, so it read as a jump) */
-  border-radius: 16px;
+  border-radius: 17.5px;
   background: rgba(0, 110, 233, 0.8);
-  color: #F5B7FF;
+  color: var(--pill-color, #F5B7FF);   /* each pill: its card's colour (set in index.html) */
 }
 
 /* Unselected pill sitting over a project card: darker text so it stays readable
@@ -1841,7 +1888,9 @@ a, button, [role="button"] {
 
 .work-nav-pill,
 .work-nav-pill.active {
-  transition: background 0.3s ease, color 0.3s ease, border-radius 0.3s ease !important;
+  /* width: a gentle spring (overshoots ~4%, then settles) */
+  transition: width 0.65s linear(0, 0.018, 0.065, 0.133, 0.214, 0.303, 0.394, 0.483, 0.569, 0.649, 0.721, 0.785, 0.841, 0.889, 0.929, 0.962, 0.988, 1.009, 1.024, 1.034, 1.041, 1.045, 1.046, 1.045, 1.043, 1.04, 1.037, 1.033, 1.029, 1.024, 1.02, 1.017, 1.013, 1.01, 1.008, 1.005, 1),
+              background 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 }
 
 .pent-up-award {
@@ -1992,7 +2041,6 @@ a, button, [role="button"] {
   height: var(--cta-arrow-size);
   margin-top: calc(var(--cta-arrow-size) / -2);
   border-radius: 50%;
-  background: currentColor;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2001,7 +2049,20 @@ a, button, [role="button"] {
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.12s ease;
 }
 
+/* the circle itself: pops open from a dot with a little bounce, and shrinks
+   away on leave (same as the footer "with me!" button's arrow) */
+.cta-arrow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  transform: scale(0);
+  transition: transform 0.2s ease;
+}
+
 .cta-arrow img {
+  position: relative;   /* sits on top of the circle */
   width: 52%;
   height: auto;
   display: block;
@@ -2012,6 +2073,10 @@ a, button, [role="button"] {
   transform: translateX(0);
   /* entering: jump to the pinned spot at once, then just ride the growing edge */
   transition: transform 0s, opacity 0.35s ease 0.05s;
+}
+.project-card.cta-hover .cta-arrow::before {
+  transform: scale(1);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s;
 }
 
 /* Intro reveal: canvas that draws the black + blue ripple and cuts the growing hole */
@@ -2132,13 +2197,31 @@ body.section2-offscreen .section-2-wrapper {
   visibility: hidden !important;
 }
 
-/* Work nav pills: label wrapper for the hover font swap (see main.js) */
+/* Work nav pills: number only; the name appears (and the pill springs wider)
+   when hovered or selected. main.js sets each pill's width. */
 .work-nav-pill {
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
 }
+.work-nav-pill .pill-num,
+.work-nav-pill .pill-name { flex-shrink: 0; }
 
-.pill-inner {
-  display: inline-block;
+/* the project number: same font as the numbers in the "work" dropdown menu */
+.work-nav-pill .pill-num {
+  font-family: 'HafferXH', monospace;
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
+.work-nav-pill .pill-name {
+  margin-left: 0.55em;          /* room between the number and the name */
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.work-nav-pill.is-open .pill-name {
+  opacity: 1;
+  transition: opacity 0.25s ease 0.06s;
 }
 
 /* Solid black stitched onto the bottom of the section 2 frame too, so no gap
@@ -2173,6 +2256,13 @@ body.section2-offscreen .section-2-wrapper {
    Laid out in the card's design units: the Figma frame is 447 × 584, so
    --u = 1 design px, scaled to whatever size the carousel shows the card.
    ================================ */
+@font-face {                       /* same file the work dropdown's numbers use */
+  font-family: 'HafferXH';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/HafferXHMono-TRIAL-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: 'Haffer XH Mono';
   src: url('../fonts/HafferXHMono-TRIAL-SemiBold.otf') format('opentype'); /* TRIAL font: local testing only */
@@ -2188,7 +2278,9 @@ body.section2-offscreen .section-2-wrapper {
 .pc-card {
   --u: calc(100cqw / 447);
   --pc-bg: #D2ABFF;
+  --pc-bg-rgb: 210 171 255;   /* same colour, for the bottom fade */
   --pc-tag: #C496F8;
+  --pc-cat-w: 159;            /* category tag width (design px) */
   --pc-ink: #000180;
   position: absolute;
   left: 0;
@@ -2232,7 +2324,7 @@ body.section2-offscreen .section-2-wrapper {
 }
 
 .pc-category {
-  width: calc(159 * var(--u));
+  width: calc(var(--pc-cat-w) * var(--u));
   border-radius: calc(4 * var(--u));
   font-family: 'PP Neue Montreal', sans-serif;
   font-weight: 400;
@@ -2321,9 +2413,44 @@ body.section2-offscreen .section-2-wrapper {
                      mask-image: linear-gradient(to bottom, transparent calc(528 * var(--u)), #000 calc(546 * var(--u))); }
 
 .pc-fade-color {
-  /* card lilac: 80% at the bottom edge, tapering to 0% toward the top */
-  background: linear-gradient(to bottom, rgba(210, 171, 255, 0) 8%, rgba(210, 171, 255, 0.8) 100%);
+  /* card colour: 80% at the bottom edge, tapering to 0% toward the top */
+  background: linear-gradient(to bottom, rgb(var(--pc-bg-rgb) / 0) 8%, rgb(var(--pc-bg-rgb) / 0.8) 100%);
 }
+
+/* --- deep24: same card, lilac-grey, the photo seen through a big circle --- */
+.pc-card--deep24 {
+  --pc-bg: #EFEDF8;
+  --pc-bg-rgb: 239 237 248;
+  --pc-tag: #DCD4FE;
+  --pc-cat-w: 172;
+  --circle-r: 204.26;           /* circle radius (design px); animated on hover */
+}
+/* the photo, cut out by a circle (centre 223.65, 521.59 on the card, matched to
+   the original card art). It's shown 8% larger than in the original (scaled
+   around the circle's centre) so the hover bounce, which briefly overshoots the
+   circle, never runs past the photo's edges. */
+.pc-card--deep24 .pc-graphic--circle {
+  width: calc(450.36 * var(--u));      /* 417 × 1.08 */
+  left: calc(-0.61 * var(--u));
+  top: calc(65.8 * var(--u));           /* nudged 6 design px lower inside the circle */
+  clip-path: circle(calc(var(--circle-r) * var(--u)) at calc(224.26 * var(--u)) calc(455.8 * var(--u)));
+}
+.pc-card--deep24 .pc-desc { top: calc(240.8 * var(--u)); }   /* sits a little lower on this card */
+
+/* --- settlyfe: same card, blue, with two tilted phones --- */
+.pc-card--settlyfe {
+  --pc-bg: #83E7FF;
+  --pc-bg-rgb: 131 231 255;
+  --pc-tag: #66C8F2;
+  --pc-cat-w: 117;
+}
+/* phones: 198 design px wide, tilted ~27° (positions matched to the original card art) */
+.pc-card--settlyfe .pc-graphic {
+  width: calc(198 * var(--u));
+  transform-origin: center center;
+}
+.pc-card--settlyfe .pc-graphic--back  { left: calc(2.25 * var(--u));  top: calc(302.5 * var(--u));  rotate: 26.9deg; }
+.pc-card--settlyfe .pc-graphic--front { left: calc(227.5 * var(--u)); top: calc(315.25 * var(--u)); rotate: 26.8deg; }
 
 /* Hero scroll cue: a small down arrow hanging just below the bottom-right text
    block (absolutely placed, so the text itself doesn't move). Bobbing is driven
@@ -2349,3 +2476,257 @@ body.section2-offscreen .section-2-wrapper {
   -webkit-user-drag: none;
   user-select: none;
 }
+
+
+/* ============================================================
+   WHO + PLAY PANELS — open over the homepage (see js/panels.js)
+   ============================================================ */
+.home-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;            /* above the page, below the nav (10000) and the splash */
+  background: #ffffff;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  visibility: hidden;
+}
+.home-panel.is-open { visibility: visible; }
+
+/* --- who --- */
+.home-panel--who { --card-bg: #F5F5F7; --text: #1D1D1F; }
+.who-wrapper {
+  width: 100%;
+  min-height: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.home-panel--who .who-card {
+  background: var(--card-bg);
+  border-radius: 30px;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+}
+.home-panel--who .who-photo-col {
+  padding: 32px 16px 32px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.home-panel--who .who-photo {
+  height: 85%;
+  width: auto;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 14px;
+  display: block;
+}
+.home-panel--who .who-text-col {
+  padding: 32px 80px 32px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+}
+.home-panel--who .who-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 84px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -1px;
+  margin: 0 0 4px;
+}
+.home-panel--who .who-title em { font-style: italic; }
+.home-panel--who .who-text-col p {
+  font-family: 'PP Neue Montreal', 'Helvetica Neue', Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--text);
+  margin: 0;
+}
+.home-panel--who .hl {
+  background-color: rgba(185, 228, 240, 0.65);
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+.home-panel--who .who-link { color: var(--text); text-decoration: underline; }
+.home-panel--who .who-signature-img {
+  position: absolute;
+  bottom: 32px;
+  right: 40px;
+  height: 130px;
+  width: auto;
+  display: block;
+}
+@media (max-width: 800px) {
+  .who-wrapper { height: auto; padding: 12px; }
+  .home-panel--who .who-card { grid-template-columns: 1fr; height: auto; padding-top: 70px; }
+  .home-panel--who .who-photo-col { padding: 16px; }
+  .home-panel--who .who-photo { height: auto; width: 100%; max-height: 60vh; }
+  .home-panel--who .who-text-col { padding: 8px 20px 170px; }
+  .home-panel--who .who-title { font-size: 56px; }
+}
+
+/* ================================
+   PLAY PANEL (mockup) — inside the homepage
+   ================================ */
+
+.home-panel--play {
+  --play-blue: #3136E6;
+  --sidebar-w: clamp(260px, 25vw, 420px);
+}
+
+
+/* ---------- sidebar (fixed) ---------- */
+.play-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  padding: 0 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 44px;
+  color: var(--play-blue);
+  /* periwinkle fading to lilac, with a faint diamond pattern */
+  background:
+    repeating-conic-gradient(from 45deg, rgba(255, 255, 255, 0.10) 0 25%, transparent 0 50%) 0 0 / 34px 34px,
+    linear-gradient(to bottom, #A9A9F6 0%, #BCB3F5 50%, #E7D6F7 100%);
+  z-index: 5;
+}
+
+.play-title-wrap { position: relative; }
+
+.play-star {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  left: 64%;
+  top: 50%;
+  margin-top: -64px;
+  color: #F4EE8C;
+  animation: play-star-spin 30s linear infinite;
+  pointer-events: none;
+}
+@keyframes play-star-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .play-star { animation: none; } }
+
+.play-title {
+  position: relative;
+  font-family: 'Unbounded', 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 2.2vw, 34px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+.play-subtitle {
+  position: relative;
+  margin-top: 6px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 14px;
+}
+
+.play-cats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+}
+.play-cat {
+  font-family: 'Zen Old Mincho', serif;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--play-blue);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+.play-cat:hover { transform: translateX(4px); }
+.play-cat.is-active::before { content: ">> "; }
+
+/* ---------- work (right) ---------- */
+.play-main {
+  margin-left: var(--sidebar-w);
+  padding: 130px 56px 120px;
+}
+
+.play-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  max-width: 1100px;
+}
+
+.play-col {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+/* staggered: the left column starts lower, under the heading */
+.play-col--left { padding-top: 80px; }
+.play-col--right { will-change: transform; }
+
+.play-heading {
+  margin-bottom: -16px;
+  font-family: 'Zen Old Mincho', serif;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--play-blue);
+}
+
+/* placeholder pieces (swap for real images later) */
+.play-piece {
+  width: 100%;
+  border-radius: 14px;
+  background: var(--piece-bg, #ECEBF7);
+  display: flex;
+  align-items: flex-end;
+  padding: 14px 16px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(49, 54, 230, 0.55);
+  animation: play-piece-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes play-piece-in {
+  from { opacity: 0; transform: translateY(24px); }
+}
+
+/* ---------- smaller screens: sidebar on top, one column ---------- */
+@media (max-width: 800px) {
+  .play-sidebar {
+    position: relative;
+    width: auto;
+    padding: 110px 20px 32px;
+    gap: 28px;
+  }
+  .play-cats { flex-direction: row; flex-wrap: wrap; gap: 10px 18px; }
+  .play-main { margin-left: 0; padding: 32px 16px 80px; }
+  .play-grid { grid-template-columns: 1fr; gap: 20px; }
+  .play-col { gap: 20px; }
+  .play-col--left { padding-top: 0; }
+  .play-col--right { transform: none !important; }
+}
+
+/* PLAY is still being built: hidden on the live site, shown on the local
+   preview (js/favicon.js adds .show-play on localhost). To launch it, remove
+   the line marked PLAY SWITCH in js/favicon.js. */
+html:not(.show-play) .nav-link-item[data-default="play"] { display: none; }

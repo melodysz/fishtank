@@ -17,8 +17,8 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="style.css?v=8">
-  <link rel="stylesheet" href="../css/page-wipe.css?v=6">
+  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=7">
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
   <link rel="expect" href="#page-entry-overlay" blocking="render">
 <link rel="icon" type="image/x-icon" href="https://melodysz.github.io/baubles/favicon.ico">
@@ -55,7 +55,8 @@
         <div class="nav-work-wrap" id="navWorkWrap">
 <a href="../#third-section" class="interactable nav-link-item" data-default="work" data-hover="work!">work</a>
         </div>
-        <a href="../who/" class="interactable nav-link-item" data-default="who" data-hover="who?">who</a>
+        <a href="../#who" class="interactable nav-link-item" data-default="who" data-hover="who?">who</a>
+        <a href="../#play" class="interactable nav-link-item" data-default="play" data-hover="play!">play</a>
       </div>
     </div>
   </div>
@@ -69,14 +70,17 @@
 </div>
 <div class="work-bubble" id="workBubble" aria-hidden="true">
   <div class="bubble-menu">
+    <a href="../#third-section" class="bubble-item interactable">
+      <span class="bubble-num">01</span>creatify
+    </a>
     <a href="../deep24/" class="bubble-item interactable">
-      <span class="bubble-num">01</span>deep24
+      <span class="bubble-num">02</span>deep24
     </a>
     <a href="../pent-up/" class="bubble-item interactable">
-      <span class="bubble-num">02</span>pent up
+      <span class="bubble-num">03</span>pent up
     </a>
     <a href="../knouri/" class="bubble-item interactable">
-      <span class="bubble-num">03</span>knouri
+      <span class="bubble-num">04</span>knouri
     </a>
   </div>
 </div>
@@ -744,8 +748,8 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
-<script src="../js/favicon.js?v=1"></script>
-<script src="../js/page-wipe.js?v=8"></script>
-<script src="main.js?v=10"></script>
+<script src="../js/favicon.js?v=2"></script>
+<script src="../js/page-wipe.js?v=10"></script>
+<script src="main.js?v=11"></script>
 </body>
 </html>

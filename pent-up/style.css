@@ -316,6 +316,12 @@ body, html { margin: 0; padding: 0; }
   transition: opacity 0.3s ease 0.68s, transform 0.3s ease 0.68s, color 0.25s ease;
 }
 
+.nav-pill.expanded .nav-link-item:nth-child(3) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.81s, transform 0.3s ease 0.81s, color 0.25s ease;
+}
+
 .nav-asterisk img { display: block; }
 
 /* Footer mode — orange tint to match pent up footer */
