@@ -2,8 +2,8 @@
    CONTACT FORM
    Sends through FormSubmit (formsubmit.co), a free service that
    emails form entries to Melody — no server needed for a static site.
-   If "receipt" is ticked, FormSubmit also emails the sender a copy
-   of their message (its "autoresponse" feature).
+   If "receipt" is ticked, the sender is CC'd on that email, so they
+   get a copy of their message too.
    ============================================================ */
 (function () {
   const TO = 'melodyserenazhang@gmail.com';
@@ -89,7 +89,7 @@
 
     const payload = {
       name: d.name,
-      email: d.email,               // FormSubmit sends the receipt to this address
+      email: d.email,
       company: d.company || '—',
       subject: d.subject,
       message: d.message,
@@ -98,11 +98,9 @@
       _template: 'table',
       _captcha: 'false',
     };
-    if (d.wantsReceipt) {
-      payload._autoresponse =
-        `Hi ${d.name}! Thanks for reaching out — your message landed safely in Melody's inbox, ` +
-        `and she'll get back to you soon. Here's a copy of what you sent, for your records. ✶`;
-    }
+    // receipt: CC them on the same email Melody gets (a copy of everything they wrote).
+    // (FormSubmit's own "autoresponse" doesn't work for forms sent in the background like this one.)
+    if (d.wantsReceipt) payload._cc = d.email;
 
     sendBtn.disabled = true;
     sendBtn.textContent = 'sending…';
