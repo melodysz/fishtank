@@ -1046,6 +1046,7 @@ onStart: () => {
       carouselReady = false;
       window._carouselFade = 0;
       carouselEl.style.opacity = '0';
+      stopGlide();
       offset = 0;
       velX = 0;
       layoutCards();
@@ -1664,7 +1665,6 @@ let lastX = 0;
 let didDrag = false;
 let rafId;
 let carouselReady = false;
-let spinToAborted = false;
 let isInteracting = false;
 const awardEl = document.querySelector('.pent-up-award');
 const badgeEl = document.querySelector('.coming-soon-badge');
@@ -1763,62 +1763,102 @@ function updatePillContrast() {
   });
 }
 
-function snapToNearest() {
+// ============================================
+// CAROUSEL MOTION — "glide"
+// When you let go (drag release, or a trackpad flick), we work out where the
+// spin would naturally coast to and pick the card nearest that spot. Then one
+// smooth slow-down carries it there: it starts at exactly the speed you let go
+// at and eases to a stop right on the card — no separate "course-correct",
+// and no long creep at the end (it finishes at a definite moment).
+// offset is in cards; velX is in cards per second.
+// ============================================
+const GLIDE = {
+  coast: 0.3,      // how far a flick coasts: speed × this (seconds). Higher = spins further
+  minTime: 0.3,    // shortest / longest a glide can take (seconds)
+  maxTime: 1.1,
+  maxCards: 4,     // the most cards one flick can travel
+};
+let glide = null;
+
+// Moves from here to `target` in `duration` seconds, starting at speed v0 and
+// arriving at speed 0 (a cubic curve). When duration = 3 × distance ÷ v0 the
+// speed just fades away smoothly, like friction.
+function glideTo(target, v0, duration, opts = {}) {
   cancelAnimationFrame(rafId);
-  velX = 0;
-  const target = Math.round(offset);
-  function step() {
-    const remaining = target - offset;
-    if (Math.abs(remaining) < 0.001) {
-      offset = target;
-      layoutCards();
-      return;
-    }
-    offset += remaining * 0.14;
-    layoutCards();
-    rafId = requestAnimationFrame(step);
+  velX = v0;
+  glide = { from: offset, target, v0, duration: Math.max(0.05, duration), t0: performance.now(), ...opts };
+  rafId = requestAnimationFrame(glideStep);
+}
+function glideStep(now) {
+  const g = glide;
+  if (!g) return;
+  const D = g.duration, u = Math.min(1, (now - g.t0) / 1000 / D);
+  const dist = g.target - g.from;
+  offset = g.from + dist * (3 * u * u - 2 * u * u * u) + g.v0 * D * (u - 2 * u * u + u * u * u);
+  velX = dist * (6 * u - 6 * u * u) / D + g.v0 * (1 - 4 * u + 3 * u * u);
+  if (u >= 1) offset = g.target;
+  layoutCards();
+  if (g.onNear && !g.nearDone && Math.abs(g.target - offset) < 0.03) { g.nearDone = true; g.onNear(); }
+  if (u >= 1) {
+    velX = 0; glide = null;
+    if (g.onArrive) g.onArrive();
+    return;
   }
-  rafId = requestAnimationFrame(step);
+  rafId = requestAnimationFrame(glideStep);
+}
+function stopGlide() { cancelAnimationFrame(rafId); glide = null; }
+
+// Let go at speed v: coast onto the card nearest where it would naturally stop.
+function settleFrom(v) {
+  hideAward();
+  const reach = Math.max(-GLIDE.maxCards, Math.min(GLIDE.maxCards, v * GLIDE.coast));
+  let target = Math.round(offset + reach);
+  const moving = Math.abs(v) > 0.05;
+  // a real swipe never gets pulled backwards: go to the next card ahead instead
+  if (Math.abs(v) > 1.5 && Math.sign(target - offset) !== Math.sign(v)) {
+    target = v > 0 ? Math.ceil(offset + 0.001) : Math.floor(offset - 0.001);
+  }
+  // too fast to stop that soon without overshooting and coming back? go one card further
+  if (moving && Math.sign(target - offset) === Math.sign(v) && 3 * Math.abs(target - offset) / Math.abs(v) < GLIDE.minTime) {
+    target += Math.sign(v);
+  }
+  const dist = target - offset;
+  let duration = moving && Math.sign(dist) === Math.sign(v)
+    ? 3 * Math.abs(dist) / Math.abs(v)          // pure slow-down from your speed
+    : 0.35 + 0.35 * Math.min(1, Math.abs(dist) * 2); // (barely moving: a gentle settle)
+  duration = Math.min(GLIDE.maxTime, Math.max(GLIDE.minTime, duration));
+  glideTo(target, v, duration, { onArrive: () => onCarouselSettled(target) });
 }
 
-// REPLACE applyMomentum entirely:
-function applyMomentum() {
-  hideAward();
-  cancelAnimationFrame(rafId);
-  
-  const target = Math.round(offset + velX * 8);
-  const distToTarget = target - offset;
-  velX = distToTarget * 0.18;
-  
-  function step() {
-    offset += velX;
-    velX *= 0.82;
-    layoutCards();
-    
-    if (Math.abs(velX) > 0.0001) {
-      rafId = requestAnimationFrame(step);
-} else {
-  offset = target;
-  velX = 0;
+function onCarouselSettled(target) {
   isInteracting = false;
-  layoutCards();
   updateWorkNav();
-const settled = ((target % N) + N) % N;
-if (settled === PENT_UP_INDEX) {
-  const myToken = ++awardToken;
-  setTimeout(() => {
-    if (myToken === awardToken && !isInteracting) showAward();
-  }, 0);
-}
-if (settled === SETTLYFE_INDEX) {
-  const myToken = ++awardToken;
-  setTimeout(() => {
-    if (myToken === awardToken && !isInteracting) showBadge();
-  }, 0);
-}
-}
+  const settled = ((target % N) + N) % N;
+  if (settled === PENT_UP_INDEX) {
+    const myToken = ++awardToken;
+    setTimeout(() => { if (myToken === awardToken && !isInteracting) showAward(); }, 0);
   }
-  step();
+  if (settled === SETTLYFE_INDEX) {
+    const myToken = ++awardToken;
+    setTimeout(() => { if (myToken === awardToken && !isInteracting) showBadge(); }, 0);
+  }
+}
+
+// Recent positions while dragging/swiping, to measure the speed at let-go.
+const motionSamples = [];
+function sampleMotion() {
+  const t = performance.now();
+  motionSamples.push({ t, x: offset });
+  while (motionSamples.length > 2 && t - motionSamples[0].t > 100) motionSamples.shift();
+}
+function releaseVelocity() {
+  const t = performance.now();
+  const recent = motionSamples.filter((m) => t - m.t <= 100);
+  if (recent.length < 2) return 0;
+  const a = recent[0], b = recent[recent.length - 1];
+  if (t - b.t > 60) return 0;            // they stopped moving before letting go
+  const dt = (b.t - a.t) / 1000;
+  return dt > 0.008 ? (b.x - a.x) / dt : 0;
 }
 
 carouselEl.addEventListener('click', (e) => {
@@ -1836,14 +1876,15 @@ carouselEl.addEventListener('dragstart', (e) => e.preventDefault());
 carouselEl.addEventListener('pointerdown', (e) => {
   if (!carouselReady) return;
   isInteracting = true;
-  spinToAborted = true;
   // hideAward();
   // hideBadge();
   dragging = true;
   didDrag = false;
   startX = e.clientX; startOffset = offset; velX = 0; lastX = e.clientX;
   carouselEl.setPointerCapture(e.pointerId);
-  cancelAnimationFrame(rafId);
+  stopGlide();
+  motionSamples.length = 0;
+  sampleMotion();
 });
 
 carouselEl.addEventListener('pointermove', (e) => {
@@ -1853,10 +1894,9 @@ carouselEl.addEventListener('pointermove', (e) => {
     hideAward();
     hideBadge(); // ← only hides once actual drag movement detected
   }
-  const rawDelta = -(e.clientX - lastX) / 360;
-  velX = rawDelta;
-  offset += rawDelta;
+  offset += -(e.clientX - lastX) / 360;
   lastX = e.clientX;
+  sampleMotion();
   layoutCards();
 });
 
@@ -1870,7 +1910,7 @@ carouselEl.addEventListener('pointerup', (e) => {
     if (clickedCard) openProject(Number(clickedCard.getAttribute('data-index')));
     return;
   }
-  applyMomentum();
+  settleFrom(releaseVelocity());
 });
 
 carouselEl.addEventListener('touchstart', (e) => {
@@ -1884,7 +1924,9 @@ carouselEl.addEventListener('touchstart', (e) => {
   startOffset = offset;
   velX = 0;
   lastX = e.touches[0].clientX;
-  cancelAnimationFrame(rafId);
+  stopGlide();
+  motionSamples.length = 0;
+  sampleMotion();
 }, { passive: true });
 
 carouselEl.addEventListener('touchmove', (e) => {
@@ -1894,9 +1936,9 @@ carouselEl.addEventListener('touchmove', (e) => {
     didDrag = true;
     hideAward(); // ← add this
   }
-  velX = -(e.touches[0].clientX - lastX) / 360;
   offset = startOffset - dx / 360;
   lastX = e.touches[0].clientX;
+  sampleMotion();
   layoutCards();
 }, { passive: false });
 
@@ -1910,7 +1952,7 @@ carouselEl.addEventListener('touchend', () => {
     openProject(Number(cards[idx]?.getAttribute('data-index')));
     return;
   }
-  applyMomentum();
+  settleFrom(releaseVelocity());
 });
 
 window._carouselFade = 0;
@@ -2086,40 +2128,24 @@ pill.addEventListener('click', () => {
     if (target === current) { jostleCardGraphics(cards[target]); return; }
   hideAward();
   hideBadge(); // ← add this
-  spinToAborted = false;
 
     let delta = target - current;
     if (delta > N / 2) delta -= N;
     if (delta < -N / 2) delta += N;
 
     const destination = Math.round(offset) + delta;
-    cancelAnimationFrame(rafId);
-    velX = (destination - offset) * 0.18;
-
-    let jostled = false;
-function spinTo() {
-  if (spinToAborted) return;
-  offset += velX;
-  velX *= 0.82;
-  layoutCards();
-  // the card has visually arrived: its graphics get the hover "hop" (not the button)
-  if (!jostled && Math.abs(destination - offset) < 0.03) {
-    jostled = true;
-    jostleCardGraphics(cards[((destination % N) + N) % N]);
-  }
-  if (Math.abs(destination - offset) > 0.001) {
-    rafId = requestAnimationFrame(spinTo);
-  } else {
-    offset = destination;
-    velX = 0;
-    layoutCards();
-    updateWorkNav();
-const settled = ((destination % N) + N) % N;
-if (settled === PENT_UP_INDEX) showAward();
-if (settled === SETTLYFE_INDEX) showBadge();
-  }
-}
-    rafId = requestAnimationFrame(spinTo);
+    // same smooth slow-down as a flick, bent to land on the chosen card
+    const duration = 0.6 + 0.12 * Math.abs(destination - offset);
+    glideTo(destination, 3 * (destination - offset) / duration, duration, {
+      // the card has visually arrived: its graphics get the hover "hop" (not the button)
+      onNear: () => jostleCardGraphics(cards[((destination % N) + N) % N]),
+      onArrive: () => {
+        updateWorkNav();
+        const settled = ((destination % N) + N) % N;
+        if (settled === PENT_UP_INDEX) showAward();
+        if (settled === SETTLYFE_INDEX) showBadge();
+      },
+    });
   });
 });
 
@@ -2286,6 +2312,7 @@ onLeaveBack: () => {
     carouselReady = false;
     window._carouselFade = 0;
     carouselEl.style.opacity = '0';
+    stopGlide();
     offset = 3;
     velX = 0;
     layoutCards();
@@ -2497,21 +2524,66 @@ if (skipIntro) {
 
 
 
+// TRACKPAD SWIPES on the carousel.
+// While your fingers are on the trackpad, the carousel follows them 1:1. The
+// moment you let go, macOS keeps sending "coasting" events that fade out slowly
+// — that fade used to be followed, then corrected, which caused the lull + nudge.
+// Now, as soon as the events start fading, we take the current speed and glide
+// onto a card ourselves, and ignore the rest of the fade (unless your fingers
+// come back: a reversal, or the swipe speeding up again).
+const wheelSwipe = { mode: 'idle', lastT: 0, dir: 0, mags: [], fading: 0, timer: 0 };
+function carouselWheel(dx) {
+  const w = wheelSwipe;
+  const now = performance.now();
+  const mag = Math.abs(dx), dir = Math.sign(dx);
+  const prev = w.mags.length ? w.mags[w.mags.length - 1] : 0;
+  if (now - w.lastT > (w.mode === 'coast' ? 350 : 140)) {   // a brand-new swipe
+    w.mode = 'track'; w.mags = []; w.fading = 0;
+    motionSamples.length = 0;
+  }
+  w.lastT = now;
+
+  if (w.mode === 'coast') {
+    const reversed = dir !== w.dir && mag > 2;
+    const speedingUp = mag >= 4 && mag > Math.max(...w.mags.slice(-3), 0) * 1.2;
+    w.mags.push(mag); if (w.mags.length > 8) w.mags.shift();
+    if (!reversed && !speedingUp) return;   // just the fade-out: ignore
+    w.mode = 'track'; w.fading = 0; motionSamples.length = 0;
+  } else {
+    w.mags.push(mag); if (w.mags.length > 8) w.mags.shift();
+  }
+
+  // following the fingers
+  hideAward();
+  hideBadge();
+  isInteracting = true;
+  if (glide) stopGlide();
+  if (!motionSamples.length) sampleMotion();
+  offset += dx / 360;
+  w.dir = dir;
+  sampleMotion();
+  layoutCards();
+
+  // the fade has started (5 events in a row each no bigger than the last)?
+  const peak = Math.max(...w.mags);
+  w.fading = mag <= prev && prev > 0 ? w.fading + 1 : 0;
+  clearTimeout(w.timer);
+  if (w.fading >= 5 && mag < peak * 0.85) { letGoOfWheel(); return; }
+  // or the events simply stopped (no coasting, or a mouse wheel)
+  w.timer = setTimeout(() => { if (w.mode === 'track') letGoOfWheel(); }, 70);
+}
+function letGoOfWheel() {
+  wheelSwipe.mode = 'coast';
+  clearTimeout(wheelSwipe.timer);
+  settleFrom(releaseVelocity());
+}
+
 window.addEventListener('wheel', (e) => {
   const overCarousel = carouselEl.contains(e.target) || e.target === carouselEl;
 
   if (overCarousel) {
     e.preventDefault();
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-      hideAward();
-hideBadge(); // ← add this
-      cancelAnimationFrame(rafId);
-      velX = e.deltaX / 600;
-      offset += e.deltaX / 360;
-      layoutCards();
-      clearTimeout(window._carouselSnapTimer);
-      window._carouselSnapTimer = setTimeout(() => applyMomentum(), 80);
-    }
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) carouselWheel(e.deltaX);
     return;
   }
 
