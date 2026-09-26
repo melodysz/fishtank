@@ -181,23 +181,95 @@ const heroWindowReady = new Promise((resolve) => {
   heroWindowMask.onload = () => { drawHeroWindow(); resolve(); };
   heroWindowMask.onerror = resolve;
 });
+heroWindowMask.crossOrigin = 'anonymous';   // (lets the intro read the porthole's shape to find its centre)
 heroWindowMask.src = 'https://melodysz.github.io/baubles/mask.webp';
+
+// How open the porthole is: 1 = normal, near 0 = a pinhole (the intro grows it open)
+var heroWindowOpen = 1;
+let heroHole = null;   // { canvas, cx, cy }: just the porthole shape (solid), for drawing it scaled
 
 function drawHeroWindow() {
   if (!heroWindowCanvas || !heroWindowMask.naturalWidth) return;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const w = Math.round(window.innerWidth * dpr), h = Math.round(window.innerHeight * dpr);
-  heroWindowCanvas.width = w;
-  heroWindowCanvas.height = h;
+  if (heroWindowCanvas.width !== w || heroWindowCanvas.height !== h) {
+    heroWindowCanvas.width = w;
+    heroWindowCanvas.height = h;
+    heroHole = null;
+  }
   const ctx = heroWindowCanvas.getContext('2d');
-  ctx.fillStyle = '#000000';
-  ctx.fillRect(0, 0, w, h);
-  // keep the black only where the mask image is solid — same as CSS mask-size: cover, centered
+  // mask image placement — same as CSS mask-size: cover, centered
   const sc = Math.max(w / heroWindowMask.naturalWidth, h / heroWindowMask.naturalHeight);
   const mw = heroWindowMask.naturalWidth * sc, mh = heroWindowMask.naturalHeight * sc;
-  ctx.globalCompositeOperation = 'destination-in';
-  ctx.drawImage(heroWindowMask, (w - mw) / 2, (h - mh) / 2, mw, mh);
+  const mx = (w - mw) / 2, my = (h - mh) / 2;
   ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, w, h);
+  if (heroWindowOpen >= 1) {
+    // normal: keep the black only where the mask image is solid
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.drawImage(heroWindowMask, mx, my, mw, mh);
+  } else {
+    // opening: cut out the porthole shape, scaled down around its own centre
+    if (!heroHole) heroHole = buildHeroHole(w, h, mx, my, mw, mh);
+    const k = Math.max(0.001, heroWindowOpen);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.setTransform(k, 0, 0, k, heroHole.cx * (1 - k), heroHole.cy * (1 - k));
+    ctx.drawImage(heroHole.canvas, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // Solid black from just under the porthole to the bottom of the screen. (The
+  // window image's bottom edge fades out unevenly in the middle, which showed as a
+  // ragged cut-off — especially once the hero zooms in.) The porthole's lowest
+  // point is at 72.5% of the image's height.
+  ctx.globalCompositeOperation = 'source-over';
+  const bandTop = my + mh * 0.74;
+  ctx.fillRect(0, bandTop, w, h - bandTop);
+}
+
+// The porthole on its own (solid where the window is see-through), plus its centre.
+function buildHeroHole(w, h, mx, my, mw, mh) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const hc = c.getContext('2d');
+  hc.fillStyle = '#000000';
+  hc.fillRect(0, 0, w, h);
+  hc.globalCompositeOperation = 'destination-out';
+  hc.drawImage(heroWindowMask, mx, my, mw, mh);
+  // keep only the porthole itself (36–64% across, 27–72% down the image): the image
+  // also has a faded bottom edge and a few stray see-through pixels round its
+  // border, which showed as a bluish sliver while the porthole was small
+  const bx0 = mx + mw * 0.355, bx1 = mx + mw * 0.645, by0 = my + mh * 0.27, by1 = my + mh * 0.728;
+  hc.clearRect(0, 0, w, by0);
+  hc.clearRect(0, by1, w, h - by1);
+  hc.clearRect(0, 0, bx0, h);
+  hc.clearRect(bx1, 0, w - bx1, h);
+  // find the porthole's centre on a small copy (cheap)
+  const sw = 160, sh = Math.max(1, Math.round(160 * h / w));
+  const small = document.createElement('canvas');
+  small.width = sw; small.height = sh;
+  const sctx = small.getContext('2d');
+  sctx.drawImage(c, 0, 0, sw, sh);
+  let px;
+  try { px = sctx.getImageData(0, 0, sw, sh).data; } catch (e) { return { canvas: c, cx: w / 2, cy: h / 2 }; }
+  let x0 = sw, x1 = 0, y0 = sh, y1 = 0;
+  for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
+    if (px[(y * sw + x) * 4 + 3] > 128) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  const found = x1 >= x0;
+  return { canvas: c, cx: found ? ((x0 + x1 + 1) / 2) * (w / sw) : w / 2, cy: found ? ((y0 + y1 + 1) / 2) * (h / sh) : h / 2 };
+}
+
+// Intro: the porthole grows from a pinhole to its normal size, easing to a stop.
+function openHeroWindow() {
+  const state = { k: 0.02 };
+  heroWindowOpen = state.k;
+  drawHeroWindow();
+  gsap.to(state, {
+    k: 1, duration: 2.0, ease: 'power3.out',   // fast at first, easing to a gentle stop
+    onUpdate: () => { heroWindowOpen = state.k; drawHeroWindow(); },
+    onComplete: () => { heroWindowOpen = 1; heroHole = null; drawHeroWindow(); },   // back to the exact drawing
+  });
 }
 window.addEventListener('resize', drawHeroWindow);
 
@@ -273,8 +345,12 @@ function playHeroFishIn() {
 
 gsap.set('.sec2-bubble, .sec2-flower', { opacity: 0, y: 20 });
 gsap.set('#scrollHint', { opacity: 0, y: -18 });
+// Section 3's background bubbles + pink flowers: how see-through they are once shown (1 = solid)
+var THIRD_DECOR_OPACITY = 0.7;
 gsap.set('.bubble-decor, .flower-decor', { opacity: 0, y: 20 });
-gsap.set('.dangles-decor', { y: DANGLES_REST_Y, opacity: 1 }); // no intro: they move with the frame (parallax) instead
+// yPercent: start higher by 20% of their own height, so the tips of the shorter
+// strands stay hidden behind the frame until section 3 covers them
+gsap.set('.dangles-decor', { y: DANGLES_REST_Y, yPercent: -20, opacity: 1 }); // no intro: they move with the frame (parallax) instead
 
 function playHeroIdentityIn() {
   const heroLines = [
@@ -468,6 +544,7 @@ scalingRig.style.filter = "brightness(0.25)";
           }
 
           applyMask(obj.r);
+          openHeroWindow();   // the porthole grows open as the hero is revealed
 
           gsap.to(obj, {
             r: maxR,
@@ -1847,7 +1924,8 @@ function glideStep(now) {
   velX = dist * (6 * u - 6 * u * u) / D + g.v0 * (1 - 4 * u + 3 * u * u);
   if (u >= 1) offset = g.target;
   layoutCards();
-  if (g.onNear && !g.nearDone && Math.abs(g.target - offset) < 0.03) { g.nearDone = true; g.onNear(); }
+  // onNear fires once the card has nearly arrived — or earlier, at nearAt (fraction of the glide's time)
+  if (g.onNear && !g.nearDone && (u >= (g.nearAt ?? 1) || Math.abs(g.target - offset) < 0.03)) { g.nearDone = true; g.onNear(); }
   if (u >= 1) {
     velX = 0; glide = null;
     if (g.onArrive) g.onArrive();
@@ -2080,8 +2158,10 @@ let awardVisible = false;
 // quick vertical bounce that settles back into place — the back image first, the
 // front one a beat later. (Each image also has blurred copies; all move together.)
 function jostleCardGraphics(card) {
+  spinCardAsterisk(card);
   // some live cards have their own hover animation
-  if (card.dataset.hoverAnim === 'circle') return regrowPhotoCircle(card);
+  if (card.dataset.hoverAnim === 'circle') return regrowPhotoShape(card, '--circle-r', 204.26);
+  if (card.dataset.hoverAnim === 'stadium') return regrowPhotoShape(card, '--shape-k', 1);
   const back = card.querySelectorAll('.pc-graphic--back');
   const front = card.querySelectorAll('.pc-graphic--front');
   if (!back.length && !front.length) return;               // image-only cards: nothing to jostle
@@ -2096,18 +2176,29 @@ function jostleCardGraphics(card) {
   bounce(front, 0.08);
 }
 
-// deep24: the photo circle fades away, then springs back from its centre —
-// growing fast, overshooting a touch, and settling at its usual size.
-function regrowPhotoCircle(card) {
+// deep24 (circle) + knouri (stadium): the photo's shape fades away, then springs
+// back from its centre — growing fast, overshooting a touch, and settling at
+// its usual size. `sizeVar` is the CSS variable that sizes the shape.
+function regrowPhotoShape(card, sizeVar, fullSize) {
   const pc = card.querySelector('.pc-card');
-  const photos = card.querySelectorAll('.pc-graphic--circle');
+  const photos = card.querySelectorAll('.pc-graphic--circle, .pc-graphic--shape');
   if (!pc || !photos.length) return;
   gsap.killTweensOf([pc, photos]);
   gsap.timeline()
-    .to(photos, { opacity: 0, duration: 0.2, ease: 'power1.out' })          // fade away
-    .set(pc, { '--circle-r': 0 })
+    .to(photos, { opacity: 0, duration: 0.2, ease: 'power1.out' })            // fade away
+    .set(pc, { [sizeVar]: 0 })
     .set(photos, { opacity: 1 })
-    .to(pc, { '--circle-r': 204.26, duration: 0.65, ease: 'back.out(1.5)' }); // pop back in
+    .to(pc, { [sizeVar]: fullSize, duration: 0.65, ease: 'back.out(1.5)' });  // pop back in
+}
+
+// (trying it out) the card's asterisk spins once, from its resting tilt back to it
+function spinCardAsterisk(card) {
+  const ast = card.querySelector('.pc-asterisk');
+  if (!ast || !ast.animate) return;
+  ast.animate(
+    [{ transform: 'rotate(-12.8deg)' }, { transform: 'rotate(347.2deg)' }],
+    { duration: 900, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }   // quick start, easing to a stop
+  );
 }
 
 // Resting tilt of each badge (degrees); hovering its card flips it to the opposite tilt
@@ -2201,7 +2292,8 @@ pill.addEventListener('click', () => {
     // same smooth slow-down as a flick, bent to land on the chosen card
     const duration = 0.6 + 0.12 * Math.abs(destination - offset);
     glideTo(destination, 3 * (destination - offset) / duration, duration, {
-      // the card has visually arrived: its graphics get the hover "hop" (not the button)
+      // the card's hover animation plays as it's pulling in (not once it's fully still)
+      nearAt: 0.4,   // 40% of the glide's time ≈ 78% of the way there
       onNear: () => jostleCardGraphics(cards[((destination % N) + N) % N]),
       onArrive: () => {
         updateWorkNav();
@@ -2357,12 +2449,12 @@ if (settled === SETTLYFE_INDEX && scrollEnteredWork) showBadge();
     }
     gsap.fromTo('.bubble-decor',
       { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out", delay: 0.2, overwrite: true }
+      { opacity: THIRD_DECOR_OPACITY, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out", delay: 0.2, overwrite: true }
     );
     stopFlowerScrollSpin();
     gsap.fromTo('.flower-decor',
       { opacity: 0, y: 20, scale: 0.2, rotation: 0 },
-      { opacity: 1, y: 0, scale: 1.5, rotation: 2160, duration: 2.5, ease: "expo.out", delay: 0.2, overwrite: true,
+      { opacity: THIRD_DECOR_OPACITY, y: 0, scale: 1.5, rotation: 2160, duration: 2.5, ease: "expo.out", delay: 0.2, overwrite: true,
         // each asterisk hands off to scroll-spinning once its own spin-in finishes
         stagger: { each: 0.15, onComplete() { startFlowerScrollSpin(this.targets()[0]); } }
       }

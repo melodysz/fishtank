@@ -591,13 +591,15 @@ background-color: #0313E4;
 .nav-pill-wrap {
   position: fixed;
   top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  /* spans the screen so its asterisk and last link line up with the footer's
+     small text (48px from each edge): the asterisk sits 9px inside the nav's
+     left edge, the last link's text 43.5px inside its right edge */
+  left: 39px;
+  right: 4.5px;
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: min(1320px, calc(100vw - 80px));
   pointer-events: none;
   opacity: 0;
 }
@@ -1861,7 +1863,7 @@ a, button, [role="button"] {
   backdrop-filter: blur(10px);
   color: #2584EE;
   font-family: 'PP Neue Montreal', sans-serif;
-  font-size: 0.95rem;
+  font-size: 18px;   /* same as the main nav links */
   font-weight: 500;
   text-transform: lowercase;
 /*   letter-spacing: 0.03em; */
@@ -1875,7 +1877,7 @@ a, button, [role="button"] {
 .work-nav-pill.active {
   /* half the pill's height = fully round. (30px looked the same but rounded
      fully within the first ~third of the transition, so it read as a jump) */
-  border-radius: 17.5px;
+  border-radius: 18.5px;
   background: rgba(0, 110, 233, 0.8);
   color: var(--pill-color, #F5B7FF);   /* each pill: its card's colour (set in index.html) */
 }
@@ -2289,6 +2291,10 @@ body.section2-offscreen .section-2-wrapper {
   height: calc(584 * var(--u));
   border-radius: calc(20 * var(--u));
   overflow: hidden;              /* clipping mask: nothing spills past the rounded card */
+  /* the same rounded clip again as a clip-path: Chrome keeps applying this one even
+     while something inside is animating (the rounded overflow clip alone could
+     briefly drop, showing the corners filled) */
+  clip-path: inset(0 round calc(20 * var(--u)));
   background: var(--pc-bg);
   color: var(--pc-ink);
   text-align: center;
@@ -2382,6 +2388,10 @@ body.section2-offscreen .section-2-wrapper {
   left: 0;
   right: 0;
   bottom: 0;
+  /* rounded like the card's own bottom corners: Chrome sometimes briefly stops
+     trimming the card's corners while its photo animates, and this (see-through)
+     layer then showed as filled-in square corners */
+  border-radius: 0 0 calc(20 * var(--u)) calc(20 * var(--u));
   top: calc(425 * var(--u));
 }
 
@@ -2435,7 +2445,62 @@ body.section2-offscreen .section-2-wrapper {
   top: calc(65.8 * var(--u));           /* nudged 6 design px lower inside the circle */
   clip-path: circle(calc(var(--circle-r) * var(--u)) at calc(224.26 * var(--u)) calc(455.8 * var(--u)));
 }
-.pc-card--deep24 .pc-desc { top: calc(240.8 * var(--u)); }   /* sits a little lower on this card */
+
+/* --- knouri: same card, green, the photo seen through a "stadium" (a rectangle
+   with round ends: 365.5 × 202.5 design px, centred 223.25, 418.75 on the card,
+   matched to the original card art) --- */
+.pc-card--knouri {
+  --pc-bg: #D1FFA4;
+  --pc-bg-rgb: 209 255 164;
+  --pc-tag: #B0EC74;
+  --pc-cat-w: 160;
+  --shape-k: 1;                 /* shape size: 1 = normal, 0 = gone; animated on hover */
+}
+.pc-card--knouri .pc-graphic--shape {
+  /* photo: 447 × 323 — trimmed to exactly the card's width */
+  width: calc(447 * var(--u));
+  left: 0;
+  top: calc(248 * var(--u));
+  /* The stadium is a stencil (an SVG rounded rectangle, 365.54 × 202.5 with fully
+     round ends) centred on (223.25, 170.75) in the photo, and scaled by --shape-k.
+     (It used to be a rounded clip-path, which Chrome could briefly draw as a plain
+     rectangle as the hover bounce settled, faintly showing the photo's corners.) */
+  --stadium: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 365.54 202.5' preserveAspectRatio='none'><rect width='365.54' height='202.5' rx='101.25' ry='101.25'/></svg>");
+  -webkit-mask-image: var(--stadium);
+          mask-image: var(--stadium);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-size: calc(365.54 * var(--shape-k) * var(--u)) calc(202.5 * var(--shape-k) * var(--u));
+          mask-size: calc(365.54 * var(--shape-k) * var(--u)) calc(202.5 * var(--shape-k) * var(--u));
+  -webkit-mask-position: calc((223.25 - 182.77 * var(--shape-k)) * var(--u)) calc((170.75 - 101.25 * var(--shape-k)) * var(--u));
+          mask-position: calc((223.25 - 182.77 * var(--shape-k)) * var(--u)) calc((170.75 - 101.25 * var(--shape-k)) * var(--u));
+}
+
+/* knouri's bottom wash starts a little higher than the template's (matched to its original art) */
+.pc-card--knouri .pc-fade-color {
+  top: calc(400 * var(--u));
+  background: linear-gradient(to bottom, rgb(var(--pc-bg-rgb) / 0) 0%, rgb(var(--pc-bg-rgb) / 0.8) 87%, rgb(var(--pc-bg-rgb) / 0.8) 100%);
+}
+
+/* --- pent up: same card, pink, with the laptop (432 × 258 design px, matched to the original art) --- */
+.pc-card--pentup {
+  --pc-bg: #F5B7FF;
+  --pc-bg-rgb: 245 183 255;
+  --pc-tag: #E7A0FE;
+  --pc-cat-w: 148;
+}
+.pc-card--pentup .pc-graphic--back {
+  width: calc(432 * var(--u));
+  left: calc(8 * var(--u));
+  top: calc(326 * var(--u));
+}
+/* the "!" is the only part of the title that leans right; it stays on the same baseline */
+.pc-bang {
+  display: inline-block;
+  margin-left: -0.05em;   /* tucked in close to "up" */
+  transform: rotate(12deg);          /* physically tilted to the right… */
+  transform-origin: 50% 88%;         /* …pivoting on its dot, so it stays on the baseline */
+}
 
 /* --- settlyfe: same card, blue, with two tilted phones --- */
 .pc-card--settlyfe {
@@ -2449,8 +2514,8 @@ body.section2-offscreen .section-2-wrapper {
   width: calc(198 * var(--u));
   transform-origin: center center;
 }
-.pc-card--settlyfe .pc-graphic--back  { left: calc(2.25 * var(--u));  top: calc(302.5 * var(--u));  rotate: 26.9deg; }
-.pc-card--settlyfe .pc-graphic--front { left: calc(227.5 * var(--u)); top: calc(315.25 * var(--u)); rotate: 26.8deg; }
+.pc-card--settlyfe .pc-graphic--back  { left: calc(-9.75 * var(--u)); top: calc(302.5 * var(--u));  rotate: 26.9deg; }  /* both nudged 12 design px left of the original art */
+.pc-card--settlyfe .pc-graphic--front { left: calc(215.5 * var(--u)); top: calc(315.25 * var(--u)); rotate: 26.8deg; }
 
 /* Hero scroll cue: a small down arrow hanging just below the bottom-right text
    block (absolutely placed, so the text itself doesn't move). Bobbing is driven
