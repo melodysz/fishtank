@@ -1298,14 +1298,18 @@ workFooterGradient.style.background = `radial-gradient(ellipse ${w}% ${h}% at 50
   }
 });
 
+// The footer grows + fades in as it scrolls up. Both finish a little BEFORE the
+// very bottom of the page: they used to finish on its exact last pixel, so if the
+// scroll stopped a hair short (e.g. the page's height changed a touch after
+// loading), the footer got stuck part-way — a bit small and see-through.
 gsap.fromTo("#footer-main-content", 
   { scale: 0.8, opacity: 0.3 }, 
-  { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".footer-section", start: "top bottom", end: "top top", scrub: true } }
+  { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".footer-section", start: "top bottom", end: "top 12%", scrub: true, invalidateOnRefresh: true } }
 );
 
 gsap.fromTo("#footer-bottom-content", 
   { scale: 0.9, opacity: 0 }, 
-  { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".footer-section", start: "70% bottom", end: "bottom bottom", scrub: true } }
+  { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".footer-section", start: "70% bottom", end: "bottom 112%", scrub: true, invalidateOnRefresh: true } }
 );
 
 let lastGradientUpdate = 0;
@@ -1349,7 +1353,7 @@ const FRAME_IMG_RATIO = 2880 / 1817;   // border-top.webp width ÷ height
 const FRAME_HOLE_BOTTOM = 0.859;       // lowest point of the opening, as a fraction of the image height
 let frameHoleBottomPx = 0;
 let heroEndScrollPx = 0;               // where the hero zoom finishes (the scroll-tracker's 30% point)
-const FRAME_ARRIVAL = 0.65;            // frame is nearly centred at this fraction of the hero zoom — lower = starts higher up
+const FRAME_ARRIVAL = 0.15;            // frame is nearly centred at this fraction of the hero zoom — lower = starts higher up
 const CURTAIN_GAP_PX = 70;             // extra breathing room between the scallops and section 3
 const SECTION2_PARALLAX = 0.35;        // aquarium scrolls at 35% of page speed (1 = with the page, 0 = pinned)
 const SECTION2_MAX_BLUR = 12;          // px of blur on the aquarium by the time it's fully covered
@@ -1451,6 +1455,9 @@ const WORK_DIAL = {
   majorLength: 22,                  // css px, centred on the circle
   tickSpacing: 8,                   // css px between ticks along the circle
   tickWidth: 1,                     // css px
+  // numbers on the long marks: 001, 002, 003… counting up left to right, turning with the dial
+  labelFont: "300 10px 'HafferXH', ui-monospace, monospace",   // same font as the nav pills' numbers
+  labelGap: 7,                      // css px between a long mark's outer end and its number
 };
 // Angle between neighbouring project cards on the carousel wheel (smaller = cards closer together).
 var CARD_ANGLE = 24;
@@ -1471,7 +1478,7 @@ function drawWorkDial() {
   // Extra room above and below (equal, so the dial stays centred where it was):
   // the top of the circle sits right at the old image's top edge, and the ridges
   // stick out half their length past the circle — without this they got cut off.
-  const pad = WORK_DIAL.majorLength;
+  const pad = WORK_DIAL.majorLength + 14;   // (+ room for the numbers above the ridges)
   const cssH = cssW * 1193 / 2880 + pad * 2;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   workDial.width = Math.round(cssW * dpr);
@@ -1497,9 +1504,28 @@ function drawWorkDial() {
     ctx.lineTo(cx + sx * (r + h), cy + cy2 * (r + h));
   }
   ctx.stroke();
+
+  // numbers just outside each long mark, reading along the circle
+  ctx.fillStyle = WORK_DIAL.color;
+  ctx.font = WORK_DIAL.labelFont;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0.08em';
+  const labelR = r + majorHalf + WORK_DIAL.labelGap;
+  for (let k = first, a = workDialPhase + first * step; a <= maxAngle; k++, a += step) {
+    if (((k % WORK_DIAL.majorEvery) + WORK_DIAL.majorEvery) % WORK_DIAL.majorEvery !== 0) continue;
+    const m = Math.round(k / WORK_DIAL.majorEvery) + 6;   // (+6: the leftmost mark on screen at the start reads 001)
+    const n = ((m % 1000) + 1000) % 1000;
+    ctx.save();
+    ctx.translate(cx + Math.sin(a) * labelR, cy - Math.cos(a) * labelR);
+    ctx.rotate(a);
+    ctx.fillText(String(n).padStart(3, '0'), 0, 0);
+    ctx.restore();
+  }
 }
 drawWorkDial();
 window.addEventListener('resize', drawWorkDial);
+document.fonts.load("300 10px 'HafferXH'").then(drawWorkDial);   // redraw once the numbers' font is in
 
 // ============================================
 // "MAGNETIC" DECOR — section 2 (same feel as the Pent Up stamps)
@@ -2166,8 +2192,17 @@ function jostleCardGraphics(card) {
   const front = card.querySelectorAll('.pc-graphic--front');
   if (!back.length && !front.length) return;               // image-only cards: nothing to jostle
   const u = card.offsetWidth / 447;                        // 1 design px in screen px
+  // settlyfe's phones get a bigger, bouncier hop: higher, and a couple of little
+  // rebounds as they land
+  const big = !!card.querySelector('.pc-card--settlyfe');
   const bounce = (imgs, delay) => {
     gsap.killTweensOf(imgs);
+    if (big) {
+      gsap.timeline({ delay })
+        .to(imgs, { y: -30 * u, duration: 0.22, ease: 'power2.out' })  // big hop up…
+        .to(imgs, { y: 0, duration: 0.7, ease: 'bounce.out' });        // …and bounce to a stop
+      return;
+    }
     gsap.timeline({ delay })
       .to(imgs, { y: -11 * u, duration: 0.16, ease: 'power2.out' }) // one hop up…
       .to(imgs, { y: 0, duration: 0.26, ease: 'power2.in' });        // …and straight back down into place
@@ -2508,22 +2543,22 @@ ScrollTrigger.create({
   trigger: ".footer-section", 
   start: "top 75%",
   onEnter: () => {
-    gsap.to("#footer-main-content", { y: 0, duration: 1.0, ease: "power2.out" });
+    gsap.to("#footer-main-content", { y: 0, duration: 1.0, ease: "power2.out", overwrite: 'auto' });
     gsap.to('#footer-main-content .footer-anim', { 
-      opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out",
+      opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out", overwrite: 'auto',
       onComplete: () => {
         const btn = document.querySelector('.btn-touch');
         if (btn) btn.style.pointerEvents = 'auto';
       }
     });
-    gsap.to('.footer-left .footer-anim', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", delay: 0.3 });
-    gsap.to('.footer-right .footer-anim', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", delay: 0.3 });
-    gsap.to(".footer-star-wrapper", { opacity: 1, scale: 1, rotation: "+=720", duration: 1.5, ease: "expo.out" });
+    gsap.to('.footer-left .footer-anim', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", delay: 0.3, overwrite: 'auto' });
+    gsap.to('.footer-right .footer-anim', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", delay: 0.3, overwrite: 'auto' });
+    gsap.to(".footer-star-wrapper", { opacity: 1, scale: 1, rotation: "+=720", duration: 1.5, ease: "expo.out", overwrite: 'auto' });
   },
   onLeaveBack: () => {
-    gsap.to("#footer-main-content", { y: 20, duration: 0.6, ease: "power2.in" });
-    gsap.to('.footer-anim', { opacity: 0, y: 20, duration: 0.6, stagger: 0.15, ease: "power2.in" });
-    gsap.to(".footer-star-wrapper", { opacity: 0, scale: 0.6, duration: 1, ease: "power2.in" });
+    gsap.to("#footer-main-content", { y: 20, duration: 0.6, ease: "power2.in", overwrite: 'auto' });
+    gsap.to('.footer-anim', { opacity: 0, y: 20, duration: 0.6, stagger: 0.15, ease: "power2.in", overwrite: 'auto' });
+    gsap.to(".footer-star-wrapper", { opacity: 0, scale: 0.6, duration: 1, ease: "power2.in", overwrite: 'auto' });
   }
 });
 
