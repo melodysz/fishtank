@@ -91,7 +91,7 @@ html, body {
   width: var(--blob-w, 80px);
   height: var(--blob-h, 40px);
   border-radius: 999px;
-  opacity: 0.25;
+  opacity: 0.7;   /* multiply: the page colour, see-through; dark text stays crisp under it */
   mix-blend-mode: multiply;
 }
 
@@ -333,7 +333,7 @@ html, body {
 
 .bubble-menu {
   position: absolute;
-  top: 15px;
+  top: 7px;   /* tucked up so it overlaps the large thought bubble */
   left: 0px;
   background: rgba(255, 255, 255, 0.30);
   border: 1px solid rgba(255, 255, 255, 0.20);
@@ -670,3 +670,7 @@ html, body { overflow: auto; height: auto; }
   .send-btn { width: 100%; }
 }
 .contact-form[hidden] { display: none; }
+
+/* the hover bubble on a dark background (e.g. the footer): no blend there — just
+   the plain see-through bubble ("multiply" would turn it almost black) */
+.cursor-dot.is-blob.on-dark { mix-blend-mode: normal; opacity: 0.35; }

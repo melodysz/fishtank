@@ -5,7 +5,7 @@
 //  • Leaving: links to the homepage or another project first slide the splash
 //    up over the screen, then navigate — the next page opens under the same splash.
 (function () {
-  const PROJECT_LABELS = { 'deep24': '[ deep24 ]', 'knouri': '[ knouri ]', 'pent-up': '[ pent up ]', 'contact': '[ say hi ]' };
+  const PROJECT_LABELS = { 'creatify': '[ creatify ]', 'deep24': '[ deep24 ]', 'knouri': '[ knouri ]', 'pent-up': '[ pent up ]', 'contact': '[ say hi ]' };
 
   // ---------- entering ----------
   const overlay = document.getElementById('page-entry-overlay');
@@ -42,6 +42,8 @@
     try { u = new URL(a.getAttribute('href'), location.href); } catch (e) { return null; }
     const sameSite = u.origin === location.origin || u.hostname === 'melodysz.github.io';
     if (!sameSite) return null;
+    // a link within this same page (e.g. a section link like "#problem"): not a page change, no wipe
+    if (u.origin === location.origin && u.pathname === location.pathname) return null;
     const seg = u.pathname.replace(/^\/fishtank/, '').split('/').filter(Boolean)[0] || '';
     if (seg === '' || seg === 'index.html') {
       const hash = u.hash && u.hash !== '#' && u.hash !== '#skip' ? u.hash : '';
@@ -60,23 +62,24 @@
 
     const cover = document.createElement('div');
     cover.className = 'page-wipe label-ready';
-    const text = document.createElement('span');
+    const text = document.createElement('div');
     text.className = 'page-wipe-label';
-    text.textContent = target.label;
     text.style.transition = 'none';
     cover.appendChild(text);
+    window.fishtankSplash?.render(cover, target.label);   // design: js/splash.js
     document.body.appendChild(cover);
 
     // tells the homepage to open under the splash too
     if (target.home) { try { sessionStorage.setItem('fishtankWipe', target.label); } catch (e) {} }
 
     gsap.set(text, { opacity: 0 });
+    window.fishtankSplash?.play(cover);
     gsap.fromTo(cover, { y: window.innerHeight }, {
       y: 0,
       duration: 0.7,
       ease: 'power3.inOut',
-      onStart: () => gsap.fromTo(text, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.25 }),
-      onComplete: () => setTimeout(() => { window.location.href = target.url; }, 250),
+      onStart: () => gsap.fromTo(text, { opacity: 0, y: 0 }, { opacity: 1, duration: 0.3, ease: 'power1.out', delay: 0.1 }),
+      onComplete: () => setTimeout(() => { window.location.href = target.url; }, 850),   // linger till the asterisk's spin settles
     });
   }
 

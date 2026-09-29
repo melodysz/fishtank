@@ -181,7 +181,6 @@ const heroWindowReady = new Promise((resolve) => {
   heroWindowMask.onload = () => { drawHeroWindow(); resolve(); };
   heroWindowMask.onerror = resolve;
 });
-heroWindowMask.crossOrigin = 'anonymous';   // (lets the intro read the porthole's shape to find its centre)
 heroWindowMask.src = 'https://melodysz.github.io/baubles/mask.webp';
 
 // How open the porthole is: 1 = normal, near 0 = a pinhole (the intro grows it open)
@@ -202,62 +201,62 @@ function drawHeroWindow() {
   const sc = Math.max(w / heroWindowMask.naturalWidth, h / heroWindowMask.naturalHeight);
   const mw = heroWindowMask.naturalWidth * sc, mh = heroWindowMask.naturalHeight * sc;
   const mx = (w - mw) / 2, my = (h - mh) / 2;
-  ctx.globalCompositeOperation = 'source-over';
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#000000';
-  ctx.fillRect(0, 0, w, h);
+
   if (heroWindowOpen >= 1) {
     // normal: keep the black only where the mask image is solid
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillRect(0, 0, w, h);
     ctx.globalCompositeOperation = 'destination-in';
     ctx.drawImage(heroWindowMask, mx, my, mw, mh);
-  } else {
-    // opening: cut out the porthole shape, scaled down around its own centre
-    if (!heroHole) heroHole = buildHeroHole(w, h, mx, my, mw, mh);
-    const k = Math.max(0.001, heroWindowOpen);
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.setTransform(k, 0, 0, k, heroHole.cx * (1 - k), heroHole.cy * (1 - k));
-    ctx.drawImage(heroHole.canvas, 0, 0);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Solid black from just under the porthole to the bottom of the screen. (The
+    // window image's bottom edge fades out unevenly in the middle, which showed as a
+    // ragged cut-off — especially once the hero zooms in.) The porthole's lowest
+    // point is at 72.5% of the image's height.
+    ctx.globalCompositeOperation = 'source-over';
+    const bandTop = my + mh * 0.74;
+    ctx.fillRect(0, bandTop, w, h - bandTop);
+    return;
   }
-  // Solid black from just under the porthole to the bottom of the screen. (The
-  // window image's bottom edge fades out unevenly in the middle, which showed as a
-  // ragged cut-off — especially once the hero zooms in.) The porthole's lowest
-  // point is at 72.5% of the image's height.
+
+  // Opening (intro): the porthole shape, scaled down around its own centre.
+  // Only the porthole's own box is redrawn each frame (everything else is plain
+  // black) — about 8x less work than redrawing the whole screen.
+  if (!heroHole) {
+    heroHole = buildHeroHole(mx, my, mw, mh);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillRect(0, 0, w, h);
+  }
+  const H = heroHole;
+  const k = Math.max(0.001, heroWindowOpen);
   ctx.globalCompositeOperation = 'source-over';
-  const bandTop = my + mh * 0.74;
-  ctx.fillRect(0, bandTop, w, h - bandTop);
+  ctx.fillRect(H.x0, H.y0, H.bw, H.bh);
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.setTransform(k, 0, 0, k, H.cx * (1 - k), H.cy * (1 - k));
+  ctx.drawImage(H.canvas, H.x0, H.y0);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = 'source-over';
 }
 
-// The porthole on its own (solid where the window is see-through), plus its centre.
-function buildHeroHole(w, h, mx, my, mw, mh) {
+// The porthole on its own (solid where the window is see-through), cut to just its
+// box: 35.5–64.5% across and 27–72.8% down the window image. (The image also has a
+// faded bottom edge and a few stray see-through pixels round its border, which
+// showed as a bluish sliver while the porthole was small.) Its centre is at
+// (50%, 49.9%) of the image — measured from the image, so nothing has to be read
+// back from the graphics card at run time (that caused a hitch at the reveal).
+function buildHeroHole(mx, my, mw, mh) {
+  const x0 = Math.floor(mx + mw * 0.355), x1 = Math.ceil(mx + mw * 0.645);
+  const y0 = Math.floor(my + mh * 0.27), y1 = Math.ceil(my + mh * 0.728);
+  const bw = x1 - x0, bh = y1 - y0;
   const c = document.createElement('canvas');
-  c.width = w; c.height = h;
+  c.width = bw; c.height = bh;
   const hc = c.getContext('2d');
   hc.fillStyle = '#000000';
-  hc.fillRect(0, 0, w, h);
+  hc.fillRect(0, 0, bw, bh);
   hc.globalCompositeOperation = 'destination-out';
-  hc.drawImage(heroWindowMask, mx, my, mw, mh);
-  // keep only the porthole itself (36–64% across, 27–72% down the image): the image
-  // also has a faded bottom edge and a few stray see-through pixels round its
-  // border, which showed as a bluish sliver while the porthole was small
-  const bx0 = mx + mw * 0.355, bx1 = mx + mw * 0.645, by0 = my + mh * 0.27, by1 = my + mh * 0.728;
-  hc.clearRect(0, 0, w, by0);
-  hc.clearRect(0, by1, w, h - by1);
-  hc.clearRect(0, 0, bx0, h);
-  hc.clearRect(bx1, 0, w - bx1, h);
-  // find the porthole's centre on a small copy (cheap)
-  const sw = 160, sh = Math.max(1, Math.round(160 * h / w));
-  const small = document.createElement('canvas');
-  small.width = sw; small.height = sh;
-  const sctx = small.getContext('2d');
-  sctx.drawImage(c, 0, 0, sw, sh);
-  let px;
-  try { px = sctx.getImageData(0, 0, sw, sh).data; } catch (e) { return { canvas: c, cx: w / 2, cy: h / 2 }; }
-  let x0 = sw, x1 = 0, y0 = sh, y1 = 0;
-  for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
-    if (px[(y * sw + x) * 4 + 3] > 128) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-  }
-  const found = x1 >= x0;
-  return { canvas: c, cx: found ? ((x0 + x1 + 1) / 2) * (w / sw) : w / 2, cy: found ? ((y0 + y1 + 1) / 2) * (h / sh) : h / 2 };
+  hc.drawImage(heroWindowMask, mx - x0, my - y0, mw, mh);
+  return { canvas: c, x0, y0, bw, bh, cx: mx + mw * 0.5, cy: my + mh * 0.4989 };
 }
 
 // Intro: the porthole grows from a pinhole to its normal size, easing to a stop.
@@ -459,28 +458,56 @@ if (entryOverlay) {
     const rippleContainer = document.createElement('div');
     rippleContainer.className = 'ripple-container';
     introScreen.appendChild(rippleContainer);
-    
+
+    // The ripples are drawn on ONE screen-sized canvas: a few flat circles per
+    // frame. (They used to be five DOM circles, each 150% of the screen's longest
+    // side — Chrome had to paint and hold every one as a huge image in graphics
+    // memory, four of them within a quarter second, which made them prone to
+    // stutter.) Same sizes, colours and timing as before: each grows over 1.3s
+    // with CSS "ease-out" to a radius of 75% of the screen's longest side.
+    const rippleCanvas = document.createElement('canvas');
+    rippleCanvas.className = 'ripple-canvas';
+    rippleContainer.appendChild(rippleCanvas);
+    const rdpr = Math.min(window.devicePixelRatio || 1, 1.5);   // soft flat shapes: no need for full retina
+    const rw = window.innerWidth, rh = window.innerHeight;
+    rippleCanvas.width = Math.round(rw * rdpr);
+    rippleCanvas.height = Math.round(rh * rdpr);
+    const rctx = rippleCanvas.getContext('2d');
+    rctx.scale(rdpr, rdpr);
+    const rippleFullR = 0.75 * Math.max(rw, rh);
+    const coverR = Math.hypot(rw / 2, rh / 2);   // a ripple this big hides everything under it
+    const ripples = [];
+    const addRipple = (color) => ripples.push({ color, t0: performance.now() });
+    requestAnimationFrame(function drawRipples() {
+      if (rippleContainer.style.display === 'none') return;   // the reveal canvas has taken over
+      const now = performance.now();
+      rctx.clearRect(0, 0, rw, rh);
+      // start from the newest ripple that already covers the whole screen
+      let from = 0;
+      const radii = ripples.map((r) => rippleFullR * cssEaseOut(Math.min(1, Math.max(0, (now - r.t0) / 1300))));
+      radii.forEach((rad, i) => { if (rad >= coverR) from = i; });
+      for (let i = from; i < ripples.length; i++) {
+        if (radii[i] <= 0) continue;
+        rctx.fillStyle = ripples[i].color;
+        rctx.beginPath();
+        rctx.arc(rw / 2, rh / 2, radii[i], 0, Math.PI * 2);
+        rctx.fill();
+      }
+      requestAnimationFrame(drawRipples);
+    });
+
     for (let i = 0; i < 2; i++) {
       setTimeout(() => {
-        const blueRipple = document.createElement('div');
-        blueRipple.className = 'ripple ripple-blue';
-        rippleContainer.appendChild(blueRipple);
-        setTimeout(() => {
-          const blackRipple = document.createElement('div');
-          blackRipple.className = 'ripple ripple-black';
-          rippleContainer.appendChild(blackRipple);
-        }, 60);
+        addRipple('#061a8a');                          // blue
+        setTimeout(() => addRipple('#000000'), 60);    // black, right behind it
       }, i * 200);
     }
     
     setTimeout(() => {
       gsap.to(introText, { opacity: 0, duration: 0.3 });
-      gsap.to(rippleContainer.children, { opacity: 0, duration: 0.4, ease: "power1.out" });
       
       setTimeout(() => {
-        const finalRipple = document.createElement('div');
-        finalRipple.className = 'ripple ripple-blue';
-        rippleContainer.appendChild(finalRipple);
+        addRipple('#061a8a');                          // the final blue ripple
         const finalRippleStart = performance.now();
         
         setTimeout(() => {
@@ -505,7 +532,7 @@ scalingRig.style.filter = "brightness(0.25)";
           // full-screen CSS mask every frame was the main cause of the intro stutter;
           // a canvas redraw is cheap. It paints exactly what was on screen — black,
           // plus the final blue ripple still growing — then cuts the feathered hole.
-          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          const dpr = Math.min(window.devicePixelRatio || 1, 1.5);   // soft shapes: 1.5x is plenty, and much cheaper per frame
           const revealCanvas = document.createElement('canvas');
           revealCanvas.className = 'reveal-canvas';
           revealCanvas.width = Math.round(w * dpr);
@@ -618,11 +645,11 @@ onComplete: () => {
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // Animate dots one by one, then start ripple
-  // Wait for Xanh Mono to load before showing intro text
+  // Wait for the intro's font (PP Neue Montreal) to load before showing intro text
   const introText = document.querySelector('.intro-text');
   introText.style.opacity = '0';
 
-  document.fonts.load("italic 1.6rem 'Xanh Mono'").finally(() => {
+  document.fonts.load("26px 'PP Neue Montreal'").finally(() => {
     introText.style.opacity = '1';
 
     const dotsEl = document.getElementById('intro-dots');
@@ -734,15 +761,14 @@ document.addEventListener('visibilitychange', () => {
       if (safe('.section-2-wrapper')) onPageScrollLayout();
 
       if (safe('#blackCover')) {
-        if (scrollRatio < 0.55) gsap.set('#blackCover, .section-2-backdrop-black', { opacity: 0 });
-        else if (scrollRatio > 0.80) gsap.set('#blackCover, .section-2-backdrop-black', { opacity: 1 });
-        else gsap.set('#blackCover, .section-2-backdrop-black', { opacity: (scrollRatio - 0.55) / 0.25 });
+        if (scrollRatio < 0.35) gsap.set('#blackCover, .section-2-backdrop-black', { opacity: 0 });
+        else if (scrollRatio > 0.85) gsap.set('#blackCover, .section-2-backdrop-black', { opacity: 1 });
+        else gsap.set('#blackCover, .section-2-backdrop-black', { opacity: (scrollRatio - 0.35) / 0.50 });
       }
 
       if (safe('.footer-section')) {
         const footerTop = document.querySelector('.footer-section').offsetTop;
         if (scrollY + window.innerHeight > footerTop + 100) {
-          if (safe('#footer-main-content')) gsap.set('#footer-main-content', { opacity: 1, y: 0 });
           if (safe('.footer-anim')) gsap.set('.footer-anim', { opacity: 1, y: 0 });
           if (safe('.footer-star-wrapper')) gsap.set('.footer-star-wrapper', { opacity: 1, scale: 1 });
         }
@@ -804,10 +830,10 @@ gsap.set(".scaling-rig", {
     gsap.set(".water-lines", { opacity: Math.max(0, 1 - (p * 3)) });
     gsap.set("#sky-text-container", { autoAlpha: p > 0.05 ? 1 : 0 });
 
-    if (p < 0.10) {
+    if (p < 0.05) {
       gsap.set(".sky-text-images", { autoAlpha: 0 });
     } else {
-      gsap.set(".sky-text-images", { autoAlpha: gsap.utils.clamp(0, 1, (p - 0.10) / 0.15) });
+      gsap.set(".sky-text-images", { autoAlpha: gsap.utils.clamp(0, 1, (p - 0.05) / 0.10) });
     }
     
     if (p > 0.02) {
@@ -918,8 +944,47 @@ let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
 // then it eases back to normal size as it catches up. Stays normal size while
 // it's a hover blob over links. Moves with transform (cheap) instead of left/top.
 let cursorScale = 1;
+// While hovering a nav item, the cursor bubble locks onto it: centred on the item's
+// text and sized to that text plus even padding (it also follows the text if it
+// changes width, e.g. "work" → "work!"). Otherwise it follows the mouse.
+let blobTarget = null;
+const BLOB_PAD_X = 14;   // px of bubble either side of the text
+const BLOB_PAD_Y = 5;    // px of bubble above and below the text
+function textBox(el) {
+  const r = document.createRange();
+  r.selectNodeContents(el);
+  const b = r.getBoundingClientRect();
+  return b.width ? b : el.getBoundingClientRect();
+}
+let blobW = 0;
+let blobBoxMode = false;   // true: match the target's whole box + corner rounding (the work-nav pills)
+let blobR = '';
+function followBlobTarget() {
+  if (blobBoxMode) {
+    const b = blobTarget.getBoundingClientRect();
+    mouseTargetX = b.left + b.width / 2;
+    mouseTargetY = b.top + b.height / 2;
+    const w = Math.round(b.width), h = Math.round(b.height);
+    if (w !== blobW) { blobW = w; cursorMain.style.setProperty('--blob-w', w + 'px'); }
+    if (h !== blobH) { blobH = h; cursorMain.style.setProperty('--blob-h', h + 'px'); }
+    const r = getComputedStyle(blobTarget).borderRadius;
+    if (r !== blobR) { blobR = r; cursorMain.style.setProperty('--blob-r', r); }
+    return;
+  }
+  const b = textBox(blobTarget);
+  mouseTargetX = b.left + b.width / 2;
+  mouseTargetY = b.top + b.height / 2;
+  const w = Math.round(b.width + BLOB_PAD_X * 2);
+  if (w !== blobW) { blobW = w; cursorMain.style.setProperty('--blob-w', w + 'px'); }
+  const h = Math.round(b.height + BLOB_PAD_Y * 2);
+  if (h !== blobH) { blobH = h; cursorMain.style.setProperty('--blob-h', h + 'px'); }
+}
+let mouseTargetX = 0, mouseTargetY = 0, blobH = 0;
+
 function animateCursor() {
-  const dx = mouseX - curX, dy = mouseY - curY;
+  if (blobTarget) followBlobTarget();
+  const tx = blobTarget ? mouseTargetX : mouseX, ty = blobTarget ? mouseTargetY : mouseY;
+  const dx = tx - curX, dy = ty - curY;
   const lag = Math.hypot(dx, dy);
   const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
   const scaleChanging = Math.abs(targetScale - cursorScale) > 0.002;
@@ -937,14 +1002,19 @@ animateCursor();
 const BLOB_HEIGHT = 40;
 
 function expandToBlob(el, pill = false) {
-  const rect = el.getBoundingClientRect();
   isBlobMode = true;
+  // over the project cards the bubble stays plain (no blend) — see .on-card in style.css
+  cursorMain.classList.toggle('on-card', !!el.closest?.('.project-card'));
+  blobBoxMode = pill === 'box';
+  cursorMain.classList.toggle('on-pill', blobBoxMode);
   if (pill) {
-    cursorMain.style.setProperty('--blob-w', rect.width + 'px');
-    cursorMain.style.setProperty('--blob-h', '40px');
+    blobTarget = el;                 // lock onto this item (see followBlobTarget)
+    blobW = 0; blobH = 0;
+    followBlobTarget();
     cursorMain.classList.add('is-blob');
     cursorMain.classList.add('is-pill');
   } else {
+    blobTarget = null;
     cursorMain.style.setProperty('--blob-w', '48px');
     cursorMain.style.setProperty('--blob-h', '48px');
     cursorMain.classList.add('is-blob');
@@ -953,7 +1023,11 @@ function expandToBlob(el, pill = false) {
 }
 
 function shrinkBlob() {
+  blobTarget = null;
+  blobBoxMode = false;
+  blobR = '';
   isBlobMode = false;
+  cursorMain.classList.remove('on-card', 'on-pill');
   cursorMain.classList.remove('is-blob');
   cursorMain.classList.remove('is-pill');
   cursorMain.style.removeProperty('--blob-w');
@@ -978,6 +1052,7 @@ const CURSOR_HOVER_SEL = "a[href], button, [role='button'], .btn-touch, .work-na
 document.addEventListener('pointerover', (e) => {
   const el = e.target.closest?.(CURSOR_HOVER_SEL);
   const hovered = el && !el.closest('.project-card') ? el : null;
+  if (blobTarget && blobTarget.contains(e.target)) return;   // still on the locked nav item
   if (hovered && !isBlobMode) expandToBlob(hovered, false);
   else if (!hovered && isBlobMode && !e.target.closest?.('.project-card')) shrinkBlob();
 });
@@ -991,23 +1066,39 @@ const navWordmarkEl = document.querySelector('.nav-wordmark');
 navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl, true));
 navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
 
+// work-nav pills (01 creatify…): the bubble takes on the pill's own shape and size,
+// following it as it springs wider — light see-through blue (.on-pill in style.css)
+document.querySelectorAll('.work-nav-pill').forEach((pill) => {
+  pill.addEventListener('mouseenter', () => expandToBlob(pill, 'box'));
+  pill.addEventListener('mouseleave', () => shrinkBlob());
+});
+
+// footer text links ([EMAIL], [LINKEDIN]) get the same locked-on bubble as the nav
+document.querySelectorAll('.footer-right a').forEach((a) => {
+  a.addEventListener('mouseenter', () => expandToBlob(a, true));
+  a.addEventListener('mouseleave', () => shrinkBlob());
+});
+
 // Nav name
 const navName = document.getElementById('nav-name');
 const nameInner = navName.querySelector('.name-inner');
-navName.addEventListener('mouseenter', () => {
-  gsap.to(nameInner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
-    nameInner.textContent = "MELODY";
-    Object.assign(nameInner.style, { fontFamily: "'PP Neue Montreal', 'Helvetica Neue', sans-serif", fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" });
-    gsap.fromTo(nameInner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-  }});
-});
-navName.addEventListener('mouseleave', () => {
-  gsap.to(nameInner, { y: 10, opacity: 0, duration: 0.2, onComplete: () => {
-    nameInner.textContent = "美迪";
-    Object.assign(nameInner.style, { fontFamily: "'Zen Old Mincho', serif", fontSize: "1.2rem", letterSpacing: "0.05em", textTransform: "none" });
-    gsap.fromTo(nameInner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-  }});
-});
+// (left over from an older nav with a 美迪 ⇄ MELODY swap — only runs if that text exists)
+if (nameInner) {
+  navName.addEventListener('mouseenter', () => {
+    gsap.to(nameInner, { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
+      nameInner.textContent = "MELODY";
+      Object.assign(nameInner.style, { fontFamily: "'PP Neue Montreal', 'Helvetica Neue', sans-serif", fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" });
+      gsap.fromTo(nameInner, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
+    }});
+  });
+  navName.addEventListener('mouseleave', () => {
+    gsap.to(nameInner, { y: 10, opacity: 0, duration: 0.2, onComplete: () => {
+      nameInner.textContent = "美迪";
+      Object.assign(nameInner.style, { fontFamily: "'Zen Old Mincho', serif", fontSize: "1.2rem", letterSpacing: "0.05em", textTransform: "none" });
+      gsap.fromTo(nameInner, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
+    }});
+  });
+}
 
 const navItems = document.querySelectorAll('.nav-pill, .nav-wordmark, .nav-link-item, .nav-asterisk');
 
@@ -1119,6 +1210,8 @@ document.getElementById('navWrap').addEventListener('click', (e) => {
   document.body.style.overflow = 'hidden';
   overlay.style.pointerEvents = 'all';
 
+  window.fishtankSplash.render(overlay, '[ work ]');
+  window.fishtankSplash.play(overlay);
   gsap.killTweensOf(overlay);
   gsap.killTweensOf(text);
   gsap.set(overlay, { y: window.innerHeight });
@@ -1131,8 +1224,8 @@ gsap.to(overlay, {
     ease: "power3.inOut",
 onStart: () => {
   gsap.fromTo(text,
-    { opacity: 0, y: 30 },
-    { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.25 }
+    { opacity: 0, y: 0 },
+    { opacity: 1, duration: 0.3, ease: "power1.out", delay: 0.1 }   // rides up with the splash (fishtankSplash.play launches it)
   );
 },
     onComplete: () => {
@@ -1202,7 +1295,7 @@ setTimeout(() => {
 }, 100);
           }
         });
-      }, 600);
+      }, 750);   // (long enough for the splash asterisk's spin to settle)
     }
   });
 });
@@ -1225,7 +1318,8 @@ ScrollTrigger.create({
 
 gsap.to("#blackCover, .section-2-backdrop-black", {
   opacity: 1,
-  scrollTrigger: { trigger: ".scroll-tracker", start: "55% top", end: "80% top", scrub: true }
+  // section 2's background darkens gradually over this stretch (starts at 35%, fully dark at 85%)
+  scrollTrigger: { trigger: ".scroll-tracker", start: "35% top", end: "85% top", scrub: true }
 });
 
 ScrollTrigger.create({
@@ -1302,9 +1396,12 @@ workFooterGradient.style.background = `radial-gradient(ellipse ${w}% ${h}% at 50
 // very bottom of the page: they used to finish on its exact last pixel, so if the
 // scroll stopped a hair short (e.g. the page's height changed a touch after
 // loading), the footer got stuck part-way — a bit small and see-through.
+// (This is the ONLY animation on #footer-main-content — its little upward drift is
+// part of it too. A separate drift tween on the same element could cancel this one
+// when you scrolled back up, freezing the footer part-way.)
 gsap.fromTo("#footer-main-content", 
-  { scale: 0.8, opacity: 0.3 }, 
-  { scale: 1, opacity: 1, ease: "none", scrollTrigger: { trigger: ".footer-section", start: "top bottom", end: "top 12%", scrub: true, invalidateOnRefresh: true } }
+  { scale: 0.8, opacity: 0.3, y: 20 }, 
+  { scale: 1, opacity: 1, y: 0, ease: "none", scrollTrigger: { trigger: ".footer-section", start: "top bottom", end: "top 12%", scrub: true, invalidateOnRefresh: true } }
 );
 
 gsap.fromTo("#footer-bottom-content", 
@@ -1355,6 +1452,7 @@ let frameHoleBottomPx = 0;
 let heroEndScrollPx = 0;               // where the hero zoom finishes (the scroll-tracker's 30% point)
 const FRAME_ARRIVAL = 0.15;            // frame is nearly centred at this fraction of the hero zoom — lower = starts higher up
 const CURTAIN_GAP_PX = 70;             // extra breathing room between the scallops and section 3
+const SECTION2_EASE_IN = 320;         // px of scroll over which the aquarium's drift speeds up to SECTION2_PARALLAX
 const SECTION2_PARALLAX = 0.35;        // aquarium scrolls at 35% of page speed (1 = with the page, 0 = pinned)
 const SECTION2_MAX_BLUR = 12;          // px of blur on the aquarium by the time it's fully covered
 let thirdSectionTopPx = 0;
@@ -1402,8 +1500,14 @@ function updateSection2Curtain() {
   const frameShift = Math.max(0, frameOffset);
   // Parallax: the aquarium drifts up slower than the page, while the frame
   // (inside it) makes up the difference so it still moves at full page speed.
-  const contentShift = frameShift * SECTION2_PARALLAX;
-  section2Wrapper.style.transform = contentShift ? `translate3d(0, ${-contentShift}px, 0)` : '';
+  // (eased in: the drift's speed ramps from 0 to SECTION2_PARALLAX over the first
+  // SECTION2_EASE_IN px — it used to switch on all at once, which felt like a bump)
+  const contentShift = SECTION2_PARALLAX * (frameShift < SECTION2_EASE_IN
+    ? (frameShift * frameShift) / (2 * SECTION2_EASE_IN)
+    : frameShift - SECTION2_EASE_IN / 2);
+  // (always a transform, even at 0: switching it on only once the drift started made
+  // Chrome rebuild the whole aquarium as a new layer mid-scroll — a ~0.5s freeze)
+  section2Wrapper.style.transform = `translate3d(0, ${-contentShift}px, 0)`;
   // The frame never stops: it rises in from below at page speed, eases to about
   // half speed as it settles around the aquarium (nearly centred as the hero
   // ends), then eases back up to full speed as section 3 takes over. Around the
@@ -1413,7 +1517,7 @@ function updateSection2Curtain() {
   const frameY = frameScreenY === null
     ? -(frameShift - contentShift)                   // fully handed over: leaving with section 3
     : Math.min(vh * 1.1, frameScreenY + contentShift); // (+contentShift undoes the aquarium's parallax drift)
-  section2Frame.style.transform = frameY ? `translate3d(0, ${frameY}px, 0)` : '';
+  section2Frame.style.transform = `translate3d(0, ${frameY}px, 0)`;   // (always set — see above)
   // Dangles hang from the top of the frame's window: they follow the frame's
   // movement, but only partly (parallax), so they drift more slowly than it.
   const frameOffsetOnScreen = frameScreenY === null ? -frameShift : frameScreenY;
@@ -1691,9 +1795,11 @@ const delay = (pairIndex / 4) * duration + (withinPair * 0.4);
 
 } // ← closes the if (fishTank) block
 
+// Section 2's words (and its little bubbles/flowers) slide in once you've scrolled
+// 6% into the hero zoom (was 15% — they came in noticeably late)
 ScrollTrigger.create({
   trigger: ".scroll-tracker",
-  start: "15% top",
+  start: "6% top",
   onEnter: () => {
     const tl = gsap.timeline();
     tl.to('.sky-text-images .sky-anim', { 
@@ -1719,7 +1825,7 @@ const N = cards.length;
 
 // Carousel order (matches the cards and pills in index.html)
 const projectURLs = [
-  '',          // 0 creatify — live HTML card (no case study page yet)
+  'creatify/', // 0 creatify — live HTML card
   '',          // 1 settlyfe (coming soon)
   'deep24/',   // 2
   'pent-up/',  // 3
@@ -1747,7 +1853,8 @@ function wipeToPage(url, label) {
   document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
   overlay.style.pointerEvents = 'all';
-  text.textContent = label;
+  window.fishtankSplash.render(overlay, label);
+  window.fishtankSplash.play(overlay);
 
   gsap.killTweensOf([overlay, text]);
   gsap.set(overlay, { y: window.innerHeight });
@@ -1757,11 +1864,11 @@ function wipeToPage(url, label) {
     duration: 0.7,
     ease: "power3.inOut",
     onStart: () => {
-      gsap.fromTo(text, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.25 });
+      gsap.fromTo(text, { opacity: 0, y: 0 }, { opacity: 1, duration: 0.3, ease: "power1.out", delay: 0.1 });   // rides up with the splash
     },
     onComplete: () => {
-      // let the label finish settling, then go
-      setTimeout(() => { window.location.href = url; }, 250);
+      // let the label finish bouncing and the asterisk's spin settle, then go
+      setTimeout(() => { window.location.href = url; }, 850);
     }
   });
 }
@@ -1779,7 +1886,7 @@ function revealWipeOverlay(delay = 0.15) {
     onComplete: () => {
       document.documentElement.classList.remove('arrive-wipe');
       gsap.set(overlay, { y: window.innerHeight + 40 });
-      text.textContent = '[ work ]';
+      window.fishtankSplash.render(overlay, '[ work ]');
       overlay.style.pointerEvents = 'none';
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
@@ -1938,16 +2045,28 @@ let glide = null;
 function glideTo(target, v0, duration, opts = {}) {
   cancelAnimationFrame(rafId);
   velX = v0;
-  glide = { from: offset, target, v0, duration: Math.max(0.05, duration), t0: performance.now(), ...opts };
-  rafId = requestAnimationFrame(glideStep);
+  // opts.headStartMs: flicks begin one frame "into" the glide, so it picks up exactly where
+  // the fingers left off (otherwise there's a frame of near-standstill at the hand-off)
+  glide = { from: offset, target, v0, duration: Math.max(0.05, duration), t0: performance.now() - (opts.headStartMs || 0), ...opts };
+  // a flick draws its first step right now (on the lift event itself), so every frame
+  // across the hand-off moves by a normal amount: no frozen frame, no catch-up jump
+  if (opts.headStartMs) glideStep(); else rafId = requestAnimationFrame(glideStep);
 }
 function glideStep(now) {
   const g = glide;
   if (!g) return;
-  const D = g.duration, u = Math.min(1, (now - g.t0) / 1000 / D);
+  // (clock read here, not the frame's timestamp: that can be a hair before t0, which
+  // made the first frame step backwards — a one-frame hitch right as a glide begins)
+  const D = g.duration, u = Math.min(1, Math.max(0, (performance.now() - g.t0) / 1000 / D));
   const dist = g.target - g.from;
-  offset = g.from + dist * (3 * u * u - 2 * u * u * u) + g.v0 * D * (u - 2 * u * u + u * u * u);
-  velX = dist * (6 * u - 6 * u * u) / D + g.v0 * (1 - 4 * u + 3 * u * u);
+  if (g.power) {
+    // ease-out curve: starts at its fastest, then a long soft slow-down (flick feel)
+    offset = g.from + dist * (1 - Math.pow(1 - u, g.power));
+    velX = dist * g.power * Math.pow(1 - u, g.power - 1) / D;
+  } else {
+    offset = g.from + dist * (3 * u * u - 2 * u * u * u) + g.v0 * D * (u - 2 * u * u + u * u * u);
+    velX = dist * (6 * u - 6 * u * u) / D + g.v0 * (1 - 4 * u + 3 * u * u);
+  }
   if (u >= 1) offset = g.target;
   layoutCards();
   // onNear fires once the card has nearly arrived — or earlier, at nearAt (fraction of the glide's time)
@@ -1981,6 +2100,49 @@ function settleFrom(v) {
     : 0.35 + 0.35 * Math.min(1, Math.abs(dist) * 2); // (barely moving: a gentle settle)
   duration = Math.min(GLIDE.maxTime, Math.max(GLIDE.minTime, duration));
   glideTo(target, v, duration, { onArrive: () => onCarouselSettled(target) });
+}
+
+// TRACKPAD FLICK FEEL — switch between the two to compare:
+//   'flick' : like Apple's "Get the highlights" gallery. Even a light flick
+//             commits to the next card, launches quickly, then eases to a soft
+//             stop with a long gentle tail.
+//   'coast' : the previous feel. The carousel carries on at exactly the speed
+//             your fingers were going and slows to a stop (a light flick = slow).
+const TRACKPAD_FEEL = 'flick';
+const FLICK = {
+  minPeak: 8,       // a flick = fingers moving at least this fast (trackpad px per event, ~500px/sec);
+                    // anything slower just follows your fingers, so you can swipe slowly or hold
+  minSpeed: 0.25,   // slower than this (cards/sec) isn't a flick: just settle onto the nearest card
+  boost: 1.5,       // the glide launches at your fingers' speed × this…
+  floor: 9,         // …but never slower than this (cards/sec): a fast launch even for a light flick
+  power: 5,         // the glide's curve: high = fast launch, then a long soft slow-down at the end
+  reach: 0.04,      // how far a flick carries: launch speed × this (seconds), then onto the nearest card.
+                    // Low on purpose: an ordinary flick lands on the next card; only a hard one goes further
+  minTime: 0.45,    // shortest / longest the whole glide takes, soft tail included (seconds);
+  maxTime: 1.0,     // with power 5 it's ~90% of the way there in the first third of this
+  maxCards: 3,      // the most cards one whole swipe can travel (5 would be a full lap back to the same card)
+  follow: 300,      // while your fingers are down: trackpad pixels per card (lower = follows more eagerly; the old feel is 360)
+  holdMs: 450,      // fingers stopped (holding, or lifted slowly) this long = settle onto the nearest card
+};
+
+function flickFrom(v, headStartMs = 0) {
+  if (Math.abs(v) < FLICK.minSpeed) { settleFrom(v); return; }
+  hideAward();
+  const dir = Math.sign(v);
+  const launch = dir * Math.max(Math.abs(v) * FLICK.boost, FLICK.floor);
+  const reach = Math.max(-FLICK.maxCards, Math.min(FLICK.maxCards, launch * FLICK.reach));
+  // always at least the next card ahead in the flick's direction
+  const next = dir > 0 ? Math.ceil(offset + 0.001) : Math.floor(offset - 0.001);
+  let target = Math.round(offset + reach);
+  if ((target - next) * dir < 0) target = next;
+  // the whole swipe (fingers + flick) moves at most maxCards from where it began
+  const from = wheelSwipe.startCard ?? Math.round(offset);
+  target = Math.max(from - FLICK.maxCards, Math.min(from + FLICK.maxCards, target));
+  if ((target - offset) * dir <= 0) target = next;
+  const dist = target - offset;
+  // the curve starts at power × distance ÷ duration: pick the duration that makes that the launch speed
+  const duration = Math.min(FLICK.maxTime, Math.max(FLICK.minTime, FLICK.power * Math.abs(dist) / Math.abs(launch)));
+  glideTo(target, launch, duration, { power: FLICK.power, headStartMs, onArrive: () => onCarouselSettled(target) });
 }
 
 function onCarouselSettled(target) {
@@ -2532,10 +2694,8 @@ document.querySelectorAll('.footer-anim').forEach(el => {
   el.style.transition = '';
 });
 
-// (the block itself only drifts up — each line does its own fade + slide. The
-// block used to fade in too, which hid the first line's slide: it moved while
-// the whole block was still nearly invisible.)
-gsap.set("#footer-main-content", { y: 20 });
+// (#footer-main-content itself is driven only by the scroll animation above;
+// each line inside does its own fade + slide.)
 gsap.set('.footer-anim', { opacity: 0, y: 40 });
 gsap.set(".footer-star-wrapper", { opacity: 0, scale: 0.6 });
 
@@ -2543,7 +2703,6 @@ ScrollTrigger.create({
   trigger: ".footer-section", 
   start: "top 75%",
   onEnter: () => {
-    gsap.to("#footer-main-content", { y: 0, duration: 1.0, ease: "power2.out", overwrite: 'auto' });
     gsap.to('#footer-main-content .footer-anim', { 
       opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out", overwrite: 'auto',
       onComplete: () => {
@@ -2556,7 +2715,6 @@ ScrollTrigger.create({
     gsap.to(".footer-star-wrapper", { opacity: 1, scale: 1, rotation: "+=720", duration: 1.5, ease: "expo.out", overwrite: 'auto' });
   },
   onLeaveBack: () => {
-    gsap.to("#footer-main-content", { y: 20, duration: 0.6, ease: "power2.in", overwrite: 'auto' });
     gsap.to('.footer-anim', { opacity: 0, y: 20, duration: 0.6, stagger: 0.15, ease: "power2.in", overwrite: 'auto' });
     gsap.to(".footer-star-wrapper", { opacity: 0, scale: 0.6, duration: 1, ease: "power2.in", overwrite: 'auto' });
   }
@@ -2571,13 +2729,11 @@ ScrollTrigger.create({
     gsap.to(".nav-center-star", { opacity: 0, duration: 0.6 });
   },
   onLeaveBack: () => {
-    gsap.killTweensOf("#footer-main-content");
+    // (never kill #footer-main-content's tweens here: its only one is the scroll
+    // animation that grows + fades it in — killing it froze the footer part-way
+    // the next time you scrolled down)
     gsap.killTweensOf('.footer-anim');
     gsap.killTweensOf(".footer-star-wrapper");
-    // (the block itself only drifts up — each line does its own fade + slide. The
-// block used to fade in too, which hid the first line's slide: it moved while
-// the whole block was still nearly invisible.)
-gsap.set("#footer-main-content", { y: 20 });
     gsap.set('.footer-anim', { opacity: 0, y: 20 });
     gsap.set(".footer-star-wrapper", { opacity: 0, scale: 0.6 });
   }
@@ -2735,15 +2891,16 @@ if (skipIntro) {
 // Now, as soon as the events start fading, we take the current speed and glide
 // onto a card ourselves, and ignore the rest of the fade (unless your fingers
 // come back: a reversal, or the swipe speeding up again).
-const wheelSwipe = { mode: 'idle', lastT: 0, dir: 0, mags: [], fading: 0, timer: 0 };
+const wheelSwipe = { mode: 'idle', lastT: 0, dir: 0, mags: [], times: [], fading: 0, timer: 0 };
 function carouselWheel(dx) {
   const w = wheelSwipe;
   const now = performance.now();
   const mag = Math.abs(dx), dir = Math.sign(dx);
   const prev = w.mags.length ? w.mags[w.mags.length - 1] : 0;
   if (now - w.lastT > (w.mode === 'coast' ? 350 : 140)) {   // a brand-new swipe
-    w.mode = 'track'; w.mags = []; w.fading = 0;
+    w.mode = 'track'; w.mags = []; w.times = []; w.fading = 0;
     motionSamples.length = 0;
+    w.startCard = Math.round(offset);   // where this swipe began (flicks count their cards from here)
   }
   w.lastT = now;
 
@@ -2752,26 +2909,54 @@ function carouselWheel(dx) {
     const speedingUp = mag >= 4 && mag > Math.max(...w.mags.slice(-3), 0) * 1.2;
     w.mags.push(mag); if (w.mags.length > 8) w.mags.shift();
     if (!reversed && !speedingUp) return;   // just the fade-out: ignore
-    w.mode = 'track'; w.fading = 0; motionSamples.length = 0;
+    w.mode = 'track'; w.fading = 0; w.times = []; motionSamples.length = 0;
   } else {
     w.mags.push(mag); if (w.mags.length > 8) w.mags.shift();
   }
+  w.times.push(now); if (w.times.length > 8) w.times.shift();
 
   // following the fingers
   hideAward();
   hideBadge();
   isInteracting = true;
   if (glide) stopGlide();
+  if (TRACKPAD_FEEL === 'flick') {
+    // A fast movement that has just started slowing = the fingers lifted mid-flick
+    // (macOS's own coasting takes over). The glide takes over from this very event —
+    // starting at the fingers' last speed, already "into" its motion by the time since
+    // their last movement — so there's no stalled frame or speed-up at the hand-off.
+    const peakSoFar = Math.max(...w.mags);
+    const fadingNow = mag < prev && prev > 0 ? w.fading + 1 : 0;
+    if (peakSoFar >= FLICK.minPeak && fadingNow >= 1 && mag < peakSoFar * 0.9) {
+      const n = w.times.length, span = n >= 3 ? (w.times[n - 2] - w.times[n - 3]) : 16;
+      const speed = dir * (prev / FLICK.follow) / (Math.max(8, span) / 1000);   // cards/sec
+      const sinceLastMove = Math.min(32, Math.max(0, now - (w.times[n - 2] ?? now)));
+      clearTimeout(w.timer);
+      w.fading = fadingNow;
+      w.mode = 'coast';
+      flickFrom(speed, sinceLastMove);
+      return;
+    }
+  }
   if (!motionSamples.length) sampleMotion();
-  offset += dx / 360;
+  offset += dx / (TRACKPAD_FEEL === 'flick' ? FLICK.follow : 360);
   w.dir = dir;
   sampleMotion();
   layoutCards();
 
-  // the fade has started (5 events in a row each no bigger than the last)?
   const peak = Math.max(...w.mags);
-  w.fading = mag <= prev && prev > 0 ? w.fading + 1 : 0;
   clearTimeout(w.timer);
+  if (TRACKPAD_FEEL === 'flick') {
+    // A fast movement that has just started slowing = the fingers lifted mid-flick
+    // (macOS's own coasting takes over). Glide from the fingers' speed right then.
+    w.fading = mag < prev && prev > 0 ? w.fading + 1 : 0;
+    // Otherwise it's a slow swipe or a hold: keep following the fingers. Once they stop
+    // (for longer if they stopped abruptly = probably holding), settle onto the nearest card.
+    w.timer = setTimeout(() => { if (w.mode === 'track') { w.mode = 'idle'; settleFrom(0); } }, w.fading >= 2 ? 150 : FLICK.holdMs);
+    return;
+  }
+  // (the older 'coast' feel) the fade has started (5 events in a row each no bigger than the last)?
+  w.fading = mag <= prev && prev > 0 ? w.fading + 1 : 0;
   if (w.fading >= 5 && mag < peak * 0.85) { letGoOfWheel(); return; }
   // or the events simply stopped (no coasting, or a mouse wheel)
   w.timer = setTimeout(() => { if (w.mode === 'track') letGoOfWheel(); }, 70);
@@ -2779,7 +2964,8 @@ function carouselWheel(dx) {
 function letGoOfWheel() {
   wheelSwipe.mode = 'coast';
   clearTimeout(wheelSwipe.timer);
-  settleFrom(releaseVelocity());
+  const v = releaseVelocity();
+  if (TRACKPAD_FEEL === 'flick') flickFrom(v); else settleFrom(v);
 }
 
 window.addEventListener('wheel', (e) => {

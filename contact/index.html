@@ -13,8 +13,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 
  <!-- Your CSS -->
-  <link rel="stylesheet" href="style.css?v=2">
-  <link rel="stylesheet" href="../css/page-wipe.css?v=7">
+  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=8">
+  <script src="../js/splash.js?v=8"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
   <link rel="expect" href="#page-entry-overlay" blocking="render">
 
@@ -28,10 +29,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Zen+Old+Mincho&family=Alex+Brush&display=swap" rel="stylesheet">
 
-<div id="page-entry-overlay" class="page-wipe"><span class="page-wipe-label">[ say hi ]</span></div>
+<div id="page-entry-overlay" class="page-wipe"><div class="page-wipe-label"></div></div>
 <script>
-  // show the splash label as soon as its font is ready
-  document.fonts.load("italic 1.6rem 'Xanh Mono'").then(() => document.getElementById('page-entry-overlay')?.classList.add('label-ready'));
+  // the splash for this page (design: js/splash.js); its text shows once its fonts are ready
+  fishtankSplash.render(document.getElementById('page-entry-overlay'), '[ say hi ]');
+  Promise.all([document.fonts.load("26px 'PP Neue Montreal'"), document.fonts.load("300 26px 'HafferXH'")])
+    .then(() => document.getElementById('page-entry-overlay')?.classList.add('label-ready'));
 </script>
 <div id="exit-ripple-container"></div>
 
@@ -68,7 +71,7 @@
 </div>
 <div class="work-bubble" id="workBubble" aria-hidden="true">
   <div class="bubble-menu">
-    <a href="../#third-section" class="bubble-item interactable">
+    <a href="../creatify/" class="bubble-item interactable">
       <span class="bubble-num">01</span>creatify
     </a>
     <a href="../deep24/" class="bubble-item interactable">
@@ -168,8 +171,8 @@
   
   <!-- Your JavaScript -->
   <script src="../js/favicon.js?v=3"></script>
-  <script src="../js/page-wipe.js?v=10"></script>
-  <script src="main.js?v=2"></script>
+  <script src="../js/page-wipe.js?v=15"></script>
+  <script src="main.js?v=7"></script>
   <script src="contact.js?v=2"></script>
 </body>
 </html>

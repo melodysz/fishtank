@@ -156,8 +156,33 @@ const BLOB_HEIGHT = 40;
 // then it eases back to normal size as it catches up. Stays normal size while
 // it's a hover blob over links. Moves with transform (cheap) instead of left/top.
 let cursorScale = 1;
+// While hovering a link, the cursor bubble locks onto it: centred on the link's
+// text and sized to that text plus even padding (it also follows the text if it
+// changes width, e.g. "work" → "work!"). Otherwise it follows the mouse.
+let blobTarget = null;
+const BLOB_PAD_X = 14;   // px of bubble either side of the text
+const BLOB_PAD_Y = 5;    // px of bubble above and below the text
+let blobTargetX = 0, blobTargetY = 0, blobW = 0, blobH = 0;
+function blobTextBox(el) {
+  const r = document.createRange();
+  r.selectNodeContents(el);
+  const b = r.getBoundingClientRect();
+  return b.width ? b : el.getBoundingClientRect();
+}
+function followBlobTarget() {
+  const b = blobTextBox(blobTarget);
+  blobTargetX = b.left + b.width / 2;
+  blobTargetY = b.top + b.height / 2;
+  const w = Math.round(b.width + BLOB_PAD_X * 2);
+  if (w !== blobW) { blobW = w; cursorMain.style.setProperty('--blob-w', w + 'px'); }
+  const h = Math.round(b.height + BLOB_PAD_Y * 2);
+  if (h !== blobH) { blobH = h; cursorMain.style.setProperty('--blob-h', h + 'px'); }
+}
+
 function animateCursor() {
-  const dx = mouseX - curX, dy = mouseY - curY;
+  if (blobTarget) followBlobTarget();
+  const tx = blobTarget ? blobTargetX : mouseX, ty = blobTarget ? blobTargetY : mouseY;
+  const dx = tx - curX, dy = ty - curY;
   const lag = Math.hypot(dx, dy);
   const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
   const scaleChanging = Math.abs(targetScale - cursorScale) > 0.002;
@@ -180,17 +205,39 @@ window.addEventListener('mousemove', (e) => {
   cursorMain.classList.add('active');
 });
 
+// Is this link sitting on a dark background? (first solid-ish background found going
+// up from it). The bubble blends with "screen" on dark, "multiply" on light, so it
+// keeps its colour either way.
+function onDarkBackground(el) {
+  const lum = (r, g, b) => 0.299 * r + 0.587 * g + 0.114 * b;
+  for (let n = el; n; n = n.parentElement) {
+    const cs = getComputedStyle(n);
+    // a gradient background (like the case-study footer's): average its colours
+    if (cs.backgroundImage.includes('gradient')) {
+      const cols = [...cs.backgroundImage.matchAll(/rgba?\(([^)]+)\)/g)].map((c) => c[1].split(',').map(Number));
+      if (cols.length) return cols.reduce((a, c) => a + lum(c[0], c[1], c[2]), 0) / cols.length < 110;
+    }
+    const m = cs.backgroundColor.match(/[\d.]+/g);
+    if (m && (m[3] === undefined || +m[3] > 0.5)) {
+      const [r, g, b] = m.map(Number);
+      return lum(r, g, b) < 110;
+    }
+  }
+  return false;
+}
+
 function expandToBlob(el) {
-  const rect = el.getBoundingClientRect();
   isBlobMode = true;
-  cursorMain.style.setProperty('--blob-w', rect.width + 'px');
-  cursorMain.style.setProperty('--blob-h', BLOB_HEIGHT + 'px');
+  gsap.set(cursorMain, { clearProps: 'width,height' });   // size comes from --blob-w/--blob-h only
+  blobTarget = el;                 // lock onto this link (see followBlobTarget)
+  cursorMain.classList.toggle('on-dark', onDarkBackground(el));
+  blobW = 0; blobH = 0;
+  followBlobTarget();
   cursorMain.classList.add('is-blob');
-  mouseX = rect.left + rect.width / 2;
-  mouseY = rect.top + BLOB_HEIGHT / 2;
 }
 
 function shrinkBlob() {
+  blobTarget = null;
   isBlobMode = false;
   cursorMain.classList.remove('is-blob');
 }
@@ -219,16 +266,9 @@ navWordmarkEl.addEventListener('click', (e) => {
 });
 
 clickableEls.forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    if (isBlobMode) return;
-    cursorMain.classList.add('is-blob');
-    gsap.to(cursorMain, { width: '48px', height: '48px', duration: 0.3, ease: "power2.out" });
-  });
-  el.addEventListener('mouseleave', () => {
-    if (isBlobMode) return;
-    cursorMain.classList.remove('is-blob');
-    gsap.to(cursorMain, { width: '18px', height: '18px', duration: 0.3, ease: "power2.out" });
-  });
+  // footer + sidebar text links: the bubble locks onto the text, like the nav
+  el.addEventListener('mouseenter', () => expandToBlob(el));
+  el.addEventListener('mouseleave', () => { if (blobTarget === el) shrinkBlob(); });
 });
 
 // Nav link items — flip text on hover + blob cursor

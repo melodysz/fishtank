@@ -121,21 +121,25 @@
   position: relative;
   z-index: 3;
   opacity: 0;
-  font-family: 'Xanh Mono', monospace;
-  font-style: italic;
-  font-weight: normal;
-  font-size: 1.6rem;
-  color: #0313E4;
-  letter-spacing: -0.05em;
+  /* Figma "Site Intro Splash": black, yellow asterisk + text, PP Neue Montreal
+     (sized like the other splashes, see js/splash.js) */
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1;
+  color: #EAFE07;
+  letter-spacing: 0;
 }
 
-/* Loading asterisk: like the tab icon's spin but slower + chunkier (one turn per 5s, in 18° ticks), in blue.
-   It sits dead centre; the "feeding the fish..." line hangs just below it. */
+/* Loading asterisk: like the tab icon's spin but slower + chunkier (one turn per 5s, in 18° ticks).
+   It sits dead centre; the "feeding the fish..." line hangs just below it.
+   (The only splash whose asterisk spins; the page-to-page splashes' stay still.) */
 .intro-star {
   display: block;
-  width: 40px;
+  width: 32px;
   height: auto;
-  color: #0313E4;
+  color: #EAFE07;
   animation: intro-star-spin 5s steps(20) infinite;   /* 18° ticks, 4 per second */
 }
 @keyframes intro-star-spin { to { transform: rotate(360deg); } }
@@ -143,7 +147,7 @@
 
 .intro-label {
   position: absolute;
-  top: calc(100% + 18px);
+  top: calc(100% + 44px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -205,6 +209,15 @@
   animation: rippleExpand 1.3s ease-out forwards;
 }
 
+
+/* the intro ripples are drawn on this one canvas (see startRippleTransition in main.js) */
+.ripple-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 
 .ripple-blue {
   background-color: #061a8a;
@@ -311,13 +324,35 @@ background-color: #0313E4;
   width: var(--blob-w, 48px);
   height: var(--blob-h, 48px);
   border-radius: 50%;
-  opacity: 0.4;
-  mix-blend-mode: normal;
+  /* "screen": over the dark page the bubble keeps its own blue, and text under it
+     still shows through (only while hovering — a blend on the plain dot made
+     scrolling stutter) */
+  opacity: 0.8;
+  mix-blend-mode: screen;
 }
 
 .cursor-dot.is-blob.is-pill {
   border-radius: 999px;
-  opacity: 0.35;
+  opacity: 0.8;
+}
+
+/* hovering a work-nav pill: same shape + size as the pill, light see-through blue.
+   Size follows the pill quickly (it springs wider on hover) instead of the slow bouncy default. */
+.cursor-dot.is-blob.on-pill {
+  background-color: #0A9EFF;   /* vivid cerulean / sky blue */
+  opacity: 0.7;
+  mix-blend-mode: color-dodge;   /* lights the pill up sky blue and makes its text glow */
+  border-radius: var(--blob-r, 6px);
+  transition: opacity 0.3s ease,
+              width 0.15s ease-out,
+              height 0.15s ease-out,
+              border-radius 0.3s ease;
+}
+
+/* hovering a project card: the plain see-through bubble, no blend */
+.cursor-dot.is-blob.on-card {
+  mix-blend-mode: normal;
+  opacity: 0.4;
 }
 
 .bubble-particle {
@@ -360,6 +395,7 @@ background-color: #0313E4;
   position: fixed;
   top: 0;
   left: 0;
+  will-change: transform;   /* its own layer from the start: it drifts during the curtain */
     background: transparent !important;
   width: 100vw;
   height: 100vh;
@@ -2795,3 +2831,13 @@ body.section2-offscreen .section-2-wrapper {
    preview (js/favicon.js adds .show-play on localhost). To launch it, remove
    the line marked PLAY SWITCH in js/favicon.js. */
 html:not(.show-play) .nav-link-item[data-default="play"] { display: none; }
+
+/* cursor colour per panel — like each page has its own */
+html.panel-who .cursor-dot { background-color: #83E7FF; }            /* who: light blue, as on the old who page */
+html.panel-who .cursor-dot.active { opacity: 1; }
+/* the panels are white: "multiply" keeps the bubble's colour and dark text stays crisp under it */
+html.panel-who .cursor-dot.is-blob,
+html.panel-who .cursor-dot.is-blob.is-pill,
+html.panel-play .cursor-dot.is-blob,
+html.panel-play .cursor-dot.is-blob.is-pill { opacity: 0.7; mix-blend-mode: multiply; }
+html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: the sidebar's blue */

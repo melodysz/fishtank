@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Creatify] Case Study</title>
+  <!-- Always open at the top, even on reload. Must run before GSAP's ScrollTrigger
+       loads: it remembers this setting at load time and puts it back on every refresh. -->
+  <script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Xanh+Mono:ital@1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
+
+
+  <link rel="stylesheet" href="style.css?v=52">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=8">
+  <script src="../js/splash.js?v=8"></script>
+  <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
+  <link rel="expect" href="#page-entry-overlay" blocking="render">
+  <link rel="icon" type="image/x-icon" href="https://melodysz.github.io/baubles/favicon.ico">
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<div id="page-entry-overlay" class="page-wipe"><div class="page-wipe-label"></div></div>
+<script>
+  // the splash for this page (design: js/splash.js); its text shows once its fonts are ready
+  fishtankSplash.render(document.getElementById('page-entry-overlay'), '[ creatify ]');
+  Promise.all([document.fonts.load("26px 'PP Neue Montreal'"), document.fonts.load("300 26px 'HafferXH'")])
+    .then(() => document.getElementById('page-entry-overlay')?.classList.add('label-ready'));
+</script>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursor"></div>
+
+<!-- Pill Nav -->
+<div class="nav-pill-wrap" id="navWrap">
+  <div class="nav-pill" id="navPill">
+    <div class="nav-asterisk" id="navAsterisk">
+      <img src="https://cdn.jsdelivr.net/gh/melodysz/baubles@main/asterisk.svg" alt="*" style="width:28px;height:28px;display:block;">
+    </div>
+    <div class="nav-content">
+      <a href="../" class="nav-wordmark interactable" style="cursor:pointer!important">
+        <span class="wm-melody">melody</span><span class="wm-zhang">zhang</span>
+      </a>
+      <div class="nav-links">
+        <div class="nav-work-wrap" id="navWorkWrap">
+          <a href="../#third-section" class="interactable nav-link-item" data-default="work" data-hover="work!">work</a>
+        </div>
+        <a href="../#who" class="interactable nav-link-item" data-default="who" data-hover="who?">who</a>
+        <a href="../#play" class="interactable nav-link-item" data-default="play" data-hover="play!">play</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Thought bubble — outside nav pill so backdrop-filter works -->
+<div class="bubble-dots-wrap" id="bubbleDotsWrap">
+  <div class="bubble-dot bubble-dot-sm"></div>
+  <div class="bubble-dot bubble-dot-md"></div>
+  <div class="bubble-dot bubble-dot-lg"></div>
+</div>
+<div class="work-bubble" id="workBubble" aria-hidden="true">
+  <div class="bubble-menu">
+    <a href="./" class="bubble-item interactable is-current" aria-current="page">
+      <span class="bubble-num">01</span>creatify
+    </a>
+    <a href="../deep24/" class="bubble-item interactable">
+      <span class="bubble-num">02</span>deep24
+    </a>
+    <a href="../pent-up/" class="bubble-item interactable">
+      <span class="bubble-num">03</span>pent up
+    </a>
+    <a href="../knouri/" class="bubble-item interactable">
+      <span class="bubble-num">04</span>knouri
+    </a>
+  </div>
+</div>
+
+<!-- Fixed Sidebar Navigation -->
+<nav class="sidebar-nav">
+  <ul class="nav-sections">
+    <li class="nav-item active"><a href="#overview" class="nav-link"><span class="nav-num">01</span><span class="nav-name">overview</span></a></li>
+    <li class="nav-item"><a href="#research" class="nav-link"><span class="nav-num">02</span><span class="nav-name">research</span></a></li>
+    <li class="nav-item"><a href="#design" class="nav-link"><span class="nav-num">03</span><span class="nav-name">design</span></a></li>
+    <li class="nav-item"><a href="#beyond" class="nav-link"><span class="nav-num">04</span><span class="nav-name">beyond agent</span></a></li>
+    <li class="nav-item"><a href="#reflection" class="nav-link"><span class="nav-num">05</span><span class="nav-name">reflection</span></a></li>
+  </ul>
+</nav>
+
+<!-- Hero: a live, coded replica of Creatify's Agent welcome screen (agent-hero.js) -->
+<section class="hero-section">
+  <div class="agent-hero" aria-hidden="true">
+    <canvas class="ah-waves"></canvas>
+    <div class="ah-dots"></div>
+    <div class="ah-stage">
+      <div class="ah-title-wrap">
+        <div class="ah-title-row">
+          <span></span>
+          <div class="ah-title"><span class="ah-grey">What will you </span><span class="ah-purple">create</span> <span class="ah-grey">today?</span></div>
+          <span class="ah-help"><i class="ah-i" style="--i:url(agent-icons/help-line.svg);--s:16px"></i></span>
+        </div>
+      </div>
+      <div class="ah-composer-slot">
+        <div class="ah-composer">
+          <div class="ah-sweep"><div class="ah-sweep-band b0"></div><div class="ah-sweep-band b1"></div></div>
+          <div class="ah-edge"></div>
+          <div class="ah-sheen"></div>
+          <div class="ah-content">
+            <div class="ah-input"><div class="ah-typed">Create</div></div>
+            <div class="ah-toolbar">
+              <div class="ah-left">
+                <span class="ah-round"><i class="ah-i" style="--i:url(agent-icons/add.svg);--s:18px"></i><span class="ah-dot"></span></span>
+                <span class="ah-product"><i class="ah-i" style="--i:url(agent-icons/product.svg);--s:14px"></i>Product</span>
+                <span class="ah-lite">Lite</span>
+              </div>
+              <div class="ah-right">
+                <span class="ah-auto"><i class="ah-i" style="--i:url(agent-icons/fast-forward.svg);--s:14px"></i>Auto</span>
+                <span class="ah-round"><i class="ah-i" style="--i:url(agent-icons/mic.svg);--s:18px"></i></span>
+                <span class="ah-round ah-send"><i class="ah-i" style="--i:url(agent-icons/arrow-up.svg);--s:16px"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ah-chips">
+        <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/quick.svg);--s:16px"></i>Skills<span class="ah-ping"></span></span></span>
+        <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/play.svg);--s:16px"></i>Video ads</span></span>
+        <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/image.svg);--s:16px"></i>Image ads</span></span>
+        <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/search.svg);--s:16px"></i>Competitor research</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-border" aria-hidden="true"></div>
+  <div class="hero-border hero-border-blur" aria-hidden="true"></div>
+</section>
+
+<main class="main-content">
+
+<!-- ===== Title + summary + tags ===== -->
+<section class="cf-summary">
+  <div class="cf-summary-row">
+    <h1 class="cf-title">Cre<em>a</em>tify</h1>
+    <p class="cf-summary-text">Rethinking how users discover and navigate Creatify’s AI Agent—redesigning Skills, structuring complex AI workflows, and exploring a more discoverable homepage experience.</p>
+  </div>
+  <div class="cf-tags">
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/asterisk.svg)"></span>AI Product Design</span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/cursor.svg)"></span>Interaction Design</span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/pinwheel.svg)"></span>Motion Design</span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/at.svg)"></span>UX Research</span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/chart-bar.svg)"></span>Product Analytics</span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/palette.svg)"></span>Design Engineering</span>
+  </div>
+</section>
+
+<!-- ===== 01 Overview: the highlights carousel + the overview card (one "overview" section in the bottom nav) ===== -->
+<div id="overview" class="cf-overview-group">
+
+<!-- Get the highlights. (carousel; flick / drag: highlights.js) -->
+<section class="cf-highlights" aria-label="Highlights">
+  <h2 class="hl-title">Get the highlights.</h2>
+  <div class="hl-viewport">
+    <div class="hl-track">
+      <article class="hl-card hl-card--iso">
+        <div class="hl-card-inner">
+          <p class="hl-caption"><span class="hl-caption-in">Agent ecosystem designed—then<br><em>redesigned.</em></span></p>
+          <!-- Figma "! Claude - Carousel Item": a MacBook at an angle on a concrete slab. The
+               recording is bent into the screen's perspective, cut to the screen's shape
+               (rounded corners, notch, the part hidden behind the base), and the slab sits on top. -->
+          <div class="hl-iso-stage">
+            <img class="hl-iso-mac" src="images/highlight-0-mac.webp" alt="" draggable="false">
+            <div class="hl-screen hl-iso-screen">
+              <div class="hl-iso-plane">
+                <video class="hl-video" src="images/highlight-0-agent-home.mp4" poster="images/highlight-0-agent-home-poster.webp" muted playsinline preload="auto" aria-label="Creatify's redesigned Agent homepage in action"></video>
+              </div>
+            </div>
+            <img class="hl-iso-platform" src="images/highlight-0-platform.webp" alt="" draggable="false">
+          </div>
+        </div>
+      </article>
+      <article class="hl-card hl-card--quotes">
+        <div class="hl-card-inner">
+          <p class="hl-caption"><span class="hl-caption-in"><em>33</em> conversations with real Creatify<br>users.</span></p>
+          <!-- Figma "Carousel Item 2": two MacBooks, and quotes from the user interviews that pop in
+               one by one (highlights.js). The front laptop's screen is tilted, so the design is bent
+               to fit it, like the angled MacBook card. -->
+          <div class="hl-stage hl-quotes">
+            <img class="hl-shadow" src="images/highlight-2-shadow-back.png?v=2" alt="" draggable="false" style="left:304.75px; top:705.83px; width:936.69px; height:19.94px">
+            <img src="images/highlight-2-mac-back.webp" alt="" draggable="false" style="left:472.29px; top:319.65px; width:680.46px; height:393.06px">
+            <img class="hl-shadow" src="images/highlight-2-shadow-front.png?v=2" alt="" draggable="false" style="left:-1.45px; top:705.6px; width:930.28px; height:20.4px">
+            <img src="images/highlight-2-mac-front.webp" alt="" draggable="false" style="left:48.06px; top:291px; width:948.61px; height:429.04px">
+            <div class="hl-quotes-screen">
+              <img class="hl-quotes-plane" src="images/highlight-2-screen.webp" alt="" draggable="false">
+            </div>
+            <!-- the group's drop shadow (Figma puts it on the group, so boxes don't shadow each other): one shadow per box, all underneath the boxes -->
+            <div class="hl-quote-shadow" style="left:137px; top:243px; width:200px; --i:0; height:199px" aria-hidden="true"></div>
+            <div class="hl-quote-shadow" style="left:301px; top:213px; width:193px; --i:1; height:149px" aria-hidden="true"></div>
+            <div class="hl-quote-shadow" style="left:451px; top:297px; width:193px; --i:2; height:149px" aria-hidden="true"></div>
+            <div class="hl-quote-shadow" style="left:605px; top:198px; width:193px; --i:3; height:174px" aria-hidden="true"></div>
+            <div class="hl-quote-shadow" style="left:753px; top:327px; width:193px; --i:4; height:174px" aria-hidden="true"></div>
+            <div class="hl-quote-shadow" style="left:909px; top:193px; width:193px; --i:5; height:174px" aria-hidden="true"></div>
+            <figure class="hl-quote" style="left:137px; top:243px; width:200px; --i:0; height:199px">
+              <div class="hl-quote-mark" aria-hidden="true">“</div>
+              <blockquote>“I want to know how many credits this will use before I generate.”</blockquote>
+              <figcaption><svg class="hl-quote-icon" viewBox="0 0 20 19" aria-hidden="true"><path fill="#6F68FF" d="M19.4082 17.6276C17.9803 15.1591 15.78 13.3891 13.2122 12.5501C14.4824 11.7939 15.4692 10.6417 16.0212 9.27048C16.5731 7.89922 16.6597 6.38468 16.2676 4.95945C15.8755 3.53422 15.0264 2.27711 13.8506 1.38117C12.6749 0.485228 11.2376 0 9.75941 0C8.28122 0 6.84391 0.485228 5.66818 1.38117C4.49246 2.27711 3.64334 3.53422 3.25123 4.95945C2.85911 6.38468 2.94569 7.89922 3.49765 9.27048C4.04961 10.6417 5.03644 11.7939 6.3066 12.5501C3.73878 13.3882 1.53847 15.1582 0.110659 17.6276C0.0582987 17.7129 0.0235684 17.8079 0.00851736 17.9069C-0.00653367 18.006 -0.00160057 18.107 0.0230256 18.2041C0.0476518 18.3011 0.0914723 18.3923 0.151901 18.4722C0.212331 18.552 0.288144 18.619 0.37487 18.6691C0.461595 18.7192 0.557476 18.7514 0.656854 18.7638C0.756232 18.7763 0.857095 18.7687 0.953492 18.7415C1.04989 18.7143 1.13987 18.6681 1.21812 18.6056C1.29637 18.5431 1.3613 18.4656 1.4091 18.3776C3.17535 15.3251 6.29722 13.5026 9.75941 13.5026C13.2216 13.5026 16.3435 15.3251 18.1097 18.3776C18.1575 18.4656 18.2225 18.5431 18.3007 18.6056C18.379 18.6681 18.4689 18.7143 18.5653 18.7415C18.6617 18.7687 18.7626 18.7763 18.862 18.7638C18.9613 18.7514 19.0572 18.7192 19.1439 18.6691C19.2307 18.619 19.3065 18.552 19.3669 18.4722C19.4273 18.3923 19.4712 18.3011 19.4958 18.2041C19.5204 18.107 19.5254 18.006 19.5103 17.9069C19.4952 17.8079 19.4605 17.7129 19.4082 17.6276ZM4.50941 6.75255C4.50941 5.7142 4.81732 4.69917 5.39419 3.83581C5.97107 2.97245 6.79101 2.29954 7.75032 1.90218C8.70963 1.50482 9.76523 1.40086 10.7836 1.60343C11.802 1.806 12.7375 2.30601 13.4717 3.04024C14.2059 3.77447 14.706 4.70993 14.9085 5.72833C15.1111 6.74673 15.0071 7.80233 14.6098 8.76164C14.2124 9.72095 13.5395 10.5409 12.6762 11.1178C11.8128 11.6946 10.7978 12.0026 9.75941 12.0026C8.36748 12.0011 7.03299 11.4475 6.04874 10.4632C5.0645 9.47897 4.5109 8.14448 4.50941 6.75255Z"/></svg>Ecommerce seller</figcaption>
+            </figure>
+            <figure class="hl-quote" style="left:301px; top:213px; width:193px; --i:1; height:149px">
+              <div class="hl-quote-mark" aria-hidden="true">“</div>
+              <blockquote>“A tutorial would be really helpful.”</blockquote>
+              <figcaption><svg class="hl-quote-icon" viewBox="0 0 20 19" aria-hidden="true"><path fill="#6F68FF" d="M19.4082 17.6276C17.9803 15.1591 15.78 13.3891 13.2122 12.5501C14.4824 11.7939 15.4692 10.6417 16.0212 9.27048C16.5731 7.89922 16.6597 6.38468 16.2676 4.95945C15.8755 3.53422 15.0264 2.27711 13.8506 1.38117C12.6749 0.485228 11.2376 0 9.75941 0C8.28122 0 6.84391 0.485228 5.66818 1.38117C4.49246 2.27711 3.64334 3.53422 3.25123 4.95945C2.85911 6.38468 2.94569 7.89922 3.49765 9.27048C4.04961 10.6417 5.03644 11.7939 6.3066 12.5501C3.73878 13.3882 1.53847 15.1582 0.110659 17.6276C0.0582987 17.7129 0.0235684 17.8079 0.00851736 17.9069C-0.00653367 18.006 -0.00160057 18.107 0.0230256 18.2041C0.0476518 18.3011 0.0914723 18.3923 0.151901 18.4722C0.212331 18.552 0.288144 18.619 0.37487 18.6691C0.461595 18.7192 0.557476 18.7514 0.656854 18.7638C0.756232 18.7763 0.857095 18.7687 0.953492 18.7415C1.04989 18.7143 1.13987 18.6681 1.21812 18.6056C1.29637 18.5431 1.3613 18.4656 1.4091 18.3776C3.17535 15.3251 6.29722 13.5026 9.75941 13.5026C13.2216 13.5026 16.3435 15.3251 18.1097 18.3776C18.1575 18.4656 18.2225 18.5431 18.3007 18.6056C18.379 18.6681 18.4689 18.7143 18.5653 18.7415C18.6617 18.7687 18.7626 18.7763 18.862 18.7638C18.9613 18.7514 19.0572 18.7192 19.1439 18.6691C19.2307 18.619 19.3065 18.552 19.3669 18.4722C19.4273 18.3923 19.4712 18.3011 19.4958 18.2041C19.5204 18.107 19.5254 18.006 19.5103 17.9069C19.4952 17.8079 19.4605 17.7129 19.4082 17.6276ZM4.50941 6.75255C4.50941 5.7142 4.81732 4.69917 5.39419 3.83581C5.97107 2.97245 6.79101 2.29954 7.75032 1.90218C8.70963 1.50482 9.76523 1.40086 10.7836 1.60343C11.802 1.806 12.7375 2.30601 13.4717 3.04024C14.2059 3.77447 14.706 4.70993 14.9085 5.72833C15.1111 6.74673 15.0071 7.80233 14.6098 8.76164C14.2124 9.72095 13.5395 10.5409 12.6762 11.1178C11.8128 11.6946 10.7978 12.0026 9.75941 12.0026C8.36748 12.0011 7.03299 11.4475 6.04874 10.4632C5.0645 9.47897 4.5109 8.14448 4.50941 6.75255Z"/></svg>Marketer</figcaption>
+            </figure>
+            <figure class="hl-quote" style="left:451px; top:297px; width:193px; --i:2; height:149px">
+              <div class="hl-quote-mark" aria-hidden="true">“</div>
+              <blockquote>“I wasn’t sure what Agent did.”</blockquote>
+              <figcaption><svg class="hl-quote-icon" viewBox="0 0 20 19" aria-hidden="true"><path fill="#6F68FF" d="M19.4082 17.6276C17.9803 15.1591 15.78 13.3891 13.2122 12.5501C14.4824 11.7939 15.4692 10.6417 16.0212 9.27048C16.5731 7.89922 16.6597 6.38468 16.2676 4.95945C15.8755 3.53422 15.0264 2.27711 13.8506 1.38117C12.6749 0.485228 11.2376 0 9.75941 0C8.28122 0 6.84391 0.485228 5.66818 1.38117C4.49246 2.27711 3.64334 3.53422 3.25123 4.95945C2.85911 6.38468 2.94569 7.89922 3.49765 9.27048C4.04961 10.6417 5.03644 11.7939 6.3066 12.5501C3.73878 13.3882 1.53847 15.1582 0.110659 17.6276C0.0582987 17.7129 0.0235684 17.8079 0.00851736 17.9069C-0.00653367 18.006 -0.00160057 18.107 0.0230256 18.2041C0.0476518 18.3011 0.0914723 18.3923 0.151901 18.4722C0.212331 18.552 0.288144 18.619 0.37487 18.6691C0.461595 18.7192 0.557476 18.7514 0.656854 18.7638C0.756232 18.7763 0.857095 18.7687 0.953492 18.7415C1.04989 18.7143 1.13987 18.6681 1.21812 18.6056C1.29637 18.5431 1.3613 18.4656 1.4091 18.3776C3.17535 15.3251 6.29722 13.5026 9.75941 13.5026C13.2216 13.5026 16.3435 15.3251 18.1097 18.3776C18.1575 18.4656 18.2225 18.5431 18.3007 18.6056C18.379 18.6681 18.4689 18.7143 18.5653 18.7415C18.6617 18.7687 18.7626 18.7763 18.862 18.7638C18.9613 18.7514 19.0572 18.7192 19.1439 18.6691C19.2307 18.619 19.3065 18.552 19.3669 18.4722C19.4273 18.3923 19.4712 18.3011 19.4958 18.2041C19.5204 18.107 19.5254 18.006 19.5103 17.9069C19.4952 17.8079 19.4605 17.7129 19.4082 17.6276ZM4.50941 6.75255C4.50941 5.7142 4.81732 4.69917 5.39419 3.83581C5.97107 2.97245 6.79101 2.29954 7.75032 1.90218C8.70963 1.50482 9.76523 1.40086 10.7836 1.60343C11.802 1.806 12.7375 2.30601 13.4717 3.04024C14.2059 3.77447 14.706 4.70993 14.9085 5.72833C15.1111 6.74673 15.0071 7.80233 14.6098 8.76164C14.2124 9.72095 13.5395 10.5409 12.6762 11.1178C11.8128 11.6946 10.7978 12.0026 9.75941 12.0026C8.36748 12.0011 7.03299 11.4475 6.04874 10.4632C5.0645 9.47897 4.5109 8.14448 4.50941 6.75255Z"/></svg>Founder</figcaption>
+            </figure>
+            <figure class="hl-quote" style="left:605px; top:198px; width:193px; --i:3; height:174px">
+              <div class="hl-quote-mark" aria-hidden="true">“</div>
+              <blockquote>“It looks cool—there’s just a lot going on at once.”</blockquote>
+              <figcaption><svg class="hl-quote-icon" viewBox="0 0 20 19" aria-hidden="true"><path fill="#6F68FF" d="M19.4082 17.6276C17.9803 15.1591 15.78 13.3891 13.2122 12.5501C14.4824 11.7939 15.4692 10.6417 16.0212 9.27048C16.5731 7.89922 16.6597 6.38468 16.2676 4.95945C15.8755 3.53422 15.0264 2.27711 13.8506 1.38117C12.6749 0.485228 11.2376 0 9.75941 0C8.28122 0 6.84391 0.485228 5.66818 1.38117C4.49246 2.27711 3.64334 3.53422 3.25123 4.95945C2.85911 6.38468 2.94569 7.89922 3.49765 9.27048C4.04961 10.6417 5.03644 11.7939 6.3066 12.5501C3.73878 13.3882 1.53847 15.1582 0.110659 17.6276C0.0582987 17.7129 0.0235684 17.8079 0.00851736 17.9069C-0.00653367 18.006 -0.00160057 18.107 0.0230256 18.2041C0.0476518 18.3011 0.0914723 18.3923 0.151901 18.4722C0.212331 18.552 0.288144 18.619 0.37487 18.6691C0.461595 18.7192 0.557476 18.7514 0.656854 18.7638C0.756232 18.7763 0.857095 18.7687 0.953492 18.7415C1.04989 18.7143 1.13987 18.6681 1.21812 18.6056C1.29637 18.5431 1.3613 18.4656 1.4091 18.3776C3.17535 15.3251 6.29722 13.5026 9.75941 13.5026C13.2216 13.5026 16.3435 15.3251 18.1097 18.3776C18.1575 18.4656 18.2225 18.5431 18.3007 18.6056C18.379 18.6681 18.4689 18.7143 18.5653 18.7415C18.6617 18.7687 18.7626 18.7763 18.862 18.7638C18.9613 18.7514 19.0572 18.7192 19.1439 18.6691C19.2307 18.619 19.3065 18.552 19.3669 18.4722C19.4273 18.3923 19.4712 18.3011 19.4958 18.2041C19.5204 18.107 19.5254 18.006 19.5103 17.9069C19.4952 17.8079 19.4605 17.7129 19.4082 17.6276ZM4.50941 6.75255C4.50941 5.7142 4.81732 4.69917 5.39419 3.83581C5.97107 2.97245 6.79101 2.29954 7.75032 1.90218C8.70963 1.50482 9.76523 1.40086 10.7836 1.60343C11.802 1.806 12.7375 2.30601 13.4717 3.04024C14.2059 3.77447 14.706 4.70993 14.9085 5.72833C15.1111 6.74673 15.0071 7.80233 14.6098 8.76164C14.2124 9.72095 13.5395 10.5409 12.6762 11.1178C11.8128 11.6946 10.7978 12.0026 9.75941 12.0026C8.36748 12.0011 7.03299 11.4475 6.04874 10.4632C5.0645 9.47897 4.5109 8.14448 4.50941 6.75255Z"/></svg>Consultant</figcaption>
+            </figure>
+            <figure class="hl-quote" style="left:753px; top:327px; width:193px; --i:4; height:174px">
+              <div class="hl-quote-mark" aria-hidden="true">“</div>
+              <blockquote>“The results look so human compared to other tools.”</blockquote>
+              <figcaption><svg class="hl-quote-icon" viewBox="0 0 20 19" aria-hidden="true"><path fill="#6F68FF" d="M19.4082 17.6276C17.9803 15.1591 15.78 13.3891 13.2122 12.5501C14.4824 11.7939 15.4692 10.6417 16.0212 9.27048C16.5731 7.89922 16.6597 6.38468 16.2676 4.95945C15.8755 3.53422 15.0264 2.27711 13.8506 1.38117C12.6749 0.485228 11.2376 0 9.75941 0C8.28122 0 6.84391 0.485228 5.66818 1.38117C4.49246 2.27711 3.64334 3.53422 3.25123 4.95945C2.85911 6.38468 2.94569 7.89922 3.49765 9.27048C4.04961 10.6417 5.03644 11.7939 6.3066 12.5501C3.73878 13.3882 1.53847 15.1582 0.110659 17.6276C0.0582987 17.7129 0.0235684 17.8079 0.00851736 17.9069C-0.00653367 18.006 -0.00160057 18.107 0.0230256 18.2041C0.0476518 18.3011 0.0914723 18.3923 0.151901 18.4722C0.212331 18.552 0.288144 18.619 0.37487 18.6691C0.461595 18.7192 0.557476 18.7514 0.656854 18.7638C0.756232 18.7763 0.857095 18.7687 0.953492 18.7415C1.04989 18.7143 1.13987 18.6681 1.21812 18.6056C1.29637 18.5431 1.3613 18.4656 1.4091 18.3776C3.17535 15.3251 6.29722 13.5026 9.75941 13.5026C13.2216 13.5026 16.3435 15.3251 18.1097 18.3776C18.1575 18.4656 18.2225 18.5431 18.3007 18.6056C18.379 18.6681 18.4689 18.7143 18.5653 18.7415C18.6617 18.7687 18.7626 18.7763 18.862 18.7638C18.9613 18.7514 19.0572 18.7192 19.1439 18.6691C19.2307 18.619 19.3065 18.552 19.3669 18.4722C19.4273 18.3923 19.4712 18.3011 19.4958 18.2041C19.5204 18.107 19.5254 18.006 19.5103 17.9069C19.4952 17.8079 19.4605 17.7129 19.4082 17.6276ZM4.50941 6.75255C4.50941 5.7142 4.81732 4.69917 5.39419 3.83581C5.97107 2.97245 6.79101 2.29954 7.75032 1.90218C8.70963 1.50482 9.76523 1.40086 10.7836 1.60343C11.802 1.806 12.7375 2.30601 13.4717 3.04024C14.2059 3.77447 14.706 4.70993 14.9085 5.72833C15.1111 6.74673 15.0071 7.80233 14.6098 8.76164C14.2124 9.72095 13.5395 10.5409 12.6762 11.1178C11.8128 11.6946 10.7978 12.0026 9.75941 12.0026C8.36748 12.0011 7.03299 11.4475 6.04874 10.4632C5.0645 9.47897 4.5109 8.14448 4.50941 6.75255Z"/></svg>Creator</figcaption>
+            </figure>
+            <figure class="hl-quote" style="left:909px; top:193px; width:193px; --i:5; height:174px">
+              <div class="hl-quote-mark" aria-hidden="true">“</div>
+              <blockquote>“I wish I had more control over the final output.”</blockquote>
+              <figcaption><svg class="hl-quote-icon" viewBox="0 0 20 19" aria-hidden="true"><path fill="#6F68FF" d="M19.4082 17.6276C17.9803 15.1591 15.78 13.3891 13.2122 12.5501C14.4824 11.7939 15.4692 10.6417 16.0212 9.27048C16.5731 7.89922 16.6597 6.38468 16.2676 4.95945C15.8755 3.53422 15.0264 2.27711 13.8506 1.38117C12.6749 0.485228 11.2376 0 9.75941 0C8.28122 0 6.84391 0.485228 5.66818 1.38117C4.49246 2.27711 3.64334 3.53422 3.25123 4.95945C2.85911 6.38468 2.94569 7.89922 3.49765 9.27048C4.04961 10.6417 5.03644 11.7939 6.3066 12.5501C3.73878 13.3882 1.53847 15.1582 0.110659 17.6276C0.0582987 17.7129 0.0235684 17.8079 0.00851736 17.9069C-0.00653367 18.006 -0.00160057 18.107 0.0230256 18.2041C0.0476518 18.3011 0.0914723 18.3923 0.151901 18.4722C0.212331 18.552 0.288144 18.619 0.37487 18.6691C0.461595 18.7192 0.557476 18.7514 0.656854 18.7638C0.756232 18.7763 0.857095 18.7687 0.953492 18.7415C1.04989 18.7143 1.13987 18.6681 1.21812 18.6056C1.29637 18.5431 1.3613 18.4656 1.4091 18.3776C3.17535 15.3251 6.29722 13.5026 9.75941 13.5026C13.2216 13.5026 16.3435 15.3251 18.1097 18.3776C18.1575 18.4656 18.2225 18.5431 18.3007 18.6056C18.379 18.6681 18.4689 18.7143 18.5653 18.7415C18.6617 18.7687 18.7626 18.7763 18.862 18.7638C18.9613 18.7514 19.0572 18.7192 19.1439 18.6691C19.2307 18.619 19.3065 18.552 19.3669 18.4722C19.4273 18.3923 19.4712 18.3011 19.4958 18.2041C19.5204 18.107 19.5254 18.006 19.5103 17.9069C19.4952 17.8079 19.4605 17.7129 19.4082 17.6276ZM4.50941 6.75255C4.50941 5.7142 4.81732 4.69917 5.39419 3.83581C5.97107 2.97245 6.79101 2.29954 7.75032 1.90218C8.70963 1.50482 9.76523 1.40086 10.7836 1.60343C11.802 1.806 12.7375 2.30601 13.4717 3.04024C14.2059 3.77447 14.706 4.70993 14.9085 5.72833C15.1111 6.74673 15.0071 7.80233 14.6098 8.76164C14.2124 9.72095 13.5395 10.5409 12.6762 11.1178C11.8128 11.6946 10.7978 12.0026 9.75941 12.0026C8.36748 12.0011 7.03299 11.4475 6.04874 10.4632C5.0645 9.47897 4.5109 8.14448 4.50941 6.75255Z"/></svg>Business owner</figcaption>
+            </figure>
+          </div>
+        </div>
+      </article>
+      <article class="hl-card hl-card--bubbles">
+        <div class="hl-card-inner">
+          <p class="hl-caption"><span class="hl-caption-in">Designed it. Coded it. <em>Shipped it.</em></span></p>
+          <!-- Figma "! Carousel Item 3": the tools, as logo bubbles that drop in and bounce
+               into a pile (highlights.js). Positions from Figma, nudged ≤9px so neighbours touch; tilts from Figma (flipped: Figma turns the other way); later ones sit on top. -->
+          <div class="hl-stage hl-bubbles" role="img" aria-label="Tools used: Figma, VS Code, Claude, GitHub, PostHog, Notion and Creatify">
+            <img class="hl-bubble" src="images/highlight-3-bubble-creatify.webp" alt="Creatify" draggable="false" style="left:692.97px; top:484.58px; width:261.22px; height:261.22px; --rot:14.63deg">
+            <img class="hl-bubble" src="images/highlight-3-bubble-figma.webp" alt="Figma" draggable="false" style="left:248.88px; top:469.56px; width:276.56px; height:276.56px; --rot:-15.24deg">
+            <img class="hl-bubble" src="images/highlight-3-bubble-github.webp" alt="GitHub" draggable="false" style="left:6.95px; top:366.62px; width:212.36px; height:207.5px; --rot:28.5deg">
+            <img class="hl-bubble hl-bubble--shadow" src="images/highlight-3-bubble-vscode.webp" alt="VS Code" draggable="false" style="left:462.58px; top:303.42px; width:265.02px; height:265.02px; --rot:17.34deg">
+            <img class="hl-bubble" src="images/highlight-3-bubble-claude.webp" alt="Claude" draggable="false" style="left:200.32px; top:291.59px; width:196.31px; height:196.31px; --rot:-12.55deg">
+            <img class="hl-bubble hl-bubble--shadow" src="images/highlight-3-bubble-posthog.webp" alt="PostHog" draggable="false" style="left:76.44px; top:567.03px; width:178.7px; height:178.7px; --rot:-16.36deg">
+            <img class="hl-bubble hl-bubble--shadow" src="images/highlight-3-bubble-notion.webp" alt="Notion" draggable="false" style="left:519.18px; top:567.03px; width:178.7px; height:178.7px; --rot:6.85deg">
+          </div>
+        </div>
+      </article>
+      <article class="hl-card">
+        <div class="hl-card-inner">
+          <p class="hl-caption"><span class="hl-caption-in"><em>38%</em> more Agent Skill sessions post-launch.</span></p>
+          <!-- the laptop screen: the light and dark recordings take turns, each sliding up over the other (highlights.js) -->
+          <div class="hl-screen">
+            <video class="hl-video" src="images/highlight-1-hero-intro-light.mp4" poster="images/highlight-1-poster-light-start.webp" muted playsinline preload="auto" aria-label="The redesigned Agent Skills page animating in (light theme)"></video>
+            <video class="hl-video" src="images/highlight-1-hero-intro-dark.mp4" muted playsinline preload="auto" aria-label="The redesigned Agent Skills page animating in (dark theme)"></video>
+          </div>
+          <div class="hl-screen-glow"></div>
+          <img class="hl-mac" src="images/highlight-mac-frame.webp?v=2" alt="" draggable="false">
+        </div>
+      </article>
+    </div>
+    <div class="hl-dots" aria-label="Choose a highlight"></div>
+  </div>
+</section>
+
+<!-- the overview card -->
+<section class="cf-overview">
+  <div class="cf-overview-text">
+    <div class="cf-num">01</div>
+    <h2 class="cf-h2">Designing discoverability</h2>
+    <p>As Creatify’s <strong>sole product design intern,</strong> I redesigned <strong>how users discover and use Agent</strong>—across Skills, in-chat workflows, navigation, and its homepage.</p>
+    <p>I also stepped into <strong>design engineering,</strong> moving from Figma into production code <strong>to implement, open PRs, and ship live.</strong></p>
+  </div>
+
+  <div class="cf-glass-pills">
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/user.svg)"></span><span class="cf-pill-label">Product Design Intern</span></span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/calendar-blank.svg)"></span><span class="cf-pill-label">May – Aug 2026</span></span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/pen-nib.svg)"></span><span class="cf-pill-label">Figma</span></span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/palette.svg)"></span><span class="cf-pill-label">VS Code, GitHub</span></span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/chart-bar.svg)"></span><span class="cf-pill-label">Posthog</span></span>
+    <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/at.svg)"></span><span class="cf-pill-label">Notion</span></span>
+  </div>
+
+  <img src="images/overview-laptop.webp" alt="The redesigned Agent Skills page on a laptop" class="cf-overview-mockup">
+</section>
+
+</div><!-- /overview -->
+
+<!-- ===== The problem ===== -->
+<section id="problem" class="cf-section">
+  <div class="cf-inner">
+    <div class="cf-head cf-reveal">
+      <div class="cf-eyebrow">The problem</div>
+      <h2 class="cf-h2">Agent could do a lot. Users couldn’t always see it.</h2>
+      <div class="cf-body">
+        <p>As Agent became more capable, the product faced a different problem: <strong>users couldn’t always see or understand what it could do.</strong></p>
+        <p>Skills were hidden behind unfamiliar interactions. Complex workflows needed more guidance than an empty prompt box provided. Agent’s own navigation competed with the rest of Creatify, and different product areas had drifted into noticeably different visual languages.</p>
+      </div>
+    </div>
+
+    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630">
+      <span class="cf-ph-kind">Image · Large · 16:9</span>
+      <span class="cf-ph-desc">The original Agent experience (before), with 3–4 numbered callouts: unlabeled + menu, / command, empty prompt box, competing sidebars.</span>
+    </div>
+
+    <div class="cf-hmw cf-reveal">
+      <div class="cf-eyebrow">How might we</div>
+      <p class="cf-quote">make Agent’s capabilities easier to discover and understand, while creating a more cohesive and distinctly Creatify experience?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 Research ===== -->
+<section id="research" class="cf-section cf-section--gray">
+  <div class="cf-inner">
+    <div class="cf-head cf-reveal">
+      <div class="cf-eyebrow">02 — Research</div>
+      <h2 class="cf-h2">Understanding where users were getting stuck</h2>
+      <div class="cf-body"><p>Before redesigning screens, I wanted to know whether the friction I saw in Agent was isolated or part of broader product behavior. I combined four sources of evidence.</p></div>
+    </div>
+
+    <div class="cf-row cf-row--4 cf-reveal">
+      <div class="cf-card"><div class="cf-card-num">01</div><div class="cf-card-title">PostHog analytics</div><p class="cf-card-text">Funnels, retention, drop-off, feature adoption, onboarding</p></div>
+      <div class="cf-card"><div class="cf-card-num">02</div><div class="cf-card-title">33 user calls</div><p class="cf-card-text">Ecommerce founders, marketers, consultants, creators</p></div>
+      <div class="cf-card"><div class="cf-card-num">03</div><div class="cf-card-title">Competitive research</div><p class="cf-card-text">Higgsfield, Flora, HeyGen, InVideo, Claude, Figma, Arcads</p></div>
+      <div class="cf-card"><div class="cf-card-num">04</div><div class="cf-card-title">Product audit</div><p class="cf-card-text">A hands-on audit of Creatify itself</p></div>
+    </div>
+
+    <div class="cf-split cf-reveal">
+      <div class="cf-sub">
+        <div class="cf-sub-label">01 · Behavioral data</div>
+        <h3 class="cf-h3">Friction showed up across the whole journey</h3>
+        <div class="cf-body">
+          <p>I audited Creatify’s analytics in PostHog across funnels, retention, feature adoption, onboarding, and the major creation workflows. Recurring friction appeared around:</p>
+          <ul class="cf-list">
+            <li>Choosing the right workflow</li>
+            <li>Reaching a successful first generation</li>
+            <li>Understanding credit-consuming actions</li>
+            <li>Render and download moments</li>
+            <li>Subscription and paywall transitions</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cf-ph" style="aspect-ratio:636/440">
+        <span class="cf-ph-kind">Image · Medium</span>
+        <span class="cf-ph-desc">PostHog funnel or drop-off chart. Blur exact numbers if they’re sensitive.</span>
+      </div>
+    </div>
+
+    <div class="cf-stack cf-reveal">
+      <div class="cf-sub">
+        <div class="cf-sub-label">02 · 33 user conversations</div>
+        <h3 class="cf-h3">Three themes stood out</h3>
+        <div class="cf-body"><p>Calls with ecommerce founders, marketers, consultants, creators, and people familiar with competing AI products helped explain what the data was showing.</p></div>
+      </div>
+      <div class="cf-row cf-row--3">
+        <div class="cf-card"><div class="cf-card-num">01</div><div class="cf-card-title">Capabilities were hard to discover</div><p class="cf-card-text">Agent could do sophisticated tasks, but the interface expected users to already know what existed and what to ask for.</p></div>
+        <div class="cf-card cf-card--lilac"><div class="cf-card-num">02</div><div class="cf-card-title">Generative actions required confidence</div><p class="cf-card-text">Generations cost credits, so users wanted clearer expectations around cost, duration, previews, and warnings before committing.</p></div>
+        <div class="cf-card cf-card--dark"><div class="cf-card-num">03</div><div class="cf-card-title">Creatify’s visual identity was an asset</div><p class="cf-card-text">Color and personality were worth refining, not stripping away in pursuit of a generic AI aesthetic.</p></div>
+      </div>
+    </div>
+
+    <div class="cf-stack cf-reveal">
+      <div class="cf-sub">
+        <div class="cf-sub-label">03 · Competitive research</div>
+        <h3 class="cf-h3">Higgsfield made capabilities browsable</h3>
+        <div class="cf-body">
+          <p>I studied how AI creative tools expose capabilities, show examples, structure prompting, and onboard new users. Higgsfield was especially relevant: where Creatify treated Skills as commands inside Agent, Higgsfield made comparable capabilities visible and browsable.</p>
+          <p>For Ad Flow, I ran a deeper comparison with <strong>Arcads</strong> covering cognitive load, node readability, workflow predictability, template guidance, and navigation.</p>
+        </div>
+      </div>
+      <div class="cf-row cf-row--2">
+        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Higgsfield: Skills as a browsable, visual page</span></div>
+        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Creatify (before): Skills as a text list inside a menu</span></div>
+      </div>
+    </div>
+
+    <div class="cf-stack cf-reveal">
+      <div class="cf-sub">
+        <div class="cf-sub-label">04 · Product audit</div>
+        <h3 class="cf-h3">The same pattern showed up inside Creatify</h3>
+        <div class="cf-body"><p>Skills lived behind an unlabeled + menu or a / command. Feature names appeared with little context. Agent often opened on an empty prompt box, and different product areas used inconsistent visual and interaction patterns.</p></div>
+      </div>
+      <div class="cf-row cf-row--3">
+        <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">The unlabeled + menu</span></div>
+        <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">The / command list with hover-only details</span></div>
+        <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Collage: inconsistent styles across 5 product areas</span></div>
+      </div>
+    </div>
+
+    <p class="cf-quote cf-reveal">Make Creatify’s capabilities visible before users have to know to look for them.</p>
+  </div>
+</section>
+
+<!-- ===== 03 Design · Agent Skills ===== -->
+<section id="design" class="cf-section">
+  <div class="cf-inner">
+    <div class="cf-head cf-reveal">
+      <div class="cf-eyebrow">03 — Design · Agent Skills</div>
+      <h2 class="cf-h2">From hidden commands to discoverable capabilities</h2>
+      <div class="cf-body">
+        <p>Agent Skills are specialized workflows for more targeted creative tasks. The original experience had a basic discoverability problem: <strong>users first had to know Skills existed.</strong></p>
+        <p>They could only reach them by typing / or opening an unlabeled + menu. Even then, most information was reduced to a Skill name, with context hidden in small hover states. The interface treated Skills like commands. I wanted to treat them like <strong>capabilities users could explore.</strong></p>
+      </div>
+    </div>
+
+    <div class="cf-row cf-row--2 cf-reveal">
+      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Before: typing / to find a Skill</span></div>
+      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Before: opening the unlabeled + menu and hovering for details</span></div>
+    </div>
+
+    <div class="cf-flows cf-reveal">
+      <div class="cf-flow">
+        <span class="cf-flow-label">Before</span>
+        <span class="cf-step">know</span><span class="cf-arrow">→</span><span class="cf-step">invoke</span>
+      </div>
+      <div class="cf-flow">
+        <span class="cf-flow-label">After</span>
+        <span class="cf-step cf-step--dark">browse</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">understand</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">choose</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">use</span>
+      </div>
+    </div>
+
+    <div class="cf-split cf-reveal">
+      <div class="cf-sub">
+        <div class="cf-sub-label">V1</div>
+        <h3 class="cf-h3">Giving Skills a home</h3>
+        <div class="cf-body">
+          <p>The first redesign moved Skills into a dedicated browsing experience:</p>
+          <ul class="cf-list">
+            <li>A visible Skills entry point</li>
+            <li>Search and categories</li>
+            <li>More expressive cards and previews</li>
+            <li>Standalone Skill detail pages with example outputs</li>
+            <li>A direct path back into Agent</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cf-ph" style="aspect-ratio:636/520"><span class="cf-ph-kind">Image · Medium · Tall</span><span class="cf-ph-desc">V1 Skills gallery, full page</span></div>
+    </div>
+
+    <div class="cf-row cf-row--2 cf-reveal">
+      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">V1 standalone Skill detail page</span></div>
+      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Example outputs for a Skill</span></div>
+    </div>
+
+    <div class="cf-split cf-reveal" style="grid-template-columns:420fr 636fr">
+      <div class="cf-ph" style="aspect-ratio:420/300"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">PostHog chart: usage concentrated in a few Skills</span></div>
+      <div class="cf-sub">
+        <div class="cf-sub-label">After launch</div>
+        <h3 class="cf-h3">Learning from the first release</h3>
+        <div class="cf-body"><p>I returned to product analytics to see how the experience was actually used. Usage stayed concentrated among a few Skills, while newer ones got less exposure. The standalone detail page also added extra navigation between discovering a Skill and using it.</p></div>
+      </div>
+    </div>
+
+    <div class="cf-stack cf-reveal">
+      <div class="cf-sub">
+        <div class="cf-sub-label">V2</div>
+        <h3 class="cf-h3">Tightening the discovery loop</h3>
+        <div class="cf-body"><p>I replaced the standalone detail page with a <strong>Skill-detail lightbox</strong>, so users could inspect several Skills without leaving the library. I also added clearer page hierarchy, stronger card differentiation, New Arrivals, sticky browsing controls, and more visible example outputs.</p></div>
+      </div>
+      <div class="cf-ph" style="aspect-ratio:1120/630"><span class="cf-ph-kind">GIF · Large · 16:9</span><span class="cf-ph-desc">Hero moment: scrolling the V2 Skills gallery, with New Arrivals, sticky search and categories</span></div>
+      <div class="cf-row cf-row--2">
+        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Skill-detail lightbox: open, flip between Skills, then press “Use Skill”</span></div>
+        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Close-up: card differentiation and richer previews</span></div>
+      </div>
+    </div>
+
+    <div class="cf-flows cf-reveal">
+      <div class="cf-flow">
+        <span class="cf-flow-label">New loop</span>
+        <span class="cf-step cf-step--dark">discover</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">inspect</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">compare</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">use</span>
+      </div>
+    </div>
+
+    <div class="cf-impact cf-reveal">
+      <div class="cf-impact-num">~38%</div>
+      <div class="cf-impact-text">
+        <div class="cf-sub-label">Impact</div>
+        <h3 class="cf-h3">increase in Skill sessions after launch</h3>
+        <p>Measured across matched seven-day periods. Because this is observational data, not a controlled experiment, I treat it as a post-launch signal rather than proof that the redesign alone caused it.</p>
+      </div>
+    </div>
+
+    <div class="cf-loop cf-reveal">
+      <p class="cf-caption">The process became a loop I used for the rest of the internship</p>
+      <div class="cf-flow">
+        <span class="cf-step">Design</span><span class="cf-arrow">→</span><span class="cf-step">ship</span><span class="cf-arrow">→</span><span class="cf-step">observe</span><span class="cf-arrow">→</span><span class="cf-step">iterate</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 Design · In-chat workflows ===== -->
+<section class="cf-section cf-section--gray">
+  <div class="cf-inner">
+    <div class="cf-head cf-reveal">
+      <div class="cf-eyebrow">03 — Design · In-chat workflows</div>
+      <h2 class="cf-h2">Bringing structure into Agent conversations</h2>
+      <div class="cf-body">
+        <p>Discovering a workflow was only the first step. Some tasks needed several pieces of information before generation, and relying entirely on freeform conversation made them unnecessarily ambiguous.</p>
+        <p>I designed <strong>in-chat setup cards</strong> that gather structured inputs like participants, topic, duration, tone, environment, voice, and reference uploads.</p>
+      </div>
+    </div>
+
+    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630"><span class="cf-ph-kind">GIF · Large · 16:9</span><span class="cf-ph-desc">A setup card appearing in chat: filling in fields, uploading references, then collapsing into a summary</span></div>
+
+    <div class="cf-row cf-row--3 cf-reveal">
+      <div class="cf-card cf-card--tight">
+        <div class="cf-ph" style="aspect-ratio:309/200"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Filled-in card</span></div>
+        <div class="cf-card-num cf-card-num--small">01</div><div class="cf-card-title">Complete setup</div><p class="cf-card-text">Fill it in yourself for maximum control.</p>
+      </div>
+      <div class="cf-card cf-card--tight">
+        <div class="cf-ph" style="aspect-ratio:309/200"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">“Skip setup” button state</span></div>
+        <div class="cf-card-num cf-card-num--small">02</div><div class="cf-card-title">Skip setup</div><p class="cf-card-text">Let Agent infer the remaining decisions and generate.</p>
+      </div>
+      <div class="cf-card cf-card--tight">
+        <div class="cf-ph" style="aspect-ratio:309/200"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Card with × close</span></div>
+        <div class="cf-card-num cf-card-num--small">03</div><div class="cf-card-title">Exit with ×</div><p class="cf-card-text">Cancel the workflow entirely.</p>
+      </div>
+    </div>
+
+    <div class="cf-row cf-row--2 cf-reveal">
+      <div class="cf-ph" style="aspect-ratio:548/400"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Input types: host/guest, duration, tone, voice, uploads (up to 10); required vs. optional</span></div>
+      <div class="cf-ph" style="aspect-ratio:548/400"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">After completion, inputs collapse into a compact summary card</span></div>
+    </div>
+
+    <div class="cf-reveal">
+      <p class="cf-quote">Conversation when flexibility matters. Interface when precision matters.</p>
+      <p class="cf-caption">The goal wasn’t to replace conversational AI with forms. It was to add structure only where it reduced uncertainty.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 Design · Navigation ===== -->
+<section class="cf-section">
+  <div class="cf-inner">
+    <div class="cf-head cf-reveal">
+      <div class="cf-eyebrow">03 — Design · Navigation</div>
+      <span class="cf-badge">✓ Shipped</span>
+      <h2 class="cf-h2">Simplifying Agent navigation</h2>
+      <div class="cf-body"><p>As Agent gained conversations, Skills, Memory, and other controls, its own navigation began competing visually with Creatify’s global sidebar. I compared patterns across Figma, Higgsfield, HeyGen, and Claude, then proposed a <strong>contextual rail</strong> that kept global navigation accessible while giving Agent history and controls clearer priority.</p></div>
+    </div>
+
+    <div class="cf-row cf-row--3 cf-reveal">
+      <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Before: two sidebars competing</span></div>
+      <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Reference patterns: Figma, Higgsfield, HeyGen, Claude</span></div>
+      <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Explorations, 2–3 options side by side</span></div>
+    </div>
+
+    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630"><span class="cf-ph-kind">GIF · Large · 16:9</span><span class="cf-ph-desc">Shipped: the contextual rail expanding and collapsing, with global nav still reachable</span></div>
+
+    <div class="cf-split cf-reveal" style="align-items:start">
+      <div class="cf-sub">
+        <div class="cf-sub-label">Outcome</div>
+        <h3 class="cf-h3">The team selected the direction and implemented it.</h3>
+      </div>
+      <div class="cf-body"><p>A smaller intervention than Skills, but an important lesson in designing within an existing system: sometimes the answer isn’t adding more navigation. It’s clarifying <strong>which layer matters at a given moment.</strong></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 Design · Visual direction ===== -->
+<section class="cf-section cf-section--gray">
+  <div class="cf-inner">
+    <div class="cf-split cf-reveal" style="grid-template-columns:560fr 496fr">
+      <div class="cf-head">
+        <div class="cf-eyebrow">03 — Design · Visual direction</div>
+        <h2 class="cf-h2">Defining Agent’s next visual direction</h2>
+        <div class="cf-body">
+          <p>Near the end of my internship, Creatify’s CEO asked me to explore how the five major product areas could feel more visually unified. I began with Agent.</p>
+          <p>The existing homepage centered on a composer and prompt suggestions. It worked, but it still asked users to understand Agent before Agent had shown much of its range.</p>
+        </div>
+      </div>
+      <div class="cf-ph" style="aspect-ratio:496/560"><span class="cf-ph-kind">Image · Medium · Tall</span><span class="cf-ph-desc">Before: the existing Agent homepage</span></div>
+    </div>
+
+    <div class="cf-row cf-row--2 cf-reveal">
+      <div class="cf-card">
+        <div class="cf-ph" style="aspect-ratio:484/320"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Direction A: intro motion + refined gradient</span></div>
+        <div class="cf-sub-label" style="color:var(--cf-accent)">Direction A</div>
+        <div class="cf-card-title cf-card-title--lg">Refining the existing model</div>
+        <div class="cf-card-text">
+          <p>Kept the familiar chat-first structure and improved hierarchy and personality:</p>
+          <ul class="cf-list" style="gap:6px;margin-top:8px">
+            <li>Introductory motion</li>
+            <li>Refined navigation and chat management</li>
+            <li>Richer hover interactions</li>
+            <li>A more controlled version of Creatify’s gradient language</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cf-card">
+        <div class="cf-ph" style="aspect-ratio:484/320"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Direction B: tabbed inspiration gallery</span></div>
+        <div class="cf-sub-label" style="color:var(--cf-accent)">Direction B</div>
+        <div class="cf-card-title cf-card-title--lg">Making capabilities visible</div>
+        <p class="cf-card-text">Questioned whether an empty prompt box should be the main introduction to Agent. Instead of asking users to invent a prompt, Agent shows strong outputs by category, so users can start from inspiration.</p>
+        <div class="cf-tabs">
+          <span class="cf-tab cf-tab--on">All</span><span class="cf-tab">Skills</span><span class="cf-tab">Video Ads</span><span class="cf-tab">Image Ads</span><span class="cf-tab">Competitor Research</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630"><span class="cf-ph-kind">Video · Large · 16:9</span><span class="cf-ph-desc">Coded prototype walkthrough (Direction B): switch tabs, hover outputs, start from an example</span></div>
+
+    <div class="cf-reveal">
+      <p class="cf-quote">Discovery should happen before prompting, not only after it.</p>
+      <p class="cf-caption">I built a coded prototype for demonstration. The direction was still exploratory when my internship ended and would need more engineering and backend work before production.</p>
+    </div>
+
+    <div class="cf-identity cf-reveal">
+      <div class="cf-sub">
+        <div class="cf-sub-label">Small moment</div>
+        <h3 class="cf-h3">Giving Agent a clearer identity</h3>
+        <div class="cf-body"><p>With our lead visual designer, Abed, I worked on a simplified Agent icon. A chat bubble communicates Agent’s conversational role, and the AI sparkle signals generation. The two dots double as an ellipsis and subtle eyes, giving Agent personality while aligning it with Creatify’s simpler iconography.</p></div>
+      </div>
+      <div class="cf-icons">
+        <div class="cf-ph" style="aspect-ratio:1"><span class="cf-ph-kind">Icon · Before</span><span class="cf-ph-desc">Old Agent icon</span></div>
+        <span class="cf-arrow" style="font-size:22px">→</span>
+        <div class="cf-ph" style="aspect-ratio:1"><span class="cf-ph-kind">Icon · After</span><span class="cf-ph-desc">New Agent icon</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 Beyond Agent ===== -->
+<section id="beyond" class="cf-section">
+  <div class="cf-inner">
+    <div class="cf-head cf-reveal">
+      <div class="cf-eyebrow">04 — Beyond Agent</div>
+      <h2 class="cf-h2">Applying research beyond Agent</h2>
+      <div class="cf-body"><p>The same research threads, especially credit uncertainty and first-time overwhelm, showed up in other parts of the product.</p></div>
+    </div>
+
+    <div class="cf-row cf-row--3 cf-reveal">
+      <div class="cf-card cf-card--gray cf-card--tight">
+        <div class="cf-ph" style="aspect-ratio:309/220"><span class="cf-ph-kind">Image · Main</span><span class="cf-ph-desc">Setup modal</span></div>
+        <div class="cf-minis">
+          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Threshold picker</span></div>
+          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Success state</span></div>
+        </div>
+        <div class="cf-card-title">Credit Auto-Reload</div>
+        <p class="cf-card-text">Credit uncertainty surfaced repeatedly in research. I designed an opt-in auto-reload flow covering discovery, threshold and amount setup, confirmation, success, and later management, so sessions aren’t interrupted when balances run low.</p>
+      </div>
+      <div class="cf-card cf-card--gray cf-card--tight">
+        <div class="cf-ph" style="aspect-ratio:309/220"><span class="cf-ph-kind">Image · Main</span><span class="cf-ph-desc">Walkthrough step 1</span></div>
+        <div class="cf-minis">
+          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Step 2</span></div>
+          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Step 3</span></div>
+        </div>
+        <div class="cf-card-title">Ad Flow onboarding</div>
+        <p class="cf-card-text">First-time users could be overwhelmed by Ad Flow’s canvas. I designed a scalable walkthrough that progressively explains inputs, generation, outputs, and credit-consuming actions instead of exposing everything at once.</p>
+      </div>
+      <div class="cf-card cf-card--gray cf-card--tight">
+        <div class="cf-ph" style="aspect-ratio:309/220"><span class="cf-ph-kind">Image · Main</span><span class="cf-ph-desc">Comparison board</span></div>
+        <div class="cf-minis">
+          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Annotated nodes</span></div>
+          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Recommendations</span></div>
+        </div>
+        <div class="cf-card-title">Ad Flow workflow research</div>
+        <p class="cf-card-text">A side-by-side study with Arcads to reduce cognitive load while keeping Creatify’s stronger guided structure. Recommendations covered node readability, predictability, template discovery, quicker actions, and navigation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 Reflection ===== -->
+<section id="reflection" class="cf-section cf-section--gray">
+  <div class="cf-inner">
+    <div class="cf-head cf-reveal">
+      <div class="cf-eyebrow">05 — Reflection</div>
+      <h2 class="cf-h2">What I’m taking with me</h2>
+    </div>
+
+    <div class="cf-takeaways cf-reveal">
+      <div class="cf-takeaway"><div class="cf-card-num">01</div><div class="cf-card-title">Discoverability is part of product capability</div><p class="cf-card-text">A powerful feature has limited value if users can’t find it or understand why they should use it.</p></div>
+      <div class="cf-takeaway"><div class="cf-card-num">02</div><div class="cf-card-title">AI interfaces don’t have to be only chat</div><p class="cf-card-text">Cards, galleries, selectors, previews, and forms can make AI systems more understandable without sacrificing conversational flexibility.</p></div>
+      <div class="cf-takeaway"><div class="cf-card-num">03</div><div class="cf-card-title">Analytics belongs inside the design loop</div><p class="cf-card-text">I started using analytics to diagnose problems. By the end, I saw instrumentation as part of the product, planned alongside the interface so future iterations rest on real behavior.</p></div>
+    </div>
+
+    <div class="cf-divider"></div>
+
+    <div class="cf-closing cf-reveal">
+      <div class="cf-eyebrow">Closing</div>
+      <p class="cf-quote">Creatify already had powerful AI capabilities. My work focused on making them easier to discover, understand, and use.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="case-footer">
+  <div class="case-footer-inner">
+    <div class="case-footer-main">
+      <div class="case-footer-star-wrapper">
+        <svg id="case-footer-star-icon" width="80" height="80" viewBox="0 0 110 110" fill="none">
+          <defs>
+            <radialGradient id="caseStarGradient" cx="50%" cy="50%">
+              <stop offset="0%" stop-color="#D1FFA4" />
+              <stop offset="100%" stop-color="#D1FFA4" />
+            </radialGradient>
+          </defs>
+          <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" fill="url(#caseStarGradient)"/>
+          <circle cx="55" cy="55" r="41.5" stroke="#D1FFA4"/>
+        </svg>
+      </div>
+      <h2 class="cf-footer-title">what’s next?</h2>
+      <ul class="cf-footer-links">
+        <li><a href="#" class="interactable is-current" aria-current="page"><span class="num">01</span>creatify</a></li>
+        <li><a href="../deep24/" class="interactable"><span class="num">02</span>deep24</a></li>
+        <li><a href="../pent-up/" class="interactable"><span class="num">03</span>pent up</a></li>
+        <li><a href="../knouri/" class="interactable"><span class="num">04</span>knouri</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="case-footer-bottom">
+    <div class="case-footer-left">
+      <span class="case-footer-signature">Melody Zhang</span>
+      <span class="case-footer-copy">© 2026</span>
+    </div>
+    <div class="case-footer-right">
+      <a href="mailto:melodyserenazhang@gmail.com" class="interactable">[EMAIL]</a>
+      <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank" class="interactable">[LINKEDIN]</a>
+    </div>
+  </div>
+</footer>
+
+</main>
+
+<div class="image-modal" id="imageModal">
+  <span class="modal-close">&times;</span>
+  <img class="modal-content" id="modalImage" loading="lazy">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="../js/favicon.js?v=3"></script>
+<script src="../js/page-wipe.js?v=15"></script>
+<script src="main.js?v=17"></script>
+<script src="agent-hero.js?v=11"></script>
+<script src="highlights.js?v=27"></script>
+</body>
+</html>

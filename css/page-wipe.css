@@ -51,11 +51,15 @@
 }
 
 
-/* Cursor dot blends with the page like translucent ink (project + who pages) */
+/* Cursor dot: plain see-through, no blend mode (project pages). It used to be
+   "multiply", but in Chrome a blended cursor over frosted glass (the nav, the
+   work dropdown) made a faint white box appear in the glass. */
 .cursor-dot,
 .cursor-dot.is-blob {
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
 }
+.cursor-dot.active { opacity: 0.55; }
+.cursor-dot.is-blob { opacity: 0.3; }
 
 /* PLAY is still being built: hidden on the live site, shown on the local
    preview (js/favicon.js adds .show-play on localhost). To launch it, remove

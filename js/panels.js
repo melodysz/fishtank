@@ -26,22 +26,24 @@
   function wipe(label, midway) {
     busy = true;
     splash.style.pointerEvents = 'all';
-    splashText.textContent = label;
+    window.fishtankSplash.render(splash, label);   // design: js/splash.js
+    window.fishtankSplash.play(splash, 330);
     gsap.killTweensOf([splash, splashText]);
     gsap.set(splash, { y: window.innerHeight });
-    gsap.set(splashText, { opacity: 0, y: 30 });
-    gsap.to(splashText, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.2 });
+    gsap.set(splashText, { opacity: 0, y: 0 });
+    gsap.to(splashText, { opacity: 1, duration: 0.3, ease: 'power1.out', delay: 0.1 });   // rides up with the splash
     gsap.to(splash, {
       y: 0, duration: 0.6, ease: 'power3.inOut',
       onComplete: () => {
         midway();
-        gsap.to(splashText, { opacity: 0, y: -30, duration: 0.35, ease: 'power2.in', delay: 0.25 });
+        // (held long enough for the asterisk's spin to settle)
+        gsap.to(splashText, { opacity: 0, y: -30, duration: 0.35, ease: 'power2.in', delay: 0.75 });
         gsap.to(splash, {
-          y: -(window.innerHeight + 40), duration: 0.6, ease: 'power3.inOut', delay: 0.25,
+          y: -(window.innerHeight + 40), duration: 0.6, ease: 'power3.inOut', delay: 0.75,
           onComplete: () => {
             gsap.set(splash, { y: window.innerHeight + 40 });
             splash.style.pointerEvents = 'none';
-            splashText.textContent = '[ work ]';
+            window.fishtankSplash.render(splash, '[ work ]');
             busy = false;
           },
         });
@@ -58,6 +60,9 @@
     if (name && !open) navColorBefore = getComputedStyle(document.querySelector('.nav-wordmark')).color;
     open = name;
     window.fishtankPanelOpen = !!name;
+    // each panel has its own cursor colour (see "cursor colour per panel" in style.css)
+    document.documentElement.classList.toggle('panel-who', name === 'who');
+    document.documentElement.classList.toggle('panel-play', name === 'play');
     if (name) {
       lenis.stop();
       panels[name].scrollTop = 0;

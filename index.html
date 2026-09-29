@@ -16,7 +16,8 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="css/style.css?v=98">
+  <link rel="stylesheet" href="css/style.css?v=111">
+  <script src="js/splash.js?v=8"></script>
   <!-- hold the first frame until the splash exists, so arriving from a project stays seamless -->
   <link rel="expect" href="#work-wipe-overlay" blocking="render">
   <script>
@@ -53,27 +54,25 @@
   position: fixed;
   inset: 0;
   z-index: 99998;
-  background: #000180;
+  background: #000000;
   pointer-events: none;
   display: flex;
   justify-content: center;
   align-items: center;
 ">
-  <span style="
-    font-family: 'Xanh Mono', monospace;
-    font-style: italic;
-    font-size: 1.6rem;
-    color: #D1FFA4;
-    letter-spacing: -0.05em;
-    opacity: 0;
-  " id="work-wipe-text">[ work ]</span>
+  <div id="work-wipe-text" style="opacity: 0;"></div>
 </div>
 <script>
-  if (window.fishtankWipe) {
-    var wipeText = document.getElementById('work-wipe-text');
-    wipeText.textContent = fishtankWipe;
-    document.fonts.load("italic 1.6rem 'Xanh Mono'").then(function () { wipeText.style.opacity = '1'; });
-  }
+  // what the splash shows (design: js/splash.js); arriving from another page, it
+  // starts up showing where you're headed, text fading in once its fonts are ready
+  (function () {
+    var overlay = document.getElementById('work-wipe-overlay');
+    fishtankSplash.render(overlay, window.fishtankWipe || '[ work ]');
+    if (window.fishtankWipe) {
+      Promise.all([document.fonts.load("26px 'PP Neue Montreal'"), document.fonts.load("300 26px 'HafferXH'")])
+        .then(function () { document.getElementById('work-wipe-text').style.opacity = '1'; });
+    }
+  })();
 </script>
 
 <div class="intro-screen">
@@ -543,7 +542,7 @@
   
   <!-- Your JavaScript -->
   <script src="js/favicon.js?v=3"></script>
-  <script src="js/main.js?v=108"></script>
-  <script src="js/panels.js?v=3"></script>
+  <script src="js/main.js?v=142"></script>
+  <script src="js/panels.js?v=7"></script>
 </body>
 </html>

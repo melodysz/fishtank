@@ -17,8 +17,9 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="style.css?v=9">
-  <link rel="stylesheet" href="../css/page-wipe.css?v=7">
+  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=8">
+  <script src="../js/splash.js?v=8"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
   <link rel="expect" href="#page-entry-overlay" blocking="render">
 <link rel="icon" type="image/x-icon" href="https://melodysz.github.io/baubles/favicon.ico">
@@ -40,10 +41,12 @@
 <!-- Scroll Progress Bar -->
 <div id="scroll-progress"></div>
 
-<div id="page-entry-overlay" class="page-wipe"><span class="page-wipe-label">[ deep24 ]</span></div>
+<div id="page-entry-overlay" class="page-wipe"><div class="page-wipe-label"></div></div>
 <script>
-  // show the splash label as soon as its font is ready
-  document.fonts.load("italic 1.6rem 'Xanh Mono'").then(() => document.getElementById('page-entry-overlay')?.classList.add('label-ready'));
+  // the splash for this page (design: js/splash.js); its text shows once its fonts are ready
+  fishtankSplash.render(document.getElementById('page-entry-overlay'), '[ deep24 ]');
+  Promise.all([document.fonts.load("26px 'PP Neue Montreal'"), document.fonts.load("300 26px 'HafferXH'")])
+    .then(() => document.getElementById('page-entry-overlay')?.classList.add('label-ready'));
 </script>
 
 <!-- Custom Cursor -->
@@ -78,10 +81,10 @@
 </div>
 <div class="work-bubble" id="workBubble" aria-hidden="true">
   <div class="bubble-menu">
-    <a href="../#third-section" class="bubble-item interactable">
+    <a href="../creatify/" class="bubble-item interactable">
       <span class="bubble-num">01</span>creatify
     </a>
-    <a href="../deep24/" class="bubble-item interactable">
+    <a href="../deep24/" class="bubble-item interactable is-current" aria-current="page">
       <span class="bubble-num">02</span>deep24
     </a>
     <a href="../pent-up/" class="bubble-item interactable">
@@ -616,7 +619,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=3"></script>
-<script src="../js/page-wipe.js?v=10"></script>
-<script src="main.js?v=11"></script>
+<script src="../js/page-wipe.js?v=15"></script>
+<script src="main.js?v=16"></script>
 </body>
 </html>

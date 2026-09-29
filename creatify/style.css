@@ -1,0 +1,2271 @@
+/* Creatify case study. Shared pieces (fonts, cursor, nav pill, sidebar, footer)
+   are copied from knouri/style.css; page styles start at 'CREATIFY CASE STUDY'. */
+
+/* THESE MUST BE FIRST — nothing above them */
+@import url("https://fonts.googleapis.com/css2?family=Xanh+Mono:ital@0;1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap");
+
+html, body {
+  background: #ffffff !important;
+}
+
+#page-entry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #fffcf8;
+  pointer-events: all;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-thin.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-book.woff2') format('woff2');
+  font-weight: 400; /* keep 400 so browser uses it as default */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+}
+
+/* (no regular SemiBold file exists, only SemiBold Italic, so weight 600 uses Bold) */
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/ppneuemontreal-italic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "SD Georgia Light";
+  src: url("https://cdn.jsdelivr.net/gh/melodysz/baubles@main/SdGeorgiaLight-pMj1.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: default !important;
+}
+
+a, button, [role="button"] {
+  cursor: pointer !important;
+}
+
+:root {
+  --bg-cream: #FFFFFF;
+  --nav-orange: #89BD00;
+  --text-dark: #1D1D1F;
+  --wide-margin: 270px;
+  --narrow-margin: 50px;
+  --sidebar-width: 200px;
+  --spacing-100: 100px;
+}
+
+body {
+  background-color: var(--bg-cream);
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: visible;
+    cursor: none !important;
+    -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
+.cursor-dot {
+  width: 18px;
+  height: 18px;
+  background-color: #89BD00;
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10001;
+  mix-blend-mode: normal; /* remove difference so color stays green */
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s ease, 
+              width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-radius 0.5s ease;
+  will-change: transform;
+}
+
+.cursor-dot.active {
+  opacity: 1;
+}
+
+.cursor-dot.is-blob {
+  width: var(--blob-w, 80px);
+  height: var(--blob-h, 40px);
+  border-radius: 999px;
+  opacity: 0.7;   /* multiply: the page colour, see-through; dark text stays crisp under it */
+    mix-blend-mode: multiply;
+
+}
+
+.bubble-particle {
+  position: fixed;
+  border-radius: 50%;
+  background-color: var(--nav-orange);
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+}
+
+/* ================================
+   NEW PILL NAV
+   ================================ */
+
+.nav-pill-wrap {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* match .content-column-outer: max 1400px minus 80px total padding */
+  width: min(1320px, calc(100vw - 80px));
+  /* add padding + negative margin to expand hit area without shifting layout */
+  padding: 20px 0 30px 0; /* 20px above, 30px below */
+  margin-top: -20px;
+  pointer-events: auto;
+  transition: opacity 0.4s ease;
+}
+
+.nav-pill-wrap.nav-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav-pill {
+  position: relative;
+  height: 52px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.30); /* was 0.60 */
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  /* Figma drop shadow: X0 Y0 Blur2 Spread0 #000000 25% */
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+  overflow: visible;
+  /* collapsed = just the asterisk circle */
+  width: 52px;
+  transition: width 0.55s cubic-bezier(0.32, 0, 0.08, 1);
+  cursor: pointer;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.nav-pill.expanded {
+  /* fill full wrap width */
+  width: 100%;
+}
+
+/* Asterisk treated as a centered object, not inline text */
+.nav-asterisk {
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-size: 36px;
+  /* remove line-height influence — treat as a flex object */
+  line-height: 0;
+  color: #181812;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  user-select: none;
+  text-decoration: none;
+  /* nudge slightly for optical centering of * glyph */
+  padding-top: 2px;
+    pointer-events: auto;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  padding-right: 20px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.3s ease 0.5s, transform 0.3s ease 0.5s; /* delay increased from 0.22s to 0.5s */
+  pointer-events: none;
+  min-width: 0;
+}
+
+.nav-pill.expanded .nav-content {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+
+
+.nav-wordmark {
+  color: #181812;
+  display: flex;
+  align-items: baseline;
+  flex-shrink: 0;
+  user-select: none;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.nav-pill.expanded .nav-wordmark {
+  opacity: 1;
+  transition: opacity 0.25s ease 0.45s;
+}
+
+.nav-wordmark:hover {
+  opacity: 0.65;
+}
+
+.wm-melody {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: #181812;
+}
+
+.wm-zhang {
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  color: #181812;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative; /* ADD THIS */
+}
+
+
+
+.nav-link-item {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  color: #181812;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  position: relative;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: transparent;
+  z-index: 1;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: color 0.25s ease, opacity 0.3s ease, transform 0.3s ease, text-shadow 0.4s ease;
+    text-shadow: 0 0 0px transparent; /* explicit start state for smooth transition */
+  min-width: 80px;
+  text-align: center;
+}
+
+.nav-link-item:hover {
+  color: #181812;
+}
+
+.nav-link-item {
+  overflow: hidden;
+}
+
+a[href],
+button,
+[role="button"],
+.interactable,
+.nav-link-item,
+.nav-wordmark,
+label {
+  cursor: pointer !important;
+}
+
+.nav-wordmark,
+.nav-wordmark *,
+.wm-melody,
+.wm-zhang {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+* {
+  cursor: default !important;
+}
+
+a[href], button, [role="button"], .interactable {
+  cursor: pointer !important;
+}
+
+.nav-wordmark:hover .wm-melody,
+.nav-wordmark:hover .wm-zhang {
+  color: #181812;
+}
+
+.wm-melody, .wm-zhang {
+  transition: color 0.25s ease;
+}
+
+.nav-pill.expanded .nav-link-item:nth-child(1) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.55s, transform 0.3s ease 0.55s, color 0.25s ease;
+}
+
+.nav-pill.expanded .nav-link-item:nth-child(2) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.68s, transform 0.3s ease 0.68s, color 0.25s ease;
+}
+
+.nav-pill.expanded .nav-link-item:nth-child(3) {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease 0.81s, transform 0.3s ease 0.81s, color 0.25s ease;
+}
+
+/* collapsed state — slide them back left */
+.nav-link-item {
+  transform: translateX(-10px);
+}
+
+
+/* Replace your existing asteriskSpin keyframes and spin-once with these: */
+
+.nav-asterisk img {
+  display: block;
+}
+
+/* footer color override for nav pill */
+.nav-pill.footer-mode {
+  background: rgba(209, 255, 164, 0.20);
+  border-color: rgba(209, 255, 164, 0.25);
+}
+
+.nav-pill.footer-mode .nav-asterisk,
+.nav-pill.footer-mode .wm-melody,
+.nav-pill.footer-mode .wm-zhang,
+.nav-pill.footer-mode .nav-link-item {
+  color: #D1FFA4;
+}
+
+
+
+
+/* ================================
+   SIDEBAR NAV
+   ================================ */
+
+.sidebar-nav {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--sidebar-width);
+  padding: 3rem 1.5rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-sections {
+  list-style: none;
+  flex-grow: 1;
+}
+
+.nav-item {
+  margin-bottom: 10px;
+}
+
+.nav-link {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  text-decoration: none;
+  text-transform: lowercase;
+  letter-spacing: -0.03em;
+  display: block;
+  padding: 0.3rem 0;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--nav-orange);
+}
+
+.nav-item.active > .nav-link {
+  color: var(--nav-orange);
+  font-weight: 400;
+}
+
+.nav-subsections {
+  list-style: none;
+  padding-left: 1rem;
+  margin-top: 0.5rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.nav-item.active .nav-subsections {
+  max-height: 300px;
+}
+
+.nav-subsections a {
+  font-size: 0.8rem;
+  color: #8b6f6d;
+  text-decoration: none;
+  display: block;
+  padding: 0.25rem 0;
+  transition: color 0.3s ease;
+}
+
+.nav-subsections a:hover {
+  color: var(--nav-orange);
+}
+
+.nav-subsections a.active {
+  color: var(--nav-orange);
+  font-weight: 400;
+}
+
+.sidebar-nav {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-nav.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+/* ================================
+   HERO
+   ================================ */
+
+.hero-section {
+  width: 100vw;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: -20px;
+  left: 0;
+  z-index: 1;
+}
+
+.hero-image {
+  width: 100%;
+  height: 80vh;
+  display: block;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 0 0 30px 30px;
+  background-color: var(--bg-cream);
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.overview-section {
+  padding-top: 20px !important;
+}
+
+.main-content {
+  position: relative;
+  background: var(--bg-cream);
+  width: 100vw;
+  max-width: none;
+  margin: 84vh auto 0 auto;
+  min-height: 100vh;
+  padding-bottom: 100vh;
+  padding-top: 40px;
+  z-index: 100;
+  overflow: visible;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+.content-section {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--spacing-100);
+  padding-top: 80px;
+  overflow: visible;
+}
+
+
+.content-column {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-left: 80px;
+  padding-right: 80px;
+}
+
+
+.image-modal {
+  display: none;
+  position: fixed;
+  z-index: 10002;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.image-modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  max-width: 90%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.modal-close:hover {
+  opacity: 0.7;
+}
+
+#research {
+  margin-bottom: 0;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.case-footer {
+  position: relative;
+  background: linear-gradient(to bottom, #000000 0%, #2D6913 50%, #A2B838 100%);
+  color: #D1FFA4;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  overflow: hidden;
+  margin-top: 80px;
+  margin-bottom: -100vh;
+}
+
+.case-footer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2rem;
+}
+
+.case-footer-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2rem;
+}
+
+.case-footer-tagline {
+  font-family: "SD Georgia Light", Georgia, serif;
+  font-weight: 400;
+  font-size: 50px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: #D1FFA4;
+}
+
+.case-footer-helv {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  font-size: 50px;
+  text-transform: lowercase;
+  color: #D1FFA4;
+  letter-spacing: -0.03em;
+}
+
+.case-footer-italic {
+  font-family: "Xanh Mono", monospace;
+  font-style: italic;
+  font-size: 50px;
+  letter-spacing: -0.1em;
+  color: #D1FFA4;
+}
+
+.case-footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.case-footer-links a {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  color: #D1FFA4;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: opacity 0.3s ease;
+}
+
+.case-footer-links a:hover {
+  opacity: 0.6;
+}
+
+.case-footer-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+}
+
+.case-footer-left {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.case-footer-signature {
+  font-family: "Alex Brush", cursive;
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+  color: #D1FFA4;
+}
+
+.case-footer-copy {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #D1FFA4;
+}
+
+.case-footer-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.case-footer-right a {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #D1FFA4;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: opacity 0.3s ease;
+}
+
+.case-footer-right a:hover {
+  opacity: 0.6;
+}
+
+.case-footer-star-wrapper {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+  opacity: 0;
+  transform: scale(0);
+  margin: 0 auto;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+#case-footer-star-icon {
+  transform-origin: center center;
+  display: block;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.stamp-card.fade-in-element {
+  transition-delay: 0.4s;
+}
+
+.stamp-card.fade-in-element:nth-child(2) {
+  transition-delay: 0.55s;
+}
+
+.stamp-card.fade-in-element:nth-child(3) {
+  transition-delay: 0.7s;
+}
+
+.hero-section {
+  background: linear-gradient(90deg, #f0ebe8 25%, #e8e0dc 50%, #f0ebe8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.hero-image {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.hero-image.loaded {
+  opacity: 1;
+}
+
+.hero-section.image-loaded {
+  animation: none;
+  background: transparent;
+}
+
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  /* the full gradient always stretches across the bar, whatever its length */
+  background: linear-gradient(to right, #FFEAF2, #D8EE9F);
+
+  border-radius: 0 999px 999px 0; /* rounded on the right end only */
+  z-index: 99999;
+  pointer-events: none;
+  transition: width 0.1s linear, height 0.3s ease;
+}
+
+
+@font-face {
+  font-family: 'HafferXH';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/HafferXHMono-TRIAL-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+.nav-work-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.work-bubble {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+}
+
+.bubble-dot {
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.45), 0px 2px 2px rgba(0, 0, 0, 0.18);
+  position: absolute;
+  opacity: 0;
+}
+
+.bubble-dot-sm  { width: 11px;  height: 11px;  left: 33px; top: -25px; z-index: 2; }
+.bubble-dot-md  { width: 16px; height: 16px; left: 10px;  top: -16px;  z-index: 2; }
+.bubble-dot-lg  { width: 22px; height: 22px; left: -2px; top: 10px;  z-index: 2; }
+
+.bubble-menu {
+  position: absolute;
+  top: 7px;   /* tucked up so it overlaps the large thought bubble */
+  left: 0px;
+  background: rgba(255, 255, 255, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.45), 0px 2px 2px rgba(0, 0, 0, 0.18);
+  border-radius: 40px;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transform-origin: top left;
+  z-index: 0;
+}
+
+.bubble-item {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+  color: #181812;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  line-height: 1.5;
+  transition: opacity 0.2s ease;
+  cursor: pointer !important;
+}
+
+.bubble-num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 100;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+  color: #181812;
+  min-width: 20px;
+}
+
+.nav-pill.footer-mode ~ .work-bubble .bubble-dot,
+.nav-pill.footer-mode ~ .work-bubble .bubble-menu {
+  background: rgba(209, 255, 164, 0.15);
+  border-color: rgba(209, 255, 164, 0.20);
+}
+
+.nav-pill.footer-mode ~ .work-bubble .bubble-item { color: #D1FFA4; }
+
+.bubble-dots-wrap {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10002;
+  top: 0;
+  left: 0;
+}
+
+
+/* ================================
+   HERO TITLE — one font: upright Instrument Serif
+   (replaces the old mix of Xanh Mono italic + PP Neue Montreal; the small
+   raised asterisk keeps its size and position, just in the new font)
+   ================================ */
+.hero-title,
+.hero-title span,
+.hero-title span[class] { /* [class] makes this outrank the old per-letter font rules */
+  font-family: 'Instrument Serif', serif;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  -webkit-text-stroke: 0;
+  margin-left: 0;
+}
+
+/* the hover bubble on a dark background (e.g. the footer): no blend there — just
+   the plain see-through bubble ("multiply" would turn it almost black) */
+.cursor-dot.is-blob.on-dark { mix-blend-mode: normal; opacity: 0.35; }
+
+/* work dropdown: the case study you're on is shown in this page's activated colour */
+.bubble-item.is-current,
+.bubble-item.is-current .bubble-num { color: var(--nav-orange); }
+
+/* ==========================================================================
+   CREATIFY CASE STUDY
+   Everything below is specific to this page. Layout comes from the Figma frame
+   "Creatify — Layout Draft" (1470 wide): sections are 1380 wide with a 45px
+   gap to the screen edge, and the column inside is 1120 wide. Text and pills
+   are scaled down ~15–20% from the Figma sizes, which read too big on screen.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'HafferXH';
+  src: url('../fonts/HafferXHMono-TRIAL-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+:root {
+  --cf-body-size: 17px;           /* all body text: section paragraphs, overview, cards */
+  --cf-body-line: 28px;
+  --cf-space: 150px;              /* space between sections (Figma: 150) */
+  --cf-card-gap: var(--cf-space); /* every section is the same 150px from the next */
+  --cf-card-pad: 110px;           /* inner top/bottom padding of the grey boxes */
+  --nav-orange: #6F68FF;          /* this page's "active" colour (sidebar, work menu, cursor) */
+  --cf-ink: #1E1C1D;
+  --cf-gray: #5C5C61;
+  --cf-accent: #7354F2;           /* small mono labels */
+  --cf-icon: #6F68FF;             /* icons + title asterisk */
+  --cf-card: #F5F5F7;
+  --cf-lilac: #D6C9FF;
+  --cf-line: #D4D4D4;             /* pill outline (Figma: 0.5px #D9D9D9 + a faint 2px shadow) */
+  --cf-gutter: 45px;              /* space between a section's edge and the screen edge */
+}
+
+/* ---------- site chrome in this page's colours ---------- */
+
+.cursor-dot { background-color: var(--nav-orange); }
+
+
+#scroll-progress { background: linear-gradient(to right, #E7A0FE, #6F68FF); }
+
+/* The nav is a see-through white pill. Over the black hero that turns muddy
+   grey, so while it's over the hero it gets more white and more blur. */
+.nav-pill,
+.bubble-menu,
+.bubble-dot {
+  transition: width 0.55s cubic-bezier(0.32, 0, 0.08, 1), background-color 0.35s ease, border-color 0.35s ease;
+}
+
+/* Nav (+ its work dropdown and thought-bubble dots): frosted like the overview
+   pills, not glossy. White 70%, plain background blur, no outline or shine,
+   a tiny shadow (Figma: y1 blur1 25%). */
+.nav-pill,
+.bubble-menu,
+.bubble-dot {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-color: transparent;
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+/* over the black hero: a little more white so it doesn't turn grey */
+body.nav-over-dark .nav-pill,
+body.nav-over-dark .bubble-menu,
+body.nav-over-dark .bubble-dot {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* over the footer: keep its lime tint */
+.nav-pill.footer-mode {
+  background-color: rgba(209, 255, 164, 0.20);
+}
+
+/* ---------- hero: full-width product shot, fixed behind the page ---------- */
+
+/* --hero-h is set in main.js: the hero's natural height (761/1470 of the width),
+   shrunk when needed so the title, summary and tags always fit on screen at the top */
+.hero-section {
+  top: 0;
+  height: var(--hero-h, min(51.77vw, 100vh));
+  background: #090A0A;
+  animation: none;
+}
+
+.hero-image {
+  height: 100%;
+  object-fit: cover;
+  object-position: center 58%;
+  border-radius: 0;
+  background: #090A0A;
+}
+
+/* the purple outline, built in CSS so it's easy to adjust
+   (Figma: 1px #6F68FF, radius 25, 15px in from the edges).
+   EXPLORING: hidden for now (the hero washes out into white at the bottom instead).
+   To bring it back, delete the "display: none" line below. */
+.hero-border {
+  display: none;
+  position: absolute;
+  inset: 15px 15px 16px;
+  border: 1px solid #6F68FF;
+  border-radius: 25px;
+  pointer-events: none;
+  z-index: 2;
+  will-change: opacity;
+}
+
+/* blurred copies of the hero image and border, faded in as you scroll away
+   (main.js); the blur itself never changes, so it's only drawn once */
+.hero-border-blur {
+  filter: blur(12px);
+  opacity: 0;
+}
+
+/* page fully covers the hero: stop drawing it (set in main.js) */
+body.hero-covered .hero-section { visibility: hidden; }
+
+.main-content {
+  margin-top: var(--hero-h, min(51.77vw, 100vh));
+  padding-top: 44px;
+  border-radius: 0;
+  overflow-x: clip;            /* the overview laptop runs off the screen edge, not into a sideways scroll */
+}
+
+/* ---------- title + summary + skill tags ---------- */
+
+.cf-summary {
+  max-width: 1440px;
+  margin: 0 auto var(--cf-space);
+  padding: 0 50px;                /* Figma: 50px inside the 1440 frame */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 96px;
+  row-gap: 14px;
+  align-items: start;
+}
+
+/* the title fills the left column's full height (summary text + tags); summary and tags
+   stack on the right, tags right-aligned with the summary text. The title's size is fitted
+   in main.js (fitTitle) so its letters run exactly from the top of the summary text to the
+   bottom of the tags. */
+.cf-summary-row { display: contents; }
+.cf-summary .cf-title { grid-row: 1 / span 2; line-height: 1; white-space: nowrap; }
+
+.cf-title {
+  position: relative;
+  flex: none;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 72px;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  color: var(--cf-ink);
+}
+
+.cf-title em { font-style: italic; }
+
+.cf-title-asterisk {
+  position: absolute;
+  top: 18px;
+  right: 6px;
+  width: 22px;
+  height: 21px;
+}
+
+.cf-summary-text {
+  font-size: 17px;
+  line-height: 26px;
+}
+
+.cf-tags {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;      /* right edge lines up with the summary text's */
+  gap: 5px;
+}
+
+.cf-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px 6px 11px;
+  border-radius: 40px;
+  background: #fff;
+  border: 1px solid var(--cf-line);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--cf-ink);
+  white-space: nowrap;
+}
+
+/* icons are the Phosphor SVGs, used as masks so CSS sets their colour */
+.cf-icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  background: var(--cf-icon);
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
+/* ---------- shared section shell ---------- */
+
+.cf-section {
+  width: calc(100% - var(--cf-gutter) * 2);
+  max-width: 1380px;
+  margin: 0 auto var(--cf-card-gap);
+  border-radius: 30px;
+  /* white sections: no box, so no top/bottom padding; the 150px gap alone spaces them */
+  padding: 0 clamp(24px, 9.4vw, 130px);
+  scroll-margin-top: 20px;
+}
+
+.cf-section--gray { background: var(--cf-card); padding-top: var(--cf-card-pad); padding-bottom: var(--cf-card-pad); }
+#research.cf-section { margin-bottom: var(--cf-card-gap); }   /* undo knouri's #research { margin-bottom: 0 } */
+
+.cf-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.cf-eyebrow {
+  font-family: 'HafferXH', monospace;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cf-accent);
+}
+
+.cf-head {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cf-h2 {
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 48px;
+  letter-spacing: -0.01em;
+  color: var(--cf-ink);
+}
+
+.cf-body {
+  max-width: 680px;
+  font-size: var(--cf-body-size);
+  line-height: var(--cf-body-line);
+  color: var(--cf-ink);
+}
+
+.cf-body p + p { margin-top: 14px; }
+.cf-body strong { font-weight: 600; }
+
+.cf-list {
+  list-style: none;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cf-list li::before {
+  content: '•';
+  margin-right: 12px;
+}
+
+/* smaller heading block inside a section (label + title + text) */
+.cf-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cf-sub-label {
+  font-family: 'HafferXH', monospace;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cf-gray);
+}
+
+.cf-h3 {
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 34px;
+  color: var(--cf-ink);
+}
+
+.cf-stack { display: flex; flex-direction: column; gap: 28px; }
+
+/* ---------- rows / grids ---------- */
+
+.cf-row { display: grid; gap: 24px; }
+.cf-row--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cf-row--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cf-row--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* text + image side by side (text 420 : image 636) */
+.cf-split {
+  display: grid;
+  grid-template-columns: 420fr 636fr;
+  gap: 64px;
+  align-items: center;
+}
+
+/* ---------- image slots ---------- */
+
+/* Placeholder until the real screenshot/GIF goes in: swap the whole
+   <div class="cf-ph"> for an <img class="cf-media"> (or <video>) with the same
+   aspect-ratio. */
+.cf-ph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  background: #F1EFFB;
+  border: 1.5px dashed #B8A8FF;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.cf-ph-kind {
+  font-family: 'HafferXH', monospace;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cf-accent);
+}
+
+.cf-ph-desc {
+  max-width: 400px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--cf-gray);
+}
+
+.cf-media {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+/* ---------- cards ---------- */
+
+.cf-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.cf-card--lilac { background: var(--cf-lilac); }
+.cf-card--dark { background: var(--cf-ink); color: #fff; }
+.cf-card--gray { background: var(--cf-card); }
+.cf-card--tight { padding: 20px; gap: 14px; }
+
+.cf-card-num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.cf-card-num--small {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--cf-gray);
+}
+
+.cf-card-title {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 26px;
+}
+
+.cf-card-title--lg { font-size: 22px; line-height: 28px; }
+
+.cf-card-text {
+  font-size: var(--cf-body-size);
+  line-height: var(--cf-body-line);
+  color: var(--cf-gray);
+}
+
+.cf-card--dark .cf-card-text { color: #D9D9DE; }
+
+/* ---------- pull quotes ---------- */
+
+.cf-quote {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px 0;
+  text-align: center;
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+  color: var(--cf-ink);
+}
+
+.cf-caption {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--cf-gray);
+}
+
+.cf-hmw {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 64px clamp(24px, 8vw, 120px);
+  border-radius: 30px;
+  background: var(--cf-card);
+  text-align: center;
+}
+
+.cf-hmw .cf-quote { padding: 0; }
+
+/* ---------- flow pills (know → invoke) ---------- */
+
+.cf-flows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 32px;
+  border-radius: 20px;
+  background: var(--cf-card);
+}
+
+.cf-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.cf-flow-label {
+  width: 80px;
+  font-family: 'HafferXH', monospace;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cf-gray);
+}
+
+.cf-step {
+  padding: 7px 15px;
+  border-radius: 40px;
+  background: #fff;
+  border: 1px solid var(--cf-line);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.cf-step--dark {
+  background: var(--cf-ink);
+  border-color: var(--cf-ink);
+  color: #fff;
+}
+
+.cf-arrow { font-size: 16px; color: var(--cf-gray); }
+
+.cf-loop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.cf-loop .cf-caption { font-size: 16px; }
+
+/* small solid tag, e.g. "✓ Shipped" */
+.cf-badge {
+  align-self: flex-start;
+  padding: 6px 13px;
+  border-radius: 40px;
+  background: var(--cf-ink);
+  color: #fff;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.cf-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.cf-tab {
+  padding: 6px 13px;
+  border-radius: 40px;
+  background: #fff;
+  border: 1px solid var(--cf-line);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.cf-tab--on { background: var(--cf-ink); border-color: var(--cf-ink); color: #fff; }
+
+/* ---------- impact band ---------- */
+
+.cf-impact {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  padding: 56px 64px;
+  border-radius: 30px;
+  background: var(--cf-ink);
+  color: #fff;
+}
+
+.cf-impact-num {
+  flex: none;
+  font-family: 'Instrument Serif', serif;
+  font-size: 150px;
+  line-height: 140px;
+  color: var(--cf-lilac);
+}
+
+.cf-impact-text { display: flex; flex-direction: column; gap: 12px; max-width: 480px; }
+.cf-impact .cf-sub-label { color: var(--cf-lilac); }
+.cf-impact .cf-h3 { color: #fff; }
+.cf-impact p { font-size: 15px; line-height: 24px; color: #CCCCD1; }
+
+/* ---------- overview card ---------- */
+
+.cf-overview {
+  position: relative;
+  width: calc(100% - var(--cf-gutter) * 2);
+  max-width: 1380px;
+  min-height: 746px;
+  margin: 0 auto var(--cf-card-gap);
+  padding: 84px 100px;
+  display: flex;
+  align-items: center;
+  border-radius: 30px;
+  background: var(--cf-card);
+  overflow: visible;           /* the laptop runs past the card's right edge */
+  scroll-margin-top: 20px;
+}
+
+.cf-overview-text {
+  position: relative;
+  z-index: 2;
+  width: 333px;                /* Figma "Section 1" (new): number, title and text 20px apart */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* the big section number (Figma: Haffer Mono Regular 35, purple) */
+@font-face {
+  font-family: 'Haffer Mono';
+  src: url('../fonts/HafferMono-TRIAL-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+.cf-num {
+  font-family: 'Haffer Mono', monospace;
+  font-weight: 400;
+  font-size: 35px;
+  line-height: 1.2;
+  color: var(--cf-accent);
+}
+
+/* Figma: DM Sans Medium 50, line height 55, letter spacing -5% */
+.cf-overview-text .cf-h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 50px;
+  line-height: 55px;
+  letter-spacing: -0.05em;
+}
+
+/* Figma: PP Neue Montreal Book 16, line height 30, 20px between paragraphs */
+.cf-overview-text p {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 30px;
+}
+.cf-overview-text p + p { margin-top: 0; }   /* (the column's 20px gap spaces them) */
+
+/* bold phrases (Figma: PP Neue Montreal Medium) */
+.cf-overview-text strong { font-weight: 500; }
+
+/* laptop: vertically centred in the card, spilling past the card's right side
+   (Figma: x 425 in the card; nudged 90px right to give the text more room) */
+.cf-overview-mockup {
+  position: absolute;
+  top: 50%;                    /* vertically centred in the card, whatever its size */
+  transform: translateY(-50%);
+  left: 37.32%;                /* 515 / 1380 */
+  width: 90.65%;               /* 1251 / 1380: the whole laptop */
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* frosted pills floating over the laptop */
+.cf-glass-pills {
+  position: absolute;
+  z-index: 3;
+  left: 41.38%;                /* 571 / 1380 (nudged right with the laptop) */
+  top: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+/* frosted, not glossy (like Apple's "Take a closer look" pills): a plain
+   background blur, no outline or shine. Figma: white 70%, background blur 30,
+   shadow y1 blur1 25%. (No filter on the column itself: a filter there would
+   stop the pills from blurring what's behind them.) */
+.cf-glass-pills .cf-pill {
+  /* a little bigger than the summary tags: 16px text, 20px icon, 38px tall */
+  gap: 9px;
+  padding: 7px 16px 7px 9px;   /* left: icon sits dead-centre when the pill is a circle: (38 − 20) ÷ 2 */
+  font-size: 16px;
+  line-height: 24px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.7);
+  border: 0;
+  -webkit-backdrop-filter: blur(15px);   /* Figma's blur 30 ≈ CSS 15px */
+  backdrop-filter: blur(15px);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.cf-pill-label { display: inline-block; }
+.cf-glass-pills .cf-icon { width: 20px; height: 20px; }
+
+/* ---------- agent icon before/after ---------- */
+
+.cf-identity {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  padding: 44px;
+  border-radius: 30px;
+  background: #fff;
+}
+
+.cf-identity .cf-sub { flex: 1; }
+
+.cf-icons {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cf-icons .cf-ph { width: 180px; }
+
+/* ---------- beyond agent cards ---------- */
+
+.cf-minis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cf-minis .cf-ph, .cf-card--tight > .cf-ph { padding: 12px; border-radius: 16px; }
+.cf-minis .cf-ph-desc { font-size: 12px; line-height: 17px; }
+
+/* ---------- reflection ---------- */
+
+.cf-takeaways {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 44px;
+}
+
+.cf-takeaways .cf-card-num { color: var(--cf-ink); }
+.cf-takeaway { display: flex; flex-direction: column; gap: 12px; }
+
+.cf-divider { height: 1px; background: var(--cf-line); }
+
+.cf-closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 32px 60px;
+  text-align: center;
+}
+
+.cf-closing .cf-quote { max-width: 860px; padding: 0; }
+
+/* ---------- section nav: a row of pills along the bottom of the screen,
+   shaped + behaving like the homepage work-nav pills (number only; springs
+   wider to show the name on hover or while it's the section you're in).
+   Frosted like the main nav; purple text for the current section.
+   main.js sets each pill's width. ---------- */
+
+.sidebar-nav {
+  top: auto;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  padding: 0;
+}
+
+.nav-sections {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-item { margin: 0; }
+
+.sidebar-nav .nav-link {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  /* same frost as the main nav, tinted slightly grey */
+  background: rgba(232, 232, 236, 0.7);
+  border: 0;
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  font-weight: 500;
+  font-size: 18px;               /* same as the main nav links */
+  line-height: 20px;
+  letter-spacing: 0;
+  color: #181812;
+  /* width: the same gentle spring as the work-nav pills (overshoots ~4%, then settles) */
+  transition: width 0.65s linear(0, 0.018, 0.065, 0.133, 0.214, 0.303, 0.394, 0.483, 0.569, 0.649, 0.721, 0.785, 0.841, 0.889, 0.929, 0.962, 0.988, 1.009, 1.024, 1.034, 1.041, 1.045, 1.046, 1.045, 1.043, 1.04, 1.037, 1.033, 1.029, 1.024, 1.02, 1.017, 1.013, 1.01, 1.008, 1.005, 1),
+              border-radius 0.3s ease, color 0.3s ease;
+}
+
+.nav-num,
+.nav-name { flex-shrink: 0; }
+
+.nav-num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
+
+.nav-name {
+  margin-left: 0.55em;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.sidebar-nav .nav-link.is-open .nav-name {
+  opacity: 1;
+  transition: opacity 0.25s ease 0.06s;
+}
+
+.sidebar-nav .nav-link:hover { color: #181812; }
+
+/* current section: fully round (half its 36px height) + purple text, same weight */
+.sidebar-nav .nav-item.active > .nav-link {
+  border-radius: 18px;
+  color: var(--nav-orange);
+  font-weight: 500;
+}
+
+/* cursor bubble over a bottom-nav pill: exactly the pill's shape and size (main.js),
+   resizing quickly as the pill springs open instead of the slow bouncy default */
+.cursor-dot.is-blob.on-pill {
+  border-radius: var(--blob-r, 6px);
+  transition: opacity 0.3s ease,
+              width 0.15s ease-out,
+              height 0.15s ease-out,
+              border-radius 0.3s ease;
+}
+
+/* ---------- entrance: blocks rise in as they scroll into view ---------- */
+
+.cf-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.cf-reveal.is-in { opacity: 1; transform: none; }
+
+/* ---------- smaller screens ---------- */
+
+@media (max-width: 700px) {
+  .sidebar-nav { bottom: 14px; }
+}
+
+@media (max-width: 1100px) {
+  .cf-summary { grid-template-columns: 1fr; }
+  .cf-summary .cf-title { grid-row: auto; font-size: 64px !important; transform: none !important; }
+  .cf-tags { grid-column: 1; justify-content: flex-start; }
+
+  .cf-overview {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+    min-height: 0;
+    padding: 52px 32px 0;
+  }
+  .cf-overview-text { width: auto; max-width: 540px; }
+  .cf-glass-pills { position: static; flex-direction: row; flex-wrap: wrap; }
+  .cf-overview-mockup { position: static; transform: none; width: calc(100% + 32px + var(--cf-gutter)); max-width: none; margin-right: calc(-32px - var(--cf-gutter)); align-self: flex-start; }
+
+  .cf-split { grid-template-columns: 1fr !important; gap: 28px; }
+  .cf-row--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cf-row--3, .cf-takeaways { grid-template-columns: 1fr; }
+  .cf-impact, .cf-identity { flex-direction: column; align-items: flex-start; gap: 20px; padding: 36px 28px; }
+  .cf-impact-num { font-size: 110px; line-height: 104px; }
+}
+
+@media (max-width: 700px) {
+  :root { --cf-gutter: 12px; --cf-space: 96px; --cf-card-pad: 64px; }
+  .cf-summary { padding: 0 20px; }
+  .cf-section { padding-left: 20px; padding-right: 20px; }
+  .cf-title { font-size: 56px; }
+  .cf-h2 { font-size: 30px; line-height: 38px; }
+  .cf-overview-text .cf-h2 { font-size: 36px; line-height: 40px; }
+  .cf-h3 { font-size: 22px; line-height: 30px; }
+  .cf-quote { font-size: 24px; line-height: 32px; }
+  .cf-row--2, .cf-row--4 { grid-template-columns: 1fr; }
+  .cf-flows { padding: 22px; }
+  .cf-icons .cf-ph { width: 120px; }
+  .hero-border { inset: 8px; }
+}
+
+/* ---------- footer (Figma: black → #602BBC → #D187FF, lime text) ---------- */
+
+.case-footer {
+  margin-top: 0;               /* the last section's own gap is enough */
+  background: linear-gradient(to bottom, #000000 0%, #602BBC 49%, #D187FF 100%);
+}
+
+.case-footer-star-wrapper,
+#case-footer-star-icon { width: 64px; height: 64px; }
+
+.case-footer-main { gap: 28px; }
+
+.cf-footer-title {
+  margin: 0;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: #D1FFA4;
+}
+
+.cf-footer-links {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.cf-footer-links a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: #D1FFA4;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.cf-footer-links a:hover { opacity: 0.6; }
+.cf-footer-links .is-current { opacity: 0.45; }
+
+.cf-footer-links .num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.case-footer-signature { font-size: 22px; }
+
+.case-footer-copy,
+.case-footer-right a {
+  font-family: 'HafferXH', monospace;
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* ---------- live hero: coded replica of Creatify's Agent welcome screen
+   (agent-hero.js explains how it's built; values from Creatify's own code) ---------- */
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('fonts/GeneralSans-Variable.woff2') format('woff2-variations'), url('fonts/GeneralSans-Variable.woff2') format('woff2');
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.agent-hero {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #090A0A;
+  pointer-events: none;             /* a picture of the product, not the product */
+  user-select: none;
+  will-change: transform, opacity;  /* parallax + fade as you scroll away (main.js) */
+}
+
+.ah-waves {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(100% + 200px);   /* runs 200px below the hero (clipped), see agent-hero.js BELOW_PX */
+  display: block;
+}
+
+/* dot grid: faint 12px grid that sweeps in top → bottom */
+@property --dot-reveal {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@keyframes ah-dot-reveal { from { --dot-reveal: 0%; } to { --dot-reveal: 115%; } }
+.ah-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0.5px, transparent 0.8px);
+  background-size: 12px 12px;
+  opacity: 0.4;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 var(--dot-reveal), transparent calc(var(--dot-reveal) + 15%), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 var(--dot-reveal), transparent calc(var(--dot-reveal) + 15%), transparent 100%);
+}
+.agent-hero.is-playing .ah-dots { animation: ah-dot-reveal 1800ms ease-in-out 700ms both; }
+
+/* the headline + composer + chips, centred in the hero; shrinks to fit on narrow screens */
+.ah-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 624px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%) scale(var(--ah-scale, 1));
+  font-family: 'General Sans', sans-serif;
+  letter-spacing: 0.28px;
+  color: rgba(255, 255, 255, 0.7);
+}
+@media (max-width: 700px) { .ah-stage { --ah-scale: calc((100vw - 32px) / 624px); } }
+
+.ah-title-row {
+  display: grid;
+  grid-template-columns: 2rem 1fr 2rem;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 28px;
+}
+.ah-title {
+  margin: 0;
+  text-align: center;
+  font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ah-title span { -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ah-title .ah-grey { background-image: linear-gradient(to bottom, #FFFFFF, #A7AEB8); }
+.ah-title .ah-purple { background-image: linear-gradient(to left, #5C54FF, #8F74FF); }
+.ah-help { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.5); }
+
+/* icons: Creatify's IconPark SVGs used as masks, so they take the text colour */
+.ah-i {
+  display: inline-block;
+  flex: none;
+  width: var(--s, 16px);
+  height: var(--s, 16px);
+  background: currentColor;
+  -webkit-mask: var(--i) center / contain no-repeat;
+  mask: var(--i) center / contain no-repeat;
+}
+
+/* composer */
+.ah-composer-slot { position: relative; }
+.ah-composer {
+  position: relative;
+  width: 624px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(19, 20, 20, 0.85);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05), inset 1px 1px 3px -1px rgba(255, 255, 255, 0.14), inset -1px -1px 3px -1px rgba(255, 255, 255, 0.04);
+}
+.ah-edge {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 55%);
+  mask-image: linear-gradient(to top, #000, transparent 55%);
+  pointer-events: none;
+}
+.ah-sheen {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 50%;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.06), transparent);
+}
+
+/* intro light-sweep: a wide grey band (covering the composer until it sweeps away)
+   and a thin white one trailing it. Start fast, linger mid-composer, swipe off. */
+.ah-sweep { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+.ah-sweep-band { position: absolute; top: 50%; left: 50%; height: 2400px; }
+.ah-sweep-band.b0 { width: 2400px; background: rgba(209, 209, 209, 0.18); transform: translate(-50%, -50%) rotate(45deg) translateX(0); }
+.ah-sweep-band.b1 { width: 150px; background: rgba(255, 255, 255, 0.3); transform: translate(-50%, -50%) rotate(45deg) translateX(-600px); }
+.ah-sweep-band.b0.is-sweeping { animation: ah-sweep-0 970ms 0ms 1 both; }
+.ah-sweep-band.b1.is-sweeping { animation: ah-sweep-1 1128ms 525ms 1 both; }
+@keyframes ah-sweep-0 {
+  0%        { transform: translate(-50%, -50%) rotate(45deg) translateX(0);      animation-timing-function: cubic-bezier(0, 0, 0.58, 1); }
+  32.4742%  { transform: translate(-50%, -50%) rotate(45deg) translateX(1200px); animation-timing-function: linear; }
+  43.2990%  { transform: translate(-50%, -50%) rotate(45deg) translateX(1220px); animation-timing-function: cubic-bezier(0.42, 0, 1, 1); }
+  100%      { transform: translate(-50%, -50%) rotate(45deg) translateX(3000px); }
+}
+@keyframes ah-sweep-1 {
+  0%        { transform: translate(-50%, -50%) rotate(45deg) translateX(-600px); animation-timing-function: cubic-bezier(0, 0, 0.58, 1); }
+  41.9069%  { transform: translate(-50%, -50%) rotate(45deg) translateX(1200px); animation-timing-function: linear; }
+  51.2195%  { transform: translate(-50%, -50%) rotate(45deg) translateX(1220px); animation-timing-function: cubic-bezier(0.42, 0, 1, 1); }
+  100%      { transform: translate(-50%, -50%) rotate(45deg) translateX(3000px); }
+}
+
+.ah-content { position: relative; z-index: 1; display: flex; flex-direction: column; }
+.ah-input { padding: 12px 20px 8px; }
+.ah-typed {
+  min-height: 52px;
+  font-size: 15px;
+  line-height: 1.625;
+  color: rgba(255, 255, 255, 0.3);
+  white-space: pre-wrap;
+}
+.ah-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 12px; }
+.ah-left, .ah-right { display: flex; align-items: center; gap: 4px; }
+.ah-round { position: relative; width: 32px; height: 32px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.5); }
+.ah-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: #EDA921; }
+.ah-product { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.12); font-size: 13px; font-weight: 500; }
+.ah-lite { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 13px; font-weight: 500; }
+.ah-auto { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 6px 0 8px; font-size: 13px; font-weight: 500; }
+.ah-send { background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.3); }
+
+/* chips */
+.ah-chips { display: flex; justify-content: center; gap: 8px; margin-top: 24px; white-space: nowrap; }
+.ah-chip-wrap { display: inline-flex; }
+.ah-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 480;
+  line-height: 16px;
+  background: rgba(19, 20, 20, 0.85);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05), inset 1px 1px 3px -1px rgba(255, 255, 255, 0.14), inset -1px -1px 3px -1px rgba(255, 255, 255, 0.04);
+}
+.ah-chip .ah-i { color: rgba(255, 255, 255, 0.5); }
+.ah-ping { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; }
+.ah-ping::before, .ah-ping::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: #EDA921; }
+.ah-ping::before { opacity: 0.75; animation: ah-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+@keyframes ah-ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-hero.is-playing .ah-dots, .ah-sweep-band.is-sweeping, .ah-ping::before { animation: none; }
+  .ah-dots { --dot-reveal: 115%; }
+  .ah-sweep { display: none; }
+}
+
+/* ---------- "Get the highlights." carousel (Figma: Carousel, like Apple's highlights gallery).
+   Cards are 1240 × 746 design px, 30px apart, the next one peeking in from the right.
+   Inside a card everything is sized in --u (1 design px at the card's current size),
+   so the whole card scales cleanly. Flick / drag behaviour: highlights.js ---------- */
+
+/* the highlights carousel + the overview card count as one "overview" section (bottom nav) */
+.cf-overview-group { scroll-margin-top: 20px; }
+
+.cf-highlights {
+  width: calc(100% - var(--cf-gutter) * 2);
+  max-width: 1380px;
+  margin: 0 auto var(--cf-card-gap);
+  scroll-margin-top: 20px;
+}
+
+.hl-title {
+  margin: 0 0 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--cf-ink);
+}
+
+.hl-viewport {
+  position: relative;
+  touch-action: pan-y;          /* vertical page scroll still works over it on touch screens */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.hl-viewport.is-dragging { cursor: grabbing; }
+
+.hl-track {
+  display: flex;
+  gap: 30px;
+  will-change: transform;
+}
+
+.hl-card {
+  flex: 0 0 min(1240px, 89.86%);   /* 1240 of 1380: the next card peeks in by 110px */
+  aspect-ratio: 1240 / 720;       /* Figma: 746 tall, a little shorter here */
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  background: var(--cf-card);
+  container-type: inline-size;
+}
+
+.hl-card-inner { position: absolute; inset: 0; --u: calc(100cqw / 1240); --lift: 30; }   /* --lift: laptop sits this many design px above its Figma spot */
+
+.hl-caption {
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(50 * var(--u));
+  margin: 0;
+  text-align: center;
+  font-family: 'PP Neue Montreal', sans-serif;   /* Figma carousel items: PP Neue Montreal Medium 30, #1E1C1D */
+  font-weight: 500;
+  font-size: max(15px, calc(30 * var(--u)));
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #1E1C1D;
+  z-index: 2;
+}
+.hl-caption em { font-style: normal; color: #6F68FF; }
+.hl-caption, .hl-soon { will-change: transform, opacity; }   /* parallax + fade while swiping (highlights.js) */
+
+/* the laptop: dark screen fill → screen recording → faint purple glow at the top of
+   the screen → MacBook frame on top. Positions from Figma (card-relative, design px);
+   the recording is sized to the frame's measured screen opening so there are no gaps. The frame is the
+   plain MacBook image, notch included. */
+.hl-screen, .hl-screen-glow, .hl-mac { position: absolute; display: block; pointer-events: none; }
+.hl-screen { left: calc(112.7 * var(--u)); top: calc((221.5 - var(--lift)) * var(--u)); width: calc(1014.5 * var(--u)); height: calc(659.5 * var(--u)); overflow: hidden; background: #F5F5F7; isolation: isolate; }   /* the screen opening (the recordings are clipped to it, and their stacking stays inside it — under the frame and its notch) */
+/* each recording fills the screen opening; hidden below the screen until it's its turn, then it slides up over the other one */
+.hl-video { position: absolute; display: block; left: 0; top: 0; width: calc(1014.5 * var(--u)); height: auto; transform: translateY(110%); }
+.hl-video.is-current { transform: none; z-index: 1; }
+.hl-video.is-entering { z-index: 2; transform: none; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* ---- the angled-MacBook card (Figma "! Claude - Carousel Item") ----
+   Everything's laid out in the Figma frame's own pixels (1240 × 746) on a stage that
+   highlights.js scales to the card (--s = card width / 1240). The card here is 26px
+   shorter than in Figma, so the stage sits 26px higher and the slab's bottom gets trimmed. */
+.hl-iso-stage, .hl-stage {
+  position: absolute; left: 0; top: 0;
+  width: 1240px; height: 746px;
+  transform: scale(var(--s, 1)) translateY(-26px);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.hl-iso-stage > *, .hl-stage > * { position: absolute; display: block; }
+.hl-iso-mac      { left: 145.23px; top: 174.07px; width: 787.89px; height: 478.51px; }
+.hl-iso-platform { left: -3.33px;  top: 565.32px; width: 1246.67px; height: 290.68px; }
+/* the screen: the design's screen shape (from the hidden "Change-This" layer) cuts out the recording */
+.hl-iso-screen { position: absolute; display: block; pointer-events: none;
+}
+.hl-card--iso .hl-iso-screen {
+  left: 413.68px; top: 183.22px; width: 508.02px; height: 437.16px;
+  background: none; overflow: visible; isolation: isolate;
+  -webkit-mask: url(images/highlight-0-screen-mask.png) 0 0 / 100% 100% no-repeat;
+          mask: url(images/highlight-0-screen-mask.png) 0 0 / 100% 100% no-repeat;
+}
+/* a flat 1728 × 1117 screen (a 16" MacBook's), bent into the laptop's perspective: its
+   corners land on the screen's corners, measured from the dot grid in the design's screenshot */
+.hl-iso-plane {
+  position: absolute; left: 0; top: 0;
+  width: 1728px; height: 1117px;
+  overflow: hidden;
+  background: #090909;   /* the recording's own bottom colour, for the strip below it */
+  transform-origin: 0 0;
+  transform: matrix3d(0.289349937, -0.0377579054, 0, -9.13589564e-06, 0.000259929273, 0.351935504, 0, -5.17345881e-06, 0, 0, 1, 0, 0, 65.341371, 0, 1);
+}
+.hl-card--iso .hl-video { left: 0; top: 0; width: 100%; }
+
+/* ---- the tools card (Figma "! Carousel Item 3"): logo bubbles that drop in and pile up ----
+   Laid out on the same Figma-pixel stage as the angled-MacBook card. Each bubble rests at its
+   Figma tilt (--rot); highlights.js animates the fall and bounces over the top of that. */
+.hl-bubble { transform: rotate(var(--rot)); will-change: transform; }
+.hl-bubble--shadow { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1)); }   /* Figma: y1 blur1, 10% */
+.hl-bubbles.is-waiting .hl-bubble { visibility: hidden; }   /* (up above the card, before they drop) */
+
+/* ---- the interviews card (Figma "Carousel Item 2"): two MacBooks + quotes that pop in ---- */
+/* (the laptop shadows are plain see-through black, not a multiply blend: a blend mode here
+   stops the quotes' background blur from working in Chrome) */
+/* the front laptop's screen: a tilted four-cornered shape (Figma "Change-This");
+   the design is bent so its corners land on the screen's corners */
+.hl-quotes-screen { left: 379.01px; top: 298.58px; width: 607.33px; height: 374.82px; }
+.hl-quotes-plane {
+  position: absolute; left: 0; top: 0;
+  width: 1728px; height: 1111px; max-width: none;
+  border-radius: 18px 18px 0 0;   /* a MacBook display's rounded top corners (bent along with the image) */
+  transform-origin: 0 0;
+  transform: matrix3d(0.253704477, -0.0243851697, 0, -6.26250327e-05, -0.0928931086, 0.28286271, 0, -4.42415718e-05, 0, 0, 1, 0, 103.204244, 42.1375733, 0, 1);
+}
+/* a quote: frosted like the main nav (white 70%, 15px background blur); Figma: radius 15, padding 20, gap 10 */
+.hl-quote {
+  margin: 0;
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(15px);
+          backdrop-filter: blur(15px);
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  color: #1E1C1D;
+  text-align: left;
+}
+.hl-quote-mark { height: 9px; font-size: 50px; line-height: 30px; }
+.hl-quote blockquote { margin: 0; width: 153px; font-size: 16px; line-height: 25px; }   /* Figma: a fixed 153px text box */
+.hl-quote figcaption { display: flex; align-items: center; gap: 10px; font-size: 16px; line-height: 30px; }
+.hl-quote-icon { width: 20px; height: 19px; margin: 2px; flex: none; }
+/* Figma's drop shadow on the quotes group (4 stacked layers) */
+.hl-quote-shadow {
+  border-radius: 15px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.10), 0 19px 19px rgba(0, 0, 0, 0.09),
+              0 43px 26px rgba(0, 0, 0, 0.05), 0 76px 30px rgba(0, 0, 0, 0.01);
+}
+/* one by one, left to right: each pops up with a little overshoot (highlights.js toggles .is-waiting);
+   each box's shadow moves with it */
+.hl-quote, .hl-quote-shadow {
+  transform-origin: 50% 100%;
+  transition: opacity 0.18s ease-out, transform 0.38s cubic-bezier(0.34, 1.7, 0.64, 1);
+  transition-delay: calc(0.08s + var(--i) * 0.08s);
+}
+.hl-quotes.is-waiting :is(.hl-quote, .hl-quote-shadow) { opacity: 0; transform: translateY(12px) scale(0.8); transition: none; }
+.hl-quotes.is-clearing :is(.hl-quote, .hl-quote-shadow) { opacity: 0; transition: opacity 0.2s ease; }
+/* the tools card: a quick fade before the bubbles drop in again */
+.hl-bubbles { transition: opacity 0.25s ease; }
+.hl-bubbles.is-clearing { opacity: 0; }
+/* Figma "purple fade": gradient 30% → 0, on a layer at 30% opacity (so ~9% at the top). Lifts the top of the
+   recording off the equally black bezel. */
+.hl-screen-glow { left: calc(108 * var(--u)); top: calc((220 - var(--lift)) * var(--u)); width: calc(1035 * var(--u)); height: calc(82 * var(--u)); background: linear-gradient(to bottom, rgba(99, 102, 241, 0.3), rgba(187, 149, 247, 0)); opacity: 0.3; }
+.hl-mac { left: calc(-40.8 * var(--u)); top: calc((194 - var(--lift)) * var(--u)); width: calc(1321.6 * var(--u)); height: auto; }
+
+.hl-soon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'HafferXH', monospace;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(30, 28, 29, 0.3);
+}
+
+/* dots (Figma: frosted pill, active dot is a 30px bar) */
+.hl-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 0.8px solid rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);   /* same as the main nav + bottom nav */
+  z-index: 2;
+}
+.hl-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: rgba(30, 28, 29, 0.5);
+  cursor: pointer !important;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease;
+}
+.hl-dot.is-active { width: 30px; }
+
+@media (max-width: 700px) {
+  .hl-title { font-size: 32px; }
+  .hl-track { gap: 14px; }
+  .hl-card { border-radius: 20px; }
+  .hl-dots { bottom: 14px; padding: 12px; }
+}
+
+/* carousel intro: the first card's text fades in while sliding in from
+   the left (the "Get the highlights." heading itself stays put) (highlights.js adds .is-in once the carousel is 30% on screen) */
+.hl-caption-in { display: inline-block; }
+.cf-highlights .hl-caption-in {
+  opacity: 0;
+  transform: translateX(-48px);
+  transition: opacity 0.7s ease-out, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cf-highlights.is-in .hl-caption-in { opacity: 1; transform: none; }
+.cf-highlights.is-in .hl-caption-in { transition-delay: 0.15s; }
+@media (prefers-reduced-motion: reduce) {
+  .cf-highlights .hl-title, .cf-highlights .hl-caption-in { opacity: 1; transform: none; transition: none; }
+}
+
+/* bottom nav intro: rises + fades in (then main.js springs the current pill open) */
+.sidebar-nav {
+  transform: translate(-50%, 18px);
+  transition: opacity 0.35s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sidebar-nav.visible { transform: translate(-50%, 0); }
