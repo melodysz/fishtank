@@ -1512,11 +1512,11 @@ body.hero-covered .hero-section { visibility: hidden; }
   letter-spacing: -0.05em;
 }
 
-/* Figma: PP Neue Montreal Book 16, line height 30, 20px between paragraphs */
+/* Figma: PP Neue Montreal Book 16 (bumped to 18 on screen), line height 30, 20px between paragraphs */
 .cf-overview-text p {
   font-family: 'PP Neue Montreal', sans-serif;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 30px;
 }
 .cf-overview-text p + p { margin-top: 0; }   /* (the column's 20px gap spaces them) */

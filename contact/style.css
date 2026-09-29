@@ -434,7 +434,6 @@ html, body { overflow: auto; height: auto; }
   line-height: 1;
   letter-spacing: -1px;
 }
-.contact-title em { font-style: italic; }
 
 .contact-intro p,
 .contact-alt {
@@ -443,6 +442,8 @@ html, body { overflow: auto; height: auto; }
   line-height: 1.75;
   color: var(--text);
 }
+/* intro paragraph matches the Creatify case study body text */
+.contact-intro p { font-size: 17px; line-height: 28px; }
 
 .contact-alt {
   display: flex;
@@ -590,14 +591,14 @@ html, body { overflow: auto; height: auto; }
   flex: none;
   font-family: 'PP Neue Montreal', 'Helvetica Neue', Helvetica, sans-serif;
   font-size: 1.1rem;
-  color: #000000;
-  background: var(--lilac);
-  border: 1px solid var(--lilac);
+  color: #B25BD0;
+  background: transparent;
+  border: 1px solid #B25BD0;
   border-radius: 999px;
   padding: 0.75rem 2.2rem;
   transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
 }
-.send-btn:hover { background: transparent; color: #B25BD0; border-color: #B25BD0; }
+.send-btn:hover { background: var(--lilac); color: #000000; border-color: var(--lilac); }
 .send-btn[disabled] { opacity: 0.55; pointer-events: none; }
 
 .send-btn--ghost { background: transparent; color: var(--text); border-color: var(--text); }

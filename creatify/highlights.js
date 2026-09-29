@@ -18,10 +18,10 @@
     boost: 1.5,       // the glide launches at your fingers' speed × this…
     floor: 6000,      // …but never slower than this (px/sec): a fast launch even for a light flick
     power: 5,         // the glide's curve: high = fast launch, then a long soft slow-down at the end
-    reach: 0.12,      // how far a flick carries: launch speed × this (seconds), then onto the nearest card
+    reach: 0.21,      // how far a flick carries: launch speed × this (seconds), then onto the nearest card
     minTime: 0.45,    // shortest / longest the whole glide takes, soft tail included (seconds);
     maxTime: 1.0,     // with power 5 it's ~90% of the way there in the first third of this
-    maxCards: 2,      // the most cards one flick can travel
+    maxCards: 99,     // no limit: a strong enough flick can go from the first card to the last
     holdMs: 450,      // fingers stopped (holding, or lifted slowly) this long = settle onto the nearest card
   };
 
@@ -72,10 +72,12 @@
   }
   let activeCard = 0;
   let onActiveCard = () => {};   // (set by the screen recordings below)
+  let onMove = () => {};         // (ditto: tidies up cards the carousel is heading towards)
   function render() {
     track.style.transform = `translate3d(${-x}px, 0, 0)`;
     const i = nearest(x);
     dots.forEach((d, k) => d.classList.toggle('is-active', k === i));
+    onMove();
     if (i !== activeCard) { activeCard = i; onActiveCard(); }
     const unit = cards[0].offsetWidth || 1;
     cards.forEach((c, k) => {
@@ -126,13 +128,20 @@
 
   // A flick at speed v (px/sec, + = towards later cards). The glide STARTS at that same
   // speed — no ramp-up, no sudden jump — and eases onto the card it carries to.
+  const dbg = (...a) => { if (window.__hlDebug) window.__hlDebug.push(a.join(' ')); };   // (off unless a test turns it on)
   function release(v, startIndex, headStartMs = 0) {
+    dbg(Math.round(performance.now()), 'release v=' + Math.round(v), 'from', startIndex, 'x=' + Math.round(x));
     if (Math.abs(v) < FLICK.minSpeed) { settle(); return; }
     const dir = Math.sign(v);
     const launch = dir * Math.max(Math.abs(v) * FLICK.boost, FLICK.floor);
-    let i = nearest(x + launch * FLICK.reach);
-    // always at least the next card in the flick's direction…
-    const next = dir > 0 ? snaps.findIndex((s) => s > x + 1) : snaps.length - 1 - [...snaps].reverse().findIndex((s) => s < x - 1);
+    // how far it goes depends only on how fast the fingers were really moving (the floor
+    // above only keeps a light flick's glide snappy; it mustn't make it travel further)
+    let i = nearest(x + dir * Math.abs(v) * FLICK.boost * FLICK.reach);
+    // always at least the next card in the flick's direction… (a card the cards are
+    // already nearly at — say the last flick's glide is still settling onto it — counts as
+    // reached, so a quick second flick carries on to the one after it)
+    const near = (cards[0].offsetWidth || 1) * 0.3;
+    const next = dir > 0 ? snaps.findIndex((s) => s > x + near) : snaps.length - 1 - [...snaps].reverse().findIndex((s) => s < x - near);
     if (next >= 0 && next < snaps.length && (i - next) * dir < 0) i = next;
     // …and at most maxCards from where this swipe began
     i = Math.max(startIndex - FLICK.maxCards, Math.min(startIndex + FLICK.maxCards, i));
@@ -171,7 +180,8 @@
   // swipe moves only the cards (the page doesn't scroll at all, even though a swipe
   // always carries a little up/down movement too); an up/down swipe scrolls the page
   // as normal. A gesture ends once the events stop for a moment.
-  const swipe = { mode: 'idle', lastT: 0, mags: [], times: [], fading: 0, timer: 0, dir: 0, startIndex: 0 };
+  const swipe = { mode: 'idle', lastT: 0, mags: [], times: [], fading: 0, timer: 0, dir: 0, startIndex: 0,
+                  lastRate: 0, recent: [] };
   // …but the lock is soft: after a scroll or flick, macOS keeps sending "coasting"
   // movement in the old direction for up to a second, so a couple of movements in a row
   // clearly going the OTHER way switch the lock straight away (coasting never changes
@@ -203,16 +213,31 @@
     const dx = e.deltaX, mag = Math.abs(dx), dir = Math.sign(dx);
     const w = swipe;
     const prev = w.mags.length ? w.mags[w.mags.length - 1] : 0;
-    if (now - w.lastT > (w.mode === 'coast' ? 350 : 140)) {   // a brand-new swipe
+    const dt = now - w.lastT;
+    if (dt > (w.mode === 'coast' ? 350 : 140)) {              // a brand-new swipe
+      dbg(Math.round(now), 'new swipe after gap', Math.round(dt), 'mode was', w.mode);
       w.mode = 'track'; w.mags = []; w.times = []; w.fading = 0; samples.length = 0; w.startIndex = nearest(x);
     }
     w.lastT = now;
     if (w.mode === 'coast') {
+      // Ignore macOS's fading coast, unless the fingers are clearly back: going the other
+      // way, or clearly speeding up again — at least 1.8× the slowest of the last few events,
+      // and still rising (coasting only ever slows down; timing wobble can fake at most ~1.5×;
+      // fingers starting a new flick ramp up far more). Speed is counted per
+      // screen frame (~16.7ms), not per event: when the page is busy (say a card's animation
+      // just started), the browser bundles two frames' coasting into one event, which would
+      // otherwise LOOK like a jump in speed; small wobbles in the timing round away.
+      const frames = Math.max(1, Math.round(Math.min(dt, 100) / 16.7));
+      const rate = mag / frames;
       const reversed = dir !== w.dir && mag > 2;
-      const speedingUp = mag >= 4 && mag > Math.max(...w.mags.slice(-3), 0) * 1.2;
+      const floorRate = Math.min(...w.recent, Infinity);
+      const fingersBack = rate >= 4 && rate >= 1.8 * floorRate && rate > w.lastRate;
+      w.lastRate = rate;
+      w.recent.push(rate); if (w.recent.length > 4) w.recent.shift();
       w.mags.push(mag); if (w.mags.length > 8) w.mags.shift();
-      if (!reversed && !speedingUp) return;   // just the fade-out: ignore
-      w.mode = 'track'; w.fading = 0; w.times = []; samples.length = 0; w.startIndex = nearest(x);
+      if (!reversed && !fingersBack) return;  // just the fade-out: ignore
+      dbg(Math.round(now), 'coast → track', reversed ? 'reversed' : 'fingers back', 'mag', mag.toFixed(1), 'dt', Math.round(dt));
+      w.mode = 'track'; w.mags = [mag]; w.fading = 0; w.times = []; samples.length = 0; w.startIndex = nearest(x);
     } else {
       w.mags.push(mag); if (w.mags.length > 8) w.mags.shift();
     }
@@ -229,7 +254,7 @@
       const n = w.times.length, span = n >= 3 ? (w.times[n - 2] - w.times[n - 3]) : 16;
       const speed = dir * (prev / Math.max(8, span)) * 1000;      // px/sec, from the last full-speed event
       const sinceLastMove = Math.min(32, Math.max(0, now - (w.times[n - 2] ?? now)));
-      w.mode = 'coast';
+      w.mode = 'coast'; w.recent = []; w.lastRate = Infinity;   // (the first coast event can't count as speeding up)
       release(speed, w.startIndex, sinceLastMove);
       return;
     }
@@ -291,8 +316,10 @@
   // ---------- screen recordings (and other card animations): only the card you're on plays ----------
   // It starts once the carousel is almost fully on screen (≥ 90% visible — or, on a window
   // too short for that, as much of it as fits) and that card is the one you're on.
-  // Swiping to another card, or scrolling the carousel fully off screen, stops it and
-  // rewinds it, so it plays from the start when you come back.
+  // Swiping to another card pauses it where it is. When the carousel starts heading back
+  // towards a card whose animation has already played, that card quickly fades out and
+  // resets on the way, so it's ready to start fresh the moment you land on it.
+  // (Scrolling the carousel fully off screen resets everything.)
   // A card can hold several recordings that take turns: when one ends, the next slides
   // up over it from below the screen (sitting on its first frame) and, once in place,
   // plays from its start (light → dark → light…).
@@ -301,6 +328,18 @@
     const steps = Array.from({ length: 21 }, (_, i) => i / 20);
     let inView = false;
     const updaters = [];
+    const clearers = [];   // { cardIndex, dirty(), clear() }: fade a played card out and reset it
+    const lastDist = cards.map(() => Infinity);
+    onMove = () => {
+      if (!snaps.length) return;
+      const unit = cards[0].offsetWidth || 1;
+      clearers.forEach((c) => {
+        const d = Math.abs(x - snaps[c.cardIndex]) / unit;
+        const approaching = d < lastDist[c.cardIndex] - 0.001;
+        lastDist[c.cardIndex] = d;
+        if (approaching && d < 0.95 && c.cardIndex !== activeCard && c.dirty()) c.clear();
+      });
+    };
     screens.forEach((screen) => {
       const vids = [...screen.querySelectorAll('video')];
       const cardIndex = cards.indexOf(screen.closest('.hl-card'));
@@ -336,10 +375,22 @@
         });
       }));
 
+      let dirty = false, clearTimer = 0;
+      const unfade = () => { clearTimeout(clearTimer); screen.style.transition = 'opacity 0.15s ease'; screen.style.opacity = ''; };
+      clearers.push({ cardIndex, dirty: () => dirty, clear: () => {
+        dirty = false;
+        screen.style.transition = 'opacity 0.2s ease'; screen.style.opacity = '0';
+        clearTimeout(clearTimer);
+        clearTimer = setTimeout(() => { reset(); unfade(); }, 200);   // back in on its first frame
+      } });
       updaters.push(() => {
         const should = inView && activeCard === cardIndex;
-        if (should && !playing) { playing = true; reset(); vids[0].play().catch(() => {}); }
-        else if (!should && playing) { playing = false; reset(); }
+        if (should && !playing) { playing = true; unfade(); reset(); vids[0].play().catch(() => {}); dirty = true; }
+        else if (!should && playing) {
+          playing = false;
+          vids.forEach((v) => v.pause());           // (holds its frame while you swipe away)
+          if (!inView) { reset(); dirty = false; }
+        }
       });
     });
 
@@ -435,11 +486,17 @@
       reset();
       let shown = false, clearTimer = 0;
       const start = () => {
+        clearTimeout(clearTimer); stage.classList.remove('is-clearing');
         reset();
         stage.classList.remove('is-waiting');
         t0 = performance.now(); raf = requestAnimationFrame(frame);
         shown = true;
       };
+      clearers.push({ cardIndex, dirty: () => shown, clear: () => {
+        shown = false;
+        stage.classList.add('is-clearing');
+        clearTimer = setTimeout(() => { reset(); stage.classList.remove('is-clearing'); }, 220);
+      } });
       updaters.push(() => {
         const should = inView && activeCard === cardIndex;
         if (should && !playing) {
@@ -462,12 +519,18 @@
       stage.classList.add('is-waiting');
       let playing = false, shown = false, clearTimer = 0;
       const start = () => {
+        clearTimeout(clearTimer);
         stage.classList.remove('is-clearing');
         stage.classList.add('is-waiting');
         void stage.offsetWidth;                     // (so they animate from hidden)
         stage.classList.remove('is-waiting');
         shown = true;
       };
+      clearers.push({ cardIndex, dirty: () => shown, clear: () => {
+        shown = false;
+        stage.classList.add('is-clearing');
+        clearTimer = setTimeout(() => { stage.classList.add('is-waiting'); stage.classList.remove('is-clearing'); }, 220);
+      } });
       updaters.push(() => {
         const should = inView && activeCard === cardIndex;
         if (should && !playing) {
