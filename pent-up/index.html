@@ -4,22 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>[Pent Up] Case Study</title>
+  <!-- Always open at the top, even on reload. Must run before GSAP's ScrollTrigger
+       loads: it remembers this setting at load time and puts it back on every refresh. -->
+  <script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Zen+Old+Mincho&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Xanh+Mono:ital@1&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600&display=swap" rel="stylesheet">
   
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/mask.webp">
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/hero/hero%20star.png">
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="style.css?v=14">
-  <link rel="stylesheet" href="../css/page-wipe.css?v=8">
-  <script src="../js/splash.js?v=8"></script>
+  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="../css/case-v2.css?v=4">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=10">
+  <script src="../js/splash.js?v=9"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
   <link rel="expect" href="#page-entry-overlay" blocking="render">
 <link rel="icon" type="image/x-icon" href="https://melodysz.github.io/baubles/favicon.ico">
@@ -88,24 +93,14 @@
   </div>
 </div>
 
-<!-- Fixed Sidebar Navigation -->
+<!-- Section nav: numbered pills along the bottom (css/case-v2.css, js/case-v2.js) -->
 <nav class="sidebar-nav">
   <ul class="nav-sections">
-    <li class="nav-item active">
-      <a href="#overview" class="nav-link">overview</a>
-    </li>
-    <li class="nav-item">
-      <a href="#research" class="nav-link">research</a>
-    </li>
-    <li class="nav-item">
-      <a href="#design" class="nav-link">design</a>
-    </li>
-    <li class="nav-item">
-      <a href="#launch" class="nav-link">launch</a>
-    </li>
-    <li class="nav-item">
-      <a href="#reflection" class="nav-link">reflection</a>
-    </li>
+    <li class="nav-item active"><a href="#overview" class="nav-link"><span class="nav-num">01</span><span class="nav-name">overview</span></a></li>
+    <li class="nav-item"><a href="#research" class="nav-link"><span class="nav-num">02</span><span class="nav-name">research</span></a></li>
+    <li class="nav-item"><a href="#design" class="nav-link"><span class="nav-num">03</span><span class="nav-name">design</span></a></li>
+    <li class="nav-item"><a href="#launch" class="nav-link"><span class="nav-num">04</span><span class="nav-name">launch</span></a></li>
+    <li class="nav-item"><a href="#reflection" class="nav-link"><span class="nav-num">05</span><span class="nav-name">reflection</span></a></li>
   </ul>
 </nav>
 
@@ -133,26 +128,19 @@
 <!-- Main Content Area -->
 <main class="main-content">
 
-<section class="hero-meta">
-  <div class="content-column hero-meta-inner">
-  <div class="hero-head">
-    <h1 class="hero-title">
-      <span class="pent">Pent</span><span class="up"> U</span><span class="letterp">p</span><span class="bang">!</span>
-    </h1>
-    <p class="hero-summary">
-      A Penn-only anonymous confession platform designed to remove
-      performative social dynamics from emotional expression by eliminating
-      validation metrics.
-    </p>
+<!-- Title + summary + tags (css/case-v2.css; title sized by js/case-v2.js) -->
+<section class="cf-summary">
+  <div class="cf-summary-row">
+    <h1 class="cf-title"><em>Pent</em> Up!</h1>
+    <p class="cf-summary-text">A Penn-only anonymous confession platform designed to remove performative social dynamics from emotional expression by eliminating validation metrics.</p>
   </div>
-  <div class="hero-pills">
-    <span class="pill"><span class="star">*</span> ux/ui design</span>
-    <span class="pill"><span class="star">*</span> product strategy</span>
-    <span class="pill"><span class="star">*</span> live product</span>
-    <span class="pill"><span class="star">*</span> web design</span>
-    <span class="pill"><span class="star">*</span> team/personal project</span>
+  <div class="cf-tags">
+    <span class="cf-pill">UX/UI Design</span>
+    <span class="cf-pill">Product Strategy</span>
+    <span class="cf-pill">Live Product</span>
+    <span class="cf-pill">Web Design</span>
+    <span class="cf-pill">Team/Personal Project</span>
   </div>
-</div>
 </section>
 
 <!-- Large Image -->
@@ -165,8 +153,7 @@
 <section id="overview" class="content-section overview-section">
   <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/dashlines.png" class="stamp-dash-bg" alt="" loading="lazy">
   <div class="content-column">
-    <div class="section-number">01</div>
-    <h2 class="section-title">OVERVIEW<span class="title-asterisk">*</span></h2>
+    <h2 class="cf-eyebrow section-eyebrow">[01] Overview</h2>
     
     <div class="overview-grid">
       <div class="overview-main">
@@ -250,8 +237,7 @@
 <!-- Research Section -->
 <section id="research" class="content-section">
   <div class="content-column">
-    <div class="section-number">02</div>
-    <h2 class="section-title">RESEARCH<span class="title-asterisk">*</span></h2>
+    <h2 class="cf-eyebrow section-eyebrow">[02] Research</h2>
     
     <div class="market-audit-section">
       <h3>Our MARKET AUDIT</h3>
@@ -370,8 +356,7 @@
 <!-- Design Section -->
 <section id="design" class="content-section">
   <div class="content-column">
-    <div class="section-number">03</div>
-    <h2 class="section-title">DESIGN<span class="title-asterisk">*</span></h2>
+    <h2 class="cf-eyebrow section-eyebrow">[03] Design</h2>
     <div class="ideation-section">
       <h3>Our IDEATION</h3>
       <p>I led a design workshop to define the project's visual direction and align the team around a shared artistic language. We converged within our Pinterest moodboard and <span class="highlight">emerged with our three core visual motifs:</span></p>
@@ -622,8 +607,7 @@
 <!-- Launch Section -->
 <section id="launch" class="content-section">
   <div class="content-column">
-    <div class="section-number">04</div>
-    <h2 class="section-title">LAUNCH<span class="title-asterisk">*</span></h2>
+    <h2 class="cf-eyebrow section-eyebrow">[04] Launch</h2>
     <div class="launch-marketing-section">
       <h3>The MARKETING</h3>
       <p>Leading up to launch, we released a series of minimal <span class="highlight">Instagram teasers designed to spark curiosity</span> without revealing functionality.</p>
@@ -644,8 +628,7 @@
 <!-- Reflection Section -->
 <section id="reflection" class="content-section">
   <div class="content-column">
-    <div class="section-number">05</div>
-    <h2 class="section-title">REFLECTION<span class="title-asterisk">*</span></h2>
+    <h2 class="cf-eyebrow section-eyebrow">[05] Reflection</h2>
     <div class="reflection-results-section">
       <h3>The RESULTS</h3>
       <div class="results-grid">
@@ -721,12 +704,12 @@
           <circle cx="55" cy="55" r="41.5" stroke="#fff3bf"/>
         </svg>
       </div>
-      <h2 class="case-footer-tagline">
-        <span class="case-footer-helv">what's </span><span class="case-footer-italic">next</span><span class="case-footer-helv">?</span>
-      </h2>
-      <ul class="case-footer-links">
-        <li><a href="../deep24/">Deep24</a></li>
-        <li><a href="../knouri/">Knouri</a></li>
+      <h2 class="cf-footer-title">what’s next?</h2>
+      <ul class="cf-footer-links">
+        <li><a href="../creatify/" class="interactable"><span class="num">01</span>creatify</a></li>
+        <li><a href="../deep24/" class="interactable"><span class="num">02</span>deep24</a></li>
+        <li><a href="#" class="interactable is-current" aria-current="page"><span class="num">03</span>pent up</a></li>
+        <li><a href="../knouri/" class="interactable"><span class="num">04</span>knouri</a></li>
       </ul>
     </div>
   </div>
@@ -736,8 +719,8 @@
       <span class="case-footer-copy">© 2026</span>
     </div>
     <div class="case-footer-right">
-      <a href="mailto:melodyserenazhang@gmail.com">[EMAIL]</a>
-      <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank">[LINKEDIN]</a>
+      <a href="mailto:melodyserenazhang@gmail.com" class="interactable">[EMAIL]</a>
+      <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank" class="interactable">[LINKEDIN]</a>
     </div>
   </div>
 </footer>
@@ -752,7 +735,8 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=3"></script>
-<script src="../js/page-wipe.js?v=15"></script>
-<script src="main.js?v=16"></script>
+<script src="../js/page-wipe.js?v=18"></script>
+<script src="main.js?v=20"></script>
+<script src="../js/case-v2.js?v=1"></script>
 </body>
 </html>

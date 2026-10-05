@@ -4,9 +4,9 @@
 // exactly; let go and they launch quickly onto the next card, then ease into
 // place with a long soft slow-down. Past either end the cards stretch like a
 // rubber band and spring back. The dots show where you are and can be clicked.
-(function () {
-  const viewport = document.querySelector('.hl-viewport');
-  if (!viewport) return;
+// (Runs on every .hl-viewport on the page: the highlights carousel and the Problem
+// section's Agent V1 / V2 row share exactly the same swiping.)
+document.querySelectorAll('.hl-viewport').forEach(function (viewport) {
   const track = viewport.querySelector('.hl-track');
   const cards = [...track.children];
   const dotsBox = viewport.querySelector('.hl-dots');
@@ -91,7 +91,7 @@
   }
 
   // ---------- dots ----------
-  const dots = cards.map((_, i) => {
+  const dots = !dotsBox ? [] : cards.map((_, i) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'hl-dot interactable';
@@ -513,7 +513,8 @@
 
     // ---------- interview quotes: pop in one by one, left to right (the delays are in style.css) ----------
     // Like the bubbles, they stay when you leave, and fade away to pop in again when you come back.
-    viewport.querySelectorAll('.hl-quotes').forEach((stage) => {
+    // (The in-chat card's image, .hl-pop, works the same way: it fades in, growing slightly.)
+    viewport.querySelectorAll('.hl-quotes, .hl-pop').forEach((stage) => {
       if (reduceMotion) return;
       const cardIndex = cards.indexOf(stage.closest('.hl-card'));
       stage.classList.add('is-waiting');
@@ -553,4 +554,4 @@
       updateAll();
     }, { threshold: steps }).observe(viewport);
   }
-})();
+});

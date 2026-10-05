@@ -173,6 +173,10 @@ navWrap.addEventListener('mouseleave', (e) => {
 const cursorEl = document.getElementById('cursor');
 
 let mouseX = 0, mouseY = 0;
+
+// At rest the dot sits just past the tail end of the arrow pointer (below and to the
+// right of its tip), so it trails the cursor instead of covering the tip.
+const CURSOR_TAIL_X = 14, CURSOR_TAIL_Y = 22;   // px from the pointer's tip
 let curX = 0, curY = 0;
 let isBlobMode = false;
 const LERP_NORMAL = 0.12;
@@ -209,7 +213,7 @@ function followBlobTarget() {
 
 function animateCursor() {
   if (blobTarget) followBlobTarget();
-  const tx = blobTarget ? blobTargetX : mouseX, ty = blobTarget ? blobTargetY : mouseY;
+  const tx = blobTarget ? blobTargetX : mouseX + CURSOR_TAIL_X, ty = blobTarget ? blobTargetY : mouseY + CURSOR_TAIL_Y;
   const dx = tx - curX, dy = ty - curY;
   const lag = Math.hypot(dx, dy);
   const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;

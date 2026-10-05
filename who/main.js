@@ -244,7 +244,7 @@ clickableEls.forEach(el => {
   el.addEventListener('mouseleave', () => {
     if (isBlobMode) return;
     cursorEl.classList.remove('is-blob');
-    gsap.to(cursorEl, { width: '18px', height: '18px', duration: 0.3, ease: "power2.out" });
+    gsap.to(cursorEl, { width: '14px', height: '14px', duration: 0.3, ease: "power2.out" });
   });
 });
 

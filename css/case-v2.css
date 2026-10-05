@@ -1,0 +1,361 @@
+/* ================================================================
+   CASE STUDY v2: the newer design system from the Creatify page, shared by the
+   other case studies (deep24 first; pent up + knouri next). Load it AFTER the
+   page's own style.css so these win. Each page keeps its own accent colour
+   (--nav-orange). Pieces:
+     1. title + summary + tags block (.cf-summary)
+     2. section labels ("[01] Overview")
+     3. widths: sections 1380 max with 45px side margins, text column 1120 max
+     4. type: DM Sans / PP Neue Montreal / Haffer Mono
+     5. top nav: frosted
+     6. footer: "what's next?" + numbered project list
+     7. bottom section nav (numbered pills that spring open)
+   The script side (title fitting, nav pills) is js/case-v2.js.
+   ================================================================ */
+
+@font-face {
+  font-family: 'Haffer Mono';
+  src: url('../fonts/HafferMono-TRIAL-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+:root {
+  --cf-ink: #1E1C1D;
+  --cf-gray: #5C5C61;
+  --cf-accent: var(--nav-orange);
+  --cf-line: #D4D4D4;
+  --cf-gutter: 45px;              /* space between a section's edge and the screen edge */
+  --cf-section-max: 1380px;
+  --cf-text-max: 1120px;
+  /* side padding inside a section (Creatify: clamp(24px, 9.4vw, 130px)) */
+  --cf-section-pad: clamp(24px, 9.4vw, 130px);
+}
+
+/* ---------- 1. title + summary + tags ---------- */
+
+.cf-summary {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 50px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 96px;
+  row-gap: 14px;
+  align-items: start;
+}
+
+/* the title fills the left column's full height (summary text + tags); its size is
+   fitted in js/case-v2.js so its letters run from the top of the text to the bottom
+   of the tags */
+.cf-summary-row { display: contents; }
+.cf-summary .cf-title { grid-row: 1 / span 2; line-height: 1; white-space: nowrap; }
+
+.cf-title {
+  position: relative;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 72px;
+  letter-spacing: -0.03em;
+  color: var(--cf-ink);
+}
+.cf-title em { font-style: italic; }
+
+.cf-summary .cf-summary-text {   /* (beats the body-text rule below) */
+  margin: 0;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 17px;
+  line-height: 26px;
+  color: var(--cf-ink);
+}
+
+.cf-tags {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.cf-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px;
+  border-radius: 40px;
+  background: #fff;
+  border: 1px solid var(--cf-line);
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--cf-ink);
+  white-space: nowrap;
+}
+
+/* ---------- 2. section labels: "[01] Overview" ---------- */
+
+.cf-eyebrow {
+  font-family: 'Haffer Mono', monospace;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--cf-accent);
+  text-align: left;
+  margin: 0 0 28px;
+}
+
+/* ---------- 3. widths ---------- */
+
+/* text column: same as Creatify's (1120 max inside a 1380 section with 45px margins) */
+.content-column {
+  width: min(var(--cf-text-max), calc(min(100vw - var(--cf-gutter) * 2, var(--cf-section-max)) - var(--cf-section-pad) * 2));
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* wide images: the full section width */
+.content-column-outer {
+  width: min(100vw - var(--cf-gutter) * 2, var(--cf-section-max));
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* anything bleeding past the screen edge (overlays, edge-to-edge images) is cut off
+   there instead of letting the page scroll sideways (same as Creatify) */
+.main-content { overflow-x: clip; }
+
+/* ---------- 4. type ---------- */
+
+/* (plain paragraphs only: styled ones like stamp text keep their own sizes) */
+.main-content p:not([class]) {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.main-content h3 {
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 34px;
+  letter-spacing: -0.01em;
+  color: var(--cf-ink);
+}
+
+/* big one-off headings (Creatify's section titles) */
+.cf-h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 50px;
+  line-height: 55px;
+  letter-spacing: -0.05em;
+  color: var(--cf-ink);
+}
+
+/* ---------- 5. top nav: frosted, not glossy ---------- */
+/* White 70%, plain background blur, no outline or shine, a tiny shadow (Figma: y1
+   blur1 25%). Same for the work dropdown + its thought-bubble dots. The page's own
+   .footer-mode tint still wins over the footer. */
+.nav-pill,
+.bubble-menu,
+.bubble-dot {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-color: transparent;
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  transition: width 0.55s cubic-bezier(0.32, 0, 0.08, 1), background-color 0.35s ease, border-color 0.35s ease;
+}
+.bubble-item.is-current,
+.bubble-item.is-current .bubble-num { color: var(--nav-orange); }
+
+/* ---------- 6. footer ---------- */
+/* "what's next?" + a numbered list of every project (this one dimmed), smaller
+   star, mono © / links. Colours stay the page's own (.case-footer colour). */
+.case-footer { margin-top: 0; }
+.case-footer-star-wrapper,
+#case-footer-star-icon { width: 64px; height: 64px; }
+.case-footer-main { gap: 28px; }
+
+.cf-footer-title {
+  margin: 0;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.cf-footer-links {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.cf-footer-links a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+.cf-footer-links a:hover { opacity: 0.6; }
+.cf-footer-links .is-current { opacity: 0.45; }
+
+.cf-footer-links .num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.case-footer-signature { font-size: 22px; }
+
+.case-footer-copy,
+.case-footer-right a {
+  font-family: 'HafferXH', monospace;
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* ---------- 7. bottom section nav ---------- */
+/* A row of pills along the bottom of the screen: number only, springing wider to
+   show the name on hover or while it's the section you're in. js/case-v2.js sets
+   each pill's width. */
+
+.sidebar-nav {
+  position: fixed;
+  top: auto;
+  bottom: 24px;
+  left: 50%;
+  right: auto;
+  width: auto;
+  padding: 0;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 18px);
+  transition: opacity 0.35s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sidebar-nav.visible { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+
+.sidebar-nav .nav-sections {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar-nav .nav-item { margin: 0; }
+
+.sidebar-nav .nav-link {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  background: rgba(232, 232, 236, 0.7);
+  border: 0;
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+  color: #181812;
+  /* the same gentle spring as the homepage work-nav pills */
+  transition: width 0.65s linear(0, 0.018, 0.065, 0.133, 0.214, 0.303, 0.394, 0.483, 0.569, 0.649, 0.721, 0.785, 0.841, 0.889, 0.929, 0.962, 0.988, 1.009, 1.024, 1.034, 1.041, 1.045, 1.046, 1.045, 1.043, 1.04, 1.037, 1.033, 1.029, 1.024, 1.02, 1.017, 1.013, 1.01, 1.008, 1.005, 1),
+              border-radius 0.3s ease, color 0.3s ease;
+}
+.sidebar-nav .nav-link::before,
+.sidebar-nav .nav-link::after { content: none; }
+
+.sidebar-nav .nav-num,
+.sidebar-nav .nav-name { flex-shrink: 0; }
+
+.sidebar-nav .nav-num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
+
+.sidebar-nav .nav-name {
+  margin-left: 0.55em;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.sidebar-nav .nav-link.is-open .nav-name {
+  opacity: 1;
+  transition: opacity 0.25s ease 0.06s;
+}
+
+.sidebar-nav .nav-link:hover { color: #181812; }
+
+/* current section: fully round + the page's accent colour */
+.sidebar-nav .nav-item.active > .nav-link {
+  border-radius: 18px;
+  color: var(--nav-orange);
+  font-weight: 500;
+}
+
+/* cursor bubble over a bottom-nav pill: exactly the pill's shape and size */
+.cursor-dot.is-blob.on-pill {
+  border-radius: var(--blob-r, 6px);
+  transition: opacity 0.3s ease,
+              width 0.15s ease-out,
+              height 0.15s ease-out,
+              border-radius 0.3s ease;
+}
+
+/* ---------- smaller screens ---------- */
+
+@media (max-width: 1100px) {
+  .cf-summary { grid-template-columns: 1fr; }
+  .cf-summary .cf-title { grid-row: auto; font-size: 64px !important; transform: none !important; }
+  .cf-tags { grid-column: 1; justify-content: flex-start; }
+}
+
+@media (max-width: 700px) {
+  :root { --cf-gutter: 12px; }
+  .cf-summary { padding: 0 20px; }
+  .cf-title { font-size: 56px; }
+  .cf-h2 { font-size: 30px; line-height: 38px; }
+  .main-content h3 { font-size: 22px; line-height: 30px; }
+  .sidebar-nav { bottom: 14px; }
+}
+
+/* ---------- stamps (overview "contribution" cards on every page) ---------- */
+/* wider in the new text column: keep their text further from the edges */
+.stamp-content { padding: 22px 15%; }

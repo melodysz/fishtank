@@ -66,8 +66,8 @@ html, body {
    ================================ */
 
 .cursor-dot {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background-color: #83E7FF;
   border-radius: 50%;
   position: fixed;

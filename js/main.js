@@ -939,6 +939,10 @@ const cursorMain = document.getElementById('cursor');
 let isBlobMode = false;
 let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
 
+// At rest the dot sits just past the tail end of the arrow pointer (below and to the
+// right of its tip), so it trails the cursor instead of covering the tip.
+const CURSOR_TAIL_X = 14, CURSOR_TAIL_Y = 22;   // px from the pointer's tip
+
 // Cursor dot follows the mouse with a little lag. The further behind it is
 // (i.e. the faster the mouse moves), the bigger it swells — up to ~1.7x —
 // then it eases back to normal size as it catches up. Stays normal size while
@@ -983,7 +987,7 @@ let mouseTargetX = 0, mouseTargetY = 0, blobH = 0;
 
 function animateCursor() {
   if (blobTarget) followBlobTarget();
-  const tx = blobTarget ? mouseTargetX : mouseX, ty = blobTarget ? mouseTargetY : mouseY;
+  const tx = blobTarget ? mouseTargetX : mouseX + CURSOR_TAIL_X, ty = blobTarget ? mouseTargetY : mouseY + CURSOR_TAIL_Y;
   const dx = tx - curX, dy = ty - curY;
   const lag = Math.hypot(dx, dy);
   const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
@@ -1484,6 +1488,11 @@ function section2FrameY(scroll, frameOffset) {
   return (H - scroll) + D * ease;
 }
 
+const lightRays = document.querySelectorAll('.light-ray');
+const waterSurface = document.querySelector('.water-surface');
+// As the frame leaves, these move at this fraction of its speed (1 = with it)
+const RAYS_SPEED = 0.75;               // light rays
+const WATER_SURFACE_SPEED = 0.5;       // water surface (a little slower than the rays)
 function updateSection2Curtain() {
   if (!section2Wrapper || !section2Frame || !thirdSectionEl) return;
   const vh = window.innerHeight;
@@ -1522,6 +1531,13 @@ function updateSection2Curtain() {
   // movement, but only partly (parallax), so they drift more slowly than it.
   const frameOffsetOnScreen = frameScreenY === null ? -frameShift : frameScreenY;
   setDanglesY(DANGLES_REST_Y + DANGLES_PARALLAX * frameOffsetOnScreen + contentShift);
+  // The light rays (and the water surface above them) leave with the frame, a little slower (RAYS_SPEED / WATER_SURFACE_SPEED of its
+  // speed). They only start once the frame passes its resting spot, so section 2's
+  // entrance is unchanged. (+contentShift undoes the aquarium's own drift.)
+  const leaving = Math.min(0, frameOffsetOnScreen);
+  const rayY = RAYS_SPEED * leaving + contentShift;
+  lightRays.forEach((ray) => { ray.style.translate = `0 ${rayY}px`; });
+  if (waterSurface) waterSurface.style.translate = `0 ${WATER_SURFACE_SPEED * leaving + contentShift}px`;
   // trim the aquarium wherever section 3 covers it (measured in the moved layer's own space)
   const covered = Math.min(vh, Math.max(0, vh - s3Top - contentShift));
   // (always set, even at 0 — switching it on/off mid-scroll made the aquarium flicker)

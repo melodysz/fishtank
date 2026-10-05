@@ -87,6 +87,7 @@ const lenis = new Lenis({
   infinite: false,
   syncTouch: true
 });
+window.cfLenis = lenis;   // (research.js scrolls the page with it)
 
 gsap.ticker.add((time) => {
   lenis.raf(time * 1000);
@@ -154,8 +155,13 @@ window.addEventListener('load', () => {
 const cursorMain = document.getElementById('cursor');
 
 let mouseX = 0, mouseY = 0;
+
+// At rest the dot sits just past the tail end of the arrow pointer (below and to the
+// right of its tip), so it trails the cursor instead of covering the tip.
+const CURSOR_TAIL_X = 14, CURSOR_TAIL_Y = 22;   // px from the pointer's tip
 let curX = 0, curY = 0;
 let isBlobMode = false;
+let cursorBig = false;   // (grown over big clickable things: updateCursorSize)
 
 const LERP_NORMAL = 0.12;
 const LERP_BLOB = 0.10; // slightly slower when blob for smoothness
@@ -204,10 +210,10 @@ function followBlobTarget() {
 
 function animateCursor() {
   if (blobTarget) followBlobTarget();
-  const tx = blobTarget ? blobTargetX : mouseX, ty = blobTarget ? blobTargetY : mouseY;
+  const tx = blobTarget ? blobTargetX : mouseX + CURSOR_TAIL_X, ty = blobTarget ? blobTargetY : mouseY + CURSOR_TAIL_Y;
   const dx = tx - curX, dy = ty - curY;
   const lag = Math.hypot(dx, dy);
-  const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
+  const targetScale = isBlobMode || cursorBig ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
   const scaleChanging = Math.abs(targetScale - cursorScale) > 0.002;
   if (lag > 0.05 || scaleChanging) {
     const lerp = isBlobMode ? LERP_BLOB : LERP_NORMAL;
@@ -229,7 +235,25 @@ window.addEventListener('mousemove', (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   cursorMain.classList.add('active');
+  updateCursorSize(e.target);
 });
+
+// Cursor rule: buttons and text links → the dot turns into a bubble the shape of
+// the button (expandToBlob below). Bigger clickable things (a folded research card,
+// a screenshot) → it just grows; if clicking opens the image full size, it also
+// shows the eye icon.
+const CURSOR_ZOOM = 'img[data-full], .rs-shot.is-top';
+const CURSOR_BIG = CURSOR_ZOOM + ', .rs-card:not(.is-open) .rs-tab, .rs-shot';
+function updateCursorSize(el) {
+  const zoom = !!(el && el.closest && !document.querySelector('.lightbox.is-open') && el.closest(CURSOR_ZOOM));
+  const big = zoom || !!(el && el.closest && !document.querySelector('.lightbox.is-open') && el.closest(CURSOR_BIG));
+  if (big !== cursorBig) { cursorBig = big; cursorMain.classList.toggle('is-big', big); }
+  if (zoom !== cursorMain.classList.contains('is-zoom')) cursorMain.classList.toggle('is-zoom', zoom);
+}
+// a click can change what's under the mouse without it moving (a card opens, a
+// screenshot comes to the front, the lightbox opens/closes): check again
+document.addEventListener('click', () => setTimeout(() => updateCursorSize(document.elementFromPoint(mouseX, mouseY)), 30));
+document.addEventListener('keydown', () => setTimeout(() => updateCursorSize(document.elementFromPoint(mouseX, mouseY)), 30));
 
 // consistent blob height across all nav items
 const BLOB_HEIGHT = 40;
@@ -385,6 +409,10 @@ function positionBubble() {
   const menuWidth = bubbleMenu.offsetWidth;
   workBubble.style.left = (rect.left + rect.width / 2 - menuWidth / 2) + 'px';
 workBubble.style.top = (rect.bottom + 16) + 'px';
+  // the bridge covers the gap from the bottom of "work" to the top of the menu
+  const bridge = workBubble.querySelector('.bubble-bridge');
+  // (the bubble itself is 0 wide — the menu sits in it absolutely — so the bridge gets the menu's width)
+  if (bridge) { bridge.style.top = '-16px'; bridge.style.width = menuWidth + 'px'; bridge.style.height = (16 + bubbleMenu.offsetTop + 4) + 'px'; }
   dotsWrap.style.left = workBubble.style.left;
   dotsWrap.style.top = workBubble.style.top;
 }
@@ -478,8 +506,12 @@ function updateActiveNav() {
   const mainSections = ['overview', 'research', 'design', 'beyond', 'reflection'];
   let currentSection = '';
 
+  // Where each section starts for highlighting. Section 03 starts at the Skills intro
+  // (the full-screen "Designing (and redesigning) Skills." beat), but clicking 03 still
+  // goes to #design itself, skipping the intro — it's a cosmetic lead-in.
+  const highlightFrom = { design: 'skillsIntro' };
   mainSections.forEach(sectionId => {
-    const section = document.getElementById(sectionId);
+    const section = document.getElementById(highlightFrom[sectionId]) || document.getElementById(sectionId);
     if (section && section.getBoundingClientRect().top <= line) {
       currentSection = sectionId;
     }
@@ -507,8 +539,12 @@ document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
     const target = document.getElementById(targetId);
     if (!target) return;
 
+    // Where a click lands, if not the section's top: Overview skips the highlights
+    // carousel and goes to the "Designing discoverability" card; 03 goes to #design
+    // itself (past the Skills intro).
+    const landOn = { overview: document.querySelector('.cf-overview') };
     const offsets = {};
-    lenis.scrollTo(`#${targetId}`, { offset: offsets[targetId] ?? -20, immediate: true });
+    lenis.scrollTo(landOn[targetId] || `#${targetId}`, { offset: offsets[targetId] ?? -20, immediate: true });
 
     navItems.forEach(item => {
       item.classList.remove('active');
@@ -646,13 +682,14 @@ lenis.on('scroll', (e) => {
   const viewH = window.innerHeight;
   const distanceFromBottom = viewH - rect.top;
 
-  // Hide sidebar near footer
+  // Hide sidebar near footer (a class, not an inline opacity: an inline opacity would
+  // override the nav's own hidden state, leaving it showing when you jump back up)
   if (distanceFromBottom > SIDEBAR_THRESHOLD && !footerState.sidebarHidden) {
     footerState.sidebarHidden = true;
-    gsap.to('.sidebar-nav', { opacity: 0, duration: 0.3 });
+    document.querySelector('.sidebar-nav').classList.add('near-footer');
   } else if (distanceFromBottom <= SIDEBAR_THRESHOLD && footerState.sidebarHidden) {
     footerState.sidebarHidden = false;
-    gsap.to('.sidebar-nav', { opacity: 1, duration: 0.3 });
+    document.querySelector('.sidebar-nav').classList.remove('near-footer');
   }
   
   // inside your existing lenis.on('scroll') footer block, add:

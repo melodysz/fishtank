@@ -110,8 +110,8 @@ body, html {
 }
 
 .cursor-dot {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background-color: #89BD00;
   border-radius: 50%;
   position: fixed;
@@ -132,6 +132,22 @@ body, html {
 .cursor-dot.active {
   opacity: 1;
 }
+
+/* over big clickable things (folded research cards, screenshots): the dot just grows.
+   Over a screenshot that opens full size, it also shows the eye from "See all". (main.js) */
+.cursor-dot.is-big { width: 56px; height: 56px; }
+.cursor-dot.is-zoom::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  -webkit-mask: url(icons/eye.svg) center / contain no-repeat;
+  mask: url(icons/eye.svg) center / contain no-repeat;
+}
+.cursor-dot.active.is-zoom { opacity: 0.85; }
 
 .cursor-dot.is-blob {
   width: var(--blob-w, 80px);
@@ -821,6 +837,9 @@ a[href], button, [role="button"], .interactable {
   top: 0;
   left: 0;
 }
+/* (sized in main.js: from the bottom of "work" down to the dropdown; only catches the
+   mouse while the dropdown is open, since it inherits the bubble's pointer-events) */
+.bubble-bridge { position: absolute; left: 0; pointer-events: inherit; }
 
 .bubble-dot {
   border-radius: 50%;
@@ -1275,6 +1294,277 @@ body.hero-covered .hero-section { visibility: hidden; }
   border-radius: 20px;
 }
 
+/* ---------- the problem: old Agent screenshot with pop-up labels ---------- */
+/* problem-shot.js: as soon as the screenshot enters the screen it starts growing
+   (scale, from its top edge) until it's the full section width, darkening near the
+   end; then the frosted labels pop in. Nothing is pinned. .ps-stage is given the
+   grown image's height up front, so the growing image never covers the text below.
+   .ps-pills is always the grown image's size, so the labels are never scaled. */
+
+.ps-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;           /* replaced by the grown height once JS runs */
+}
+
+.ps-stage.is-anim { aspect-ratio: auto; height: var(--ps-h); }
+
+.ps-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #0D0D0D;
+}
+
+.ps-stage.is-anim .ps-frame {
+  inset: 0 auto auto 50%;
+  width: var(--ps-w0);
+  height: var(--ps-h0);
+  transform-origin: 50% 0;
+}
+
+.ps-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.ps-dim {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+}
+
+.ps-pills {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* thin purple outlines around what the labels point at: each draws in while its label is
+   hovered or open (problem-shot.js adds .is-on); "See all" opens them all */
+.ps-marks { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ps-marks > * {
+  fill: none;
+  stroke: #6F68FF;   /* the carousel captions' purple */
+  stroke-width: 1.5;   /* in the screenshot's 1280-wide units; it's shown at about that size, so ~1.5px */
+  stroke-dasharray: 1 1;   /* one dash the length of the whole outline (pathLength="1"), slid in to draw it */
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.25s ease;
+}
+.ps-marks > .is-on { stroke-dashoffset: 0; opacity: 1; }
+.ps-stage.is-list .ps-marks { display: none; }
+.ps-stage:not(.is-labeled) .ps-marks { opacity: 0; transition: opacity 0.2s ease; }   /* (labels hidden: no outlines either) */
+@media (prefers-reduced-motion: reduce) { .ps-marks > * { transition: opacity 0.2s ease; } }
+
+/* hovering a label fades the others back (a filter, so it doesn't wait on the pop-in stagger delay) */
+.ps-stage.is-focusing .ps-pill:not(.is-hovered) { filter: opacity(0.35); }
+/* …and their outlines too (e.g. with "See all" on, only the hovered label's outline stays bright) */
+.ps-stage.is-focusing .ps-marks > .is-on:not(.is-hovered) { opacity: 0.35; }
+
+.ps-stage.is-anim .ps-pills {
+  inset: 0 auto auto 50%;
+  width: var(--ps-w);
+  height: var(--ps-h);
+  transform: translateX(-50%);
+}
+
+.ps-pill {
+  position: absolute;
+  /* spots come from Figma (the closed label's top-left); it's placed by its middle so
+     it opens evenly up and down and the plus never moves. min()/max() keep an opened
+     label inside a smaller image. */
+  left: min(var(--x), calc(100% - 304px));
+  top: max(80px, min(calc(var(--y) + 27.5px), calc(100% - 80px)));
+  width: var(--w, 200px);
+  height: var(--h, 55px);
+  padding: 0;
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 40px;
+  /* the frost is drawn inside the label (::after = a blurred copy of the screenshot,
+     ::before = the white tint), not with backdrop-filter: Chrome's backdrop blur
+     can't see the screenshot while it's scaled up, so it showed a flat grey */
+  background: transparent;
+  isolation: isolate;
+  color: var(--cf-ink);
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 25px;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-50%) scale(0.6);
+  transform-origin: 27px 50%;     /* pops out of the plus */
+  pointer-events: none;
+  /* opacity + pop use the stagger delay (--d); size reacts instantly */
+  transition:
+    opacity 0.3s ease var(--d, 0s),
+    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0s),
+    width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-radius 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.25s ease;
+}
+
+.ps-stage.is-labeled .ps-pill {
+  --d: calc(var(--i, 0) * 70ms);
+  opacity: 1;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+/* white tint over the frost (Figma: 70% white; lowered so the blurred screenshot shows) */
+.ps-pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #fff;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+/* the frost: the screenshot (darkened like the real one) blurred, sized and placed so
+   it lines up exactly with the screenshot behind the label. problem-shot.js sets
+   --gx/--gy (the label's spot in the image) and --gw/--gh (the image's size). */
+.ps-pill::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: calc(-1 * var(--gx, 0px));
+  top: calc(50% - var(--gy, 0px));        /* labels are placed by their middle */
+  width: var(--gw, 0px);
+  height: var(--gh, 0px);
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    url(images/problem-old-agent.webp) center / 100% 100% no-repeat;
+  filter: blur(6px) brightness(1.4);      /* light blur: Figma's 30 (≈15px) smeared the thin UI text to nothing; brightened so the glass isn't dim */
+  pointer-events: none;
+}
+
+.ps-icon, .ps-label, .ps-detail, .ps-eye { z-index: 2; }
+.ps-pill:focus-visible { outline: 2px solid var(--nav-orange); outline-offset: 3px; }
+
+/* circled plus, centred in the label; turns into a × when the label is open */
+.ps-icon {
+  position: absolute;
+  left: 17px;
+  top: 50%;
+  margin-top: -10px;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ps-icon::before,
+.ps-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 1.5px;
+  margin: -0.75px 0 0 -4.5px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.ps-icon::after { transform: rotate(90deg); }
+.ps-pill.is-open .ps-icon { transform: rotate(45deg); }
+.ps-pill.is-open:not(.ps-see-all) { border-radius: 30px; }   /* Figma: opened labels are 30, closed ones fully round */
+
+.ps-label,
+.ps-detail {
+  position: absolute;
+  left: 49px;
+  top: 15px;
+  transition: opacity 0.2s ease;
+}
+
+.ps-label { white-space: nowrap; }
+.ps-detail { width: 224px; opacity: 0; }
+
+.ps-pill.is-open .ps-label { opacity: 0; }
+.ps-pill.is-open .ps-detail { opacity: 1; transition-delay: 0.12s; }
+
+/* "See all" / "Hide all": bottom-right corner, opens every label. Set apart from
+   the labels (Figma): white outline, frost but no fill, white text, eye icon
+   (open eye = See all, closed eye = Hide all), shorter (41px). */
+.ps-pill.ps-see-all {
+  left: min(94.59%, calc(100% - 72px));   /* its middle (Figma), so See all ↔ Hide all grows evenly both ways */
+  top: auto;
+  bottom: 3.1%;
+  border: 1px solid #fff;
+  background: transparent;
+  color: #fff;
+  transform: translateX(-50%) scale(0.6);
+  transform-origin: 50% 50%;
+  transition:
+    opacity 0.3s ease var(--d, 0s),
+    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0s),
+    width 0.25s ease;
+}
+.ps-stage.is-labeled .ps-pill.ps-see-all { transform: translateX(-50%); }
+.ps-see-all .ps-label { top: 7px; transition: none; }
+.ps-see-all.is-open .ps-label { opacity: 1; }
+.ps-pill.ps-see-all::before { opacity: 0; }
+.ps-pill.ps-see-all::after { left: calc(50% - var(--gx, 0px)); top: calc(-1 * var(--gy, 0px)); }
+.ps-pill.ps-see-all:hover::before { opacity: 0.12; }
+
+.ps-eye {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  margin-top: -12px;
+  background: currentColor;
+  -webkit-mask: url(icons/eye.svg) center / contain no-repeat;
+  mask: url(icons/eye.svg) center / contain no-repeat;
+}
+.ps-see-all.is-open .ps-eye {
+  -webkit-mask-image: url(icons/eye-closed.svg);
+  mask-image: url(icons/eye-closed.svg);
+}
+
+/* No scroll animation (reduced motion): the darkened image with its labels, in place */
+.ps-stage.is-static .ps-dim { opacity: 0.45; }
+
+/* Phones: labels become a list under the image */
+.ps-stage.is-list { aspect-ratio: auto; }
+.ps-stage.is-list .ps-frame { position: relative; inset: auto; aspect-ratio: 16 / 9; border-radius: 14px; }
+.ps-stage.is-list .ps-pills {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+.ps-stage.is-list .ps-pill {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 100%;
+  height: auto;
+  min-height: 55px;
+  padding: 15px 19px 15px 49px;
+  background: var(--cf-card);
+  transform: none;
+}
+.ps-stage.is-list .ps-label,
+.ps-stage.is-list .ps-detail { position: static; width: auto; }
+.ps-stage.is-list .ps-detail { display: none; color: var(--cf-gray); font-weight: 400; }
+.ps-stage.is-list .ps-pill.is-open .ps-label { opacity: 1; }
+.ps-stage.is-list .ps-pill.is-open .ps-detail { display: block; margin-top: 4px; }
+.ps-stage.is-list .ps-see-all { display: none; }
+.ps-stage.is-list .ps-pill::before,
+.ps-stage.is-list .ps-pill::after { display: none; }
+
 /* ---------- cards ---------- */
 
 .cf-card {
@@ -1355,6 +1645,182 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 
 .cf-hmw .cf-quote { padding: 0; }
+
+/* Newer Figma type (Overview + Problem so far; Figma's Research + Design headers use
+   it too): bigger mono label (Haffer Mono 18, e.g. "[01] Overview"), DM Sans title,
+   18/30 body. */
+.cf-head--v2 { gap: 24px; }
+.cf-eyebrow--v2 {
+  font-family: 'Haffer Mono', monospace;
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: 0;
+}
+.cf-head--v2 .cf-h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 50px;
+  line-height: 55px;
+  letter-spacing: -0.05em;
+}
+.cf-head--v2 .cf-body { max-width: 720px; font-size: 18px; line-height: 30px; }
+.cf-head--v2 .cf-body strong { font-weight: 500; }
+.cf-head--v2 .cf-list { margin-top: 16px; gap: 0; padding-left: 4px; }   /* Figma: 16 paragraph spacing, 0 between bullets */
+.cf-hmw--v2 { gap: 20px; padding: 80px clamp(24px, 8vw, 120px); }
+.cf-hmw--v2 .cf-quote {
+  max-width: none;
+  font-size: 36px;
+  line-height: 46px;
+  letter-spacing: -0.01em;
+}
+@media (max-width: 700px) {
+  .cf-head--v2 .cf-h2 { font-size: 34px; line-height: 40px; }
+  .cf-hmw--v2 .cf-quote { font-size: 24px; line-height: 32px; }
+}
+
+/* after the old-Agent screenshot: same space above the question as below it (the
+   section gap), so it reads as its own beat instead of a caption to scroll past.
+   56px = .cf-inner's gap, already there. */
+#research .cf-hmw { margin-top: calc(var(--cf-space) - 56px); }   /* (the Problem's big question has its own scene: .bq-scene) */
+
+/* Problem: Agent V1 → V2 (above the big annotated V2 screenshot). Figma: the text runs
+   the full column; the two screenshots sit in a sideways-scrolling row (V2 peeks in
+   from the right), each with a title, a "by" line and a date pill. */
+.cf-versions { display: flex; flex-direction: column; gap: 28px; }
+/* "Iterations": same type as the section titles (.cf-head--v2 .cf-h2) */
+.cf-versions-title {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 50px;
+  line-height: 55px;
+  letter-spacing: -0.05em;
+  color: var(--cf-ink);
+}
+@media (max-width: 700px) {
+  .cf-versions-title { font-size: 34px; line-height: 40px; }
+}
+.cf-versions-text { font-size: 18px; line-height: 30px; color: var(--cf-ink); }
+.cf-versions-text strong { font-weight: 500; }
+
+/* the row: a .hl-viewport, so it swipes exactly like the highlights carousel (highlights.js);
+   cards off to the side stay visible up to the screen edge, like there */
+.cf-versions-viewport .hl-track { gap: 24px; }
+
+/* Each card (Figma, Oct 4): dark, rounded, the screenshot on top (cropped from the
+   bottom to 832×432) and the text below it in light colours. Where the screenshot meets
+   the text, a frosted fade: Figma's progressive background blur (0 → 50, from 323px
+   down) + a black gradient at 50%. The blur is made of blurred copies of the screenshot
+   (a real backdrop blur shows nothing inside the swiping, transformed row). */
+.cf-version {
+  position: relative;
+  flex: 0 0 min(832px, 80vw);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #0D0D0D;
+  container-type: inline-size;
+  --fade-top: 363;                /* Figma px from the card's top where the gradient + blur start (Figma: 323) */
+}
+.cf-version-shot { position: relative; aspect-ratio: 832 / 432; overflow: hidden; }
+.cf-version-shot img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  -webkit-user-drag: none;
+}
+/* Progressive blur: four copies of the screenshot, blurred 6 / 12 / 24 / 48px, each fading
+   in a little further down: none at 323px → full by 440px (just past the screenshot's
+   bottom edge; Figma's ramp runs to the card's bottom, 584px, but reads weaker).
+   Each copy sits in a full-height layer, so its blur spills down past the screenshot's
+   bottom edge into the dark card: the screenshot itself seems to melt into it.
+   (--u = one Figma px; stops are in Figma px from the card's top.) */
+.cf-version-blurs { position: absolute; inset: 0; pointer-events: none; --u: calc(100cqw / 832); }
+.cf-version-blur {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--u) * var(--from)), #000 calc(var(--u) * var(--to)));
+  mask-image: linear-gradient(to bottom, transparent calc(var(--u) * var(--from)), #000 calc(var(--u) * var(--to)));
+}
+.cf-version-blur img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(var(--u) * 432);
+  object-fit: cover;
+  object-position: top;
+  filter: blur(var(--r));
+}
+/* the four copies split the ramp from --fade-top (where the gradient + blur start) to
+   440 (full blur, just past the screenshot's bottom edge at 432) into even quarters */
+.cf-version-blur--1 { --r: 6px;  --from: var(--fade-top); --to: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.25); }
+.cf-version-blur--2 { --r: 12px; --from: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.25); --to: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.5); }
+.cf-version-blur--3 { --r: 24px; --from: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.5); --to: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.75); }
+.cf-version-blur--4 { --r: 48px; --from: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.75); --to: 440; }
+.cf-version-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100cqw * var(--fade-top) / 832);
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+.cf-version figcaption {
+  position: relative;             /* (above the fade) */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0 30px 30px;
+}
+.cf-version-title,
+.cf-version-by {
+  font-family: 'PP Neue Montreal', sans-serif;
+  color: #F5F5F7;
+}
+.cf-version-title { font-weight: 500; font-size: 25px; line-height: 30px; }
+.cf-version-by { font-weight: 400; font-size: 18px; line-height: 22px; }
+
+/* strengths (✓) and weaknesses (✕): see-through white pills, white icons, light grey text */
+.cf-version-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-version-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px 5px 9px;      /* (smaller than Figma's 8/15 · 15px text · 22px icons) */
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.3);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 20px;
+  color: #D9D9D9;
+}
+.cf-version-tag img { display: block; width: 16px; height: 16px; filter: brightness(0) invert(1); }   /* icons in white */
+
+/* "Deep dive into V2": same type as "Get the highlights."; extra room above it so
+   the V1/V2 row and the big screenshot read as separate beats */
+.cf-deep-title {
+  margin-top: 64px;
+  margin-bottom: -36px;           /* 56px column gap − 36 = 20px to the screenshot, same as "Get the highlights." to its carousel */
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-align: center;
+  color: var(--cf-ink);
+}
+@media (max-width: 700px) {
+  .cf-deep-title { font-size: 32px; margin-top: 32px; }
+}
 
 /* ---------- flow pills (know → invoke) ---------- */
 
@@ -2190,6 +2656,16 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 .hl-quotes.is-waiting :is(.hl-quote, .hl-quote-shadow) { opacity: 0; transform: translateY(12px) scale(0.8); transition: none; }
 .hl-quotes.is-clearing :is(.hl-quote, .hl-quote-shadow) { opacity: 0; transition: opacity 0.2s ease; }
+/* the in-chat card (Figma "Carousel Item 3", one exported image): fades in while growing slightly
+   (highlights.js toggles .is-waiting). Not shifted up like the other stages, so the top callout stays clear of the caption. */
+.hl-stage.hl-pop { transform: scale(var(--s, 1)); }
+.hl-pop-img {
+  left: 0; top: 0; width: 1240px; height: 746px;
+  transform-origin: 50% 55%;
+  transition: opacity 0.6s ease-out, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hl-pop.is-waiting .hl-pop-img { opacity: 0; transform: scale(0.94); transition: none; }
+.hl-pop.is-clearing .hl-pop-img { opacity: 0; transition: opacity 0.2s ease; }
 /* the tools card: a quick fade before the bubbles drop in again */
 .hl-bubbles { transition: opacity 0.25s ease; }
 .hl-bubbles.is-clearing { opacity: 0; }
@@ -2269,3 +2745,422 @@ body.hero-covered .hero-section { visibility: hidden; }
   transition: opacity 0.35s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .sidebar-nav.visible { transform: translate(-50%, 0); }
+
+/* near the footer the bottom nav fades out (main.js); kept after the .visible rules so it wins */
+.sidebar-nav.near-footer { opacity: 0; pointer-events: none; }
+
+/* ================================
+   RESEARCH: four cards, one open at a time (research.js)
+   Figma "Method strip — tall accordion": the row runs the full section width;
+   folded cards are 114px tabs (number on top, name running up the bottom); the open
+   card takes the rest. Opening = the card widens on a bezier curve, then its
+   contents fade in; the closing card's contents fade out first.
+   ================================ */
+@font-face {
+  font-family: 'HafferXH';
+  src: url('https://cdn.jsdelivr.net/gh/melodysz/baubles@main/fonts/HafferXHMono-TRIAL-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+#research { --rs-tab: 114px; --rs-gap: 12px; --rs-h: 655px; --rs-ease: cubic-bezier(0.76, 0, 0.24, 1); --rs-dur: 0.5s; }
+
+/* the row reaches the section's edges (cancels .cf-section's side padding), like Figma */
+.rs-pin { margin-inline: calc(-1 * clamp(24px, 9.4vw, 130px)); }
+.rs-pin.is-scroll-driven .rs-stick { position: sticky; top: var(--rs-stick-top, 0px); }   /* (off for now: research.js SCROLL_DRIVEN) */
+
+/* the intro text above the cards runs the full width */
+#research .cf-head--v2 .cf-body { max-width: none; }
+
+.rs-strip {
+  display: flex;
+  justify-content: center;        /* all folded (before it's scrolled in): the tabs sit centred */
+  gap: var(--rs-gap);
+  height: var(--rs-h);
+  container-type: inline-size;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rs-card {
+  position: relative;
+  flex: 0 0 var(--rs-tab);
+  min-width: 0;
+  border-radius: 23px;
+  overflow: hidden;
+  color: var(--cf-ink);
+  transition: flex-basis var(--rs-dur) var(--rs-ease);
+}
+.rs-card.is-open { flex-basis: calc(100% - 3 * (var(--rs-tab) + var(--rs-gap))); }
+.rs-card--1 { background: #F5F5F7; }
+.rs-card--2 { background: #D2ABFF; }
+.rs-card--3 { background: #1E1C1D; color: #fff; }
+.rs-card--4 { background: #fff; box-shadow: inset 0 0 0 2px rgba(24, 24, 18, 0.1); }
+
+/* big mono number (tabs + open titles) */
+.rs-num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 400;
+  font-size: 40px;                /* (the page's 40/48 heading size, as .cf-h2; Figma had 55) */
+  line-height: 48px;
+  letter-spacing: 0;
+}
+
+/* The number is one fixed piece per card, never fading: it only slides the few px
+   between its folded spot (centred in the tab, 33px down) and its open spot (37px
+   in, beside the title). The tab's and title's own numbers are invisible spacers. */
+.rs-num-space { visibility: hidden; }
+.rs-num-fixed {
+  position: absolute;
+  z-index: 1;
+  top: 33px;
+  left: calc(var(--rs-tab) / 2);
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: top var(--rs-dur) var(--rs-ease), left var(--rs-dur) var(--rs-ease), transform var(--rs-dur) var(--rs-ease);
+}
+.rs-card.is-open .rs-num-fixed { top: 37px; left: 37px; transform: none; }
+
+/* ---- folded: the tab ---- */
+.rs-tab {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 33px 28px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.3s ease calc(var(--rs-dur) * 0.55);
+}
+.rs-side {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);          /* reads bottom to top, like Figma */
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 45px;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+.rs-card.is-open .rs-tab { opacity: 0; pointer-events: none; transition: opacity 0.15s ease; }
+
+/* ---- open: contents are laid out at the open card's full width the whole time, so
+   nothing reflows while the card widens; the card just reveals more of them ---- */
+.rs-open {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100cqw - 3 * (var(--rs-tab) + var(--rs-gap)));
+  height: 100%;
+  padding: 37px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  visibility: hidden;
+  transition: visibility 0s linear 0.15s;
+}
+.rs-card.is-open .rs-open { visibility: visible; transition: visibility 0s; }
+/* text, then the chart/images, slide in while fading in (closing: a quick fade). They come
+   from the side the card grows towards: research.js sets data-from="left" / "right". */
+.rs-open > * {
+  opacity: 0;
+  transform: translateX(32px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.rs-card.is-open .rs-open > * {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.45s ease var(--rs-in), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--rs-in);
+}
+.rs-card[data-from="left"] .rs-open > * { transform: translateX(-32px); }
+.rs-card[data-from="left"].is-open .rs-open > * { transform: none; }
+.rs-open > :nth-child(1) { --rs-in: calc(var(--rs-dur) * 0.5); }
+.rs-open > :nth-child(2) { --rs-in: calc(var(--rs-dur) * 0.5 + 0.08s); }
+
+.rs-head { display: flex; flex-direction: column; gap: 10px; }
+.rs-title {
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 48px;
+  letter-spacing: -0.05em;
+}
+.rs-card--1 .rs-title { gap: 10px; }
+.rs-title .rs-num { letter-spacing: 0; }
+.rs-text { margin: 0; font-size: 18px; line-height: 30px; opacity: 0.7; }
+.rs-text strong { font-weight: 500; }
+.rs-lead { margin: 0; font-weight: 500; font-size: 20px; line-height: 30px; }
+
+/* 01: funnel chart (Figma's scaled copy) */
+.rs-chart {
+  display: flex;
+  flex-direction: column;
+  padding: 36px 33px 27px;
+  border-radius: 18px;
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--cf-ink);
+}
+.rs-chart-title { margin: 0 0 22px; font-weight: 500; font-size: 20px; line-height: 25px; letter-spacing: -0.02em; }
+.rs-funnel { display: flex; flex-direction: column; gap: 9px; }
+.rs-row { display: grid; grid-template-columns: 126px 300px 40px; align-items: center; gap: 11px; height: 20px; font-size: 12.75px; }
+.rs-row-pct { font-weight: 500; }
+.rs-bar { position: relative; display: flex; align-items: center; gap: 2px; height: 20px; }
+.rs-bar-val, .rs-bar-lost { display: block; height: 20px; width: var(--w); border-radius: 0 3px 3px 0; }
+.rs-bar-val { background: #7354F2; }
+.rs-bar-lost { background: rgba(199, 189, 250, 0.55); }
+.rs-bar-drop { margin-left: 5px; font-weight: 600; font-size: 10.9px; color: #7354F2; white-space: nowrap; }
+.rs-divider { height: 1px; margin: 25px 0 22px; background: #DBDBE0; }
+.rs-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.rs-stat { display: flex; flex-direction: column; gap: 4px; }
+.rs-stat-num { font-weight: 600; font-size: 27.3px; line-height: 36px; letter-spacing: -0.03em; color: #7354F2; }
+.rs-stat-label { font-size: 11.8px; line-height: 16px; color: #5C5C61; }
+
+/* 02: themes */
+.rs-themes-wrap { display: flex; flex-direction: column; gap: 14px; }
+.rs-themes { list-style: none; margin: 0; padding: 5px; border-radius: 15px; background: #fff; }
+.rs-themes li { display: flex; gap: 19px; padding: 20px 21px; }
+.rs-theme-num { font-family: 'HafferXH', monospace; font-weight: 400; font-size: 17.5px; line-height: 26px; opacity: 0.3; }
+.rs-themes li > span:last-child { display: flex; flex-direction: column; gap: 5px; }
+.rs-theme-title { font-weight: 500; font-size: 18.7px; line-height: 26px; }
+.rs-theme-text { font-size: 16.4px; line-height: 23px; color: rgba(0, 0, 0, 0.6); }
+
+/* 03: Higgsfield vs Creatify (overlapping screenshots; the images include their glow,
+   ~21px past the frame on each side) */
+.rs-compare { position: relative; height: 446px; }
+.rs-compare-shots { position: absolute; inset: 0; pointer-events: none; }
+.rs-shot {
+  position: absolute;
+  left: 50%;
+  width: 505px;
+  padding: 0;
+  border: 0;
+  background: none;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Figma: 14 corners, a 40% white hairline and a soft white glow (drawn here, so the
+   glow is see-through over whatever is behind it) */
+.rs-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
+}
+.rs-shot.is-top { z-index: 2; cursor: zoom-in; }
+.rs-shot-back { top: 65.4px; transform: translateX(calc(-50% - 35.2px)); }
+.rs-shot-front { top: 95.1px; transform: translateX(calc(-50% + 35px)); }
+/* the one behind lifts a touch on hover, hinting it can be clicked */
+.rs-shot-back:not(.is-top):hover { transform: translate(calc(-50% - 35.2px), -6px); }
+.rs-shot-front:not(.is-top):hover { transform: translate(calc(-50% + 35px), -6px); }
+/* (just swapped: a little pop as it comes forward) */
+.rs-shot.is-popping img { animation: rs-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes rs-pop { from { transform: scale(0.97); } to { transform: none; } }
+.rs-note { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; font-size: 18px; line-height: 23px; color: rgba(255, 255, 255, 0.7); }
+.rs-note strong { font-weight: 500; color: #fff; }
+
+/* 04: the two menus */
+.rs-screens { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.rs-screens figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.rs-screens figcaption { font-size: 18px; line-height: 30px; opacity: 0.7; }
+.rs-screens img { display: block; width: 100%; height: auto; }
+.rs-zoom { cursor: zoom-in; }
+
+@media (prefers-reduced-motion: reduce) {
+  #research { --rs-dur: 0.01s; }
+}
+
+/* ---- smaller screens: no tabs, no locking in place — the four cards simply stack, all open ---- */
+@media (max-width: 1000px) {
+  .rs-pin { margin-inline: 0; height: auto !important; }
+  .rs-stick { position: static; }
+  .rs-strip { flex-direction: column; height: auto; gap: 16px; }
+  .rs-card, .rs-card.is-open { flex: none; }
+  .rs-tab, .rs-num-fixed { display: none; }
+  .rs-title .rs-num-space { visibility: visible; }
+  .rs-open, .rs-card.is-open .rs-open { position: static; width: auto; height: auto; padding: 28px 24px; visibility: visible; transition: none; gap: 28px; }
+  .rs-open > *, .rs-card.is-open .rs-open > * { opacity: 1; transform: none; transition: none; }
+  .rs-title { font-size: 36px; line-height: 40px; gap: 12px; }
+  .rs-num { font-size: 36px; line-height: 40px; }
+  .rs-row { grid-template-columns: 96px 1fr 34px; }
+  .rs-stats { grid-template-columns: 1fr; gap: 14px; }
+  .rs-compare { height: auto; display: flex; flex-direction: column; gap: 16px; }
+  .rs-compare-shots { position: static; display: grid; gap: 12px; }
+  .rs-shot, .rs-shot:hover { position: static; width: 100%; transform: none !important; }
+  .rs-note { position: static; }
+  .rs-screens { grid-template-columns: 1fr; }
+}
+
+/* ================================
+   LIGHTBOX (lightbox.js): a full-size screenshot over a dimmed, blurred page
+   ================================ */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;                 /* over the nav, under the cursor dot (10001) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vh 4vw;
+  background: rgba(14, 13, 16, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+.lightbox.is-open { opacity: 1; visibility: visible; transition: opacity 0.25s ease, visibility 0s; }
+.lightbox-img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  transform: scale(0.96);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lightbox.is-open .lightbox-img { transform: none; }
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 26px;
+  line-height: 44px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.26); }
+
+/* ================================
+   SKILLS INTRO (skills-intro.js)
+   A full-screen beat before the Skills section. The grey card sits inside the page's
+   usual side margin, with the same margin above and below (so it scales with the
+   screen). Four screenshots start as a 2×2 in the middle, then get pulled out to the
+   screen's corners (partly off screen) while the title fades in and "Skills" shines.
+   ================================ */
+.sk-intro {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  margin: 0 0 calc(var(--cf-card-gap) - var(--cf-gutter));
+  overflow: hidden;               /* the screenshots end partly off screen */
+}
+.sk-card {
+  position: absolute;
+  inset: var(--cf-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 30px;
+  background: #F5F5F7;
+}
+.sk-title {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: clamp(36px, 4.45vw, 65px);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-align: center;
+  color: var(--cf-ink);
+  opacity: 0;                     /* faded in by skills-intro.js */
+}
+
+/* "Skills" shines pink → purple for a moment, then settles to plain ink */
+.sk-word { position: relative; display: inline-block; }
+.sk-word::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #E7A0FE 0%, #6F68FF 33%, #E7A0FE 66%, #6F68FF 100%);
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+/* --sk-shine-dur: the whole shine, fade-in to fade-out (the gradient holds for ~2.5s of it) */
+.sk-intro { --sk-shine-dur: 3.6s; }
+.sk-intro.is-shining .sk-word { animation: sk-word-ink var(--sk-shine-dur) ease forwards; }
+.sk-intro.is-shining .sk-word::after { animation: sk-shine var(--sk-shine-dur) ease forwards; }
+@keyframes sk-shine {
+  0%   { opacity: 0; background-position: 100% 0; }
+  8%   { opacity: 1; }
+  78%  { opacity: 1; }
+  100% { opacity: 0; background-position: 0% 0; }
+}
+@keyframes sk-word-ink {          /* the plain word hides while the shine is on top */
+  0%, 100% { color: var(--cf-ink); }
+  8%, 78% { color: transparent; }
+}
+
+.sk-shots { position: absolute; inset: 0; pointer-events: none; }
+.sk-shot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: var(--sk-w, 40%);
+  height: auto;
+  border-radius: 15px;
+  will-change: transform;
+  -webkit-user-drag: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-intro.is-shining .sk-word, .sk-intro.is-shining .sk-word::after { animation: none; }
+}
+
+/* Problem V1/V2 carousel: the same dots as the highlights carousel, but under the cards */
+.cf-versions-viewport .hl-dots {
+  background: rgba(232, 232, 236, 0.7);   /* the bottom nav's grey, so it shows on the white page */
+  position: static;
+  transform: none;
+  width: fit-content;
+  margin: 24px auto 0;
+}
+
+/* ================================
+   THE BIG QUESTION (big-question.js)
+   Gets a full screen of room to itself. Once it's 2/3 on screen, the grey box grows
+   from a small circle (a clip-path) into its rounded rectangle, then the words fade
+   in. Plays once. Small screens and reduced motion just show the finished box.
+   ================================ */
+/* a full screen of room, with the box in the middle: it has the screen to itself */
+.bq-scene { position: relative; }
+.bq-stick {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+}
+.bq-box { width: 100%; margin: 0; will-change: clip-path; }
+@media (max-width: 700px), (prefers-reduced-motion: reduce) {
+  .bq-scene { margin-top: calc(var(--cf-space) - 56px); }
+  .bq-stick { min-height: 0; }
+}

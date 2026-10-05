@@ -18,9 +18,9 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=53">
-  <link rel="stylesheet" href="../css/page-wipe.css?v=8">
-  <script src="../js/splash.js?v=8"></script>
+  <link rel="stylesheet" href="style.css?v=112">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=10">
+  <script src="../js/splash.js?v=9"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
   <link rel="expect" href="#page-entry-overlay" blocking="render">
   <link rel="icon" type="image/x-icon" href="https://melodysz.github.io/baubles/favicon.ico">
@@ -68,6 +68,9 @@
   <div class="bubble-dot bubble-dot-lg"></div>
 </div>
 <div class="work-bubble" id="workBubble" aria-hidden="true">
+  <!-- invisible strip over the gap between "work" and its dropdown: crossing it counts as
+       still being on the dropdown, so the nav doesn't collapse on the way (main.js) -->
+  <div class="bubble-bridge"></div>
   <div class="bubble-menu">
     <a href="./" class="bubble-item interactable is-current" aria-current="page">
       <span class="bubble-num">01</span>creatify
@@ -178,7 +181,8 @@
             <img class="hl-iso-mac" src="images/highlight-0-mac.webp" alt="" draggable="false">
             <div class="hl-screen hl-iso-screen">
               <div class="hl-iso-plane">
-                <video class="hl-video" src="images/highlight-0-agent-home-tabs.mp4" poster="images/highlight-0-agent-home-tabs-poster.webp" muted playsinline preload="auto" aria-label="Creatify's redesigned Agent homepage in action"></video>
+                <!-- (swap back to the tabs version: highlight-0-agent-home-tabs.mp4 + highlight-0-agent-home-tabs-poster.webp) -->
+                <video class="hl-video" src="images/highlight-0-agent-home.mp4" poster="images/highlight-0-agent-home-poster.webp" muted playsinline preload="auto" aria-label="Creatify's redesigned Agent homepage in action"></video>
               </div>
             </div>
             <img class="hl-iso-platform" src="images/highlight-0-platform.webp" alt="" draggable="false">
@@ -239,6 +243,16 @@
           </div>
         </div>
       </article>
+      <article class="hl-card hl-card--chat">
+        <div class="hl-card-inner">
+          <p class="hl-caption"><span class="hl-caption-in">Chat, meet <em>structure.</em></span></p>
+          <!-- Figma "Carousel Item 3": exported as one image (title left out; it's the caption above).
+               Fades in while growing slightly each time you arrive on the card (highlights.js). -->
+          <div class="hl-stage hl-pop">
+            <img class="hl-pop-img" src="images/highlight-c-chat-structure.webp" alt="Agent's in-chat setup card asking who should host a podcast, annotated: picking an option moves to the next step, arrows move between or skip steps, Skip setup closes it and skips all questions, Continue moves to the next step" draggable="false">
+          </div>
+        </div>
+      </article>
       <article class="hl-card hl-card--bubbles">
         <div class="hl-card-inner">
           <p class="hl-caption"><span class="hl-caption-in">Designed it. Coded it. <em>Shipped it.</em></span></p>
@@ -275,7 +289,7 @@
 <!-- the overview card -->
 <section class="cf-overview">
   <div class="cf-overview-text">
-    <div class="cf-num">01</div>
+    <div class="cf-eyebrow cf-eyebrow--v2">[01] Overview</div>
     <h2 class="cf-h2">Designing discoverability</h2>
     <p>As Creatify’s <strong>sole product design intern,</strong> I redesigned <strong>how users discover and use Agent</strong>—across Skills, in-chat workflows, navigation, and its homepage.</p>
     <p>I also stepped into <strong>design engineering,</strong> moving from Figma into production code <strong>to implement, open PRs, and ship live.</strong></p>
@@ -298,110 +312,262 @@
 <!-- ===== The problem ===== -->
 <section id="problem" class="cf-section">
   <div class="cf-inner">
-    <div class="cf-head cf-reveal">
-      <div class="cf-eyebrow">The problem</div>
-      <h2 class="cf-h2">Agent could do a lot. Users couldn’t always see it.</h2>
+    <div class="cf-head cf-head--v2 cf-reveal">
+      <div class="cf-eyebrow cf-eyebrow--v2">The problem</div>
+      <h2 class="cf-h2">Agent could do a lot.<br>Users just couldn’t see it.</h2>
       <div class="cf-body">
-        <p>As Agent became more capable, the product faced a different problem: <strong>users couldn’t always see or understand what it could do.</strong></p>
-        <p>Skills were hidden behind unfamiliar interactions. Complex workflows needed more guidance than an empty prompt box provided. Agent’s own navigation competed with the rest of Creatify, and different product areas had drifted into noticeably different visual languages.</p>
+        <p>As Agent grew more capable, <strong>its best features got harder to find and understand.</strong></p>
+        <ul class="cf-list">
+          <li>Skills hid behind unfamiliar shortcuts</li>
+          <li>Complex tasks started from an empty prompt box</li>
+          <li>Each product area looked different (Agent vs Home vs Ad Flow)</li>
+        </ul>
       </div>
     </div>
 
-    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630">
-      <span class="cf-ph-kind">Image · Large · 16:9</span>
-      <span class="cf-ph-desc">The original Agent experience (before), with 3–4 numbered callouts: unlabeled + menu, / command, empty prompt box, competing sidebars.</span>
+    <!-- Agent changed mid-internship: V1 (when I joined) → V2 (the "before" for my redesign).
+         The big annotated screenshot below is V2. -->
+    <div class="cf-versions cf-reveal">
+      <h3 class="cf-versions-title">Iterations</h3>
+      <p class="cf-versions-text">Agent also changed mid-internship. <strong>V1 had a strong visual identity</strong> but hid its best features. <strong>The V2 that replaced it was cleaner but more generic,</strong> and its features stayed just as hidden.</p>
+      <!-- swipeable row: same swiping as the highlights carousel (highlights.js runs on every .hl-viewport) -->
+      <div class="hl-viewport cf-versions-viewport">
+        <div class="hl-track">
+          <figure class="cf-version">
+            <div class="cf-version-shot"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt="Agent V1: a dark screen with a purple and pink glow behind a “What do you want to create?” prompt box."></div>
+            <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div></div>
+            <div class="cf-version-fade" aria-hidden="true"></div>
+            <figcaption>
+              <span class="cf-version-title">[V1] Original Agent</span>
+              <span class="cf-version-by">By Creatify’s lead visual designer • May–Jul</span>
+              <span class="cf-version-tags">
+                <span class="cf-version-tag"><img src="icons/check.svg" width="22" height="22" alt="Strength:"><span>Colorful visual identity</span></span>
+                <span class="cf-version-tag"><img src="icons/check.svg" width="22" height="22" alt="Strength:"><span>Micro-animations</span></span>
+                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Features hidden</span></span>
+                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Didn’t match other pages</span></span>
+              </span>
+            </figcaption>
+          </figure>
+          <figure class="cf-version">
+            <div class="cf-version-shot"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt="Agent V2: a flat dark screen with a “What will you create today?” heading and an empty prompt box."></div>
+            <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div></div>
+            <div class="cf-version-fade" aria-hidden="true"></div>
+            <figcaption>
+              <span class="cf-version-title">[V2] Updated Agent</span>
+              <span class="cf-version-by">By developers, the “before” for my redesign • Jul–Aug</span>
+              <span class="cf-version-tags">
+                <span class="cf-version-tag"><img src="icons/check.svg" width="22" height="22" alt="Strength:"><span>Clean &amp; sleek</span></span>
+                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Features hidden</span></span>
+                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Generic</span></span>
+                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Lack of animations</span></span>
+              </span>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="hl-dots" aria-label="Choose a version"></div>
+      </div>
     </div>
 
-    <div class="cf-hmw cf-reveal">
-      <div class="cf-eyebrow">How might we</div>
-      <p class="cf-quote">make Agent’s capabilities easier to discover and understand, while creating a more cohesive and distinctly Creatify experience?</p>
+    <h3 class="cf-deep-title cf-reveal">Deep dive into V2</h3>
+
+    <!-- The original Agent (before). It grows to the section width as it scrolls in and
+         darkens, then frosted labels pop up; hovering (or tapping) a label opens its
+         note. Label spots = the label's top-left corner, as % of the image (Figma frame
+         1378×775). Logic: problem-shot.js -->
+    <div class="ps-stage" id="problemShot">
+      <div class="ps-frame">
+        <img class="ps-img" src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" alt="The original Agent homepage: a chat history sidebar, a “What will you create today?” heading, a Creative / Performance toggle, an empty prompt box and a row of shortcut chips.">
+        <div class="ps-dim" aria-hidden="true"></div>
+      </div>
+      <div class="ps-pills">
+        <!-- thin purple outlines around what each label points at. Each one shows while its
+             label (data-k = the label's order below) is hovered or open; "See all" shows them all.
+             Coordinates in the screenshot's own space at 1280×720. -->
+        <svg class="ps-marks" viewBox="0 0 1280 720" preserveAspectRatio="none" aria-hidden="true">
+          <rect pathLength="1" x="97" y="48" width="225" height="38" rx="10" data-k="0"/>     <!-- duplicate toggle (sidebar) -->
+          <rect pathLength="1" x="686" y="300" width="213" height="36" rx="10" data-k="0"/>    <!-- duplicate toggle (above the prompt box) -->
+          <circle pathLength="1" cx="57.5" cy="188.5" r="19.5" data-k="1"/>                    <!-- the Agent icon -->
+          <rect pathLength="1" x="334" y="4" width="942" height="712" rx="14" data-k="2"/>     <!-- no visual identity: everything right of the sidebar -->
+          <circle pathLength="1" cx="1017.5" cy="22" r="15" data-k="3"/>                       <!-- unlabeled icons: the lightning… -->
+          <circle pathLength="1" cx="1049" cy="22" r="15" data-k="3"/>                         <!-- …and Memory -->
+          <rect pathLength="1" x="521" y="344" width="543" height="106" rx="18" data-k="4"/>   <!-- the prompt box -->
+          <rect pathLength="1" x="956" y="464" width="127" height="34" rx="17" data-k="5"/>    <!-- Watch tutorial chip -->
+        </svg>
+        <button class="ps-pill interactable" type="button" style="--x:24.67%; --y:10.97%" aria-expanded="false">
+          <span class="ps-icon" aria-hidden="true"></span>
+          <span class="ps-label">Duplicate toggle</span>
+          <span class="ps-detail">The Creative / Performance toggle appears twice on one screen: once in the sidebar, once above the prompt box.</span>
+        </button>
+        <button class="ps-pill interactable" type="button" style="--x:2%; --y:34%" aria-expanded="false">
+          <span class="ps-icon" aria-hidden="true"></span>
+          <span class="ps-label">Mismatched icon</span>
+          <span class="ps-detail">The Agent icon's style breaks from the rest of the icon set, so it feels like a different product.</span>
+        </button>
+        <button class="ps-pill interactable" type="button" style="--x:29.32%; --y:71%" aria-expanded="false">
+          <span class="ps-icon" aria-hidden="true"></span>
+          <span class="ps-label">No visual identity</span>
+          <span class="ps-detail">This version dropped the colorful aurora backdrop from an earlier design, leaving a flat, generic dark screen.</span>
+        </button>
+        <button class="ps-pill interactable" type="button" style="--x:70.5%; --y:11.5%" aria-expanded="false">
+          <span class="ps-icon" aria-hidden="true"></span>
+          <span class="ps-label">Unlabeled icons</span>
+          <span class="ps-detail">The top-right icons have no labels, so their purpose is a guess. Tucked into a corner, they don't invite a click.</span>
+        </button>
+        <button class="ps-pill interactable" type="button" style="--x:60%; --y:45.81%" aria-expanded="false">
+          <span class="ps-icon" aria-hidden="true"></span>
+          <span class="ps-label">No visual examples</span>
+          <span class="ps-detail">There are no visual examples of Agent's output, so users have nothing to judge its quality by, and no reason to trust it.</span>
+        </button>
+        <button class="ps-pill interactable" type="button" style="--x:76.63%; --y:74.5%" aria-expanded="false">
+          <span class="ps-icon" aria-hidden="true"></span>
+          <span class="ps-label">Inconsistent chips</span>
+          <span class="ps-detail">Every chip opens a dropdown except Watch tutorial, which jumps to YouTube. Same look, completely different behavior.</span>
+        </button>
+        <button class="ps-pill ps-see-all interactable" type="button" aria-expanded="false">
+          <span class="ps-eye" aria-hidden="true"></span>
+          <span class="ps-label">See all</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- The big question gets the screen to itself: it's held in the middle of the screen
+         for a stretch of scrolling while it grows from a small grey circle into its box,
+         then the words fade in (big-question.js) -->
+    <div class="bq-scene" id="bigQuestion">
+      <div class="bq-stick">
+        <div class="cf-hmw cf-hmw--v2 bq-box">
+          <div class="cf-eyebrow cf-eyebrow--v2 bq-in">The big question:</div>
+          <p class="cf-quote bq-in">How might we make Agent’s capabilities easier to understand—and the experience unmistakably Creatify?</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ===== 02 Research ===== -->
-<section id="research" class="cf-section cf-section--gray">
+<section id="research" class="cf-section">
   <div class="cf-inner">
-    <div class="cf-head cf-reveal">
-      <div class="cf-eyebrow">02 — Research</div>
+    <div class="cf-head cf-head--v2 cf-reveal">
+      <div class="cf-eyebrow cf-eyebrow--v2">[02] Research</div>
       <h2 class="cf-h2">Understanding where users were getting stuck</h2>
-      <div class="cf-body"><p>Before redesigning screens, I wanted to know whether the friction I saw in Agent was isolated or part of broader product behavior. I combined four sources of evidence.</p></div>
+      <div class="cf-body"><p>Was the friction I saw in Agent a one-off, or a pattern across all of Creatify? I looked at it from <strong>four angles</strong>.</p></div>
     </div>
 
-    <div class="cf-row cf-row--4 cf-reveal">
-      <div class="cf-card"><div class="cf-card-num">01</div><div class="cf-card-title">PostHog analytics</div><p class="cf-card-text">Funnels, retention, drop-off, feature adoption, onboarding</p></div>
-      <div class="cf-card"><div class="cf-card-num">02</div><div class="cf-card-title">33 user calls</div><p class="cf-card-text">Ecommerce founders, marketers, consultants, creators</p></div>
-      <div class="cf-card"><div class="cf-card-num">03</div><div class="cf-card-title">Competitive research</div><p class="cf-card-text">Higgsfield, Flora, HeyGen, InVideo, Claude, Figma, Arcads</p></div>
-      <div class="cf-card"><div class="cf-card-num">04</div><div class="cf-card-title">Product audit</div><p class="cf-card-text">A hands-on audit of Creatify itself</p></div>
-    </div>
+    <!-- Four research cards: one open at a time, the others folded into tabs. Clicking a
+         tab or swiping/dragging sideways opens a card; card screenshots open in a lightbox.
+         Logic: research.js (+ lightbox.js) -->
+    <div class="rs-pin" id="researchPin">
+      <div class="rs-stick">
+        <div class="rs-strip" id="researchStrip">
 
-    <div class="cf-split cf-reveal">
-      <div class="cf-sub">
-        <div class="cf-sub-label">01 · Behavioral data</div>
-        <h3 class="cf-h3">Friction showed up across the whole journey</h3>
-        <div class="cf-body">
-          <p>I audited Creatify’s analytics in PostHog across funnels, retention, feature adoption, onboarding, and the major creation workflows. Recurring friction appeared around:</p>
-          <ul class="cf-list">
-            <li>Choosing the right workflow</li>
-            <li>Reaching a successful first generation</li>
-            <li>Understanding credit-consuming actions</li>
-            <li>Render and download moments</li>
-            <li>Subscription and paywall transitions</li>
-          </ul>
+          <article class="rs-card rs-card--1">
+            <span class="rs-num rs-num-fixed" aria-hidden="true">01</span>
+            <button class="rs-tab interactable" type="button" aria-label="Open 01: PostHog analytics"><span class="rs-num rs-num-space">01</span><span class="rs-side">PostHog analytics</span></button>
+            <div class="rs-open">
+              <div class="rs-head">
+                <h3 class="rs-title"><span class="rs-num rs-num-space" aria-hidden="true">01</span>PostHog analytics</h3>
+                <p class="rs-text">PostHog showed users losing momentum at the same few moments. <strong>Many struggled to choose the right workflow</strong> and to reach their first generation. Later, <strong>credit costs were hard to understand</strong>, and rendering, downloading and hitting the paywall all caused more drop-off.</p>
+              </div>
+              <div class="rs-chart">
+                <p class="rs-chart-title">About half of users who start an ad render it. Under a third download it.</p>
+                <div class="rs-funnel">
+              <div class="rs-row"><span class="rs-row-label">Started an ad</span><span class="rs-bar"><span class="rs-bar-val" style="--w:100%"></span></span><span class="rs-row-pct">100%</span></div>
+              <div class="rs-row"><span class="rs-row-label">Confirmed product</span><span class="rs-bar"><span class="rs-bar-val" style="--w:87.3%"></span></span><span class="rs-row-pct">87%</span></div>
+              <div class="rs-row"><span class="rs-row-label">Chose a script</span><span class="rs-bar"><span class="rs-bar-val" style="--w:85%"></span></span><span class="rs-row-pct">85%</span></div>
+              <div class="rs-row"><span class="rs-row-label">Viewed previews</span><span class="rs-bar"><span class="rs-bar-val" style="--w:81.3%"></span></span><span class="rs-row-pct">81%</span></div>
+              <div class="rs-row"><span class="rs-row-label">Rendered video</span><span class="rs-bar"><span class="rs-bar-val" style="--w:53.7%"></span><span class="rs-bar-lost" style="--w:27%"></span><span class="rs-bar-drop">−28 pts</span></span><span class="rs-row-pct">54%</span></div>
+              <div class="rs-row"><span class="rs-row-label">Downloaded</span><span class="rs-bar"><span class="rs-bar-val" style="--w:31.7%"></span><span class="rs-bar-lost" style="--w:21.3%"></span><span class="rs-bar-drop">−22 pts</span></span><span class="rs-row-pct">32%</span></div>
+                </div>
+                <div class="rs-divider"></div>
+                <div class="rs-stats">
+                  <div class="rs-stat"><span class="rs-stat-num">33%</span><span class="rs-stat-label">of new sign-ups ever render a video</span></div>
+                  <div class="rs-stat"><span class="rs-stat-num">7.6%</span><span class="rs-stat-label">subscribe after seeing the paywall</span></div>
+                  <div class="rs-stat"><span class="rs-stat-num">1%</span><span class="rs-stat-label">of Ad Flow projects start from a template</span></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="rs-card rs-card--2">
+            <span class="rs-num rs-num-fixed" aria-hidden="true">02</span>
+            <button class="rs-tab interactable" type="button" aria-label="Open 02: User calls"><span class="rs-num rs-num-space">02</span><span class="rs-side">User calls</span></button>
+            <div class="rs-open">
+              <div class="rs-head">
+                <h3 class="rs-title"><span class="rs-num rs-num-space" aria-hidden="true">02</span>User Calls</h3>
+                <p class="rs-text"><strong>The 33 users I talked to</strong> (founders, marketers, consultants, creators, and users of Creatify’s AI competitors) <strong>helped explain why the data looked the way it did.</strong></p>
+              </div>
+              <div class="rs-themes-wrap">
+                <p class="rs-lead">3 major themes stood out:</p>
+                <ol class="rs-themes">
+                  <li><span class="rs-theme-num">01</span><span><span class="rs-theme-title">Capabilities were hard to discover</span><span class="rs-theme-text">Agent could do sophisticated tasks, but the interface expected users to already know what to ask for.</span></span></li>
+                  <li><span class="rs-theme-num">02</span><span><span class="rs-theme-title">Generative actions required confidence</span><span class="rs-theme-text">Generations cost credits, so users wanted clearer cost, duration and previews before committing.</span></span></li>
+                  <li><span class="rs-theme-num">03</span><span><span class="rs-theme-title">Creatify’s visual identity was an asset</span><span class="rs-theme-text">Color and personality were worth refining, not stripping away for a generic AI look.</span></span></li>
+                </ol>
+              </div>
+            </div>
+          </article>
+
+          <article class="rs-card rs-card--3">
+            <span class="rs-num rs-num-fixed" aria-hidden="true">03</span>
+            <button class="rs-tab interactable" type="button" aria-label="Open 03: Competitor audit"><span class="rs-num rs-num-space">03</span><span class="rs-side">Competitor audit</span></button>
+            <div class="rs-open">
+              <div class="rs-head">
+                <h3 class="rs-title"><span class="rs-num rs-num-space" aria-hidden="true">03</span>Competitor audit</h3>
+                <p class="rs-text">I studied competitors and similar products such as Higgsfield, Flora, HeyGen, InVideo, and Arcads.</p>
+              </div>
+              <div class="rs-compare">
+                <p class="rs-lead">Higgsfield made capabilities browsable. Creatify hid them in a menu.</p>
+                <div class="rs-compare-shots">
+                  <!-- click the one behind to bring it to the front (research.js) -->
+                  <button class="rs-shot rs-shot-back is-top interactable" type="button" data-full="images/research-full-higgs.webp" aria-label="Higgsfield screenshot: bring to the front, or enlarge if it’s already in front"><img src="images/research-higgs.webp" width="1010" height="574" loading="lazy" draggable="false" alt="Higgsfield: Skills as a browsable, visual page with image cards."></button>
+                  <button class="rs-shot rs-shot-front interactable" type="button" data-full="images/research-full-creatify.webp" aria-label="Creatify screenshot: bring to the front, or enlarge if it’s already in front"><img src="images/research-creatify.webp" width="1010" height="574" loading="lazy" draggable="false" alt="Creatify (Agent V1): Skills as a text list inside a menu."></button>
+                </div>
+                <p class="rs-note">For Ad Flow, I also ran a deeper comparison with <strong>Arcads</strong>: cognitive load, node readability, predictability, templates and navigation.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="rs-card rs-card--4">
+            <span class="rs-num rs-num-fixed" aria-hidden="true">04</span>
+            <button class="rs-tab interactable" type="button" aria-label="Open 04: Product audit"><span class="rs-num rs-num-space">04</span><span class="rs-side">Product audit</span></button>
+            <div class="rs-open">
+              <div class="rs-head">
+                <h3 class="rs-title"><span class="rs-num rs-num-space" aria-hidden="true">04</span>Product audit</h3>
+                <p class="rs-text">Skills lived behind an unlabeled + menu or a / command. Feature names appeared with little context. Agent often opened on an empty prompt box, and different product areas used inconsistent visual and interaction patterns.</p>
+              </div>
+              <div class="rs-screens">
+                <figure><figcaption>“+” menu</figcaption><img class="rs-zoom interactable" data-full="images/research-full-plus.webp" src="images/research-plus.webp" width="913" height="490" loading="lazy" draggable="false" alt="Agent V1: the unlabeled + menu open above the prompt box."></figure>
+                <figure><figcaption>“/” command</figcaption><img class="rs-zoom interactable" data-full="images/research-full-slash.webp" src="images/research-slash.webp" width="913" height="490" loading="lazy" draggable="false" alt="Agent V1: typing / in the prompt box to pick a Skill."></figure>
+              </div>
+            </div>
+          </article>
+
         </div>
       </div>
-      <div class="cf-ph" style="aspect-ratio:636/440">
-        <span class="cf-ph-kind">Image · Medium</span>
-        <span class="cf-ph-desc">PostHog funnel or drop-off chart. Blur exact numbers if they’re sensitive.</span>
-      </div>
     </div>
 
-    <div class="cf-stack cf-reveal">
-      <div class="cf-sub">
-        <div class="cf-sub-label">02 · 33 user conversations</div>
-        <h3 class="cf-h3">Three themes stood out</h3>
-        <div class="cf-body"><p>Calls with ecommerce founders, marketers, consultants, creators, and people familiar with competing AI products helped explain what the data was showing.</p></div>
-      </div>
-      <div class="cf-row cf-row--3">
-        <div class="cf-card"><div class="cf-card-num">01</div><div class="cf-card-title">Capabilities were hard to discover</div><p class="cf-card-text">Agent could do sophisticated tasks, but the interface expected users to already know what existed and what to ask for.</p></div>
-        <div class="cf-card cf-card--lilac"><div class="cf-card-num">02</div><div class="cf-card-title">Generative actions required confidence</div><p class="cf-card-text">Generations cost credits, so users wanted clearer expectations around cost, duration, previews, and warnings before committing.</p></div>
-        <div class="cf-card cf-card--dark"><div class="cf-card-num">03</div><div class="cf-card-title">Creatify’s visual identity was an asset</div><p class="cf-card-text">Color and personality were worth refining, not stripping away in pursuit of a generic AI aesthetic.</p></div>
-      </div>
+    <div class="cf-hmw cf-hmw--v2 cf-reveal">
+      <div class="cf-eyebrow cf-eyebrow--v2">The opportunity:</div>
+      <p class="cf-quote">Make Creatify’s capabilities visible before users have to know to look for them.</p>
     </div>
-
-    <div class="cf-stack cf-reveal">
-      <div class="cf-sub">
-        <div class="cf-sub-label">03 · Competitive research</div>
-        <h3 class="cf-h3">Higgsfield made capabilities browsable</h3>
-        <div class="cf-body">
-          <p>I studied how AI creative tools expose capabilities, show examples, structure prompting, and onboard new users. Higgsfield was especially relevant: where Creatify treated Skills as commands inside Agent, Higgsfield made comparable capabilities visible and browsable.</p>
-          <p>For Ad Flow, I ran a deeper comparison with <strong>Arcads</strong> covering cognitive load, node readability, workflow predictability, template guidance, and navigation.</p>
-        </div>
-      </div>
-      <div class="cf-row cf-row--2">
-        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Higgsfield: Skills as a browsable, visual page</span></div>
-        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Creatify (before): Skills as a text list inside a menu</span></div>
-      </div>
-    </div>
-
-    <div class="cf-stack cf-reveal">
-      <div class="cf-sub">
-        <div class="cf-sub-label">04 · Product audit</div>
-        <h3 class="cf-h3">The same pattern showed up inside Creatify</h3>
-        <div class="cf-body"><p>Skills lived behind an unlabeled + menu or a / command. Feature names appeared with little context. Agent often opened on an empty prompt box, and different product areas used inconsistent visual and interaction patterns.</p></div>
-      </div>
-      <div class="cf-row cf-row--3">
-        <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">The unlabeled + menu</span></div>
-        <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">The / command list with hover-only details</span></div>
-        <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Collage: inconsistent styles across 5 product areas</span></div>
-      </div>
-    </div>
-
-    <p class="cf-quote cf-reveal">Make Creatify’s capabilities visible before users have to know to look for them.</p>
   </div>
 </section>
 
 <!-- ===== 03 Design · Agent Skills ===== -->
+<!-- ===== Skills intro: four stages of Skills start as a tidy 2×2, then get pulled out to
+     the corners as the title fades in (skills-intro.js). Inspired by Apple's "Love at first Mac". ===== -->
+<section class="sk-intro" id="skillsIntro" aria-label="Designing (and redesigning) Skills">
+  <div class="sk-card">
+    <h2 class="sk-title">Designing<br>(and redesigning)<br><span class="sk-word" data-text="Skills">Skills</span>.</h2>
+  </div>
+  <div class="sk-shots" aria-hidden="true">
+    <img class="sk-shot" data-corner="tl" src="images/skills-intro-1-plus-menu.webp" width="1400" height="905" alt="" draggable="false">
+    <img class="sk-shot" data-corner="tr" src="images/skills-intro-2-chip.webp" width="1400" height="905" alt="" draggable="false">
+    <img class="sk-shot" data-corner="bl" src="images/skills-intro-3-gallery-v1.webp" width="1400" height="905" alt="" draggable="false">
+    <img class="sk-shot" data-corner="br" src="images/skills-intro-4-gallery-v2.webp" width="1400" height="905" alt="" draggable="false">
+  </div>
+</section>
+
 <section id="design" class="cf-section">
   <div class="cf-inner">
     <div class="cf-head cf-reveal">
@@ -482,11 +648,11 @@
     </div>
 
     <div class="cf-impact cf-reveal">
-      <div class="cf-impact-num">~38%</div>
+      <div class="cf-impact-num">38%</div>
       <div class="cf-impact-text">
         <div class="cf-sub-label">Impact</div>
-        <h3 class="cf-h3">increase in Skill sessions after launch</h3>
-        <p>Measured across matched seven-day periods. Because this is observational data, not a controlled experiment, I treat it as a post-launch signal rather than proof that the redesign alone caused it.</p>
+        <h3 class="cf-h3">more Agent Skill sessions post-launch</h3>
+        <p>Compared across matching seven-day periods before and after the redesign shipped.</p>
       </div>
     </div>
 
@@ -743,9 +909,14 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=3"></script>
-<script src="../js/page-wipe.js?v=15"></script>
-<script src="main.js?v=17"></script>
+<script src="../js/page-wipe.js?v=18"></script>
+<script src="main.js?v=31"></script>
+<script src="problem-shot.js?v=12"></script>
 <script src="agent-hero.js?v=11"></script>
-<script src="highlights.js?v=41"></script>
+<script src="highlights.js?v=46"></script>
+<script src="lightbox.js?v=1"></script>
+<script src="research.js?v=8"></script>
+<script src="skills-intro.js?v=7"></script>
+<script src="big-question.js?v=2"></script>
 </body>
 </html>

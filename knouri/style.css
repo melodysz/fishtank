@@ -112,8 +112,8 @@ body, html {
 }
 
 .cursor-dot {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background-color: #89BD00;
   border-radius: 50%;
   position: fixed;
@@ -1827,3 +1827,6 @@ box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255,
 /* work dropdown: the case study you're on is shown in this page's activated colour */
 .bubble-item.is-current,
 .bubble-item.is-current .bubble-num { color: var(--nav-orange); }
+
+/* near the footer the bottom nav fades out (main.js); kept after the .visible rules so it wins */
+.sidebar-nav.near-footer { opacity: 0; pointer-events: none; }

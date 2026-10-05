@@ -135,8 +135,8 @@ body, html {
    ================================ */
 
 .cursor-dot {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background-color: #006EE9;
   border-radius: 50%;
   position: fixed;
@@ -1693,3 +1693,14 @@ h3 {
 /* work dropdown: the case study you're on is shown in this page's activated colour */
 .bubble-item.is-current,
 .bubble-item.is-current .bubble-num { color: var(--nav-orange); }
+
+/* ================================
+   CASE STUDY v2 ADJUSTMENTS (with ../css/case-v2.css)
+   ================================ */
+
+/* the small chat-buttons image: centred (its column is now a fixed width, so the
+   old "shrink the column and centre it" no longer centred the image) */
+.pivot-chat-buttons-small img { margin-left: auto; margin-right: auto; }
+
+/* near the footer the bottom nav fades out (main.js); kept after the .visible rules so it wins */
+.sidebar-nav.near-footer { opacity: 0; pointer-events: none; }

@@ -129,4 +129,69 @@
       requestAnimationFrame(() => { queued = false; update(); });
     }, { passive: true });
   });
+  // ---------- nav pill turns grey over bright backgrounds ----------
+  // The top nav is see-through white, so over a white (or very bright) section
+  // it disappears. While the background behind it is a bright solid colour,
+  // body gets .nav-on-light and the pill takes the bottom nav's grey frost
+  // (css/page-wipe.css). Pictures, videos and gradients count as "not bright".
+  (function () {
+    const pill = document.getElementById('navPill');
+    if (!pill) return;
+    const SKIP = '.nav-pill-wrap, .work-bubble, .bubble-dots-wrap, .cursor-dot, #scroll-progress, .sidebar-nav, #page-entry-overlay, .page-wipe';
+    const MEDIA = /^(IMG|VIDEO|CANVAS|SVG|PICTURE|IFRAME)$/i;
+    const BRIGHT = 0.95; // 1 = pure white. The grey section boxes (#F5F5F7 = 0.91) stay below it
+
+    function brightness(rgb) {
+      const lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+      return 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2]);
+    }
+
+    // Is the first solid thing under this point bright?
+    function brightAt(x, y) {
+      for (const el of document.elementsFromPoint(x, y)) {
+        if (el.closest(SKIP)) continue;
+        if (MEDIA.test(el.tagName)) return false;
+        const cs = getComputedStyle(el);
+        if (parseFloat(cs.opacity) < 0.5) continue; // faded out: look further down
+        if (cs.backgroundImage !== 'none') return false;
+        const m = cs.backgroundColor.match(/[\d.]+/g);
+        if (!m) continue;
+        const alpha = m.length > 3 ? parseFloat(m[3]) : 1;
+        if (alpha < 0.85) continue; // see-through: look further down
+        return brightness(m.map(Number)) >= BRIGHT;
+      }
+      return true; // nothing solid at all = the plain page (white)
+    }
+
+    function update() {
+      const r = pill.getBoundingClientRect();
+      if (!r.width) return;
+      // elementsFromPoint skips anything with pointer-events: none (lots of
+      // pictures/decorations), so switch those back on just while we look
+      const root = document.documentElement;
+      root.classList.add('nav-probe');
+      const y = r.top + r.height / 2;
+      const steps = 5;
+      let bright = 0;
+      for (let i = 0; i < steps; i++) {
+        if (brightAt(r.left + (r.width * (i + 0.5)) / steps, y)) bright++;
+      }
+      root.classList.remove('nav-probe');
+      document.body.classList.toggle('nav-on-light', bright > steps / 2);
+    }
+
+    // check while scrolling (at most ~3 times a second: each check costs ~10ms) and once it settles
+    let last = 0, timer = null;
+    function schedule() {
+      const now = performance.now();
+      if (now - last > 330) { last = now; update(); }
+      clearTimeout(timer);
+      timer = setTimeout(update, 140);
+    }
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    pill.addEventListener('transitionend', schedule); // opened / closed
+    window.addEventListener('load', update);
+    update();
+  })();
 })();

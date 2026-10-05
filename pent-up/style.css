@@ -128,8 +128,8 @@ body, html { margin: 0; padding: 0; }
    ================================ */
 
 .cursor-dot {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background-color: #f37720;
   border-radius: 50%;
   position: fixed;
@@ -1372,3 +1372,15 @@ h3 {
 /* work dropdown: the case study you're on is shown in this page's activated colour */
 .bubble-item.is-current,
 .bubble-item.is-current .bubble-num { color: var(--nav-orange); }
+
+/* ================================
+   CASE STUDY v2 ADJUSTMENTS (with ../css/case-v2.css)
+   ================================ */
+
+/* final-prototype images bleed to the screen edge: the old "- 80px" made up for the
+   old column's 80px side padding, which the new column doesn't have */
+.prototype-block--left .prototype-image { margin-left: calc(-50vw + 50%); }
+.prototype-block--right .prototype-image { margin-right: calc(-50vw + 50%); }
+
+/* near the footer the bottom nav fades out (main.js); kept after the .visible rules so it wins */
+.sidebar-nav.near-footer { opacity: 0; pointer-events: none; }

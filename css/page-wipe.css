@@ -65,3 +65,16 @@
    preview (js/favicon.js adds .show-play on localhost). To launch it, remove
    the line marked PLAY SWITCH in js/favicon.js. */
 html:not(.show-play) .nav-link-item[data-default="play"] { display: none; }
+
+/* Top nav over a white / very bright background (js/page-wipe.js adds
+   .nav-on-light): same grey frost as the bottom section-nav pills, so it
+   doesn't vanish into the page. */
+body.nav-on-light .nav-pill:not(.footer-mode),
+body.nav-on-light .bubble-menu,
+body.nav-on-light .bubble-dot {
+  /* a touch lighter than the bottom pills' rgba(232,232,236,.7): the big pill
+     reads darker at the same colour */
+  background-color: rgba(239, 239, 242, 0.7);
+}
+/* only on for an instant while the page checks what's behind the nav */
+html.nav-probe * { pointer-events: auto !important; }

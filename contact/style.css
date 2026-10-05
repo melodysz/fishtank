@@ -66,8 +66,8 @@ html, body {
    ================================ */
 
 .cursor-dot {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background-color: #83E7FF;
   border-radius: 50%;
   position: fixed;
@@ -172,7 +172,7 @@ html, body {
   align-items: center;
   overflow: visible;
   width: 52px;
-  transition: width 0.55s cubic-bezier(0.32, 0, 0.08, 1);
+  transition: width 0.55s cubic-bezier(0.32, 0, 0.08, 1), background-color 0.35s ease;
   cursor: pointer;
   white-space: nowrap;
   pointer-events: none;

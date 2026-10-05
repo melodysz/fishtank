@@ -9,13 +9,15 @@
 // Labels are the old splash labels ("[ work ]", "[ deep24 ]"…), so every place
 // that used to set the label text just hands it to render() instead.
 (function () {
-  // a project: its card's colour, navy text, its name and card number
+  // a project: its card's colour, navy text, its name and number. Numbers count only
+  // the finished case studies, so settlyfe (a "coming soon" card with no page yet)
+  // has none and doesn't shift the others.
   const PROJECTS = {
     'creatify': { num: '01', bg: '#D2ABFF' },
-    'settlyfe': { num: '02', bg: '#83E7FF' },
-    'deep24':   { num: '03', bg: '#EFEDF8' },
-    'pent up':  { num: '04', bg: '#F5B7FF' },
-    'knouri':   { num: '05', bg: '#D1FFA4' },
+    'settlyfe': { num: '',   bg: '#83E7FF' },
+    'deep24':   { num: '02', bg: '#EFEDF8' },
+    'pent up':  { num: '03', bg: '#F5B7FF' },
+    'knouri':   { num: '04', bg: '#D1FFA4' },
   };
   const PROJECT_TEXT = '#000180';
 

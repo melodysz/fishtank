@@ -160,6 +160,10 @@ window.addEventListener('load', () => {
 const cursorMain = document.getElementById('cursor');
 
 let mouseX = 0, mouseY = 0;
+
+// At rest the dot sits just past the tail end of the arrow pointer (below and to the
+// right of its tip), so it trails the cursor instead of covering the tip.
+const CURSOR_TAIL_X = 14, CURSOR_TAIL_Y = 22;   // px from the pointer's tip
 let curX = 0, curY = 0;
 let isBlobMode = false;
 
@@ -184,7 +188,21 @@ function blobTextBox(el) {
   const b = r.getBoundingClientRect();
   return b.width ? b : el.getBoundingClientRect();
 }
+let blobR = '';
 function followBlobTarget() {
+  // bottom section-nav pills: the bubble takes the pill's own box + corner rounding
+  // (following it as it springs wider)
+  if (blobTarget.closest('.sidebar-nav')) {
+    const p = blobTarget.getBoundingClientRect();
+    blobTargetX = p.left + p.width / 2;
+    blobTargetY = p.top + p.height / 2;
+    const pw = Math.round(p.width), ph = Math.round(p.height);
+    if (pw !== blobW) { blobW = pw; cursorMain.style.setProperty('--blob-w', pw + 'px'); }
+    if (ph !== blobH) { blobH = ph; cursorMain.style.setProperty('--blob-h', ph + 'px'); }
+    const r = getComputedStyle(blobTarget).borderRadius;
+    if (r !== blobR) { blobR = r; cursorMain.style.setProperty('--blob-r', r); }
+    return;
+  }
   const b = blobTextBox(blobTarget);
   blobTargetX = b.left + b.width / 2;
   blobTargetY = b.top + b.height / 2;
@@ -196,7 +214,7 @@ function followBlobTarget() {
 
 function animateCursor() {
   if (blobTarget) followBlobTarget();
-  const tx = blobTarget ? blobTargetX : mouseX, ty = blobTarget ? blobTargetY : mouseY;
+  const tx = blobTarget ? blobTargetX : mouseX + CURSOR_TAIL_X, ty = blobTarget ? blobTargetY : mouseY + CURSOR_TAIL_Y;
   const dx = tx - curX, dy = ty - curY;
   const lag = Math.hypot(dx, dy);
   const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
@@ -254,6 +272,8 @@ function expandToBlob(el) {
   gsap.set(cursorMain, { clearProps: 'width,height' });   // size comes from --blob-w/--blob-h only
   blobTarget = el;                 // lock onto this link (see followBlobTarget)
   cursorMain.classList.toggle('on-dark', onDarkBackground(el));
+  cursorMain.classList.toggle('on-pill', !!el.closest('.sidebar-nav'));
+  blobR = '';
   blobW = 0; blobH = 0;
   followBlobTarget();
   cursorMain.classList.add('is-blob');
@@ -262,7 +282,7 @@ function expandToBlob(el) {
 function shrinkBlob() {
   blobTarget = null;
   isBlobMode = false;
-  cursorMain.classList.remove('is-blob');
+  cursorMain.classList.remove('is-blob', 'on-pill');
 }
   
   document.addEventListener('visibilitychange', () => {
@@ -508,9 +528,12 @@ document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
 
 // Show sidebar after scrolling past Overview title
 ScrollTrigger.create({
-  trigger: ".overview-section .section-title",
+  trigger: "#overview",
   start: "top 80%",
-  onEnter: () => document.querySelector('.sidebar-nav').classList.add('visible'),
+  onEnter: () => {
+    document.querySelector('.sidebar-nav').classList.add('visible');
+    window.replaySideNavIntro?.();     // rises in, then the current section's pill springs open (js/case-v2.js)
+  },
   onLeaveBack: () => document.querySelector('.sidebar-nav').classList.remove('visible')
 });
 
@@ -630,13 +653,14 @@ lenis.on('scroll', (e) => {
   const viewH = window.innerHeight;
   const distanceFromBottom = viewH - rect.top;
 
-  // Hide sidebar near footer
+  // Hide sidebar near footer (a class, not an inline opacity: an inline opacity would
+  // override the nav's own hidden state, leaving it showing when you jump back up)
   if (distanceFromBottom > SIDEBAR_THRESHOLD && !footerState.sidebarHidden) {
     footerState.sidebarHidden = true;
-    gsap.to('.sidebar-nav', { opacity: 0, duration: 0.3 });
+    document.querySelector('.sidebar-nav').classList.add('near-footer');
   } else if (distanceFromBottom <= SIDEBAR_THRESHOLD && footerState.sidebarHidden) {
     footerState.sidebarHidden = false;
-    gsap.to('.sidebar-nav', { opacity: 1, duration: 0.3 });
+    document.querySelector('.sidebar-nav').classList.remove('near-footer');
   }
   
   // inside your existing lenis.on('scroll') footer block, add:

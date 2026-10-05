@@ -297,8 +297,8 @@ body {
 
 /* --- CURSOR & BUBBLE EMITTER --- */
 .cursor-dot {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
 background-color: #0313E4;
   border-radius: 50%;
   position: fixed;
@@ -412,12 +412,21 @@ background-color: #0313E4;
 /* Light rays - perfectly overlapping */
 .light-ray {
   position: absolute;
-  top: 50%;
+  /* As section 3 rises, the rays leave with the frame, a little slower
+     (RAYS_SPEED in js/main.js, updateSection2Curtain).
+     Size: 'contain' in a 115% box = min(115vw, 115vh x 1.3804) wide,
+     width / 1.3804 tall, centred. --ray-stretch stretches them taller upwards
+     (1 = original height). */
+  --ray-w: min(115vw, 158.751vh);
+  --ray-h: calc(var(--ray-w) / 1.380446);
+  --ray-stretch: 1;
+  --ray-down: 6vh; /* nudges both rays down from their original spot */
+  width: var(--ray-w);
+  height: calc(var(--ray-h) * var(--ray-stretch));
+  object-fit: fill;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 115%;
-  height: 115%;
-  object-fit: contain;
+  top: calc(50% + var(--ray-h) * (0.5 - var(--ray-stretch)) + var(--ray-down));
+  transform: translateX(-50%);
   pointer-events: none;
 /*   opacity: 0.8; */
 }
