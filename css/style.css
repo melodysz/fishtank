@@ -411,6 +411,7 @@ background-color: #0313E4;
 
 /* Light rays - perfectly overlapping */
 .light-ray {
+  will-change: transform;   /* moved every scroll frame (updateSection2Curtain): its own layer, so it's moved, not repainted — without it, section 2 stalled when Chrome was low on graphics memory */
   position: absolute;
   /* As section 3 rises, the rays leave with the frame, a little slower
      (RAYS_SPEED in js/main.js, updateSection2Curtain).
@@ -441,6 +442,7 @@ background-color: #0313E4;
 
 
 .water-surface {
+  will-change: transform;   /* moved every scroll frame (updateSection2Curtain): its own layer, so it's moved, not repainted — without it, section 2 stalled when Chrome was low on graphics memory */
   position: absolute;
   top: 2%;
   left: 50%;
