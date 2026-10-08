@@ -78,3 +78,7 @@ body.nav-on-light .bubble-dot {
 }
 /* only on for an instant while the page checks what's behind the nav */
 html.nav-probe * { pointer-events: auto !important; }
+
+/* the bottom section nav (case studies): grey frost over white, but over grey boxes,
+   pictures, videos and dark sections the top nav's lighter white frost (page-wipe.js) */
+body.sidenav-off-light .sidebar-nav .nav-link { background-color: rgba(255, 255, 255, 0.6); }

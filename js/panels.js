@@ -171,7 +171,7 @@
 
     // smooth scrolling inside the panel, like the homepage
     if (typeof Lenis !== 'undefined') {
-      smooth = new Lenis({ wrapper: panel, content: panel.firstElementChild, lerp: 0.1 });
+      smooth = new Lenis({ wrapper: panel, content: panel.firstElementChild, lerp: 0.16 });   // (was 0.1: less glide)
       smooth.on('scroll', ({ scroll }) => update(scroll));
       requestAnimationFrame(function raf(t) { if (open === 'play') smooth.raf(t); requestAnimationFrame(raf); });
     } else {

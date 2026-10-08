@@ -80,7 +80,7 @@ navAsterisk.addEventListener('mouseleave', () => {
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const lenis = new Lenis({
-  lerp: 0.15,
+  lerp: 0.24,   // (was 0.15: less glide, settles faster)
   smoothWheel: true,
   wheelMultiplier: 0.7,
   touchMultiplier: 1.5,

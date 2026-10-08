@@ -18,8 +18,8 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=112">
-  <link rel="stylesheet" href="../css/page-wipe.css?v=10">
+  <link rel="stylesheet" href="style.css?v=177">
+  <link rel="stylesheet" href="../css/page-wipe.css?v=11">
   <script src="../js/splash.js?v=9"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
   <link rel="expect" href="#page-entry-overlay" blocking="render">
@@ -92,8 +92,8 @@
   <ul class="nav-sections">
     <li class="nav-item active"><a href="#overview" class="nav-link"><span class="nav-num">01</span><span class="nav-name">overview</span></a></li>
     <li class="nav-item"><a href="#research" class="nav-link"><span class="nav-num">02</span><span class="nav-name">research</span></a></li>
-    <li class="nav-item"><a href="#design" class="nav-link"><span class="nav-num">03</span><span class="nav-name">design</span></a></li>
-    <li class="nav-item"><a href="#beyond" class="nav-link"><span class="nav-num">04</span><span class="nav-name">beyond agent</span></a></li>
+    <li class="nav-item"><a href="#design" class="nav-link"><span class="nav-num">03</span><span class="nav-name">design: skills</span></a></li>
+    <li class="nav-item"><a href="#agent" class="nav-link"><span class="nav-num">04</span><span class="nav-name">design: agent</span></a></li>
     <li class="nav-item"><a href="#reflection" class="nav-link"><span class="nav-num">05</span><span class="nav-name">reflection</span></a></li>
   </ul>
 </nav>
@@ -291,8 +291,8 @@
   <div class="cf-overview-text">
     <div class="cf-eyebrow cf-eyebrow--v2">[01] Overview</div>
     <h2 class="cf-h2">Designing discoverability</h2>
-    <p>As Creatify’s <strong>sole product design intern,</strong> I redesigned <strong>how users discover and use Agent</strong>—across Skills, in-chat workflows, navigation, and its homepage.</p>
-    <p>I also stepped into <strong>design engineering,</strong> moving from Figma into production code <strong>to implement, open PRs, and ship live.</strong></p>
+    <p>As Creatify’s sole product design intern, <strong>I redesigned how users discover and use Agent</strong>—across Skills, in-chat workflows, navigation, and its homepage.</p>
+    <p>I also stepped into design engineering, <strong>moving from Figma into production code</strong> to implement, open PRs, and ship live.</p>
   </div>
 
   <div class="cf-glass-pills">
@@ -328,14 +328,14 @@
     <!-- Agent changed mid-internship: V1 (when I joined) → V2 (the "before" for my redesign).
          The big annotated screenshot below is V2. -->
     <div class="cf-versions cf-reveal">
-      <h3 class="cf-versions-title">Iterations</h3>
-      <p class="cf-versions-text">Agent also changed mid-internship. <strong>V1 had a strong visual identity</strong> but hid its best features. <strong>The V2 that replaced it was cleaner but more generic,</strong> and its features stayed just as hidden.</p>
+      <h3 class="cf-versions-title">Where Agent started</h3>
+      <p class="cf-versions-text">Before I redesigned it, Agent went through two versions. <strong>V1 had a strong visual identity</strong> but hid its best features. <strong>The V2 that replaced it was cleaner but more generic,</strong> and its features stayed just as hidden.</p>
       <!-- swipeable row: same swiping as the highlights carousel (highlights.js runs on every .hl-viewport) -->
       <div class="hl-viewport cf-versions-viewport">
         <div class="hl-track">
           <figure class="cf-version">
-            <div class="cf-version-shot"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt="Agent V1: a dark screen with a purple and pink glow behind a “What do you want to create?” prompt box."></div>
-            <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v1.webp" width="1665" height="971" loading="lazy" draggable="false" alt=""></div></div>
+            <div class="cf-version-shot"><span class="cf-version-before">Before</span><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt="Agent V1: a dark screen with a purple and pink glow behind a “What do you want to create?” prompt box."></div>
+            <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div></div>
             <div class="cf-version-fade" aria-hidden="true"></div>
             <figcaption>
               <span class="cf-version-title">[V1] Original Agent</span>
@@ -349,12 +349,12 @@
             </figcaption>
           </figure>
           <figure class="cf-version">
-            <div class="cf-version-shot"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt="Agent V2: a flat dark screen with a “What will you create today?” heading and an empty prompt box."></div>
-            <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v2-thumb.webp" width="1665" height="972" loading="lazy" draggable="false" alt=""></div></div>
+            <div class="cf-version-shot"><span class="cf-version-before">Before</span><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt="Agent V2: a flat dark screen with a “What will you create today?” heading and an empty prompt box."></div>
+            <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div></div>
             <div class="cf-version-fade" aria-hidden="true"></div>
             <figcaption>
-              <span class="cf-version-title">[V2] Updated Agent</span>
-              <span class="cf-version-by">By developers, the “before” for my redesign • Jul–Aug</span>
+              <span class="cf-version-title">[V2] Agent before my redesign</span>
+              <span class="cf-version-by">By developers • Jul–Aug</span>
               <span class="cf-version-tags">
                 <span class="cf-version-tag"><img src="icons/check.svg" width="22" height="22" alt="Strength:"><span>Clean &amp; sleek</span></span>
                 <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Features hidden</span></span>
@@ -415,8 +415,8 @@
         </button>
         <button class="ps-pill interactable" type="button" style="--x:60%; --y:45.81%" aria-expanded="false">
           <span class="ps-icon" aria-hidden="true"></span>
-          <span class="ps-label">No visual examples</span>
-          <span class="ps-detail">There are no visual examples of Agent's output, so users have nothing to judge its quality by, and no reason to trust it.</span>
+          <span class="ps-label">Empty prompt box</span>
+          <span class="ps-detail">Users face a blank box with no examples of what Agent can make, so complex tasks start from guesswork.</span>
         </button>
         <button class="ps-pill interactable" type="button" style="--x:76.63%; --y:74.5%" aria-expanded="false">
           <span class="ps-icon" aria-hidden="true"></span>
@@ -449,9 +449,24 @@
   <div class="cf-inner">
     <div class="cf-head cf-head--v2 cf-reveal">
       <div class="cf-eyebrow cf-eyebrow--v2">[02] Research</div>
-      <h2 class="cf-h2">Understanding where users were getting stuck</h2>
-      <div class="cf-body"><p>Was the friction I saw in Agent a one-off, or a pattern across all of Creatify? I looked at it from <strong>four angles</strong>.</p></div>
+      <h2 class="cf-h2">Users stalled before Agent showed its value</h2>
+      <div class="cf-body"><p>Was the friction I saw in Agent a one-off, or a pattern across all of Creatify? I looked at it from <strong>four angles: analytics, user calls, competitor audits, and product audits.</strong></p></div>
     </div>
+
+    <div class="cf-bigstat cf-reveal"><span class="cf-bigstat-num">1 in 3</span><span class="cf-bigstat-label">new sign-ups ever rendered a video</span></div>
+
+    <!-- the TL;DR: how the four sources connect, for readers who won't open every card -->
+    <div class="rs-block">
+    <h3 class="rs-subhead cf-reveal">The TL;DR:</h3>
+    <div class="rs-glance cf-reveal">
+      <div class="rs-glance-item"><div class="rs-glance-label">Where</div><p>Users stalled at the same moments: choosing a workflow, reaching a first generation, and understanding credit costs. <strong>About half of users who started an ad never rendered it.</strong></p></div>
+      <div class="rs-glance-item"><div class="rs-glance-label">Why</div><p>In 33 calls, users said <strong>capabilities were hard to discover</strong> and credits made them cautious. They also valued Creatify’s color and personality.</p></div>
+      <div class="rs-glance-item"><div class="rs-glance-label">How</div><p>Creatify hid Skills behind an <strong>unlabeled + menu and a “/” command,</strong> while competitors like Higgsfield made similar features browsable.</p></div>
+    </div>
+    </div>
+
+    <div class="rs-block">
+    <h3 class="rs-subhead cf-reveal">Thumb through the files.</h3>
 
     <!-- Four research cards: one open at a time, the others folded into tabs. Clicking a
          tab or swiping/dragging sideways opens a card; card screenshots open in a lightbox.
@@ -466,7 +481,7 @@
             <div class="rs-open">
               <div class="rs-head">
                 <h3 class="rs-title"><span class="rs-num rs-num-space" aria-hidden="true">01</span>PostHog analytics</h3>
-                <p class="rs-text">PostHog showed users losing momentum at the same few moments. <strong>Many struggled to choose the right workflow</strong> and to reach their first generation. Later, <strong>credit costs were hard to understand</strong>, and rendering, downloading and hitting the paywall all caused more drop-off.</p>
+                <p class="rs-text">PostHog showed users losing momentum at the same few moments. <strong>Many struggled to choose the right workflow</strong> and to reach their first generation. Later, credit costs were hard to understand, and rendering, downloading and hitting the paywall all caused more drop-off.</p>
               </div>
               <div class="rs-chart">
                 <p class="rs-chart-title">About half of users who start an ad render it. Under a third download it.</p>
@@ -480,7 +495,7 @@
                 </div>
                 <div class="rs-divider"></div>
                 <div class="rs-stats">
-                  <div class="rs-stat"><span class="rs-stat-num">33%</span><span class="rs-stat-label">of new sign-ups ever render a video</span></div>
+                  <div class="rs-stat"><span class="rs-stat-num">81% → 54%</span><span class="rs-stat-label">the biggest drop: from viewing previews to rendering</span></div>
                   <div class="rs-stat"><span class="rs-stat-num">7.6%</span><span class="rs-stat-label">subscribe after seeing the paywall</span></div>
                   <div class="rs-stat"><span class="rs-stat-num">1%</span><span class="rs-stat-label">of Ad Flow projects start from a template</span></div>
                 </div>
@@ -494,7 +509,7 @@
             <div class="rs-open">
               <div class="rs-head">
                 <h3 class="rs-title"><span class="rs-num rs-num-space" aria-hidden="true">02</span>User Calls</h3>
-                <p class="rs-text"><strong>The 33 users I talked to</strong> (founders, marketers, consultants, creators, and users of Creatify’s AI competitors) <strong>helped explain why the data looked the way it did.</strong></p>
+                <p class="rs-text">The 33 users I talked to (founders, marketers, consultants, creators, and users of Creatify’s AI competitors) <strong>helped explain why the data looked the way it did.</strong></p>
               </div>
               <div class="rs-themes-wrap">
                 <p class="rs-lead">3 major themes stood out:</p>
@@ -516,13 +531,13 @@
                 <p class="rs-text">I studied competitors and similar products such as Higgsfield, Flora, HeyGen, InVideo, and Arcads.</p>
               </div>
               <div class="rs-compare">
-                <p class="rs-lead">Higgsfield made capabilities browsable. Creatify hid them in a menu.</p>
+                <p class="rs-lead">Higgsfield made capabilities browsable. <strong>Creatify hid them in a menu.</strong></p>
                 <div class="rs-compare-shots">
                   <!-- click the one behind to bring it to the front (research.js) -->
                   <button class="rs-shot rs-shot-back is-top interactable" type="button" data-full="images/research-full-higgs.webp" aria-label="Higgsfield screenshot: bring to the front, or enlarge if it’s already in front"><img src="images/research-higgs.webp" width="1010" height="574" loading="lazy" draggable="false" alt="Higgsfield: Skills as a browsable, visual page with image cards."></button>
                   <button class="rs-shot rs-shot-front interactable" type="button" data-full="images/research-full-creatify.webp" aria-label="Creatify screenshot: bring to the front, or enlarge if it’s already in front"><img src="images/research-creatify.webp" width="1010" height="574" loading="lazy" draggable="false" alt="Creatify (Agent V1): Skills as a text list inside a menu."></button>
                 </div>
-                <p class="rs-note">For Ad Flow, I also ran a deeper comparison with <strong>Arcads</strong>: cognitive load, node readability, predictability, templates and navigation.</p>
+                <p class="rs-note">For Ad Flow, I also ran a deeper comparison with Arcads: cognitive load, node readability, predictability, templates and navigation.</p>
               </div>
             </div>
           </article>
@@ -533,7 +548,7 @@
             <div class="rs-open">
               <div class="rs-head">
                 <h3 class="rs-title"><span class="rs-num rs-num-space" aria-hidden="true">04</span>Product audit</h3>
-                <p class="rs-text">Skills lived behind an unlabeled + menu or a / command. Feature names appeared with little context. Agent often opened on an empty prompt box, and different product areas used inconsistent visual and interaction patterns.</p>
+                <p class="rs-text"><strong>Skills lived behind an unlabeled + menu or a / command.</strong> Feature names appeared with little context. Agent often opened on an empty prompt box, and different product areas used inconsistent visual and interaction patterns.</p>
               </div>
               <div class="rs-screens">
                 <figure><figcaption>“+” menu</figcaption><img class="rs-zoom interactable" data-full="images/research-full-plus.webp" src="images/research-plus.webp" width="913" height="490" loading="lazy" draggable="false" alt="Agent V1: the unlabeled + menu open above the prompt box."></figure>
@@ -545,10 +560,21 @@
         </div>
       </div>
     </div>
+    </div>
+  </div>
+</section>
 
-    <div class="cf-hmw cf-hmw--v2 cf-reveal">
-      <div class="cf-eyebrow cf-eyebrow--v2">The opportunity:</div>
-      <p class="cf-quote">Make Creatify’s capabilities visible before users have to know to look for them.</p>
+<!-- The opportunity: its own beat after Research, played like the big question
+     (grey circle grows into the box, then the words fade in: big-question.js) -->
+<section class="cf-section" aria-label="The opportunity">
+  <div class="cf-inner">
+    <div class="bq-scene bq-scene--own" id="opportunity">
+      <div class="bq-stick">
+        <div class="cf-hmw cf-hmw--v2 bq-box">
+          <div class="cf-eyebrow cf-eyebrow--v2 bq-in">The opportunity:</div>
+          <p class="cf-quote bq-in">Make Creatify’s capabilities visible before users have to know to look for them.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -558,7 +584,10 @@
      the corners as the title fades in (skills-intro.js). Inspired by Apple's "Love at first Mac". ===== -->
 <section class="sk-intro" id="skillsIntro" aria-label="Designing (and redesigning) Skills">
   <div class="sk-card">
-    <h2 class="sk-title">Designing<br>(and redesigning)<br><span class="sk-word" data-text="Skills">Skills</span>.</h2>
+    <div class="sk-intro-text">
+      <div class="sk-intro-num">03</div>
+      <h2 class="sk-intro-title">Designing<br>(and redesigning)<br><span class="sk-word" data-text="Skills">Skills</span>.</h2>
+    </div>
   </div>
   <div class="sk-shots" aria-hidden="true">
     <img class="sk-shot" data-corner="tl" src="images/skills-intro-1-plus-menu.webp" width="1400" height="905" alt="" draggable="false">
@@ -568,195 +597,467 @@
   </div>
 </section>
 
-<section id="design" class="cf-section">
-  <div class="cf-inner">
-    <div class="cf-head cf-reveal">
-      <div class="cf-eyebrow">03 — Design · Agent Skills</div>
-      <h2 class="cf-h2">From hidden commands to discoverable capabilities</h2>
-      <div class="cf-body">
-        <p>Agent Skills are specialized workflows for more targeted creative tasks. The original experience had a basic discoverability problem: <strong>users first had to know Skills existed.</strong></p>
-        <p>They could only reach them by typing / or opening an unlabeled + menu. Even then, most information was reduced to a Skill name, with context hidden in small hover states. The interface treated Skills like commands. I wanted to treat them like <strong>capabilities users could explore.</strong></p>
+<!-- ===== 03 Design · Agent Skills =====
+     Four bands (Figma, Oct 8): grey edge to edge (the chip + Iteration 1), "Looking back"
+     in its own rounded box on white, grey edge to edge again (Iteration 2), then the
+     reception as a statement block like the big question. -->
+<div id="design" class="sk-wrap">
+<section class="sk-band">
+  <div class="cf-section">
+    <div class="cf-inner">
+      <div class="cf-head cf-head--v2 cf-reveal">
+        <div class="cf-eyebrow cf-eyebrow--v2">[03] Agent Skills</div>
+        <h2 class="cf-h2">From hidden commands to discoverable capabilities</h2>
+        <div class="cf-body"><p>Skills are ready-made instructions that improve the quality of Agent’s output. However, users first had to know Skills existed before they could use them. Skills could only reach them by typing “/” or opening an unlabeled + menu. In fact, <strong>only about 1.3% of Agent sessions used a Skill.</strong></p></div>
       </div>
-    </div>
 
-    <div class="cf-row cf-row--2 cf-reveal">
-      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Before: typing / to find a Skill</span></div>
-      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Before: opening the unlabeled + menu and hovering for details</span></div>
-    </div>
+      <div class="cf-bigstat cf-reveal"><span class="cf-bigstat-num">1.3%</span><span class="cf-bigstat-label">of Agent sessions used a Skill</span></div>
 
-    <div class="cf-flows cf-reveal">
-      <div class="cf-flow">
-        <span class="cf-flow-label">Before</span>
-        <span class="cf-step">know</span><span class="cf-arrow">→</span><span class="cf-step">invoke</span>
-      </div>
-      <div class="cf-flow">
-        <span class="cf-flow-label">After</span>
-        <span class="cf-step cf-step--dark">browse</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">understand</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">choose</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">use</span>
-      </div>
-    </div>
-
-    <div class="cf-split cf-reveal">
-      <div class="cf-sub">
-        <div class="cf-sub-label">V1</div>
-        <h3 class="cf-h3">Giving Skills a home</h3>
-        <div class="cf-body">
-          <p>The first redesign moved Skills into a dedicated browsing experience:</p>
-          <ul class="cf-list">
-            <li>A visible Skills entry point</li>
-            <li>Search and categories</li>
-            <li>More expressive cards and previews</li>
-            <li>Standalone Skill detail pages with example outputs</li>
-            <li>A direct path back into Agent</li>
-          </ul>
+      <!-- the chip + dropdown: its two recordings run past the box, out to the page's margins -->
+      <div class="sk-box cf-reveal">
+        <div class="sk-sub">
+          <h3 class="sk-h">Brand new chip, brand new dropdown</h3>
+          <div class="sk-body">
+            <p>Because Skills function like Agent’s other prompt chips, I gave them <strong>a dedicated chip and dropdown.</strong> Selecting a Skill loads it into the chat bar, with <strong>starred Skills listed first.</strong></p>
+            <p>I also redesigned the hover card to prioritize <strong>each Skill’s ideal use cases and style,</strong> alongside a preview of how it appears loaded in chat.</p>
+          </div>
+        </div>
+        <div class="sk-wide" data-grow>
+          <figure class="sk-wide-item"><div class="sk-media"><span class="sk-after-tag">Before</span><video class="sk-video sk-zoom interactable" data-full="images/skills-entry-before.mp4" src="images/skills-entry-before.mp4" poster="images/skills-entry-before-poster.webp" width="1600" height="900" muted loop playsinline preload="none" aria-label="Before: picking a Skill from the unlabeled + menu"></video></div><figcaption>Original skills entrant</figcaption></figure>
+          <figure class="sk-wide-item"><div class="sk-media"><span class="sk-after-tag">After</span><video class="sk-video sk-zoom interactable" data-full="images/skills-entry-after.mp4" src="images/skills-entry-after.mp4" poster="images/skills-entry-after-poster.webp" width="1600" height="900" muted loop playsinline preload="none" aria-label="After: the Skills chip and its dropdown, hovering a Skill"></video></div><figcaption>New skills chip + dropdown</figcaption></figure>
         </div>
       </div>
-      <div class="cf-ph" style="aspect-ratio:636/520"><span class="cf-ph-kind">Image · Medium · Tall</span><span class="cf-ph-desc">V1 Skills gallery, full page</span></div>
-    </div>
 
-    <div class="cf-row cf-row--2 cf-reveal">
-      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">V1 standalone Skill detail page</span></div>
-      <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Example outputs for a Skill</span></div>
-    </div>
+      <!-- Iteration 1: the gallery + detail page -->
+      <div class="sk-sub cf-reveal">
+        <h3 class="sk-h">A gallery to showcase Skills’ capabilities</h3>
+        <div class="sk-body"><p>Skills generate visual ads, but hover cards only had room for a name and a line of text. Since every generation costs credits, users wanted to <strong>see what a Skill makes before trying it.</strong> So I designed Creatify’s first Skills gallery, where every Skill leads with its output.</p></div>
+      </div>
+      <div class="sk-captioned cf-reveal">
+        <figure class="sk-gallery" data-grow>
+        <img class="sk-zoom interactable" data-full="images/skills-gallery-v1.webp" src="images/skills-gallery-v1.webp" width="2360" height="1406" loading="lazy" alt="The first Skills gallery: category chips, a Hot picks row and an Explore more grid, every card sharing one thumbnail.">
+      </figure>
+        <p class="sk-caption">Iteration 1 · Skills gallery</p>
+        <div class="sk-cols">
+        <div class="sk-col"><span class="sk-col-num">01</span><span class="sk-col-title">Category chips</span><span class="sk-col-text">Filter Skills by ad type: UGC, video ads, image ads and more.</span></div>
+        <div class="sk-col"><span class="sk-col-num">02</span><span class="sk-col-title">Hot picks</span><span class="sk-col-text">The most-used Skills, front and center.</span></div>
+        <div class="sk-col"><span class="sk-col-num">03</span><span class="sk-col-title">Starring</span><span class="sk-col-text">Save any Skill to come back to later.</span></div>
+        <div class="sk-col"><span class="sk-col-num">04</span><span class="sk-col-title">Explore more</span><span class="sk-col-text">A browsable grid of every Skill; any card opens its detail page.</span></div>
+        </div>
+      </div>
+      <div class="sk-captioned cf-reveal">
+        <video class="sk-video" data-grow src="images/skills-v1-detail.mp4?v=3" poster="images/skills-v1-detail-poster.webp?v=2" width="1728" height="972" muted loop playsinline preload="none" aria-label="The first Skill detail page for UGC Unwrap, scrolling from example videos down to the SKILL.md file"></video>
+        <p class="sk-caption">Iteration 1 · Skill detail page</p>
+        <div class="sk-cols">
+        <div class="sk-col"><span class="sk-col-num">01</span><span class="sk-col-title">Example outputs</span><span class="sk-col-text">Real results to judge a Skill by before spending credits.</span></div>
+        <div class="sk-col"><span class="sk-col-num">02</span><span class="sk-col-title">Best-for &amp; style tags</span><span class="sk-col-text">Explain at a glance when to use the Skill.</span></div>
+        <div class="sk-col"><span class="sk-col-num">03</span><span class="sk-col-title">Pre-filled composer</span><span class="sk-col-text">The Skill’s command is ready to go, so a chat starts in one click.</span></div>
+        <div class="sk-col"><span class="sk-col-num">04</span><span class="sk-col-title">Full SKILL.md</span><span class="sk-col-text">The exact instructions, for anyone who wants the details.</span></div>
+        </div>
+      </div>
 
-    <div class="cf-split cf-reveal" style="grid-template-columns:420fr 636fr">
-      <div class="cf-ph" style="aspect-ratio:420/300"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">PostHog chart: usage concentrated in a few Skills</span></div>
-      <div class="cf-sub">
-        <div class="cf-sub-label">After launch</div>
-        <h3 class="cf-h3">Learning from the first release</h3>
-        <div class="cf-body"><p>I returned to product analytics to see how the experience was actually used. Usage stayed concentrated among a few Skills, while newer ones got less exposure. The standalone detail page also added extra navigation between discovering a Skill and using it.</p></div>
+      <div class="sk-sub cf-reveal">
+        <div class="sk-label">Impact</div>
+        <h3 class="sk-title">Gallery saw steady use</h3>
+        <div class="sk-stats">
+          <div class="sk-stat"><div class="sk-stat-num">~39</div><p>visits a day to gallery</p></div>
+          <div class="sk-stat"><div class="sk-stat-num">71</div><p>Agent sessions started from a detail page</p></div>
+        </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="cf-stack cf-reveal">
-      <div class="cf-sub">
-        <div class="cf-sub-label">V2</div>
-        <h3 class="cf-h3">Tightening the discovery loop</h3>
-        <div class="cf-body"><p>I replaced the standalone detail page with a <strong>Skill-detail lightbox</strong>, so users could inspect several Skills without leaving the library. I also added clearer page hierarchy, stronger card differentiation, New Arrivals, sticky browsing controls, and more visible example outputs.</p></div>
-      </div>
-      <div class="cf-ph" style="aspect-ratio:1120/630"><span class="cf-ph-kind">GIF · Large · 16:9</span><span class="cf-ph-desc">Hero moment: scrolling the V2 Skills gallery, with New Arrivals, sticky search and categories</span></div>
-      <div class="cf-row cf-row--2">
-        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Skill-detail lightbox: open, flip between Skills, then press “Use Skill”</span></div>
-        <div class="cf-ph" style="aspect-ratio:548/360"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Close-up: card differentiation and richer previews</span></div>
+<!-- Looking back: its own rounded box on the white page, a break from the long grey band -->
+<section class="cf-section sk-lookback">
+  <div class="sk-lookback-box cf-reveal">
+    <div class="sk-sub">
+      <div class="sk-label">Looking back</div>
+      <h3 class="sk-h">New Skills were buried, and every card looked the same</h3>
+      <div class="sk-body">
+        <p>After later inspection, I realized that the design of the gallery cards and inefficient Skill detail pages limited how easily users could browse.</p>
+        <p>Post-launch data and a review of my own design revealed three issues:</p>
       </div>
     </div>
+    <div class="sk-issues">
+      <div class="sk-issue"><div class="sk-issue-num">01</div><div class="sk-issue-body"><img src="images/skills-issue-v2-1.webp" width="992" height="450" loading="lazy" alt="Bar chart: the top 10 Skills tower over a long, flat tail of rarely used ones."><h4>Low visibility for new Skills</h4><p>The top 10 Skills accounted for 58% of all uses; 71% were used twice or less.</p></div></div>
+      <div class="sk-issue"><div class="sk-issue-num">02</div><div class="sk-issue-body"><img src="images/skills-issue-v2-2.webp" width="992" height="450" loading="lazy" alt="Six identical Skill thumbnails."><h4>Little differentiation between cards</h4><p>Identical thumbnails and dense descriptions made the grid hard to scan.</p></div></div>
+      <div class="sk-issue"><div class="sk-issue-num">03</div><div class="sk-issue-body"><img src="images/skills-issue-v2-3.webp" width="992" height="450" loading="lazy" alt="A crossed-out version number, “v14”."><h4>Inefficient detail pages</h4><p>Excessive length and irrelevant details, such as version numbers.</p></div></div>
+    </div>
+    <div class="sk-turn">
+      <p class="sk-turn-lead">This raised a broader question:</p>
+      <p class="sk-turn-q">Did users need to leave the gallery at all?</p>
+    </div>
+  </div>
+</section>
 
-    <div class="cf-flows cf-reveal">
-      <div class="cf-flow">
-        <span class="cf-flow-label">New loop</span>
-        <span class="cf-step cf-step--dark">discover</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">inspect</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">compare</span><span class="cf-arrow">→</span><span class="cf-step cf-step--dark">use</span>
+<!-- Iteration 2: grey edge to edge again -->
+<section class="sk-band">
+  <div class="cf-section">
+    <div class="cf-inner">
+      <div class="sk-captioned cf-reveal">
+        <h3 class="sk-h sk-h--big">Redesigning the gallery</h3>
+        <video class="sk-video" data-grow src="images/skills-v2-browse.mp4" poster="images/skills-v2-browse-poster.webp" width="1920" height="1200" muted loop playsinline preload="none" aria-label="Scrolling the redesigned Skills gallery and opening a card"></video>
+        <div class="sk-cols">
+        <div class="sk-col"><span class="sk-col-num">01</span><span class="sk-col-title">Eye-catching hero</span><span class="sk-col-text">Simultaneously explains and demonstrates Skills within a mock chat bar.</span></div>
+        <div class="sk-col"><span class="sk-col-num">02</span><span class="sk-col-title">Three distinct sections</span><span class="sk-col-text">Added “New Arrivals” between “Hot Picks” and “Explore More”—surfaces recently added skills.</span></div>
+        <div class="sk-col"><span class="sk-col-num">03</span><span class="sk-col-title">Color-coded cards</span><span class="sk-col-text">Colorful cards now serve as visual landmarks, with details revealed on hover.</span></div>
+        <div class="sk-col"><span class="sk-col-num">04</span><span class="sk-col-title">Persistent search</span><span class="sk-col-text">Search bar and category filter remain accessible while scrolling.</span></div>
+        </div>
+      </div>
+
+      <div class="sk-card-white sk-modal cf-reveal">
+        <div class="sk-sub">
+          <h3 class="sk-h">Modals made for easy browsing</h3>
+          <div class="sk-body">
+            <p><strong>I replaced detail pages with a modal that opened over the gallery,</strong> streamlining the browsing experience. It contained all the information as the previous Skill detail page, but reduced scrolling and allowed the user to close it easily.</p>
+            <p>Example outputs and the chat bar remain fixed, <strong>allowing users to compare Skills without constantly losing their place.</strong></p>
+          </div>
+        </div>
+        <video class="sk-video" src="images/skills-v2-modal-unwrap.mp4" poster="images/skills-v2-modal-unwrap-poster.webp" width="1728" height="972" muted loop playsinline preload="none" aria-label="Hovering the UGC Unwrap Skill card, then opening its detail modal over the gallery and flipping through its example outputs"></video>
+      </div>
+
+      <!-- Evolution of the Skill card: plays in once (skills-section.js): the final card
+           starts in the middle, then slides to its spot while the earlier ones appear from
+           under it and slide to theirs -->
+      <div class="sk-evo-box cf-reveal" id="skEvo">
+        <h3 class="sk-h sk-evo-title">Evolution of the Skill Card</h3>
+        <div class="sk-evo-row">
+          <figure class="sk-evo-item"><div class="sk-evo-card"><img src="images/skill-card-evolution-1.webp?v=2" width="825" height="680" loading="lazy" alt="The first Skill card: a plain lilac thumbnail with the name in small white text over a dark fade, a two-line description and a use count."></div><figcaption class="sk-col"><span class="sk-col-num">01</span><span class="sk-col-title">Way too little</span><span class="sk-col-text">Inefficient use of space; the name wasn’t eye-catching, and the layout felt generic.</span></figcaption></figure>
+          <figure class="sk-evo-item"><div class="sk-evo-card"><img src="images/skill-card-evolution-2.webp?v=2" width="830" height="591" loading="lazy" alt="A Skill card with a bright peach-to-purple gradient and a large condensed title, “UGC Confessional”."></div><figcaption class="sk-col"><span class="sk-col-num">02</span><span class="sk-col-title">A little too much</span><span class="sk-col-text">A more interesting composition, but the bright background clashed with dark mode.</span></figcaption></figure>
+          <figure class="sk-evo-item"><div class="sk-evo-card"><img src="images/skill-card-evolution-3.webp?v=2" width="840" height="535" loading="lazy" alt="A Skill card with a deep blue-purple gradient and a large condensed title, “UGC Showcase”."></div><figcaption class="sk-col"><span class="sk-col-num">03</span><span class="sk-col-title">Sleeker and sleeker</span><span class="sk-col-text">Too dark for light mode, the title font was hard to read at small sizes, and the description added clutter.</span></figcaption></figure>
+          <figure class="sk-evo-item"><div class="sk-evo-card"><img src="images/skill-card-evolution-4.webp?v=2" width="832" height="528" loading="lazy" alt="The final Skill card: a purple-to-pink gradient filling the whole card, with “UGC Confessional” in clear type and a verified badge."></div><figcaption class="sk-col"><span class="sk-col-num">04</span><span class="sk-col-title">Streamlined for success</span><span class="sk-col-text">Varied colors, details revealed on hover to cut clutter, and an easier-to-read title, all better for browsing.</span></figcaption></figure>
+        </div>
+      </div>
+
+      <div class="sk-card-white sk-callout2 cf-reveal">
+        <h3 class="sk-h">Designed, developed, deployed</h3>
+        <div class="sk-body"><p><strong>I built this iteration’s front end myself.</strong> With guidance from Creatify’s engineers, I moved from Figma into the codebase, using VS Code and Claude to code the interface and ship it through GitHub pull requests. Working in code also let me design <strong>motion Figma couldn’t prototype,</strong> from the hero’s floating cards to the subtle movement of each card on hover.</p></div>
+      </div>
+
+      <div class="sk-sub cf-reveal">
+        <div class="sk-label">Impact</div>
+        <h3 class="sk-title">Skill sessions rose 38% the week after launch</h3>
+        <div class="sk-stats">
+          <div class="sk-stat"><div class="sk-stat-num">38%</div><p>increase in Skill sessions in the week following launch</p></div>
+          <div class="sk-stat"><div class="sk-stat-num">16%</div><p>increase in the share of Agent sessions using a Skill (1.17% → 1.36%)</p></div>
+        </div>
+        <p class="sk-footnote">Based on matched seven-day periods. Observational data, not a controlled experiment.</p>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="cf-impact cf-reveal">
-      <div class="cf-impact-num">38%</div>
-      <div class="cf-impact-text">
-        <div class="cf-sub-label">Impact</div>
-        <h3 class="cf-h3">more Agent Skill sessions post-launch</h3>
-        <p>Compared across matching seven-day periods before and after the redesign shipped.</p>
+<!-- The reception: a statement block like the big question (big-question.js) -->
+<section class="cf-section" aria-label="The reception">
+  <div class="cf-inner">
+    <div class="bq-scene bq-scene--own" id="reception">
+      <div class="bq-stick">
+        <div class="cf-hmw cf-hmw--v2 bq-box">
+          <div class="cf-eyebrow cf-eyebrow--v2 bq-in">The reception:</div>
+          <p class="cf-quote bq-in">The CEO chose the Skills style for Agent</p>
+          <p class="cf-hmw-body bq-in">I presented the final design to the company in a live walkthrough. The CEO identified it as the <strong>polished, premium direction</strong> Creatify was pursuing and asked me to <strong>apply the same visual language to Agent.</strong></p>
+        </div>
       </div>
     </div>
+  </div>
+</section>
+</div>
 
-    <div class="cf-loop cf-reveal">
-      <p class="cf-caption">The process became a loop I used for the rest of the internship</p>
-      <div class="cf-flow">
-        <span class="cf-step">Design</span><span class="cf-arrow">→</span><span class="cf-step">ship</span><span class="cf-arrow">→</span><span class="cf-step">observe</span><span class="cf-arrow">→</span><span class="cf-step">iterate</span>
-      </div>
+<!-- ===== Agent intro: the hero's waves + dot grid, frosted, growing from the column to the
+     whole screen as it scrolls in; the title fades in just before it's full (agent-intro.js) ===== -->
+<section class="ag-intro" id="agentIntro" aria-label="Revamping Agent">
+  <div class="ag-stage">
+    <div class="ag-bg" aria-hidden="true"><canvas class="ah-waves"></canvas></div>
+    <div class="ag-frost" aria-hidden="true"></div>
+    <div class="ah-dots ag-dots" aria-hidden="true"></div>
+    <div class="ag-text">
+      <div class="ag-num">04</div>
+      <h2 class="ag-title">Revamping <span class="ag-word" data-text="Agent">Agent</span>.</h2>
+      <p class="ag-sub">Time to tackle the Agent page itself.</p>
     </div>
   </div>
 </section>
 
 <!-- ===== 03 Design · In-chat workflows ===== -->
-<section class="cf-section cf-section--gray">
+<section id="agent" class="cf-section cf-section--gray chat-sec">
   <div class="cf-inner">
-    <div class="cf-head cf-reveal">
-      <div class="cf-eyebrow">03 — Design · In-chat workflows</div>
-      <h2 class="cf-h2">Bringing structure into Agent conversations</h2>
+    <div class="cf-head cf-head--v2 cf-reveal">
+      <div class="cf-eyebrow cf-eyebrow--v2">04 Agent · In-chat workflows</div>
+      <h2 class="cf-h2">Setup cards replaced long back-and-forths</h2>
       <div class="cf-body">
-        <p>Discovering a workflow was only the first step. Some tasks needed several pieces of information before generation, and relying entirely on freeform conversation made them unnecessarily ambiguous.</p>
-        <p>I designed <strong>in-chat setup cards</strong> that gather structured inputs like participants, topic, duration, tone, environment, voice, and reference uploads.</p>
+        <p>When a prompt was missing details, Agent either <strong>guessed, wasting credits on off-target ads,</strong> or asked follow-up questions in a long block of text that users had to read, decode and answer by typing. I designed <strong>in-chat setup cards</strong> that ask one question at a time and take a click to answer.</p>
+        <p>I conceptualized <strong>12 unique scenarios</strong> that would involve set-up cards, including interruption states.</p>
       </div>
     </div>
 
-    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630"><span class="cf-ph-kind">GIF · Large · 16:9</span><span class="cf-ph-desc">A setup card appearing in chat: filling in fields, uploading references, then collapsing into a summary</span></div>
+    <div class="chat-ba cf-reveal">
+      <figure><img class="sk-zoom interactable" data-full="images/chat-before.webp" src="images/chat-before.webp" width="1440" height="900" loading="lazy" alt="Before: Agent asks for the product, URL, headline and platform in one long numbered message."><figcaption class="sk-caption">Before — Follow-up questions as blocks of text</figcaption></figure>
+      <figure><img class="sk-zoom interactable" data-full="images/chat-after.webp" src="images/chat-after.webp" width="1440" height="900" loading="lazy" alt="After: a setup card asks one question with three clickable options, a field to type your own, Skip setup and Continue."><figcaption class="sk-caption">After — One question at a time</figcaption></figure>
+    </div>
 
-    <div class="cf-row cf-row--3 cf-reveal">
-      <div class="cf-card cf-card--tight">
-        <div class="cf-ph" style="aspect-ratio:309/200"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Filled-in card</span></div>
-        <div class="cf-card-num cf-card-num--small">01</div><div class="cf-card-title">Complete setup</div><p class="cf-card-text">Fill it in yourself for maximum control.</p>
-      </div>
-      <div class="cf-card cf-card--tight">
-        <div class="cf-ph" style="aspect-ratio:309/200"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">“Skip setup” button state</span></div>
-        <div class="cf-card-num cf-card-num--small">02</div><div class="cf-card-title">Skip setup</div><p class="cf-card-text">Let Agent infer the remaining decisions and generate.</p>
-      </div>
-      <div class="cf-card cf-card--tight">
-        <div class="cf-ph" style="aspect-ratio:309/200"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Card with × close</span></div>
-        <div class="cf-card-num cf-card-num--small">03</div><div class="cf-card-title">Exit with ×</div><p class="cf-card-text">Cancel the workflow entirely.</p>
+    <!-- the competitor audit -->
+    <div class="sk-sub cf-reveal">
+      <h3 class="sk-h">Learning from other AI tools</h3>
+      <div class="sk-body"><p>I studied how Claude, Flora, Higgsfield, TapNow and Magnific ask questions in chat. Most offered <strong>a single list of options</strong> with a way to skip or write something else. Few handled what video ads need, like choosing a voice or uploading a logo, so I designed a card for each kind of answer.</p></div>
+      <div class="chat-audit">
+        <figure style="--w:276"><img class="sk-zoom interactable" data-full="images/chat-audit-claude.webp" src="images/chat-audit-claude.webp" loading="lazy" alt="Claude offering three numbered story premises to pick from."><figcaption><b>Claude</b>Numbered options to click, then keep chatting</figcaption></figure>
+        <figure style="--w:251"><img class="sk-zoom interactable" data-full="images/chat-audit-flora.webp" src="images/chat-audit-flora.webp" loading="lazy" alt="Flora asking which direction to use, with three numbered choices and “Something else”."><figcaption><b>Flora</b>Clickable multiple choice is its only in-chat UI</figcaption></figure>
+        <figure style="--w:485"><img class="sk-zoom interactable" data-full="images/chat-audit-higgsfield.webp" src="images/chat-audit-higgsfield.webp" loading="lazy" alt="Higgsfield listing five numbered choices with Skip and a free-text field."><figcaption><b>Higgsfield</b>A list of choices with Skip and a free-text field</figcaption></figure>
       </div>
     </div>
 
-    <div class="cf-row cf-row--2 cf-reveal">
-      <div class="cf-ph" style="aspect-ratio:548/400"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">Input types: host/guest, duration, tone, voice, uploads (up to 10); required vs. optional</span></div>
-      <div class="cf-ph" style="aspect-ratio:548/400"><span class="cf-ph-kind">Image · Medium</span><span class="cf-ph-desc">After completion, inputs collapse into a compact summary card</span></div>
+    <!-- six input types -->
+    <div class="chat-types-box cf-reveal">
+      <div class="sk-sub">
+        <h3 class="sk-h">Six ways to answer</h3>
+        <div class="sk-body"><p>Every card shares one frame: a step count with arrows to move between questions, a field to type your own direction, <strong>Skip setup</strong>, and <strong>Continue</strong>. Inside it, the answer takes the shape the question needs.</p></div>
+      </div>
+      <div class="chat-types">
+          <figure><img class="sk-zoom interactable" data-full="images/chat-card-choice.webp" src="images/chat-card-choice.webp" width="1440" height="654" loading="lazy" alt="A single-choice card: three options for who should host the podcast."><figcaption>Single choice</figcaption></figure>
+          <figure><img class="sk-zoom interactable" data-full="images/chat-card-multi.webp" src="images/chat-card-multi.webp" width="1440" height="904" loading="lazy" alt="A multi-select card: checkboxes for the social channels to run the ads on."><figcaption>Multi-select</figcaption></figure>
+          <figure><img class="sk-zoom interactable" data-full="images/chat-card-custom.webp" src="images/chat-card-custom.webp" width="1440" height="686" loading="lazy" alt="A choice card where the user has typed their own direction instead."><figcaption>Custom answer</figcaption></figure>
+          <figure><img class="sk-zoom interactable" data-full="images/chat-card-voice.webp" src="images/chat-card-voice.webp" width="1440" height="874" loading="lazy" alt="A compact voice picker: clone a voice or pick one from the library."><figcaption>Voice picker</figcaption></figure>
+          <figure><img class="sk-zoom interactable" data-full="images/chat-card-text.webp" src="images/chat-card-text.webp" width="1440" height="592" loading="lazy" alt="A text box for a discount code or call-to-action copy."><figcaption>Text box</figcaption></figure>
+          <figure><img class="sk-zoom interactable" data-full="images/chat-card-drop.webp" src="images/chat-card-drop.webp" width="1440" height="578" loading="lazy" alt="A drop zone for uploading a brand logo."><figcaption>Upload</figcaption></figure>
+      </div>
+    </div>
+
+    <!-- the three ways through -->
+    <div class="sk-sub cf-reveal">
+      <h3 class="sk-h">Always a way out</h3>
+      <div class="sk-body"><p>Users can answer every question, skip ahead, or close the card at any point. <strong>Skipped questions aren’t lost:</strong> Agent fills them in with its best choice.</p></div>
+      <div class="chat-paths">
+        <div class="chat-path"><div class="chat-path-img"><img src="images/chat-path-complete.webp" loading="lazy" alt="The finished setup card, every question answered."></div><span class="sk-col-num">01</span><h4>Complete setup</h4><p>Fill it in yourself for maximum control.</p></div>
+        <div class="chat-path"><div class="chat-path-img"><img src="images/chat-path-skip.webp" loading="lazy" alt="The setup card after skipping: each answer reads “Agent will choose”."></div><span class="sk-col-num">02</span><h4>Skip setup</h4><p>Let Agent infer the remaining decisions and generate.</p></div>
+        <div class="chat-path"><div class="chat-path-img"><img src="images/chat-path-close.webp" loading="lazy" alt="Back in the chat after closing the card, with an empty setup summary."></div><span class="sk-col-num">03</span><h4>Exit with ×</h4><p>Cancel the workflow entirely.</p></div>
+      </div>
+    </div>
+
+    <!-- the summary -->
+    <div class="chat-summary cf-reveal">
+      <h3 class="sk-h">A summary to close the loop</h3>
+      <img class="sk-zoom interactable" data-full="images/chat-summary.webp" src="images/chat-summary.webp" width="1440" height="900" loading="lazy" alt="The finished setup summary in the chat: hosts, angle, duration, tone and setting, ready to submit.">
+      <div class="sk-body"><p>Once setup is done, Agent lists every detail it collected in the chat, <strong>marking which answers came from the user and which it chose,</strong> so there’s a clear record before anything generates.</p></div>
+    </div>
+
+    <!-- Skills, proactively -->
+    <div class="sk-card-white chat-skill cf-reveal">
+      <div class="sk-sub">
+        <h3 class="sk-h">Bringing in Skills</h3>
+        <div class="sk-body">
+          <p>Lastly, I recognized that the setup cards were also a chance <strong>to make Skills proactive.</strong></p>
+          <p>When a prompt matches one, <strong>Agent recommends the Skill in the conversation,</strong> since Skills produce better results than an open-ended prompt.</p>
+        </div>
+      </div>
+      <img class="sk-zoom interactable" data-full="images/chat-skill-rec.webp" src="images/chat-skill-rec.webp" loading="lazy" alt="Agent recommending a few matching Skills in a choice card, with one Skill’s details shown on hover.">
     </div>
 
     <div class="cf-reveal">
-      <p class="cf-quote">Conversation when flexibility matters. Interface when precision matters.</p>
-      <p class="cf-caption">The goal wasn’t to replace conversational AI with forms. It was to add structure only where it reduced uncertainty.</p>
+      <p class="cf-quote chat-quote">Conversation when flexibility matters.<br>Interface when precision matters.</p>
     </div>
   </div>
 </section>
 
-<!-- ===== 03 Design · Navigation ===== -->
-<section class="cf-section">
-  <div class="cf-inner">
-    <div class="cf-head cf-reveal">
-      <div class="cf-eyebrow">03 — Design · Navigation</div>
-      <span class="cf-badge">✓ Shipped</span>
-      <h2 class="cf-h2">Simplifying Agent navigation</h2>
-      <div class="cf-body"><p>As Agent gained conversations, Skills, Memory, and other controls, its own navigation began competing visually with Creatify’s global sidebar. I compared patterns across Figma, Higgsfield, HeyGen, and Claude, then proposed a <strong>contextual rail</strong> that kept global navigation accessible while giving Agent history and controls clearer priority.</p></div>
-    </div>
-
-    <div class="cf-row cf-row--3 cf-reveal">
-      <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Before: two sidebars competing</span></div>
-      <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Reference patterns: Figma, Higgsfield, HeyGen, Claude</span></div>
-      <div class="cf-ph" style="aspect-ratio:357/260"><span class="cf-ph-kind">Image · Small</span><span class="cf-ph-desc">Explorations, 2–3 options side by side</span></div>
-    </div>
-
-    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630"><span class="cf-ph-kind">GIF · Large · 16:9</span><span class="cf-ph-desc">Shipped: the contextual rail expanding and collapsing, with global nav still reachable</span></div>
-
-    <div class="cf-split cf-reveal" style="align-items:start">
-      <div class="cf-sub">
-        <div class="cf-sub-label">Outcome</div>
-        <h3 class="cf-h3">The team selected the direction and implemented it.</h3>
+<!-- ===== 04 Design · Look & feel ===== -->
+<!-- An Apple-style explorer: clicking a pill opens its note and changes what's shown —
+     the laptop zooms to the detail and its screen swaps recordings; for "A glass composer"
+     it dives into the screen and the live Agent hero fades in, replaying its intro. look-feel.js -->
+<section class="lf" id="lookFeel">
+  <div class="lf-top cf-section">
+    <div class="cf-inner">
+      <div class="cf-head cf-head--v2 cf-reveal">
+        <div class="cf-eyebrow cf-eyebrow--v2">04 — Design · Look &amp; feel</div>
+        <h2 class="cf-h2">Making Agent unmistakably Creatify</h2>
+        <div class="cf-body"><p>Structure fixed how Agent worked, but it still didn’t feel like Creatify. I redesigned its look and feel around two things users and leadership already liked: <strong>the original Agent’s aurora, and the Skills page.</strong></p></div>
       </div>
-      <div class="cf-body"><p>A smaller intervention than Skills, but an important lesson in designing within an existing system: sometimes the answer isn’t adding more navigation. It’s clarifying <strong>which layer matters at a given moment.</strong></p></div>
     </div>
   </div>
-</section>
 
-<!-- ===== 03 Design · Visual direction ===== -->
-<section class="cf-section cf-section--gray">
-  <div class="cf-inner">
-    <div class="cf-split cf-reveal" style="grid-template-columns:560fr 496fr">
-      <div class="cf-head">
-        <div class="cf-eyebrow">03 — Design · Visual direction</div>
-        <h2 class="cf-h2">Defining Agent’s next visual direction</h2>
-        <div class="cf-body">
-          <p>Near the end of my internship, Creatify’s CEO asked me to explore how the five major product areas could feel more visually unified. I began with Agent.</p>
-          <p>The existing homepage centered on a composer and prompt suggestions. It worked, but it still asked users to understand Agent before Agent had shown much of its range.</p>
+  <div class="lf-explorer" id="lfExplorer" data-state="">
+      <div class="agent-hero lf-hero" aria-hidden="true">
+        <canvas class="ah-waves"></canvas>
+        <div class="ah-dots"></div>
+        <div class="ah-stage">
+          <div class="ah-title-wrap">
+            <div class="ah-title-row">
+              <span></span>
+              <div class="ah-title"><span class="ah-grey">What will you </span><span class="ah-purple">create</span> <span class="ah-grey">today?</span></div>
+              <span class="ah-help"><i class="ah-i" style="--i:url(agent-icons/help-line.svg);--s:16px"></i></span>
+            </div>
+          </div>
+          <div class="ah-composer-slot">
+            <div class="ah-composer">
+              <div class="ah-sweep"><div class="ah-sweep-band b0"></div><div class="ah-sweep-band b1"></div></div>
+              <div class="ah-edge"></div>
+              <div class="ah-sheen"></div>
+              <div class="ah-content">
+                <div class="ah-input"><div class="ah-typed">Create</div></div>
+                <div class="ah-toolbar">
+                  <div class="ah-left">
+                    <span class="ah-round"><i class="ah-i" style="--i:url(agent-icons/add.svg);--s:18px"></i><span class="ah-dot"></span></span>
+                    <span class="ah-product"><i class="ah-i" style="--i:url(agent-icons/product.svg);--s:14px"></i>Product</span>
+                    <span class="ah-lite">Lite</span>
+                  </div>
+                  <div class="ah-right">
+                    <span class="ah-auto"><i class="ah-i" style="--i:url(agent-icons/fast-forward.svg);--s:14px"></i>Auto</span>
+                    <span class="ah-round"><i class="ah-i" style="--i:url(agent-icons/mic.svg);--s:18px"></i></span>
+                    <span class="ah-round ah-send"><i class="ah-i" style="--i:url(agent-icons/arrow-up.svg);--s:16px"></i></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ah-chips">
+            <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/quick.svg);--s:16px"></i>Skills<span class="ah-ping"></span></span></span>
+            <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/play.svg);--s:16px"></i>Video ads</span></span>
+            <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/image.svg);--s:16px"></i>Image ads</span></span>
+            <span class="ah-chip-wrap"><span class="ah-chip"><i class="ah-i" style="--i:url(agent-icons/search.svg);--s:16px"></i>Competitor research</span></span>
+          </div>
         </div>
       </div>
-      <div class="cf-ph" style="aspect-ratio:496/560"><span class="cf-ph-kind">Image · Medium · Tall</span><span class="cf-ph-desc">Before: the existing Agent homepage</span></div>
+    <div class="lf-box">
+      <div class="lf-mac">
+        <div class="lf-screen">
+          <video class="lf-v" data-for="default" src="images/lf-walkthrough.mp4" poster="images/lf-walkthrough-poster.webp" muted loop playsinline preload="none" aria-label="A walkthrough of the redesigned Agent page"></video>
+          <video class="lf-v" data-for="chips" src="images/lf-chips.mp4" poster="images/lf-chips-poster.webp" muted loop playsinline preload="none" aria-label="Opening each prompt chip’s dropdown: Skills, Video ads, Image ads and Competitor research"></video>
+          <video class="lf-v" data-for="gradient font" src="images/lf-gradient-v5.mp4" poster="images/lf-gradient-v5-poster.webp" muted loop playsinline preload="none" aria-label="Agent’s background gradient drifting through the Skill cards’ colors"></video>
+          <video class="lf-v lf-v--left" data-for="sidebar" src="images/lf-sidebar-crisp.mp4" poster="images/lf-sidebar-crisp-poster.webp" muted loop playsinline preload="none" aria-label="The floating chat sidebar collapsing and expanding smoothly"></video>
+        </div>
+        <img class="lf-frame" src="images/highlight-mac-frame.webp?v=2" width="2643" height="1576" alt="" draggable="false">
+      </div>
+      <div class="lf-pills">
+        <button class="lf-pill interactable" type="button" data-state="gradient" aria-expanded="false">
+          <span class="lf-icon" aria-hidden="true"></span>
+          <span class="lf-label">A living gradient</span>
+          <span class="lf-detail"><strong>A living gradient.</strong> Brings back the aurora from the original Agent (V1), which had been recognized in user calls as a brand differentiator. It drifts through the Skill cards’ colors, tying Agent to the Skills page the CEO liked.</span>
+        </button>
+        <button class="lf-pill interactable" type="button" data-state="font" aria-expanded="false">
+          <span class="lf-icon" aria-hidden="true"></span>
+          <span class="lf-label">Creatify’s display font</span>
+          <span class="lf-detail"><strong>Creatify’s display font.</strong> The heading switched to Creatify’s more stylized typeface within its design system. It’s eye-catching, and it matches the titles on the Skill cards, so Agent and Skills feel like one product.</span>
+        </button>
+        <button class="lf-pill interactable" type="button" data-state="composer" aria-expanded="false">
+          <span class="lf-icon" aria-hidden="true"></span>
+          <span class="lf-label">A glass composer</span>
+          <span class="lf-detail"><strong>A glass composer.</strong> The chat box animates in with diagonal gleams, as if it were glass. It gives Agent a glossy, premium finish, and small moments like this make the first interaction feel delightful.</span>
+        </button>
+        <button class="lf-pill interactable" type="button" data-state="sidebar" aria-expanded="false">
+          <span class="lf-icon" aria-hidden="true"></span>
+          <span class="lf-label">Floating sidebar</span>
+          <span class="lf-detail"><strong>Floating sidebar.</strong> The chat sidebar now floats with less wasted space, giving the page more depth. Both sidebars expand and collapse smoothly instead of jumping, part of the premium polish the CEO wanted.</span>
+        </button>
+        <button class="lf-pill interactable" type="button" data-state="chips" aria-expanded="false">
+          <span class="lf-icon" aria-hidden="true"></span>
+          <span class="lf-label">Consistent chips</span>
+          <span class="lf-detail"><strong>Consistent chips.</strong> “Watch tutorial” left the prompt chips. It opened YouTube while every other chip opened a dropdown, so the same-looking buttons now behave the same way. Chips now also have smooth opening and closing transitions.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 Design · Navigation (a grey section of its own, Figma Oct 8) ===== -->
+<section class="cf-section cf-section--gray nav-sec">
+  <div class="cf-inner">
+    <div class="cf-head cf-head--v2 cf-reveal">
+      <h2 class="cf-h2">Untangling Agent’s two sidebars</h2>
+      <div class="cf-body"><p>Agent had two layers of navigation: Creatify’s main rail and Agent’s own chat sidebar. I worked on both, months apart.</p></div>
     </div>
 
-    <div class="cf-row cf-row--2 cf-reveal">
-      <div class="cf-card">
-        <div class="cf-ph" style="aspect-ratio:484/320"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Direction A: intro motion + refined gradient</span></div>
-        <div class="cf-sub-label" style="color:var(--cf-accent)">Direction A</div>
-        <div class="cf-card-title cf-card-title--lg">Refining the existing model</div>
-        <div class="cf-card-text">
+    <!-- Pass 1: the main rail (audit → proposal → team vote → shipped) -->
+    <div class="nav-pass cf-reveal">
+      <h3 class="sk-h">Pass 1 · Main rail</h3>
+      <div class="cf-body"><p>After auditing how Figma, Higgsfield, HeyGen and Claude handle layered navigation, I proposed a <strong>contextual rail</strong> that keeps global navigation reachable while giving Agent priority.</p></div>
+      <div class="nav-audit">
+      <div class="nav-audit-row">
+        <figure><img class="sk-zoom interactable" data-full="images/nav-audit-figma-file.webp" src="images/nav-audit-figma-file.webp" width="469" height="1400" loading="lazy" alt="Figma inside a file: a thin icon rail, with the file’s pages and layers in the sidebar beside it."><figcaption><span class="sk-label">Figma · in a file</span>Main nav shrinks to a rail; the file’s pages and layers take over</figcaption></figure>
+        <figure><img class="sk-zoom interactable" data-full="images/nav-audit-figma-home.webp" src="images/nav-audit-figma-home.webp" width="380" height="1400" loading="lazy" alt="Figma’s home screen: the full sidebar with recents, drafts and projects."><figcaption><span class="sk-label">Figma · Home</span>Main nav fully expanded when nothing else needs the space</figcaption></figure>
+        <figure><img class="sk-zoom interactable" data-full="images/nav-audit-higgsfield.webp" src="images/nav-audit-higgsfield.webp" width="375" height="1400" loading="lazy" alt="Higgsfield’s single dark sidebar: products, customize options and chat history together."><figcaption><span class="sk-label">Higgsfield</span>Chats live inside the one sidebar, so they’re hard to forget</figcaption></figure>
+        <figure><img class="sk-zoom interactable" data-full="images/nav-audit-heygen.webp" src="images/nav-audit-heygen.webp" width="515" height="1400" loading="lazy" alt="HeyGen: a compact icon rail with a separate sidebar for the Apps section."><figcaption><span class="sk-label">HeyGen</span>A permanently compact rail, plus a sidebar per section</figcaption></figure>
+        <figure><img class="sk-zoom interactable" data-full="images/nav-audit-claude.webp" src="images/nav-audit-claude.webp" width="431" height="1400" loading="lazy" alt="Claude’s sidebar: actions at the top, pinned items, then chats and the account at the bottom."><figcaption><span class="sk-label">Claude</span>One sidebar with clear layers: actions, pinned, chats, account</figcaption></figure>
+      </div>
+      </div>
+    </div>
+
+    <div class="nav-vote nav-subbox cf-reveal">
+      <div class="nav-vote-text">
+        <h3 class="sk-h">The team vote</h3>
+        <div class="cf-body">
+          <p>I shared three options with pros and cons:</p>
+          <ul class="nav-list">
+            <li>a Figma-style contextual rail</li>
+            <li>a Claude-style unified sidebar</li>
+            <li>a sidebar that swaps its contents inside Agent</li>
+          </ul>
+          <p>I recommended <strong>the contextual rail as the smallest change</strong> that fixed the visual weight problem.</p>
+          <p><strong>The team agreed with my recommendation,</strong> and an engineer took it on. It was shipped and deployed.</p>
+        </div>
+      </div>
+      <div class="nav-vote-shot">
+        <img class="sk-zoom interactable" data-full="images/nav-slack-vote.webp" src="images/nav-slack-vote.webp" width="680" height="1226" loading="lazy" alt="A Slack thread: teammates vote for option 1, the contextual rail, and an engineer agrees to build it.">
+      </div>
+    </div>
+
+    <!-- (removed to shorten: the before / after rail screenshots, nav-rail-before/after.webp) -->
+
+    <!-- the Agent icon, redesigned with Abed (it sits in the same sidebar) -->
+    <div class="nav-subbox nav-icon cf-reveal">
+      <div class="nav-icon-top">
+        <div class="sk-sub">
+          <h3 class="sk-h">An Agent icon to match the rest</h3>
+          <div class="sk-body">
+            <p>While rethinking the sidebar, one detail stood out: Agent’s icon. Its intricate, dotted style <strong>stood apart from the simple line icons</strong> around it. It was a stylized “C” for Creatify, but Agent is one tool within Creatify, not the brand as a whole, and it was still building its own reputation. <strong>Agent needed an icon of its own.</strong></p>
+            <p>With Abed, our lead visual designer, <strong>I explored ideas through rapid sticky-note sketching.</strong> We grouped the sketches into five themes, then voted our way down to a handful of finalists.</p>
+          </div>
+        </div>
+        <img class="nav-icon-orig" src="images/agent-icon-original-v2.webp" width="450" height="918" loading="lazy" alt="Creatify’s sidebar with the original Agent icon, a dotted “C”, circled.">
+      </div>
+      <figure class="nav-icon-sketch">
+        <img class="sk-zoom interactable" data-full="images/agent-icon-sketches.webp" src="images/agent-icon-sketches.webp" width="1800" height="1012" loading="lazy" alt="A whiteboard of sticky-note icon sketches.">
+        <figcaption class="sk-caption">Ideation in seconds</figcaption>
+      </figure>
+      <div class="sk-body"><p>The team chose my concept: <strong>a chat bubble whose ellipsis doubles as a pair of eyes,</strong> reflecting Agent’s conversational nature, with an AI sparkle for generation, a symbol already used across Creatify’s icons.</p></div>
+      <div class="nav-icon-tiles">
+        <figure><img src="images/agent-icon-tile-c.webp" width="759" height="720" loading="lazy" alt="The original Agent icon: a dotted “C”."><figcaption class="sk-caption">Original “C” icon</figcaption></figure>
+        <figure><img src="images/agent-icon-tile-imageads.webp" width="759" height="720" loading="lazy" alt="Creatify’s Image Ads icon, its AI sparkle circled."><figcaption class="sk-caption">Image Ads icon</figcaption></figure>
+        <figure><img src="images/agent-icon-tile-new.webp" width="759" height="720" loading="lazy" alt="The new Agent icon: a chat bubble with two dots for eyes and a sparkle."><figcaption class="sk-caption">New Agent icon</figcaption></figure>
+      </div>
+    </div>
+
+    <!-- the redesigned chat sidebar, in motion (wider than the column, like the Skills chip recordings) -->
+    <div class="nav-final cf-reveal">
+      <h3 class="sk-h nav-final-title">Labeled, layered, and a step closer to premium</h3>
+      <div class="ps-stage ps-stage--plain nav-final-shot" id="navShot" data-grow-edge>
+        <div class="ps-frame">
+          <video class="ps-img" src="images/nav-chat-sidebar.mp4" poster="images/nav-chat-sidebar-poster.webp" width="1728" height="972" muted loop playsinline preload="none" aria-label="The redesigned Agent page: the main navigation expands and collapses, then the floating chat sidebar closes and reopens smoothly."></video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 Design · Visual direction (Figma, Oct 8) ===== -->
+<section class="cf-section cf-section--gray vd-sec">
+  <div class="cf-inner">
+    <div class="cf-head cf-head--v2 cf-reveal">
+      <div class="cf-eyebrow cf-eyebrow--v2">04 — Design · Visual direction</div>
+      <h2 class="cf-h2">Showing Agent’s range before asking for credits</h2>
+      <div class="cf-body">
+        <p>Agent’s homepage is the first screen most users see.</p>
+        <p>The existing homepage centered on a composer and prompt suggestions. It worked, but it still asked users to understand Agent before Agent had shown much of its range. Not only that, but trust Agent with their credits.</p>
+      </div>
+    </div>
+
+    <!-- the two directions: a little wider than the column -->
+    <div class="vd-dirs cf-reveal">
+      <div class="vd-dir">
+        <img class="sk-zoom interactable" data-full="images/vd-direction-a.webp" src="images/vd-direction-a.webp" width="1868" height="1212" loading="lazy" alt="Direction A: the familiar Agent homepage with a refined purple-to-pink gradient, the heading, composer and prompt chips.">
+        <div class="vd-dir-label">Direction A</div>
+        <h3 class="vd-dir-title">Refining the existing model</h3>
+        <div class="vd-dir-text">
           <p>Kept the familiar chat-first structure and improved hierarchy and personality:</p>
-          <ul class="cf-list" style="gap:6px;margin-top:8px">
+          <ul>
             <li>Introductory motion</li>
             <li>Refined navigation and chat management</li>
             <li>Richer hover interactions</li>
@@ -764,75 +1065,39 @@
           </ul>
         </div>
       </div>
-      <div class="cf-card">
-        <div class="cf-ph" style="aspect-ratio:484/320"><span class="cf-ph-kind">GIF · Medium</span><span class="cf-ph-desc">Direction B: tabbed inspiration gallery</span></div>
-        <div class="cf-sub-label" style="color:var(--cf-accent)">Direction B</div>
-        <div class="cf-card-title cf-card-title--lg">Making capabilities visible</div>
-        <p class="cf-card-text">Questioned whether an empty prompt box should be the main introduction to Agent. Instead of asking users to invent a prompt, Agent shows strong outputs by category, so users can start from inspiration.</p>
-        <div class="cf-tabs">
-          <span class="cf-tab cf-tab--on">All</span><span class="cf-tab">Skills</span><span class="cf-tab">Video Ads</span><span class="cf-tab">Image Ads</span><span class="cf-tab">Competitor Research</span>
-        </div>
+      <div class="vd-dir">
+        <img class="sk-zoom interactable" data-full="images/vd-direction-b.webp" src="images/vd-direction-b.webp" width="1868" height="1212" loading="lazy" alt="Direction B: the Agent homepage with category tabs under the composer and a row of popular example outputs.">
+        <div class="vd-dir-label">Direction B</div>
+        <h3 class="vd-dir-title">Making capabilities visible</h3>
+        <div class="vd-dir-text"><p>Questioned whether an empty prompt box should be the main introduction to Agent. Instead of asking users to invent a prompt, Agent shows strong outputs by category, so users can start from inspiration.</p></div>
+        <div class="vd-tabs"><span class="vd-tab vd-tab--on">All</span><span class="vd-tab">Skills</span><span class="vd-tab">Video Ads</span><span class="vd-tab">Image Ads</span><span class="vd-tab">Competitor Research</span></div>
       </div>
     </div>
 
-    <div class="cf-ph cf-reveal" style="aspect-ratio:1120/630"><span class="cf-ph-kind">Video · Large · 16:9</span><span class="cf-ph-desc">Coded prototype walkthrough (Direction B): switch tabs, hover outputs, start from an example</span></div>
-
-    <div class="cf-reveal">
-      <p class="cf-quote">Discovery should happen before prompting, not only after it.</p>
-      <p class="cf-caption">I built a coded prototype for demonstration. The direction was still exploratory when my internship ended and would need more engineering and backend work before production.</p>
+    <div class="sk-sub cf-reveal">
+      <div class="sk-label">The trade-off</div>
+      <h3 class="sk-h">Ship polish now, test discovery next</h3>
+      <div class="sk-body"><p>Direction A was familiar, low-risk and quick to ship, but new users would still face an empty prompt. Direction B answered the question users kept asking on calls (“can it handle my product?”), but needed example content and backend work. <strong>My recommendation: ship A’s polish now, and test B with new users.</strong> Discovery was the core problem in our research, but B’s cost made it a bet worth validating first.</p></div>
     </div>
 
-    <div class="cf-identity cf-reveal">
-      <div class="cf-sub">
-        <div class="cf-sub-label">Small moment</div>
-        <h3 class="cf-h3">Giving Agent a clearer identity</h3>
-        <div class="cf-body"><p>With our lead visual designer, Abed, I worked on a simplified Agent icon. A chat bubble communicates Agent’s conversational role, and the AI sparkle signals generation. The two dots double as an ellipsis and subtle eyes, giving Agent personality while aligning it with Creatify’s simpler iconography.</p></div>
-      </div>
-      <div class="cf-icons">
-        <div class="cf-ph" style="aspect-ratio:1"><span class="cf-ph-kind">Icon · Before</span><span class="cf-ph-desc">Old Agent icon</span></div>
-        <span class="cf-arrow" style="font-size:22px">→</span>
-        <div class="cf-ph" style="aspect-ratio:1"><span class="cf-ph-kind">Icon · After</span><span class="cf-ph-desc">New Agent icon</span></div>
-      </div>
-    </div>
+    <!-- the coded prototype of Direction B -->
+    <video class="sk-video vd-proto cf-reveal" data-grow src="images/vd-prototype.mp4" poster="images/vd-prototype-poster.webp" width="1868" height="1212" muted loop playsinline preload="none" aria-label="The coded Direction B prototype: the intro animation, scrolling through popular examples and opening one in a lightbox."></video>
   </div>
 </section>
 
-<!-- ===== 04 Beyond Agent ===== -->
-<section id="beyond" class="cf-section">
+<!-- The reception of the visual direction: a statement block like the big question -->
+<section class="cf-section" aria-label="The reception of the visual direction">
   <div class="cf-inner">
-    <div class="cf-head cf-reveal">
-      <div class="cf-eyebrow">04 — Beyond Agent</div>
-      <h2 class="cf-h2">Applying research beyond Agent</h2>
-      <div class="cf-body"><p>The same research threads, especially credit uncertainty and first-time overwhelm, showed up in other parts of the product.</p></div>
-    </div>
-
-    <div class="cf-row cf-row--3 cf-reveal">
-      <div class="cf-card cf-card--gray cf-card--tight">
-        <div class="cf-ph" style="aspect-ratio:309/220"><span class="cf-ph-kind">Image · Main</span><span class="cf-ph-desc">Setup modal</span></div>
-        <div class="cf-minis">
-          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Threshold picker</span></div>
-          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Success state</span></div>
+    <div class="bq-scene bq-scene--own" id="vdReception">
+      <div class="bq-stick">
+        <div class="cf-hmw cf-hmw--v2 bq-box">
+          <div class="cf-eyebrow cf-eyebrow--v2 bq-in">The reception:</div>
+          <p class="cf-quote bq-in">Discovery should happen before prompting, not only after it.</p>
+          <div class="cf-hmw-body cf-hmw-body--sm bq-in">
+            <p>I presented the coded prototype to the CEO. <strong>He wanted to bring the new visual style into production right away,</strong> and liked the reasoning behind Direction B, though as a conceptual prototype it would need testing first.</p>
+            <p>Creatify has significantly evolved the design since, as fast-moving teams do.</p>
+          </div>
         </div>
-        <div class="cf-card-title">Credit Auto-Reload</div>
-        <p class="cf-card-text">Credit uncertainty surfaced repeatedly in research. I designed an opt-in auto-reload flow covering discovery, threshold and amount setup, confirmation, success, and later management, so sessions aren’t interrupted when balances run low.</p>
-      </div>
-      <div class="cf-card cf-card--gray cf-card--tight">
-        <div class="cf-ph" style="aspect-ratio:309/220"><span class="cf-ph-kind">Image · Main</span><span class="cf-ph-desc">Walkthrough step 1</span></div>
-        <div class="cf-minis">
-          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Step 2</span></div>
-          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Step 3</span></div>
-        </div>
-        <div class="cf-card-title">Ad Flow onboarding</div>
-        <p class="cf-card-text">First-time users could be overwhelmed by Ad Flow’s canvas. I designed a scalable walkthrough that progressively explains inputs, generation, outputs, and credit-consuming actions instead of exposing everything at once.</p>
-      </div>
-      <div class="cf-card cf-card--gray cf-card--tight">
-        <div class="cf-ph" style="aspect-ratio:309/220"><span class="cf-ph-kind">Image · Main</span><span class="cf-ph-desc">Comparison board</span></div>
-        <div class="cf-minis">
-          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Annotated nodes</span></div>
-          <div class="cf-ph" style="aspect-ratio:148/110"><span class="cf-ph-desc">Recommendations</span></div>
-        </div>
-        <div class="cf-card-title">Ad Flow workflow research</div>
-        <p class="cf-card-text">A side-by-side study with Arcads to reduce cognitive load while keeping Creatify’s stronger guided structure. Recommendations covered node readability, predictability, template discovery, quicker actions, and navigation.</p>
       </div>
     </div>
   </div>
@@ -841,24 +1106,38 @@
 <!-- ===== 05 Reflection ===== -->
 <section id="reflection" class="cf-section cf-section--gray">
   <div class="cf-inner">
-    <div class="cf-head cf-reveal">
-      <div class="cf-eyebrow">05 — Reflection</div>
+    <div class="cf-head cf-head--v2 cf-reveal">
+      <div class="cf-eyebrow cf-eyebrow--v2">05 — Reflection</div>
       <h2 class="cf-h2">What I’m taking with me</h2>
     </div>
 
-    <div class="cf-takeaways cf-reveal">
-      <div class="cf-takeaway"><div class="cf-card-num">01</div><div class="cf-card-title">Discoverability is part of product capability</div><p class="cf-card-text">A powerful feature has limited value if users can’t find it or understand why they should use it.</p></div>
-      <div class="cf-takeaway"><div class="cf-card-num">02</div><div class="cf-card-title">AI interfaces don’t have to be only chat</div><p class="cf-card-text">Cards, galleries, selectors, previews, and forms can make AI systems more understandable without sacrificing conversational flexibility.</p></div>
-      <div class="cf-takeaway"><div class="cf-card-num">03</div><div class="cf-card-title">Analytics belongs inside the design loop</div><p class="cf-card-text">I started using analytics to diagnose problems. By the end, I saw instrumentation as part of the product, planned alongside the interface so future iterations rest on real behavior.</p></div>
-    </div>
-
-    <div class="cf-divider"></div>
-
-    <div class="cf-closing cf-reveal">
-      <div class="cf-eyebrow">Closing</div>
-      <p class="cf-quote">Creatify already had powerful AI capabilities. My work focused on making them easier to discover, understand, and use.</p>
+    <!-- four takeaways, 2 × 2 (Figma, Oct 8) -->
+    <div class="rf-grid cf-reveal">
+      <div class="rf-item"><div class="rf-num">01</div><h3 class="rf-title">Discoverability is part of product capability</h3><p class="rf-text"><strong>A powerful feature has limited value</strong> if users can’t find it or understand why they should use it.</p></div>
+      <div class="rf-item"><div class="rf-num">02</div><h3 class="rf-title">AI interfaces don’t have to be only chat</h3><p class="rf-text">Cards, galleries, selectors, previews, and forms <strong>can make AI systems more understandable</strong> without sacrificing conversational flexibility.</p></div>
+      <div class="rf-item"><div class="rf-num">03</div><h3 class="rf-title">Analytics belongs inside the design loop</h3><p class="rf-text">I started using analytics to diagnose problems. By the end, <strong>I saw instrumentation as part of the product,</strong> planned alongside the interface so future iterations rest on real behavior.</p></div>
+      <div class="rf-item"><div class="rf-num">04</div><h3 class="rf-title">Designing in code</h3><p class="rf-text">Learning to ship my own designs changed how I work: <strong>I could test ideas at full fidelity, especially motion, and hand off less.</strong> It also showed me how much good engineering mentorship speeds up that leap.</p></div>
     </div>
   </div>
+</section>
+
+<!-- The closing: a statement block like the big question (big-question.js) -->
+<section class="cf-section" aria-label="Closing">
+  <div class="cf-inner">
+    <div class="bq-scene bq-scene--own" id="closing">
+      <div class="bq-stick">
+        <div class="cf-hmw cf-hmw--v2 bq-box">
+          <div class="cf-eyebrow cf-eyebrow--v2 bq-in">Closing</div>
+          <p class="cf-quote bq-in">Creatify already had powerful AI capabilities. My work focused on making them easier to discover, understand, and use.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- the end: "Fin." gets a screen to itself, at the same size as the "Creatify" title -->
+<section class="cf-fin" aria-label="End of the case study">
+  <p class="cf-fin-text cf-reveal">F<em>i</em>n.</p>
 </section>
 
 <footer class="case-footer">
@@ -909,14 +1188,20 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=3"></script>
-<script src="../js/page-wipe.js?v=18"></script>
-<script src="main.js?v=31"></script>
-<script src="problem-shot.js?v=12"></script>
-<script src="agent-hero.js?v=11"></script>
+<script src="../js/page-wipe.js?v=19"></script>
+<script src="main.js?v=40"></script>
+<script src="problem-shot.js?v=16"></script>
+<script src="agent-hero.js?v=17"></script>
 <script src="highlights.js?v=46"></script>
-<script src="lightbox.js?v=1"></script>
-<script src="research.js?v=8"></script>
-<script src="skills-intro.js?v=7"></script>
-<script src="big-question.js?v=2"></script>
+<script src="lightbox.js?v=2"></script>
+<script src="highlights-text.js?v=2"></script>
+<script src="research.js?v=9"></script>
+<script src="skills-intro.js?v=14"></script>
+<script src="big-question.js?v=7"></script>
+<script src="skills-section.js?v=3"></script>
+<script src="agent-intro.js?v=8"></script>
+<script src="look-feel.js?v=6"></script>
+<script src="grow-media.js?v=2"></script>
+<script src="count-up.js?v=1"></script>
 </body>
 </html>

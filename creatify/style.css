@@ -1151,7 +1151,10 @@ body.hero-covered .hero-section { visibility: hidden; }
   margin: 0 auto var(--cf-card-gap);
   border-radius: 30px;
   /* white sections: no box, so no top/bottom padding; the 150px gap alone spaces them */
-  padding: 0 clamp(24px, 9.4vw, 130px);
+  /* side padding inside each section (also used by the grey panels + research cards that
+     reach the section's edges); was 24–130px */
+  --cf-pad-x: clamp(20px, 5vw, 72px);
+  padding: 0 var(--cf-pad-x);
   scroll-margin-top: 20px;
 }
 
@@ -1159,7 +1162,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 #research.cf-section { margin-bottom: var(--cf-card-gap); }   /* undo knouri's #research { margin-bottom: 0 } */
 
 .cf-inner {
-  max-width: 1120px;
+  max-width: 1240px;               /* (was 1120) */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -1197,7 +1200,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 
 .cf-body p + p { margin-top: 14px; }
-.cf-body strong { font-weight: 600; }
+.cf-body strong { font-weight: 700; }
 
 .cf-list {
   list-style: none;
@@ -1653,7 +1656,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .cf-eyebrow--v2 {
   font-family: 'Haffer Mono', monospace;
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;   /* design system "Subtitle" (was 18) */
   letter-spacing: 0;
 }
 .cf-head--v2 .cf-h2 {
@@ -1664,7 +1667,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   letter-spacing: -0.05em;
 }
 .cf-head--v2 .cf-body { max-width: 720px; font-size: 18px; line-height: 30px; }
-.cf-head--v2 .cf-body strong { font-weight: 500; }
+.cf-head--v2 .cf-body strong { font-weight: 700; }
 .cf-head--v2 .cf-list { margin-top: 16px; gap: 0; padding-left: 4px; }   /* Figma: 16 paragraph spacing, 0 between bullets */
 .cf-hmw--v2 { gap: 20px; padding: 80px clamp(24px, 8vw, 120px); }
 .cf-hmw--v2 .cf-quote {
@@ -1700,7 +1703,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   .cf-versions-title { font-size: 34px; line-height: 40px; }
 }
 .cf-versions-text { font-size: 18px; line-height: 30px; color: var(--cf-ink); }
-.cf-versions-text strong { font-weight: 500; }
+.cf-versions-text strong { font-weight: 700; }
 
 /* the row: a .hl-viewport, so it swipes exactly like the highlights carousel (highlights.js);
    cards off to the side stay visible up to the screen edge, like there */
@@ -1713,7 +1716,7 @@ body.hero-covered .hero-section { visibility: hidden; }
    (a real backdrop blur shows nothing inside the swiping, transformed row). */
 .cf-version {
   position: relative;
-  flex: 0 0 min(832px, 80vw);
+  flex: 0 0 88%;                  /* 88% of the content column (Figma was 832px; full width felt too big); text stays the same size */
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -1722,7 +1725,11 @@ body.hero-covered .hero-section { visibility: hidden; }
   overflow: hidden;
   background: #0D0D0D;
   container-type: inline-size;
-  --fade-top: 363;                /* Figma px from the card's top where the gradient + blur start (Figma: 323) */
+  /* the text rides up over the screenshot's bottom by --lift (Figma px), making the card
+     shorter; the gradient + blur move up with it */
+  --lift: 90;
+  --fade-top: calc(363 - var(--lift) + 45);   /* Figma px from the card's top where the gradient + blur start (Figma: 323); +45 keeps more of the screenshot clear */
+  --blur-end: calc(440 - var(--lift) + 30);   /* …and where the blur is full (just under the title) */
 }
 .cf-version-shot { position: relative; aspect-ratio: 832 / 432; overflow: hidden; }
 .cf-version-shot img {
@@ -1760,10 +1767,10 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 /* the four copies split the ramp from --fade-top (where the gradient + blur start) to
    440 (full blur, just past the screenshot's bottom edge at 432) into even quarters */
-.cf-version-blur--1 { --r: 6px;  --from: var(--fade-top); --to: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.25); }
-.cf-version-blur--2 { --r: 12px; --from: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.25); --to: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.5); }
-.cf-version-blur--3 { --r: 24px; --from: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.5); --to: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.75); }
-.cf-version-blur--4 { --r: 48px; --from: calc(var(--fade-top) + (440 - var(--fade-top)) * 0.75); --to: 440; }
+.cf-version-blur--1 { --r: 6px;  --from: var(--fade-top); --to: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.25); }
+.cf-version-blur--2 { --r: 12px; --from: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.25); --to: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.5); }
+.cf-version-blur--3 { --r: 24px; --from: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.5); --to: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.75); }
+.cf-version-blur--4 { --r: 48px; --from: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.75); --to: var(--blur-end); }
 .cf-version-fade {
   position: absolute;
   left: 0;
@@ -1780,14 +1787,15 @@ body.hero-covered .hero-section { visibility: hidden; }
   align-items: flex-start;
   gap: 10px;
   padding: 0 30px 30px;
+  margin-top: calc(-1 * var(--lift) * 100cqw / 832);   /* up over the screenshot (see --lift) */
 }
 .cf-version-title,
 .cf-version-by {
   font-family: 'PP Neue Montreal', sans-serif;
   color: #F5F5F7;
 }
-.cf-version-title { font-weight: 500; font-size: 25px; line-height: 30px; }
-.cf-version-by { font-weight: 400; font-size: 18px; line-height: 22px; }
+.cf-version-title { font-weight: 500; font-size: 18px; line-height: 26px; }   /* (the page's body size; Figma 25) */
+.cf-version-by { font-weight: 400; font-size: 16px; line-height: 22px; }       /* (Figma 18) */
 
 /* strengths (✓) and weaknesses (✕): see-through white pills, white icons, light grey text */
 .cf-version-tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1988,7 +1996,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .cf-overview-text p + p { margin-top: 0; }   /* (the column's 20px gap spaces them) */
 
 /* bold phrases (Figma: PP Neue Montreal Medium) */
-.cf-overview-text strong { font-weight: 500; }
+.cf-overview-text strong { font-weight: 700; }
 
 /* laptop: vertically centred in the card, spilling past the card's right side
    (Figma: x 425 in the card; nudged 90px right to give the text more room) */
@@ -2131,7 +2139,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   color: #181812;
   /* width: the same gentle spring as the work-nav pills (overshoots ~4%, then settles) */
   transition: width 0.65s linear(0, 0.018, 0.065, 0.133, 0.214, 0.303, 0.394, 0.483, 0.569, 0.649, 0.721, 0.785, 0.841, 0.889, 0.929, 0.962, 0.988, 1.009, 1.024, 1.034, 1.041, 1.045, 1.046, 1.045, 1.043, 1.04, 1.037, 1.033, 1.029, 1.024, 1.02, 1.017, 1.013, 1.01, 1.008, 1.005, 1),
-              border-radius 0.3s ease, color 0.3s ease;
+              border-radius 0.3s ease, color 0.3s ease, background-color 0.3s ease;
 }
 
 .nav-num,
@@ -2215,7 +2223,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 @media (max-width: 700px) {
   :root { --cf-gutter: 12px; --cf-space: 96px; --cf-card-pad: 64px; }
   .cf-summary { padding: 0 20px; }
-  .cf-section { padding-left: 20px; padding-right: 20px; }
+  .cf-section { --cf-pad-x: 20px; }
   .cf-title { font-size: 56px; }
   .cf-h2 { font-size: 30px; line-height: 38px; }
   .cf-overview-text .cf-h2 { font-size: 36px; line-height: 40px; }
@@ -2763,10 +2771,11 @@ body.hero-covered .hero-section { visibility: hidden; }
   font-style: normal;
 }
 
-#research { --rs-tab: 114px; --rs-gap: 12px; --rs-h: 655px; --rs-ease: cubic-bezier(0.76, 0, 0.24, 1); --rs-dur: 0.5s; }
+#research { --rs-tab: 92px; --rs-gap: 12px; --rs-h: 655px; --rs-ease: cubic-bezier(0.76, 0, 0.24, 1); --rs-dur: 0.5s; }
 
-/* the row reaches the section's edges (cancels .cf-section's side padding), like Figma */
-.rs-pin { margin-inline: calc(-1 * clamp(24px, 9.4vw, 130px)); }
+/* the row stays inside the body content's margins, lined up with the TL;DR and text above
+   (was: reaching the section's edges, with 114px tabs) */
+.rs-pin { margin-inline: 0; }
 .rs-pin.is-scroll-driven .rs-stick { position: sticky; top: var(--rs-stick-top, 0px); }   /* (off for now: research.js SCROLL_DRIVEN) */
 
 /* the intro text above the cards runs the full width */
@@ -2793,10 +2802,10 @@ body.hero-covered .hero-section { visibility: hidden; }
   transition: flex-basis var(--rs-dur) var(--rs-ease);
 }
 .rs-card.is-open { flex-basis: calc(100% - 3 * (var(--rs-tab) + var(--rs-gap))); }
-.rs-card--1 { background: #F5F5F7; }
+.rs-card--1 { background: rgba(30, 28, 29, 0.05); box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.1); }   /* the design system's ink (#1E1C1D) at 5% (was #D9D9D9), with a thin outline */
 .rs-card--2 { background: #D2ABFF; }
 .rs-card--3 { background: #1E1C1D; color: #fff; }
-.rs-card--4 { background: #fff; box-shadow: inset 0 0 0 2px rgba(24, 24, 18, 0.1); }
+.rs-card--4 { background: #fff; box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.1); }   /* thin outline (was 2px) */
 
 /* big mono number (tabs + open titles) */
 .rs-num {
@@ -2807,20 +2816,19 @@ body.hero-covered .hero-section { visibility: hidden; }
   letter-spacing: 0;
 }
 
-/* The number is one fixed piece per card, never fading: it only slides the few px
-   between its folded spot (centred in the tab, 33px down) and its open spot (37px
-   in, beside the title). The tab's and title's own numbers are invisible spacers. */
+/* The number is one fixed piece per card, never fading, pinned to the card's top-right
+   corner: folded or open, it stays put (it only rides along with the card's right edge
+   as the card widens). The tab's own number is an invisible spacer; the open title has
+   none (on phones the title shows its number inline instead). */
 .rs-num-space { visibility: hidden; }
+.rs-title .rs-num-space { display: none; }
 .rs-num-fixed {
   position: absolute;
   z-index: 1;
-  top: 33px;
-  left: calc(var(--rs-tab) / 2);
-  transform: translateX(-50%);
+  top: 35px;
+  right: 22px;                    /* centred in a 92px folded tab */
   pointer-events: none;
-  transition: top var(--rs-dur) var(--rs-ease), left var(--rs-dur) var(--rs-ease), transform var(--rs-dur) var(--rs-ease);
 }
-.rs-card.is-open .rs-num-fixed { top: 37px; left: 37px; transform: none; }
 
 /* ---- folded: the tab ---- */
 .rs-tab {
@@ -2901,7 +2909,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .rs-card--1 .rs-title { gap: 10px; }
 .rs-title .rs-num { letter-spacing: 0; }
 .rs-text { margin: 0; font-size: 18px; line-height: 30px; opacity: 0.7; }
-.rs-text strong { font-weight: 500; }
+.rs-text strong { font-weight: 700; }
 .rs-lead { margin: 0; font-weight: 500; font-size: 20px; line-height: 30px; }
 
 /* 01: funnel chart (Figma's scaled copy) */
@@ -2973,7 +2981,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .rs-shot.is-popping img { animation: rs-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes rs-pop { from { transform: scale(0.97); } to { transform: none; } }
 .rs-note { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; font-size: 18px; line-height: 23px; color: rgba(255, 255, 255, 0.7); }
-.rs-note strong { font-weight: 500; color: #fff; }
+.rs-note strong { font-weight: 700; color: #fff; }
 
 /* 04: the two menus */
 .rs-screens { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -2993,7 +3001,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   .rs-strip { flex-direction: column; height: auto; gap: 16px; }
   .rs-card, .rs-card.is-open { flex: none; }
   .rs-tab, .rs-num-fixed { display: none; }
-  .rs-title .rs-num-space { visibility: visible; }
+  .rs-title .rs-num-space { display: inline; visibility: visible; }
   .rs-open, .rs-card.is-open .rs-open { position: static; width: auto; height: auto; padding: 28px 24px; visibility: visible; transition: none; gap: 28px; }
   .rs-open > *, .rs-card.is-open .rs-open > * { opacity: 1; transform: none; transition: none; }
   .rs-title { font-size: 36px; line-height: 40px; gap: 12px; }
@@ -3077,7 +3085,16 @@ body.hero-covered .hero-section { visibility: hidden; }
   border-radius: 30px;
   background: #F5F5F7;
 }
-.sk-title {
+/* the section number above the title (Figma: Haffer XH Mono SemiBold 35, 10px above) */
+.sk-intro-text { display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0; }   /* faded in by skills-intro.js */
+.sk-intro-num {
+  font-family: 'HafferXH', monospace;
+  font-weight: 600;
+  font-size: clamp(24px, 2.4vw, 35px);
+  line-height: 1.2;
+  color: var(--cf-ink);
+}
+.sk-intro-title {
   margin: 0;
   font-family: 'DM Sans', sans-serif;
   font-weight: 500;
@@ -3086,7 +3103,6 @@ body.hero-covered .hero-section { visibility: hidden; }
   letter-spacing: -0.05em;
   text-align: center;
   color: var(--cf-ink);
-  opacity: 0;                     /* faded in by skills-intro.js */
 }
 
 /* "Skills" shines pink → purple for a moment, then settles to plain ink */
@@ -3094,7 +3110,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .sk-word::after {
   content: attr(data-text);
   position: absolute;
-  inset: 0;
+  inset: 0 0 -0.3em 0;            /* reaches below the line, so letters that hang down (the g in "Agent") get the gradient too */
   background: linear-gradient(90deg, #E7A0FE 0%, #6F68FF 33%, #E7A0FE 66%, #6F68FF 100%);
   background-size: 300% 100%;
   background-position: 100% 0;
@@ -3104,20 +3120,17 @@ body.hero-covered .hero-section { visibility: hidden; }
   opacity: 0;
   pointer-events: none;
 }
-/* --sk-shine-dur: the whole shine, fade-in to fade-out (the gradient holds for ~2.5s of it) */
-.sk-intro { --sk-shine-dur: 3.6s; }
-.sk-intro.is-shining .sk-word { animation: sk-word-ink var(--sk-shine-dur) ease forwards; }
-.sk-intro.is-shining .sk-word::after { animation: sk-shine var(--sk-shine-dur) ease forwards; }
-@keyframes sk-shine {
-  0%   { opacity: 0; background-position: 100% 0; }
-  8%   { opacity: 1; }
-  78%  { opacity: 1; }
-  100% { opacity: 0; background-position: 0% 0; }
+/* The gradient fades in and stays, slowly shimmering back and forth for good
+   (--sk-sheen-dur: one sweep across the word). */
+.sk-intro, .ag-intro { --sk-sheen-dur: 4s; }
+.sk-intro .sk-word, .ag-intro .ag-word { transition: color 0.4s ease; }
+.sk-intro .sk-word::after, .ag-intro .ag-word::after { transition: opacity 0.4s ease; }
+.sk-intro.is-shining .sk-word, .ag-intro.is-in .ag-word { color: transparent; }
+.sk-intro.is-shining .sk-word::after, .ag-intro.is-in .ag-word::after {
+  opacity: 1;
+  animation: sk-sheen var(--sk-sheen-dur) ease-in-out infinite alternate;
 }
-@keyframes sk-word-ink {          /* the plain word hides while the shine is on top */
-  0%, 100% { color: var(--cf-ink); }
-  8%, 78% { color: transparent; }
-}
+@keyframes sk-sheen { from { background-position: 100% 0; } to { background-position: 0% 0; } }
 
 .sk-shots { position: absolute; inset: 0; pointer-events: none; }
 .sk-shot {
@@ -3133,16 +3146,19 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sk-intro.is-shining .sk-word, .sk-intro.is-shining .sk-word::after { animation: none; }
+  .sk-intro.is-shining .sk-word::after, .ag-intro.is-in .ag-word::after { animation: none; }   /* (a still gradient) */
 }
 
 /* Problem V1/V2 carousel: the same dots as the highlights carousel, but under the cards */
 .cf-versions-viewport .hl-dots {
   background: rgba(232, 232, 236, 0.7);   /* the bottom nav's grey, so it shows on the white page */
-  position: static;
+  position: relative;
+  z-index: 2;                     /* (over the cards' bottom edge) */
+  left: auto;
+  bottom: auto;                   /* (the highlights dots' own offsets don't apply here) */
   transform: none;
   width: fit-content;
-  margin: 24px auto 0;
+  margin: -20px auto 0;           /* pulled up by half its 40px height: it straddles the cards' bottom edge */
 }
 
 /* ================================
@@ -3151,16 +3167,830 @@ body.hero-covered .hero-section { visibility: hidden; }
    from a small circle (a clip-path) into its rounded rectangle, then the words fade
    in. Plays once. Small screens and reduced motion just show the finished box.
    ================================ */
-/* a full screen of room, with the box in the middle: it has the screen to itself */
-.bq-scene { position: relative; }
-.bq-stick {
-  min-height: 100vh;
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-}
+/* (no longer a full screen of room: just the page's usual 150px section spacing around it) */
+.bq-scene { position: relative; margin-top: calc(var(--cf-space) - 56px); }   /* 56px = .cf-inner's gap, already there */
+.bq-scene--own { margin-top: 0; }   /* (a section of its own: the section gap already spaces it) */
+.bq-stick { display: flex; align-items: center; }
 .bq-box { width: 100%; margin: 0; will-change: clip-path; }
-@media (max-width: 700px), (prefers-reduced-motion: reduce) {
-  .bq-scene { margin-top: calc(var(--cf-space) - 56px); }
-  .bq-stick { min-height: 0; }
+
+/* Research "at a glance": where / why / how, above the cards */
+.rs-glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.rs-glance[hidden] { display: none; }
+.rs-glance-item { padding-top: 16px; border-top: 1px solid #DBDBE0; }
+.rs-glance-label {
+  margin-bottom: 8px;
+  font-family: 'Haffer Mono', monospace;
+  font-size: 15px;
+  text-transform: uppercase;
+  color: var(--cf-accent);
 }
+.rs-glance p { margin: 0; font-size: 17px; line-height: 26px; color: rgba(30, 28, 29, 0.7); }
+.rs-glance strong { font-weight: 700; color: var(--cf-ink); }
+@media (max-width: 800px) { .rs-glance { grid-template-columns: 1fr; gap: 20px; } }
+
+/* ================================
+   03 · AGENT SKILLS (Figma: "03a — Agent Skills")
+   Labels: Haffer Mono, purple · titles: DM Sans Medium · text: PP Neue Montreal
+   (Book, Medium for the bold bits). Grey panels reach the section's edges.
+   Videos play only while on screen (skills-section.js).
+   ================================ */
+.sk-panel {
+  margin-inline: calc(-1 * var(--cf-pad-x));
+  padding: 100px var(--cf-pad-x);
+  border-radius: 30px;
+  background: #F5F5F7;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+.sk-sub { display: flex; flex-direction: column; gap: 12px; }
+.sk-label {
+  font-family: 'Haffer Mono', monospace;
+  font-weight: 400;
+  font-size: 16px;   /* the same "Subtitle" size as .cf-eyebrow--v2 (was 15) */
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--cf-accent);
+}
+.sk-title {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 45px;
+  letter-spacing: -0.04em;
+  color: var(--cf-ink);
+}
+.sk-body { display: flex; flex-direction: column; gap: 14px; }
+.sk-body p, .sk-feature p, .sk-callout p { margin: 0; font-size: 18px; line-height: 30px; color: var(--cf-ink); }
+.sk-section-strong, .sk-body strong, .sk-feature strong, .sk-callout strong { font-weight: 700; }   /* bolded phrases: PP Neue Montreal Bold (was Medium) */
+
+.sk-video, .sk-pair img, .sk-gallery > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 15px;
+  background: #0D0D0D;
+}
+
+/* a label beside its video (Figma: 380 | 776) */
+.sk-rows { display: flex; flex-direction: column; gap: 24px; }
+.sk-row { display: grid; grid-template-columns: minmax(0, 380fr) 776fr; gap: 24px; align-items: start; }
+.sk-pair-wrap { display: flex; flex-direction: column; gap: 15px; }
+.sk-pair-wrap[hidden] { display: none; }
+.sk-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; align-items: start; }
+
+/* the first gallery, labelled: outlines + frosted tags placed in its own 1180×703 frame */
+.sk-gallery { position: relative; margin: 0; }
+.sk-zoom { cursor: zoom-in; }
+.sk-outline, .sk-tag { position: absolute; left: calc(var(--x) / 1180 * 100%); top: calc(var(--y) / 703 * 100%); pointer-events: none; }
+.sk-outline {
+  width: calc(var(--w) / 1180 * 100%);
+  height: calc(var(--h) / 703 * 100%);
+  border: 1.5px solid #6F68FF;
+  border-radius: calc(var(--r) * 1px);
+}
+.sk-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px 9px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: clamp(11px, 1.35vw, 16px);
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--cf-ink);
+}
+.sk-tag::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #6F68FF; flex: none; }
+
+/* the three issues */
+.sk-issues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.sk-issue { display: flex; flex-direction: column; gap: 12px; padding: 24px 24px 28px; border-radius: 15px; color: var(--cf-ink); }
+.sk-issue--1 { background: #fff; }
+.sk-issue--2 { background: #D2ABFF; }
+.sk-issue--3 { background: #1E1C1D; color: #fff; }
+.sk-issue-num { font-family: 'HafferXH', monospace; font-weight: 400; font-size: 45px; line-height: 54px; }
+.sk-issue img { display: block; width: 100%; height: auto; border-radius: 14px; }
+.sk-issue h4 { margin: 0; font-weight: 500; font-size: 22px; line-height: 26px; }
+.sk-issue p { margin: 0; font-size: 16px; line-height: 24px; }
+.sk-turn {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 34px;
+  letter-spacing: -0.02em;
+  color: var(--cf-ink);
+}
+.sk-turn span { color: #6F68FF; }
+
+/* iteration 2: text beside its video (Figma: 308 | 832) */
+.sk-split { display: grid; grid-template-columns: minmax(0, 308fr) 832fr; gap: 40px; align-items: start; }
+/* the four gallery features, named under the big gallery recording (which shows them all):
+   four short text columns, each with a thin line on top */
+.sk-features { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.sk-feature { padding-top: 16px; border-top: 1px solid #DBDBE0; }
+.sk-feature-text { display: flex; flex-direction: column; gap: 6px; }
+.sk-feature p { font-size: 17px; line-height: 26px; }
+
+.sk-callout { display: flex; flex-direction: column; gap: 12px; padding: 32px; border-radius: 20px; background: #F0EDFF; }
+.sk-callout p { max-width: 820px; line-height: 28px; }
+
+.sk-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 12px; }
+.sk-stat-num { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 96px; line-height: 100px; letter-spacing: -0.05em; color: #7354F2; }
+.sk-stat p { margin: 8px 0 0; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 24px; line-height: 32px; letter-spacing: -0.02em; color: var(--cf-ink); }
+.sk-footnote { margin: 0; font-size: 16px; line-height: 24px; color: var(--cf-gray); }
+
+@media (max-width: 900px) {
+  .sk-row, .sk-split, .sk-pair, .sk-issues, .sk-stats { grid-template-columns: 1fr; }
+  .sk-features { grid-template-columns: 1fr 1fr; }
+  .sk-panel { padding-block: 56px; gap: 40px; }
+  .sk-title { font-size: 32px; line-height: 38px; }
+  .sk-stat-num { font-size: 64px; line-height: 70px; }
+  .sk-tag { padding: 4px 8px 4px 6px; gap: 4px; }
+  .sk-tag::before { width: 6px; height: 6px; }
+}
+
+/* ================================
+   AGENT INTRO (agent-intro.js)
+   The hero's waves + dot grid on a full-screen stage. As it scrolls in, the stage
+   grows (a clip-path) from the text column's width to the whole screen, edge to edge;
+   the title fades in just before it's full, and "Agent" shines before settling white.
+   ================================ */
+.ag-intro { position: relative; height: 100vh; height: 100svh; margin-bottom: var(--cf-card-gap); }
+.ag-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #090A0A;
+  clip-path: inset(var(--ag-iy, 0px) var(--ag-ix, 0px) round var(--ag-r, 0px));
+}
+.ag-bg { position: absolute; inset: 0; }
+.ag-frost {                       /* (Figma: 10% black) — fading out towards the bottom, so the white wave there stays pure white */
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 80%);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent 80%);
+}
+.ag-dots { --dot-reveal: 115%; -webkit-mask-image: none; mask-image: none; }
+.ag-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 24px;
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease-out, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ag-intro.is-in .ag-text { opacity: 1; transform: none; }
+.ag-num { font-family: 'HafferXH', monospace; font-weight: 600; font-size: clamp(24px, 2.4vw, 35px); line-height: 1.2; }
+.ag-title { margin: 0; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: clamp(44px, 5.45vw, 80px); line-height: 1; letter-spacing: -0.05em; }
+.ag-sub { margin: 0; font-size: 18px; line-height: 30px; }
+
+.ag-word { position: relative; display: inline-block; }
+.ag-word::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0 0 -0.3em 0;            /* reaches below the line, so letters that hang down (the g in "Agent") get the gradient too */
+  background: linear-gradient(90deg, #E7A0FE 0%, #6F68FF 33%, #E7A0FE 66%, #6F68FF 100%);
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* (Problem V1/V2 carousel: no slide-in of its own any more; the whole block fades up with
+   .cf-reveal like everything else) */
+
+/* "Fin." (Figma): Instrument Serif, the i in italic; a whole screen to itself, the same size
+   as the "Creatify" title (main.js copies the title's fitted size into --cf-title-size) */
+.cf-fin { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; }
+.cf-fin-text {
+  margin: 0;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: var(--cf-title-size, 72px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--cf-ink);
+}
+.cf-fin-text em { font-style: italic; }
+
+/* a frosted "Before" tag at the top centre of each V1 / V2 screenshot: these are Agent
+   before my redesign, not my work */
+.cf-version-before {
+  position: absolute;
+  z-index: 1;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--cf-ink);
+  pointer-events: none;
+}
+
+/* one big number per section, for skimmers (same style as the Skills 38% / 16%) */
+.cf-bigstat { display: flex; align-items: center; gap: 20px; }
+.cf-bigstat-num { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 96px; line-height: 100px; letter-spacing: -0.05em; color: #7354F2; }
+.cf-bigstat-label { max-width: 340px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 24px; line-height: 32px; letter-spacing: -0.02em; color: var(--cf-ink); }
+
+/* Agent: the Skill-recommendation beat, and the icon redesign */
+.ag-beat { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr); gap: 40px; align-items: center; }   /* (Figma: text | 560px image) */
+.ag-beat .cf-ph { width: 100%; }
+.ag-icon { display: flex; flex-direction: column; gap: 32px; }
+.ag-icon-row { display: grid; grid-template-columns: 176fr minmax(0, 636fr) 260fr; gap: 24px; }
+.ag-icon-row figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.ag-icon-row img { display: block; width: 100%; height: 360px; object-fit: cover; border-radius: 15px; background: #F5F5F7; }
+@media (max-width: 900px) {
+  .ag-beat, .ag-icon-row { grid-template-columns: 1fr; }
+  .ag-icon-row img { height: auto; }
+  .cf-bigstat-num { font-size: 64px; line-height: 70px; }
+}
+
+/* a video with a Before / After pill (reuses the V1/V2 cards' .cf-version-before pill) */
+.sk-media { position: relative; }
+
+/* ================================
+   HIGHLIGHTED PHRASES (replaces the bold): a lilac highlighter sweeps in from the left
+   when the phrase comes on screen, like the other case studies (.highlight there);
+   phrases in the same paragraph go one after another (highlights-text.js)
+   ================================ */
+strong.cf-hl {
+  font-weight: inherit !important;   /* (no bold any more: the highlight does the emphasis) */
+  padding: 1px 3px;
+  margin: 0 -1px;
+  border-radius: 0;
+  background-image: linear-gradient(to right, rgba(210, 171, 255, 0.32), rgba(210, 171, 255, 0.32));   /* (paler: was 0.55) */
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.6s ease;
+}
+strong.cf-hl.animate-in { background-size: 100% 100%; }
+/* on the lilac research card the lilac wouldn't show: white instead */
+.rs-card--2 strong.cf-hl { background-image: linear-gradient(to right, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)); }
+/* on the dark research card: a lighter touch, so the white text stays readable */
+.rs-card--3 strong.cf-hl { background-image: linear-gradient(to right, rgba(210, 171, 255, 0.35), rgba(210, 171, 255, 0.35)); }
+@media (prefers-reduced-motion: reduce) { strong.cf-hl { transition: none; } }
+
+.lightbox-video[hidden], .lightbox img[hidden] { display: none; }
+
+/* Research: the grey background runs the full width of the screen (ignoring the page's
+   side margins, like Figma), with the TL;DR and the cards each under their own heading */
+#research.cf-section {
+  background: var(--cf-card);
+  box-shadow: 0 0 0 100vmax var(--cf-card);   /* paints the grey out to the screen edges... */
+  clip-path: inset(0 -100vmax);               /* ...but never above or below the section */
+  border-radius: 0;
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+.cf-bigstat { justify-content: center; }   /* (every big number sits centred: Research, Skills) */
+.rs-block { display: flex; flex-direction: column; gap: 20px; }
+.rs-subhead {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 44px;                /* same as "Get the highlights." (Figma: 50) */
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--cf-ink);
+}
+/* the TL;DR sits in a white rounded box */
+#research .rs-glance { background: #fff; border-radius: 30px; padding: 80px 100px; gap: 40px; }
+#research .rs-glance-item { padding-top: 0; border-top: 0; }
+@media (max-width: 900px) {
+  #research .rs-glance { padding: 40px 32px; }
+  .rs-subhead { font-size: 32px; }
+  #research.cf-section { padding-top: 64px; padding-bottom: 64px; }
+}
+
+/* Skills: evolution of the Skill card (four versions in a row, each with why it changed).
+   Each card sits centred in the same 280×227 spot, so the numbers and captions line up. */
+.sk-evo { gap: 20px; padding-top: 80px; padding-bottom: 80px; }
+.sk-evo-label { text-align: center; font-size: 13px; letter-spacing: 0.08em; }
+.sk-evo-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.sk-evo-item { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.sk-evo-card { aspect-ratio: 280 / 227; display: flex; align-items: center; justify-content: center; }
+.sk-evo-card img { display: block; width: 98%; height: auto; }
+.sk-evo-item figcaption { display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 22px; color: var(--cf-gray); }
+.sk-evo-num { font-family: 'Haffer Mono', monospace; font-size: 13px; line-height: 18px; letter-spacing: 0.04em; color: var(--cf-accent); }
+@media (max-width: 900px) { .sk-evo-row { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 32px; } }
+
+/* ================================
+   NAVIGATION: two passes (main rail, then the chat sidebar)
+   ================================ */
+.nav-pass { display: flex; flex-direction: column; gap: 12px; }
+.nav-pass .sk-title { font-size: 32px; line-height: 38px; margin-top: 6px; }
+.nav-pass .cf-body { max-width: none; font-size: 18px; line-height: 30px; }
+.nav-list { margin: 4px 0 0; padding-left: 22px; font-size: 18px; line-height: 30px; color: var(--cf-ink); }
+.nav-list strong { font-weight: 700; }
+/* the audit: five sidebars, all the same height (columns sized by each image's width) */
+.nav-audit { display: flex; flex-direction: column; gap: 14px; }
+.nav-audit-row { display: grid; grid-template-columns: 469fr 380fr 375fr 515fr 431fr; gap: 40px; align-items: start; }
+.nav-audit-row figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.nav-audit-row img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08); }
+.nav-audit-row figcaption { display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 18px; color: var(--cf-gray); }
+.nav-audit-row figcaption .sk-label { font-size: 12px; color: var(--cf-ink); }
+/* the Slack vote beside its note */
+.nav-vote { display: grid; grid-template-columns: 300px minmax(0, 560px); gap: 48px; align-items: center; }
+.nav-vote > img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
+.nav-vote-text { display: flex; flex-direction: column; gap: 14px; }
+.nav-vote-text .cf-body { font-size: 18px; line-height: 27px; }
+/* before / after */
+.nav-ba { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.nav-ba figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.nav-ba img { display: block; width: 100%; height: auto; border-radius: 10px; }
+.nav-ba .sk-label { font-size: 12px; color: var(--cf-gray); }
+@media (max-width: 900px) {
+  .nav-audit-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .nav-vote, .nav-ba { grid-template-columns: 1fr; }
+  .nav-vote > img { max-width: 300px; }
+}
+
+/* the chat-sidebar video with the Problem screenshot's labels (TRIAL). It doesn't grow
+   or darken, so the frost can be a real backdrop blur over the playing video instead
+   of the Problem's blurred-screenshot copy. */
+.ps-stage--plain .ps-dim { display: none; }
+.ps-stage--plain .ps-pill::after { display: none; }
+.ps-stage--plain .ps-pill { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.ps-stage--plain:not(.is-list) .ps-frame { border-radius: 20px; }
+
+/* ================================
+   04 · LOOK & FEEL — Apple-style explorer (look-feel.js)
+   The whole section is grey, edge to edge. The explorer fills the screen: pills on the
+   left, the laptop on the right. Everything inside is laid out in Figma's 1472×741 frame
+   (.lf-box), scaled by --u to fit the screen and centred. Each pill's state moves the
+   laptop (zooming into the detail) and swaps its screen; "composer" swaps the laptop for
+   the live Agent hero, edge to edge.
+   ================================ */
+.lf { margin-bottom: var(--cf-card-gap); }
+.lf-top.cf-section { margin-bottom: 64px; }
+.lf-explorer {
+  --u: min(calc(100vw / 1472), calc(100svh / 741));
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  background: var(--cf-card);   /* grey, exactly one screen */
+  overflow: hidden;
+  isolation: isolate;
+}
+.lf-box {
+  /* centred without a transform, so it doesn't form its own layer: the live hero can
+     then sit above the laptop but below the pills */
+  position: absolute;
+  left: calc(50% - 736 * var(--u));
+  top: calc(50% - 370.5 * var(--u));
+  width: calc(1472 * var(--u));
+  height: calc(741 * var(--u));
+}
+
+/* the laptop: Figma's spots per state (left / top / width in the 1472×741 frame) */
+.lf-mac {
+  z-index: 1;
+  --x: 304; --y: 11; --w: 1140;
+  position: absolute;
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(var(--w) * var(--u));
+  aspect-ratio: 2643 / 1576;
+  /* moved with left/top/width rather than a transform, so the pills' backdrop blur still
+     sees it (Chrome's backdrop-filter can't see into transformed layers) */
+  transition: left 0.9s var(--lf-ease), top 0.9s var(--lf-ease), width 0.9s var(--lf-ease), opacity 0.5s ease;
+}
+.lf-explorer { --lf-ease: cubic-bezier(0.65, 0, 0.35, 1); }
+.lf-explorer[data-state="gradient"] .lf-mac { --x: 264; --y: 28; --w: 1374; }
+/* display font: dives into the screen until "What will you create today?" sits big,
+   right of the pills (the gradient recording, where the heading never moves) */
+.lf-explorer[data-state="font"] .lf-mac { --x: -588; --y: -184; --w: 2600; }
+.lf-explorer[data-state="sidebar"] .lf-mac { --x: 400; --y: -15; --w: 2002; }
+/* consistent chips: zoomed until the laptop's top edge is just off screen, the composer,
+   chips and their dropdowns (the screen's lower middle) right of the pills */
+.lf-explorer[data-state="chips"] .lf-mac { --x: 60; --y: -12; --w: 1440; }
+/* glass composer: dives in until the screen fills the whole view (the laptop nearly all
+   off screen), then the live hero fades in over it (.lf-hero) */
+.lf-explorer[data-state="composer"] .lf-mac { --x: -864; --y: -497; --w: 3200; }
+.lf-frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; user-select: none; }
+/* the screen opening (measured from the frame image), tucked a hair under the bezel */
+.lf-screen {
+  position: absolute;
+  left: 11.55%;
+  top: 3.58%;
+  width: 76.9%;
+  height: 83.75%;
+  overflow: hidden;
+  background: #090A0A;
+}
+.lf-v {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.lf-v.is-on { opacity: 1; }
+/* floating sidebar: a 16:9 recording filling the (squarer) screen; trimmed from the
+   right, never the left, so the sidebar stays whole */
+.lf-v--left { object-position: left center; }
+
+/* the live Agent hero (a copy of the page's), edge to edge; its composer intro replays */
+.lf-hero {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+  z-index: 2;
+}
+.lf-explorer[data-state="composer"] .lf-hero { opacity: 1; visibility: visible; transition: opacity 0.6s ease 0.55s; }
+.lf-hero .ah-stage {
+  left: calc(50% + 214 * var(--u));   /* centred under Figma's right column (x ≈ 950 of 1472); size: look-feel.js */
+}
+
+/* ---- pills ---- */
+.lf-pills {
+  position: absolute;
+  left: calc(100 * var(--u));
+  /* centred while all are closed (5 × 53px + 4 × 12px gaps = 313px), then pinned there: an
+     opening pill only pushes the ones below it down, so nothing slides out from under the
+     mouse while hovering */
+  top: calc(50% - 156.5px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  z-index: 3;
+}
+.lf-pill {
+  position: relative;
+  width: var(--w, 200px);
+  height: var(--h, 53px);
+  padding: 0;
+  border: 0;
+  border-radius: 40px;
+  background: rgba(232, 232, 237, 0.7);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  color: var(--cf-ink);
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 16px;
+  line-height: 25px;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+  transition: width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease;
+}
+.lf-pill:hover { background-color: rgba(222, 222, 228, 0.8); }
+.lf-pill.is-open { border-radius: 28px; cursor: default; }
+.lf-pill:focus-visible { outline: 2px solid var(--nav-orange); outline-offset: 3px; }
+/* circled plus (Phosphor PlusCircle), turns into a × when open */
+.lf-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  width: 19.5px;
+  height: 19.5px;
+  margin-top: -9.75px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lf-icon::before, .lf-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 9px; height: 1.5px;
+  margin: -0.75px 0 0 -4.5px;
+  background: currentColor;
+  border-radius: 1px;
+}
+.lf-icon::after { transform: rotate(90deg); }
+.lf-pill.is-open .lf-icon { transform: rotate(45deg); cursor: pointer; }
+.lf-label, .lf-detail { position: absolute; left: 52px; top: 14px; transition: opacity 0.2s ease; }
+.lf-label { font-weight: 500; white-space: nowrap; }
+.lf-detail { width: 344px; font-weight: 400; opacity: 0; pointer-events: none; }
+.lf-detail strong { font-weight: 500; }
+.lf-pill.is-open .lf-label { opacity: 0; }
+.lf-pill.is-open .lf-detail { opacity: 1; transition-delay: 0.15s; }
+
+/* phones: no full-screen stage; the laptop on top (no zooming), the pills listed below */
+@media (max-width: 760px) {
+  .lf-explorer { --u: calc((100vw - 32px) / 1140); height: auto; overflow: visible; padding: 0 16px 24px; }
+  .lf-box { position: relative; left: auto; top: auto; width: 100%; height: auto; display: flex; flex-direction: column; gap: 20px; }
+  .lf-mac, .lf-explorer[data-state] .lf-mac { position: relative; left: 0; top: 0; width: 100%; --x: 0; --y: 0; --w: 1140; }
+  .lf-explorer[data-state="composer"] .lf-mac { opacity: 1; }
+  .lf-hero { inset: 0 16px auto; height: calc((100vw - 32px) * 1576 / 2643); border-radius: 12px; }
+  .lf-hero .ah-stage { left: 50%; }
+  .lf-pills { position: static; transform: none; width: 100%; }
+  .lf-pill { max-width: 100%; }
+}
+
+/* the navigation section is now a subsection of Look & feel */
+.cf-h2--sub { font-size: 40px !important; line-height: 46px !important; }
+/* (while the pills' pop-in intro runs, gsap drives their width: no CSS transition on it) */
+.lf-explorer.is-intro .lf-pill { transition: background-color 0.2s ease; }
+
+/* a caption under an image/video, for skimmers: which version it is and what it shows
+   (same small grey mono as the Navigation before/after captions) */
+.sk-captioned { display: flex; flex-direction: column; gap: 10px; }
+.sk-caption {
+  margin: 0;
+  font-family: 'Haffer Mono', monospace;
+  font-size: 12px;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--cf-gray);
+}
+
+/* ================================
+   03 · AGENT SKILLS — revamp (Figma, Oct 8)
+   Grey band edge to edge → "Looking back" box on white → grey band → reception block.
+   ================================ */
+.sk-wrap { scroll-margin-top: 20px; }
+.sk-band { background: var(--cf-card); padding: 100px 0; margin-bottom: var(--cf-card-gap); }
+.sk-band > .cf-section { margin-bottom: 0; }
+.sk-band .cf-inner { gap: 64px; }
+.sk-wrap .sk-sub { gap: 20px; }
+.sk-wrap .sk-body { gap: 20px; }
+/* sub-headings (Figma: DM Sans SemiBold 40 / 50) */
+.sk-h { margin: 0; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 40px; line-height: 45px; letter-spacing: -0.04em; color: var(--cf-ink); }
+.sk-h--big { font-size: 50px; line-height: 55px; letter-spacing: -0.05em; }
+
+/* the chip + dropdown box (ink at 5%) */
+.sk-box { display: flex; flex-direction: column; gap: 64px; padding: 80px; border-radius: 30px; background: rgba(0, 0, 0, 0.05); }
+/* its two recordings run past the box, out to the page's margins (Figma: 1388 of 1470) */
+.sk-wide {
+  --skw: min(calc(100vw - 82px), 1388px);
+  width: var(--skw);
+  margin-left: calc((100% - var(--skw)) / 2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.sk-wide-item { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.sk-wide-item figcaption, .sk-wrap .sk-caption, .nav-sec .sk-caption {
+  font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 16px; line-height: 19px;
+  text-transform: none; color: var(--cf-ink);
+}
+.sk-wide-item figcaption { text-align: center; }
+.sk-after-tag {
+  position: absolute; z-index: 1; top: 17px; left: 50%; transform: translateX(-50%);
+  padding: 7px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.85);
+  font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px; line-height: 18px; color: var(--cf-ink);
+  pointer-events: none;
+}
+
+/* numbered feature columns: under the galleries, and the evolution captions */
+.sk-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px; }
+.sk-col { display: flex; flex-direction: column; gap: 6px; padding-top: 16px; }
+.sk-col-num { font-family: 'HafferXH', monospace; font-weight: 400; font-size: 30px; line-height: 36px; color: var(--cf-ink); }
+.sk-col-title { font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 18px; line-height: 26px; color: var(--cf-ink); }
+.sk-col-text { font-size: 16px; line-height: 24px; color: rgba(30, 28, 29, 0.7); }
+
+/* Looking back: its own rounded grey box on the white page */
+.sk-lookback .sk-lookback-box {
+  margin-inline: calc(-1 * var(--cf-pad-x));
+  padding: 100px clamp(24px, 7vw, 98px);
+  border-radius: 30px;
+  background: var(--cf-card);
+  display: flex; flex-direction: column; gap: 24px;
+}
+.sk-lookback .sk-issues { gap: 22px; }
+.sk-lookback .sk-issue {
+  justify-content: space-between; min-height: 466px;
+  background: #fff; box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.1); color: var(--cf-ink);
+}
+.sk-issue-body { display: flex; flex-direction: column; gap: 12px; }
+.sk-lookback .sk-turn { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 37px 0; text-align: center; }
+.sk-turn-lead, .sk-turn-q { margin: 0; font-family: 'DM Sans', sans-serif; font-weight: 500; color: var(--cf-ink); }
+.sk-turn-lead { font-size: 26px; line-height: 34px; letter-spacing: -0.02em; }
+.sk-turn-q { font-size: 40px; line-height: 45px; letter-spacing: -0.04em; }
+
+/* white cards on the grey band */
+.sk-card-white { padding: 80px; border-radius: 20px; background: #fff; }
+.sk-modal { display: grid; grid-template-columns: minmax(0, 316fr) minmax(0, 752fr); gap: 40px; align-items: center; }
+.sk-callout2 { display: flex; flex-direction: column; gap: 20px; padding: 80px 100px; }   /* (title → text: 20, Figma) */
+.sk-callout2 .sk-body p { line-height: 28px; }
+
+/* Evolution of the Skill card */
+.sk-evo-box { display: flex; flex-direction: column; gap: 24px; padding: 80px 100px; border-radius: 20px; background: rgba(30, 28, 29, 0.05); }
+.sk-evo-title { text-align: center; }
+.sk-evo-box .sk-evo-row { align-items: start; position: relative; }
+.sk-evo-box .sk-evo-card { align-items: flex-start; }
+.sk-evo-box .sk-evo-card img { width: 100%; }
+.sk-evo-box .sk-evo-item figcaption.sk-col { padding-top: 0; gap: 6px; color: var(--cf-ink); font-size: inherit; }
+.sk-evo-box .sk-col-text { font-size: 15px; line-height: 22px; }
+
+/* the reception's paragraph, under its statement */
+.cf-hmw-body { margin: 0; max-width: 1140px; font-size: 18px; line-height: 30px; color: var(--cf-ink); }
+.cf-hmw-body strong { font-weight: 700; }
+
+@media (max-width: 900px) {
+  .sk-box, .sk-card-white, .sk-callout2, .sk-evo-box { padding: 32px 24px; }
+  .sk-wide { width: 100%; margin-left: 0; grid-template-columns: 1fr; }
+  .sk-cols, .sk-evo-box .sk-evo-row { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
+  .sk-modal { grid-template-columns: 1fr; }
+  .sk-lookback .sk-issues { grid-template-columns: 1fr; }
+  .sk-lookback .sk-issue { min-height: 0; }
+  .sk-h { font-size: 30px; line-height: 36px; }
+  .sk-h--big { font-size: 34px; line-height: 40px; }
+  .sk-turn-q { font-size: 28px; line-height: 34px; }
+}
+
+/* ================================
+   CORNER RADIUS SCALE (one place, overriding the older one-off values above)
+   30  rounded backgrounds as wide as the content (grey sections, boxes, statement
+       blocks, the white / evolution cards on the Skills bands)
+   20  full-width media + big cards (screenshots, recordings and placeholders that span
+       the content; the V1/V2 cards; the research accordion cards)
+   15  medium media + cards (~half the content width: side-by-side recordings, the
+       modal recording, charts, two-up cards and their neighbours)
+   12  small media + cards (~a third of the content width or less)
+   10  media nested inside a card (one step below the card around it)
+   ================================ */
+:root { --r-xl: 30px; --r-lg: 20px; --r-md: 15px; --r-sm: 12px; --r-xs: 10px; }
+
+/* 30 */
+.sk-card-white, .sk-evo-box { border-radius: var(--r-xl); }
+
+/* 20 */
+.sk-video, .sk-gallery > img, .ps-frame, .cf-ph, .cf-version, .rs-card { border-radius: var(--r-lg); }
+
+/* 15 */
+.sk-wide .sk-video, .sk-modal .sk-video,
+.ag-beat .cf-ph, .cf-split .cf-ph, .cf-card,
+.rs-chart, .rs-themes, .rs-shot img,
+.nav-ba img, .ag-icon-row img, .sk-shot { border-radius: var(--r-md); }
+
+/* 12 */
+.sk-lookback .sk-issue, .cf-card--tight,
+.nav-vote > img, .nav-audit-row img { border-radius: var(--r-sm); }
+
+/* 10: nested inside a card */
+.cf-card > .cf-ph, .cf-card--tight > .cf-ph, .sk-issue img { border-radius: var(--r-xs); }
+
+/* the slightly darker grey for boxes inside a grey section (Figma, Oct 8: #EDEDF0) */
+:root { --cf-card-2: #EDEDF0; }
+.sk-box, .sk-evo-box, .rs-card--1, .nav-subbox { background: var(--cf-card-2); }
+
+/* ================================
+   NAVIGATION — "Untangling Agent's two sidebars" (Figma, Oct 8): a grey section of
+   its own; Pass 1, the team vote box, before/after, the Agent icon box, the final video
+   ================================ */
+.nav-sec .cf-inner { gap: 64px; }
+.nav-sec .nav-pass { gap: 12px; }
+.nav-sec .nav-audit { margin-top: 12px; }
+.nav-subbox { border-radius: var(--r-xl); padding: 80px; }
+/* the team vote: text beside the Slack thread (in a white frame) */
+.nav-sec .nav-vote { display: grid; grid-template-columns: minmax(0, 403fr) minmax(0, 470fr); gap: 48px; align-items: center; }
+.nav-vote-text { display: flex; flex-direction: column; gap: 14px; }
+.nav-vote-text .cf-body { display: flex; flex-direction: column; gap: 14px; font-size: 18px; line-height: 27px; }
+.nav-vote-text .cf-body p, .nav-vote-text .nav-list { margin: 0; }
+.nav-vote-text .nav-list { line-height: 27px; }
+.nav-vote-shot { display: flex; justify-content: center; padding: 21px 20px; border-radius: var(--r-md); background: #fff; box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.1); }
+.nav-vote-shot img { display: block; width: min(300px, 100%); height: auto; aspect-ratio: 300 / 464; object-fit: cover; object-position: top; border-radius: var(--r-xs); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
+/* the Agent icon box */
+.nav-icon { display: flex; flex-direction: column; gap: 64px; }
+.nav-icon-top { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 64px; align-items: start; }
+.nav-icon-orig { display: block; width: 150px; height: auto; }
+.nav-icon-sketch { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.nav-icon-sketch img { display: block; width: 100%; height: auto; aspect-ratio: 1060 / 461; object-fit: cover; border-radius: var(--r-lg); }
+.nav-icon-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 253px)); justify-content: center; gap: 64px; }
+.nav-icon-tiles figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.nav-icon-tiles img { display: block; width: 100%; height: auto; }
+/* the final video: a little wider than the column (like the Skills chip recordings) */
+.nav-final { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.nav-final-title { text-align: center; }
+.nav-final-shot {
+  /* the grey section's full width (the section is the page width minus its gutters, up to
+     1380px), sitting right on its bottom edge: the section clips its bottom corners */
+  width: min(calc(100vw - 2 * var(--cf-gutter)), 1380px);
+  flex: none;
+}
+.nav-final-shot .ps-frame { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+.cf-section--gray.nav-sec { padding-bottom: 0; overflow: hidden; }
+@media (max-width: 900px) {
+  .nav-subbox { padding: 32px 24px; }
+  .nav-sec .nav-vote, .nav-icon-top { grid-template-columns: 1fr; }
+  .nav-icon-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .nav-final-shot { width: calc(100% + 2 * var(--cf-pad-x)); }
+}
+
+/* ================================
+   05 · REFLECTION — four takeaways, 2 × 2 (Figma, Oct 8)
+   ================================ */
+.rf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 536px)); gap: 48px; }
+.rf-item { display: flex; flex-direction: column; gap: 14px; }
+.rf-num { font-family: 'Haffer Mono', monospace; font-weight: 400; font-size: 30px; line-height: 36px; color: var(--cf-ink); }   /* (Figma: Haffer Mono 30, ink) */
+.rf-title { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 36px; line-height: 46px; color: var(--cf-ink); }
+.rf-text { margin: 0; font-size: 16px; line-height: 26px; color: var(--cf-ink); }
+.rf-text strong { font-weight: 700; }
+@media (max-width: 800px) {
+  .rf-grid { grid-template-columns: 1fr; gap: 36px; }
+  .rf-title { font-size: 28px; line-height: 36px; }
+}
+
+/* ================================
+   04 · IN-CHAT WORKFLOWS (Figma, Oct 8)
+   ================================ */
+.chat-sec .cf-inner { gap: 64px; }
+.chat-sec .sk-caption { font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 16px; line-height: 19px; text-transform: none; color: var(--cf-ink); }
+.chat-ba { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.chat-ba figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.chat-ba img { display: block; width: 100%; height: auto; border-radius: var(--r-md); }
+/* the audit: three screenshots, one height, columns sized by each one's width */
+.chat-audit { display: grid; grid-template-columns: 276fr 251fr 485fr; gap: 24px; align-items: start; margin-top: 4px; }
+.chat-audit figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.chat-audit img { display: block; width: 100%; aspect-ratio: calc(var(--w) / 300); object-fit: cover; object-position: top; border-radius: var(--r-sm); }
+.chat-audit figcaption { display: flex; flex-direction: column; gap: 4px; font-size: 15px; line-height: 22px; color: var(--cf-gray); }
+.chat-audit figcaption b { font-family: 'Haffer Mono', monospace; font-weight: 400; font-size: 12px; line-height: 15px; text-transform: uppercase; color: var(--cf-ink); }
+/* six input types */
+.chat-types-box { display: flex; flex-direction: column; gap: 32px; padding: 64px; border-radius: var(--r-xl); background: var(--cf-card-2); }
+.chat-types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; align-items: start; }
+.chat-types figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.chat-types img { display: block; width: 100%; height: auto; }
+.chat-types figcaption { font-family: 'Haffer Mono', monospace; font-size: 12px; line-height: 15px; text-transform: uppercase; color: var(--cf-gray); }
+/* the three ways through */
+.chat-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 4px; }
+.chat-path { display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: var(--r-sm); background: #fff; }
+.chat-path-img { height: 200px; display: flex; align-items: center; justify-content: center; }
+.chat-path-img img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+.chat-path h4 { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 22px; line-height: 28px; color: var(--cf-ink); }
+.chat-path p { margin: 0; font-size: 16px; line-height: 24px; color: rgba(30, 28, 29, 0.7); }
+/* the summary */
+.chat-summary { display: flex; flex-direction: column; gap: 20px; }
+.chat-summary .sk-h { text-align: center; }
+.chat-summary > img { display: block; width: 100%; height: auto; border-radius: var(--r-lg); }
+/* Skills, proactively */
+.chat-skill { display: grid; grid-template-columns: minmax(0, 295fr) minmax(0, 625fr); gap: 40px; align-items: center; }
+.chat-skill > img { display: block; width: 100%; aspect-ratio: 625 / 467; object-fit: cover; border-radius: var(--r-md); }
+.chat-quote { text-align: center; }
+@media (max-width: 900px) {
+  .chat-ba, .chat-audit, .chat-paths, .chat-skill { grid-template-columns: 1fr; }
+  .chat-types { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chat-types-box { padding: 32px 24px; }
+}
+.chat-sec .cf-head--v2 .cf-body { max-width: none; }   /* (the intro runs the full column, like Figma) */
+
+/* image strokes (Figma: 1px inside). An outline, not an inset box-shadow: a picture
+   paints over its own inset shadow, so that never showed */
+.chat-ba img, .chat-summary > img { outline: 1px solid rgba(24, 24, 18, 0.1); outline-offset: -1px; }
+.nav-audit-row img { box-shadow: none; outline: 1px solid rgba(0, 0, 0, 0.08); outline-offset: -1px; }
+
+/* ================================
+   04 · VISUAL DIRECTION (Figma, Oct 8)
+   ================================ */
+.vd-sec .cf-inner { gap: 64px; }
+.vd-sec .cf-head--v2 .cf-body { max-width: none; }
+/* the two directions, side by side, a little wider than the column (Figma: 1288 of 1120) */
+.vd-dirs {
+  --vdw: min(calc(100vw - 2 * var(--cf-gutter) - 40px), 1288px);
+  width: var(--vdw);
+  margin-left: calc((100% - var(--vdw)) / 2);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;
+}
+.vd-dir { display: flex; flex-direction: column; gap: 16px; padding: 32px; border-radius: var(--r-md); background: #fff; }
+.vd-dir img { display: block; width: 100%; height: auto; aspect-ratio: 568 / 369; object-fit: cover; border-radius: var(--r-md); }
+.vd-dir-label { font-family: 'Haffer Mono', monospace; font-size: 13px; line-height: 17px; text-transform: uppercase; color: var(--cf-accent); }
+.vd-dir-title { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 28px; line-height: 34px; color: var(--cf-ink); }
+.vd-dir-text { max-width: 484px; font-size: 16px; line-height: 26px; color: var(--cf-gray); }
+.vd-dir-text p { margin: 0; }
+.vd-dir-text ul { margin: 8px 0 0; padding-left: 20px; }
+.vd-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.vd-tab { padding: 8px 16px; border-radius: 40px; background: #fff; box-shadow: inset 0 0 0 1px #D9D9D9; font-weight: 500; font-size: 15px; line-height: 18px; color: var(--cf-ink); }
+.vd-tab--on { background: var(--cf-ink); box-shadow: none; color: #fff; }
+/* the prototype video, with a lilac outline (Figma) */
+.vd-proto { width: 100%; border-radius: var(--r-lg); outline: 1.5px solid #B8A8FF; outline-offset: -1.5px; }
+@media (max-width: 900px) {
+  .vd-dirs { width: 100%; margin-left: 0; grid-template-columns: 1fr; }
+  .vd-dir { padding: 20px; }
+}
+/* a statement block's smaller two-paragraph note (the visual direction's reception) */
+.cf-hmw-body--sm { display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 26px; }
+.cf-hmw-body--sm p { margin: 0; }

@@ -688,7 +688,7 @@ gsap.set('.hero-orbit', { autoAlpha: 0, scale: 0.92, rotation: 0 });
 gsap.set('.hero-halo', { autoAlpha: 0 });
 
 lenis = new Lenis({ 
-  lerp: 0.15,
+  lerp: 0.24,   // (was 0.15: less glide, settles faster)
   duration: 1.0,
   smoothWheel: true,
   wheelMultiplier: 0.7,

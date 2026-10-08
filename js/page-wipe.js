@@ -178,7 +178,26 @@
       }
       root.classList.remove('nav-probe');
       document.body.classList.toggle('nav-on-light', bright > steps / 2);
+      updateSide();
     }
+
+    // The bottom section nav (case studies) does the same, the other way round: its pills
+    // are grey frost, which is right over white, but over grey boxes, pictures, videos and
+    // dark sections they switch to the top nav's lighter white frost (.sidenav-off-light).
+    const side = document.querySelector('.sidebar-nav');
+    function updateSide() {
+      if (!side) return;
+      const links = [...side.querySelectorAll('.nav-link')];
+      const boxes = links.map((l) => l.getBoundingClientRect()).filter((b) => b.width);
+      if (!boxes.length || !side.classList.contains('visible')) return;
+      const root = document.documentElement;
+      root.classList.add('nav-probe');
+      let bright = 0;
+      boxes.forEach((b) => { if (brightAt(b.left + b.width / 2, b.top + b.height / 2)) bright++; });
+      root.classList.remove('nav-probe');
+      document.body.classList.toggle('sidenav-off-light', bright <= boxes.length / 2);
+    }
+    if (side) new MutationObserver(updateSide).observe(side, { attributes: true, attributeFilter: ['class'] });
 
     // check while scrolling (at most ~3 times a second: each check costs ~10ms) and once it settles
     let last = 0, timer = null;

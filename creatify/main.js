@@ -80,7 +80,7 @@ navAsterisk.addEventListener('mouseleave', () => {
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const lenis = new Lenis({
-  lerp: 0.15,
+  lerp: 0.24,   // (was 0.15: less glide, settles faster)
   smoothWheel: true,
   wheelMultiplier: 0.7,
   touchMultiplier: 1.5,
@@ -242,7 +242,7 @@ window.addEventListener('mousemove', (e) => {
 // the button (expandToBlob below). Bigger clickable things (a folded research card,
 // a screenshot) → it just grows; if clicking opens the image full size, it also
 // shows the eye icon.
-const CURSOR_ZOOM = 'img[data-full], .rs-shot.is-top';
+const CURSOR_ZOOM = 'img[data-full], video[data-full], .rs-shot.is-top';
 const CURSOR_BIG = CURSOR_ZOOM + ', .rs-card:not(.is-open) .rs-tab, .rs-shot';
 function updateCursorSize(el) {
   const zoom = !!(el && el.closest && !document.querySelector('.lightbox.is-open') && el.closest(CURSOR_ZOOM));
@@ -254,6 +254,15 @@ function updateCursorSize(el) {
 // screenshot comes to the front, the lightbox opens/closes): check again
 document.addEventListener('click', () => setTimeout(() => updateCursorSize(document.elementFromPoint(mouseX, mouseY)), 30));
 document.addEventListener('keydown', () => setTimeout(() => updateCursorSize(document.elementFromPoint(mouseX, mouseY)), 30));
+// scrolling also moves things out from under a still mouse: re-check once per frame
+let cursorScrollCheck = 0;
+window.addEventListener('scroll', () => {
+  if (cursorScrollCheck || !cursorMain.classList.contains('active')) return;
+  cursorScrollCheck = requestAnimationFrame(() => {
+    cursorScrollCheck = 0;
+    if (Number.isFinite(mouseX) && Number.isFinite(mouseY)) updateCursorSize(document.elementFromPoint(mouseX, mouseY));
+  });
+}, { passive: true });
 
 // consistent blob height across all nav items
 const BLOB_HEIGHT = 40;
@@ -503,13 +512,13 @@ function updateActiveNav() {
   // (Measured on screen: offsetTop was relative to .main-content, not the page,
   // so it ran a hero's height ahead and highlighted the next section early.)
   const line = window.innerHeight * 0.4;
-  const mainSections = ['overview', 'research', 'design', 'beyond', 'reflection'];
+  const mainSections = ['overview', 'research', 'design', 'agent', 'reflection'];
   let currentSection = '';
 
   // Where each section starts for highlighting. Section 03 starts at the Skills intro
   // (the full-screen "Designing (and redesigning) Skills." beat), but clicking 03 still
   // goes to #design itself, skipping the intro — it's a cosmetic lead-in.
-  const highlightFrom = { design: 'skillsIntro' };
+  const highlightFrom = { design: 'skillsIntro', agent: 'agentIntro' };   // (04 likewise starts at the Agent intro)
   mainSections.forEach(sectionId => {
     const section = document.getElementById(highlightFrom[sectionId]) || document.getElementById(sectionId);
     if (section && section.getBoundingClientRect().top <= line) {
@@ -534,16 +543,20 @@ document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
     e.preventDefault();
     const href = this.getAttribute('href');
     const targetId = href.substring(1);
-    const validSections = ['overview', 'research', 'design', 'beyond', 'reflection'];
+    const validSections = ['overview', 'research', 'design', 'agent', 'reflection'];
     if (!validSections.includes(targetId)) return;
     const target = document.getElementById(targetId);
     if (!target) return;
 
     // Where a click lands, if not the section's top: Overview skips the highlights
-    // carousel and goes to the "Designing discoverability" card; 03 goes to #design
-    // itself (past the Skills intro).
-    const landOn = { overview: document.querySelector('.cf-overview') };
-    const offsets = {};
+    // carousel and goes to the "Designing discoverability" card; 03 and 04 go to their
+    // full-screen intro blocks (lined up exactly with the top of the screen).
+    const landOn = {
+      overview: document.querySelector('.cf-overview'),
+      design: document.getElementById('skillsIntro'),
+      agent: document.getElementById('agentIntro'),
+    };
+    const offsets = { design: 0, agent: 0 };
     lenis.scrollTo(landOn[targetId] || `#${targetId}`, { offset: offsets[targetId] ?? -20, immediate: true });
 
     navItems.forEach(item => {
@@ -747,7 +760,7 @@ if (distanceFromBottom > NAV_FADE_THRESHOLD && !footerState.navFaded) {
 // Hero parallax: the live Agent hero drifts down and dims as you scroll away.
 // (No blur on it: re-blurring a moving animation every frame would bring back
 // the scroll lag. The border's blur-away is at the end of this file.)
-gsap.to(".agent-hero", {
+gsap.to(".hero-section .agent-hero", {   // (only the page hero, not the look & feel explorer's copy)
   yPercent: 10,
   opacity: 0.35,
   ease: "none",
@@ -848,6 +861,15 @@ updateNavOverDark();
 // run exactly from the top of the summary text to the bottom of the tags beside it,
 // and nudged so they line up. Measured from the actual letter shapes, not the font's
 // padded line box. Re-fitted whenever the text re-wraps (resize, fonts loading).
+// ("Fin." at the end matches the title's size: --cf-title-size follows it.)
+(() => {
+  const title = document.querySelector('.cf-summary .cf-title');
+  if (!title) return;
+  const copy = () => document.documentElement.style.setProperty('--cf-title-size', getComputedStyle(title).fontSize);
+  if ('ResizeObserver' in window) new ResizeObserver(copy).observe(title);
+  window.addEventListener('load', copy);
+  copy();
+})();
 function fitTitle() {
   const title = document.querySelector('.cf-summary .cf-title');
   const text = document.querySelector('.cf-summary-text'), tags = document.querySelector('.cf-tags');
@@ -923,8 +945,8 @@ document.fonts.ready.then(() => {
     const widths = pills.map(p => p.scrollWidth + p.offsetWidth - p.clientWidth);
     tl = gsap.timeline({ onComplete: () => gsap.set(pills, { clearProps: 'width' }) })
       .to(pills, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2.4)', stagger: 0.07 })
-      .to(pills, { width: (i) => widths[i], duration: 0.7, ease: 'back.out(1.7)', stagger: 0.11 }, '+=0.15')
-      .to(labels, { opacity: 1, duration: 0.35, ease: 'power1.out', stagger: 0.11 }, '<0.12');
+      .to(pills, { width: (i) => widths[i], duration: 0.7, ease: 'back.out(1.7)', stagger: 0.11 }, '-=0.2')   // (starts as the last circles land; was a 0.15s pause after)
+      .to(labels, { opacity: 1, duration: 0.35, ease: 'power1.out', stagger: 0.11 }, '<0.05');
   };
 
   reset();

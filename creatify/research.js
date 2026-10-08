@@ -23,7 +23,7 @@
   // far enough up the screen — the same trigger as the Problem screenshot's labels:
   // its middle reaching 58% down the screen. It only happens once: after that the
   // cards stay open, whichever way you scroll.
-  const OPEN_AT = 0.97;   // (progress from "top peeks in" to "middle 58% down")
+  const OPEN_AT = 0.97;   // (progress from "top peeks in" to "middle 85% down")
   let active = -1, lastOpen = 0;
   function open(i) {
     i = i < 0 ? -1 : Math.min(cards.length - 1, i);
@@ -42,7 +42,7 @@
     ScrollTrigger.create({
       trigger: strip,
       start: 'top bottom',
-      end: 'center 58%',
+      end: 'center 85%',          // (card 01 opens once the row's middle is 85% down the screen; was 58%)
       // opens once; after that the cards stay open (scrolling back up doesn't fold them)
       onUpdate: (self) => {
         if (!wide.matches) return;

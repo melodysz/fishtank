@@ -1,20 +1,19 @@
 // THE BIG QUESTION
 // Once the scene is at least 2/3 on screen, the grey box grows from a small circle into
-// its rounded rectangle, then the eyebrow and the question fade in, rising and
-// un-blurring. Plays once; it doesn't touch scrolling.
-(() => {
-  const scene = document.getElementById('bigQuestion');
-  if (!scene) return;
+// its rounded rectangle, then the eyebrow and the question fade in and
+// un-blur. Plays once; it doesn't touch scrolling.
+// (Used by every .bq-scene: the Problem's big question and Research's opportunity.)
+document.querySelectorAll('.bq-scene').forEach((scene) => {
   const box = scene.querySelector('.bq-box');
   const words = [...scene.querySelectorAll('.bq-in')];
   const still = window.matchMedia('(max-width: 700px), (prefers-reduced-motion: reduce)');
 
   const SHOW_AT = 2 / 3;      // share of the scene on screen before it plays
   const DURATION = 1.9;       // s for the whole thing
-  const CIRCLE = 72;          // px across, at the start
+  const CIRCLE_OF_H = 0.8;    // the starting circle, as a share of the box's height (was a 72px dot)
   const RADIUS = 30;          // the box's corner rounding at the end
-  const GROW = [0, 0.5];      // share of DURATION spent growing…
-  const WORDS = [0.42, 0.88]; // …and fading the words in
+  const GROW = [0, 0.3];      // share of DURATION spent growing (~0.57s; was 0.5 ≈ 0.95s)…
+  const WORDS = [0.1, 0.5];   // …and fading the words in (starts early, while the box is still growing; was 0.26–0.7)
 
   const clamp = (v) => Math.max(0, Math.min(1, v));
   const span = (p, [a, b]) => clamp((p - a) / (b - a));
@@ -28,14 +27,13 @@
       return;
     }
     const g = inOut(span(p, GROW));
-    const W = box.offsetWidth, H = box.offsetHeight;
+    const W = box.offsetWidth, H = box.offsetHeight, CIRCLE = Math.min(W, H) * CIRCLE_OF_H;
     const ix = ((W - CIRCLE) / 2) * (1 - g), iy = ((H - CIRCLE) / 2) * (1 - g);
     const r = CIRCLE / 2 + (RADIUS - CIRCLE / 2) * g;
     box.style.clipPath = `inset(${iy.toFixed(1)}px ${ix.toFixed(1)}px round ${r.toFixed(1)}px)`;
     words.forEach((w, i) => {
       const t = out(span(p, [WORDS[0] + i * 0.08, WORDS[1] + i * 0.08]));   // the question a beat after the eyebrow
-      w.style.opacity = t.toFixed(3);
-      w.style.transform = `translateY(${((1 - t) * 36).toFixed(1)}px) scale(${(0.96 + 0.04 * t).toFixed(4)})`;
+      w.style.opacity = t.toFixed(3);                                         // just fades in and un-blurs (no rise)
       w.style.filter = t < 1 ? `blur(${((1 - t) * 14).toFixed(1)}px)` : 'none';
     });
   }
@@ -54,4 +52,4 @@
   new IntersectionObserver(([en], obs) => {
     if (en.intersectionRatio >= SHOW_AT) { play(); obs.disconnect(); }
   }, { threshold: [SHOW_AT] }).observe(scene);
-})();
+});

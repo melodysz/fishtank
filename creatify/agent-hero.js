@@ -83,7 +83,10 @@
     return a.map((v, i) => v + (b[i] - v) * k);
   }
 
-  const canvas = hero.querySelector('.ah-waves');
+  // The waves are a small factory so the "Revamping Agent." intro can reuse them
+  // (window.cfAgentWaves, below): host = the element holding a .ah-waves canvas.
+  function makeWaves(host, layers, isVisible) {
+  const canvas = host.querySelector('.ah-waves');
   const ctx = canvas.getContext('2d', { alpha: false });
   const SCALE = 0.25;                                  // drawn at ¼ size, stretched to fill
   const canvasBlur = 'filter' in ctx;                  // (older Safari: blur the canvas element instead)
@@ -94,7 +97,7 @@
   const BELOW_PX = 200;
   let W = 0, H = 0;
   function resize() {
-    const r = hero.getBoundingClientRect();
+    const r = host.getBoundingClientRect();
     W = r.width; H = r.height;
     canvas.width = Math.max(1, Math.ceil(W * SCALE));
     canvas.height = Math.max(1, Math.ceil((H + BELOW_PX) * SCALE));
@@ -114,7 +117,12 @@
     ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
     const shape = waveShape(ms);
     const vh = H / 100;
-    for (const L of LAYERS) {
+    // a rolling swell on top of the usual shapes (the Agent intro's entrance): crests
+    // travel left → right; each layer a little behind the one in front of it
+    const lambda = W * 0.9;
+    const rip = (x, li) => ripple.amp * Math.sin(2 * Math.PI * (x / lambda - ripple.phase) - li * 0.6);
+    for (let li = 0; li < layers.length; li++) {
+      const L = layers[li];
       const t = sinceStart - L.riseDelay;
       if (t <= 0) continue;
       const rise = riseEase(Math.min(1, t / 900));
@@ -126,8 +134,25 @@
       const s = shape;   // M x,y L x,y C (6) C (6) C (6) L x,y
       ctx.beginPath();
       ctx.moveTo(X(s[0]), Y(s[1]));
-      ctx.lineTo(X(s[2]), Y(s[3]));
-      for (let i = 4; i < 22; i += 6) ctx.bezierCurveTo(X(s[i]), Y(s[i + 1]), X(s[i + 2]), Y(s[i + 3]), X(s[i + 4]), Y(s[i + 5]));
+      if (!ripple.amp) {
+        ctx.lineTo(X(s[2]), Y(s[3]));
+        for (let i = 4; i < 22; i += 6) ctx.bezierCurveTo(X(s[i]), Y(s[i + 1]), X(s[i + 2]), Y(s[i + 3]), X(s[i + 4]), Y(s[i + 5]));
+      } else {
+        // the same curve, sampled, with the swell added to every point
+        ctx.lineTo(X(s[2]), Y(s[3]) + rip(X(s[2]), li));
+        let px = s[2], py = s[3];
+        for (let i = 4; i < 22; i += 6) {
+          const [ax, ay, bx, by, ex, ey] = s.slice(i, i + 6);
+          for (let k = 1; k <= 24; k++) {
+            const t = k / 24, m = 1 - t;
+            const x = m * m * m * px + 3 * m * m * t * ax + 3 * m * t * t * bx + t * t * t * ex;
+            const y = m * m * m * py + 3 * m * m * t * ay + 3 * m * t * t * by + t * t * t * ey;
+            const Xp = X(x);
+            ctx.lineTo(Xp, Y(y) + rip(Xp, li));
+          }
+          px = ex; py = ey;
+        }
+      }
       ctx.lineTo(X(s[22]), Y(s[23]));
       ctx.closePath();
       if (L.white) {
@@ -152,13 +177,20 @@
 
   // ---------- run loop: 60fps while the intro rises, 30fps after; stops when not visible ----------
   let startAt = 0, raf = 0, lastDraw = 0;
-  const isVisible = () => !document.hidden && !document.body.classList.contains('hero-covered');
+  // The waves' shapes + colours run on their own clock (motion), which normally keeps pace
+  // with real time; setSpeed() can run it faster (the Agent intro's burst). The rise/fade-in
+  // stays on real time.
+  let speed = 1, motion = null, lastNow = 0;
+  const ripple = { amp: 0, phase: 0 };   // the rolling swell (px, wavelengths travelled): setRipple()
   function frame(now) {
     raf = 0;
-    if (!isVisible()) return;
+    if (!isVisible()) { lastNow = 0; return; }
     const since = Math.max(0, now - startAt);
-    const interval = since < 3500 ? 0 : 33;
-    if (now - lastDraw >= interval) { lastDraw = now; drawWaves(reduceMotion ? 0 : since, reduceMotion ? 1e6 : since); }
+    if (motion === null) motion = since;
+    motion += (lastNow ? Math.min(100, now - lastNow) : 0) * speed;
+    lastNow = now;
+    const interval = since < 3500 || speed > 1.05 || ripple.amp ? 0 : 33;   // (60fps while rising, sped up or swelling)
+    if (now - lastDraw >= interval) { lastDraw = now; drawWaves(reduceMotion ? 0 : motion, reduceMotion ? 1e6 : since); }
     raf = requestAnimationFrame(frame);
   }
   function wake() { if (!raf && startAt && isVisible()) raf = requestAnimationFrame(frame); }
@@ -167,8 +199,27 @@
   window.addEventListener('resize', () => { resize(); lastDraw = 0; wake(); });
   resize();
   drawWaves(0, 0);   // plain dark background until the intro starts
+  return {
+    // settled: skip the rise/fade-in (start as if it had been running for a while)
+    start(settled) { if (!startAt) { startAt = performance.now() - (settled ? 5000 : 0); wake(); } },
+    restart() { startAt = performance.now(); motion = null; lastDraw = 0; wake(); },   // replay the rise from the bottom
+    setSpeed(v) { speed = v; },
+    setRipple(amp, phase) { ripple.amp = amp; ripple.phase = phase; },
+    height: () => H,
+    wake,
+    resize() { resize(); lastDraw = 0; wake(); },
+  };
+  }
+  const waves = makeWaves(hero, LAYERS, () => !document.hidden && !document.body.classList.contains('hero-covered'));
+  // for other dark "Agent" backdrops: the same waves; { white: false } leaves out the white
+  // wash at the bottom (by default it's kept, so the backdrop blends into the white page)
+  window.cfAgentWaves = (el, isVisible, opts = {}) => makeWaves(el, opts.white === false ? LAYERS.filter((L) => !L.white) : LAYERS, isVisible);
+
 
   // ---------- intro timeline (welcome-screen.tsx), times from the start ----------
+  // A factory, so the look & feel explorer's copy of the hero can replay it
+  // (window.cfAgentHeroIntro, below). reset() puts it back to the hidden start.
+  function makeIntro(hero, waves) {
   const titleWrap = hero.querySelector('.ah-title-wrap');
   const chipsRow = hero.querySelector('.ah-chips');
   const chips = [...hero.querySelectorAll('.ah-chip-wrap')];
@@ -176,30 +227,45 @@
   const composer = hero.querySelector('.ah-composer');
   const content = hero.querySelector('.ah-content');
   const bands = [...hero.querySelectorAll('.ah-sweep-band')];
+  const typed = hero.querySelector('.ah-typed');
 
   const SETTLE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const GROW_EASE = 'cubic-bezier(0.11, 1, 0.24, 1)';
   const SQUARE = 64, PLACEHOLDER_H = 24;
 
-  // final size of the composer (it's laid out at full size, invisibly, to measure)
-  const full = { w: composer.offsetWidth, h: composer.offsetHeight };
-  slot.style.width = full.w + 'px';
-  slot.style.height = full.h + 'px';
   const set = (el, css) => Object.assign(el.style, css);
+  const timers = new Set();
+  const at = (ms, fn) => { const t = setTimeout(() => { timers.delete(t); fn(); }, ms); timers.add(t); };
 
+  let full = { w: 0, h: 0 };
   // phase 0: everything hidden; the cluster starts tight (title low, chips pulled up)
-  set(titleWrap, { opacity: 0, transform: 'translateY(56px)' });
-  set(chipsRow, { transform: `translateY(-${full.h - PLACEHOLDER_H}px)` });
-  chips.forEach((c) => set(c, { opacity: 0, transform: 'translateY(8px)' }));
-  set(composer, { position: 'absolute', top: 0, left: 0, width: SQUARE + 'px', height: PLACEHOLDER_H + 'px', opacity: 0 });
-  content.style.opacity = 0;
+  function toStart() {
+    timers.forEach(clearTimeout); timers.clear();
+    hero.classList.remove('is-playing');
+    bands.forEach((b) => b.classList.remove('is-sweeping'));
+    [titleWrap, chipsRow, composer, content, ...chips].forEach((el) => { el.style.transition = 'none'; });
+    // final size of the composer (laid out at full size, invisibly, to measure)
+    set(composer, { position: '', top: '', left: '', width: '', height: '' });
+    slot.style.width = slot.style.height = '';
+    full = { w: composer.offsetWidth, h: composer.offsetHeight };
+    slot.style.width = full.w + 'px';
+    slot.style.height = full.h + 'px';
+    set(titleWrap, { opacity: 0, transform: 'translateY(56px)' });
+    set(chipsRow, { transform: `translateY(-${full.h - PLACEHOLDER_H}px)` });
+    chips.forEach((c) => set(c, { opacity: 0, transform: 'translateY(8px)' }));
+    set(composer, { position: 'absolute', top: 0, left: 0, width: SQUARE + 'px', height: PLACEHOLDER_H + 'px', opacity: 0 });
+    content.style.opacity = 0;
+    typed.textContent = 'Create';
+    void hero.offsetWidth;   // (commit the start state before anything transitions)
+  }
+  toStart();
 
-  const at = (ms, fn) => setTimeout(fn, ms);
-  function startIntro() {
-    if (startAt) return;
-    startAt = performance.now();
+  let introStarted = false;
+  function startIntro(replay) {
+    if (introStarted && !replay) return;
+    if (introStarted) { toStart(); waves.restart(); } else waves.start();
+    introStarted = true;
     hero.classList.add('is-playing');       // starts the CSS parts (dot-grid reveal)
-    wake();
     const d = reduceMotion ? 0 : 1;          // reduced motion: jump straight to the end
     // title + chips appear together (chips one by one, 70ms apart)
     at(120 * d, () => {
@@ -234,7 +300,6 @@
     'a YouTube Shorts ad for your brand:', 'a Reels ad for your product:', '5 static image ads for your website:',
     'a Facebook carousel ad for your store:', 'a TikTok hook ad for your app:', 'a 30 seconds CTV ad for your brand:',
   ];
-  const typed = hero.querySelector('.ah-typed');
   let current = '';
   const pick = () => { const pool = PROMPTS.filter((p) => p !== current); return pool[Math.floor(Math.random() * pool.length)]; };
   function startTyping() {
@@ -244,19 +309,25 @@
       let i = 0;
       const type = () => {
         typed.textContent = 'Create ' + current.slice(0, ++i);
-        if (i < current.length) setTimeout(type, TYPE);
-        else setTimeout(del, HOLD);
+        if (i < current.length) at(TYPE, type);
+        else at(HOLD, del);
       };
       const del = () => {
         typed.textContent = 'Create ' + current.slice(0, --i);
-        if (i > 0) setTimeout(del, DELETE);
-        else setTimeout(run, GAP);
+        if (i > 0) at(DELETE, del);
+        else at(GAP, run);
       };
       typed.textContent = 'Create';
-      setTimeout(type, TYPE);
+      at(TYPE, type);
     };
     run();
   }
+
+  return { start: startIntro, replay: () => startIntro(true), reset: () => { toStart(); introStarted = false; } };
+  }
+  const intro = makeIntro(hero, waves);
+  const startIntro = () => intro.start();
+  window.cfAgentHeroIntro = makeIntro;
 
   // Start once the page's entry splash starts sliding away (the page is ready),
   // or straight away if there's no splash.

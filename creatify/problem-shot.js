@@ -9,24 +9,14 @@
 // Hovering a label opens its note (tap/click keeps it open); "See all" opens all.
 // Phones and reduced motion skip the growing (see .is-static / .is-list).
 
-(() => {
-  const stage = document.getElementById('problemShot');
-  if (!stage) return;
-
-  const frame = stage.querySelector('.ps-frame');
-  const dim = stage.querySelector('.ps-dim');
+// The pop-up labels themselves (open/close, sizing, frost), shared by every .ps-stage:
+// the Problem's old-Agent screenshot and the Navigation section's chat sidebar video.
+function psInitPills(stage) {
   const pillsBox = stage.querySelector('.ps-pills');
   const seeAll = stage.querySelector('.ps-see-all');
   const pills = [...stage.querySelectorAll('.ps-pill:not(.ps-see-all)')];
   const marks = [...stage.querySelectorAll('.ps-marks [data-k]')];   // outlines; data-k = which label they belong to
 
-  const DIM = 0.45;          // how dark the screenshot gets under the labels
-  const DIM_FROM = 0.6;      // darkening starts this far through the growing (0–1)
-  const FULL_AT = '58%';     // fully grown when its middle is 58% down the screen (50% = centred)
-  const LABELS_AT = 0.97;    // labels pop in once the growing is this far along
-  const LABELS_HIDE = 0.75;  // ...but once up, they linger while scrolling back until it's shrunk back past this
-  const RADIUS = 20;         // corner rounding, kept the same on screen while it grows
-  const SCREEN_MARGIN = 45;  // grown image keeps at least this gap to the top/bottom of the screen
   const PILL_PAD_LEFT = 49;  // text starts after the icon (Figma)
   const PILL_PAD_RIGHT = 19;
   const PILL_PAD_Y = 15;
@@ -107,6 +97,25 @@
     render();
   });
 
+  return { pillsBox, sizeAllPills, placeGlass };
+}
+
+(() => {
+  const stage = document.getElementById('problemShot');
+  if (!stage) return;
+
+  const frame = stage.querySelector('.ps-frame');
+  const dim = stage.querySelector('.ps-dim');
+  const { pillsBox, sizeAllPills, placeGlass } = psInitPills(stage);
+
+  const DIM = 0.45;          // how dark the screenshot gets under the labels
+  const DIM_FROM = 0.6;      // darkening starts this far through the growing (0–1)
+  const FULL_AT = '58%';     // fully grown when its middle is 58% down the screen (50% = centred)
+  const LABELS_AT = 0.97;    // labels pop in once the growing is this far along
+  const LABELS_HIDE = 0.75;  // ...but once up, they linger while scrolling back until it's shrunk back past this
+  const RADIUS = 20;         // corner rounding, kept the same on screen while it grows
+  const SCREEN_MARGIN = 45;  // grown image keeps at least this gap to the top/bottom of the screen
+
   // ---------- no growing: phones + reduced motion ----------
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -174,3 +183,44 @@
   ScrollTrigger.refresh();       // the stage just got taller: move the triggers below it
   document.fonts.ready.then(() => { sizeAllPills(); ScrollTrigger.refresh(); });
 })();
+
+// ---------- V1 / V2 carousel: cards slide in once it's on screen ----------
+(() => {
+  const vp = document.querySelector('.cf-versions-viewport');
+  if (!vp) return;
+  if (!('IntersectionObserver' in window)) { vp.classList.add('is-in'); return; }
+  new IntersectionObserver(([en], obs) => {
+    if (en.isIntersecting) { vp.classList.add('is-in'); obs.disconnect(); }
+  }, { threshold: 0.3 }).observe(vp);
+})();
+
+// ---------- plain stages (no growing): the Navigation chat-sidebar video ----------
+// The labels pop in once it's mostly on screen; the video plays while it's on screen.
+// TRIAL: add ?nopills to the page address to see it without the labels.
+document.querySelectorAll('.ps-stage--plain').forEach((stage) => {
+  const video = stage.querySelector('video');
+  const SPEED = 0.8;   // playback speed (1 = the recording's own pace)
+  if (video) { video.defaultPlaybackRate = SPEED; video.playbackRate = SPEED; }
+  if (video && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([en]) => {
+      if (en.isIntersecting) video.play().catch(() => {}); else if (!video.paused) video.pause();
+    }, { threshold: 0.25 }).observe(video);
+  }
+  const box = stage.querySelector('.ps-pills');
+  if (!box) return;   // (just the video, no labels)
+  if (/[?&]nopills\b/.test(location.search)) { box.remove(); return; }
+
+  const { pillsBox, sizeAllPills, placeGlass } = psInitPills(stage);
+  const phone = window.matchMedia('(max-width: 760px)');
+  stage.classList.toggle('is-list', phone.matches);
+  const show = () => { stage.classList.add('is-labeled'); pillsBox.inert = false; sizeAllPills(); placeGlass(); };
+  pillsBox.inert = true;
+  sizeAllPills();
+  placeGlass();
+  window.addEventListener('resize', placeGlass);
+  document.fonts.ready.then(() => { sizeAllPills(); placeGlass(); });
+  if (phone.matches || !('IntersectionObserver' in window)) { show(); return; }
+  new IntersectionObserver(([en], obs) => {
+    if (en.intersectionRatio >= 0.6) { show(); obs.disconnect(); }
+  }, { threshold: [0.6] }).observe(stage);
+});

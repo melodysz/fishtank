@@ -8,12 +8,12 @@
 (() => {
   const section = document.getElementById('skillsIntro');
   if (!section || !window.gsap) return;
-  const title = section.querySelector('.sk-title');
+  const title = section.querySelector('.sk-intro-text')   // the number + title;
   const shots = [...section.querySelectorAll('.sk-shot')];
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const SHOW_AT = 0.75;      // share of the section on screen before it plays
-  const DELAY = 0.35;        // s pause before the pull
+  const SHOW_AT = 0.5;       // share of the section on screen before it plays (was 0.75)
+  const DELAY = 0.08;        // s pause before the pull (was 0.35)
   // Figma proportions (frame 1469×993, card 1380×746, each screenshot 610×394):
   const RATIO = 1728 / 1117;          // screenshot width ÷ height
   const W_OF_CARD = 610 / 1380;       // screenshot width as a share of the card's width
@@ -65,10 +65,10 @@
     if (played) return;
     played = true;
     if (reduceMotion) { settled(); return; }   // (no magnet either)
-    const tl = gsap.timeline({ delay: DELAY, onComplete: enableMagnet });
+    const tl = gsap.timeline({ delay: DELAY, onComplete: () => { enableMagnet(); enableParallax(); } });
     shots.forEach((el, i) => {
       // pulled out past their spot, then springing back a touch: bouncy, like hands tugging
-      tl.to(el, { ...pullFor(el), duration: 0.75, ease: 'back.out(1.3)' }, i * 0.04);
+      tl.to(el, { ...pullFor(el), duration: 0.5, ease: 'back.out(0.6)' }, i * 0.03);   // (overshoot: was 1.3; duration: was 0.75)
     });
     tl.to(title, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.22)
       .add(() => { section.classList.remove('is-shining'); void section.offsetWidth; section.classList.add('is-shining'); }, 0.3);
@@ -126,7 +126,26 @@
     }
     lastX = e.clientX; lastY = e.clientY;
   });
-  const enableMagnet = () => { mag.forEach((m) => { m.cap = null; }); magnetOn = true; };
+  const MAGNET_ENABLED = false;   // switched off for now: true brings the magnetic screenshots back
+  const enableMagnet = () => { if (!MAGNET_ENABLED) return; mag.forEach((m) => { m.cap = null; }); magnetOn = true; };
+
+  // ---------- parallax: the screenshots drift at PARALLAX of the page's speed ----------
+  // (moves their shared container, so it stacks with the pull-apart and the magnet; the
+  // offset is 0 when the section fills the screen, and its edges never come into view:
+  // they're off screen by more than the drift whenever it would matter.) It stays off
+  // until the four screenshots have reached their corners, then eases in (par.k 0 → 1)
+  // so nothing jumps.
+  const PARALLAX = 0.75;          // 1 = with the page, 0 = fixed to the screen
+  const layer = section.querySelector('.sk-shots');
+  const par = { k: 0, target: 0 };
+  const applyPar = () => gsap.set(layer, { y: par.target * par.k });
+  let enableParallax = () => {};
+  if (window.ScrollTrigger && !reduceMotion) {
+    const range = () => section.offsetHeight * 2 * (1 - PARALLAX);   // total drift across the section's pass
+    const track = (self) => { par.target = (self.progress - 0.5) * range(); applyPar(); };
+    ScrollTrigger.create({ trigger: section, start: 'top bottom', end: 'bottom top', onUpdate: track, onRefresh: track });
+    enableParallax = () => gsap.to(par, { k: 1, duration: 0.8, ease: 'power2.out', onUpdate: applyPar });
+  }
 
   measure();
   reset();
