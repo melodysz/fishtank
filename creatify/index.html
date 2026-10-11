@@ -18,7 +18,7 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=177">
+  <link rel="stylesheet" href="style.css?v=178">
   <link rel="stylesheet" href="../css/page-wipe.css?v=11">
   <script src="../js/splash.js?v=9"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
@@ -304,7 +304,13 @@
     <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/at.svg)"></span><span class="cf-pill-label">Notion</span></span>
   </div>
 
-  <img src="images/overview-laptop.webp" alt="The redesigned Agent Skills page on a laptop" class="cf-overview-mockup">
+  <!-- the laptop: the shared MacBook frame with the Skills page recording playing in its screen -->
+  <div class="cf-overview-mockup">
+    <div class="cf-overview-screen">
+      <video src="images/overview-skills-idle.mp4" poster="images/overview-skills-idle-poster.webp" autoplay muted loop playsinline aria-label="The redesigned Agent Skills page on a laptop"></video>
+    </div>
+    <img class="cf-overview-frame" src="images/highlight-mac-frame.webp?v=2" width="2643" height="1576" alt="" draggable="false">
+  </div>
 </section>
 
 </div><!-- /overview -->

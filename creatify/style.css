@@ -2004,12 +2004,24 @@ body.hero-covered .hero-section { visibility: hidden; }
   position: absolute;
   top: 50%;                    /* vertically centred in the card, whatever its size */
   transform: translateY(-50%);
-  left: 37.32%;                /* 515 / 1380 */
-  width: 90.65%;               /* 1251 / 1380: the whole laptop */
-  height: auto;
+  left: 37.23%;                /* 515 / 1380 (adjusted so the shared frame's laptop sits where the old image's did) */
+  width: 92.31%;               /* the whole frame image; its laptop matches the old 1251 / 1380 laptop */
+  aspect-ratio: 2643 / 1576;
   z-index: 1;
   pointer-events: none;
 }
+.cf-overview-frame { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; }
+/* the screen opening (same as .lf-screen: measured from the frame image) */
+.cf-overview-screen {
+  position: absolute;
+  left: 11.55%;
+  top: 3.58%;
+  width: 76.9%;
+  height: 83.75%;
+  overflow: hidden;
+  background: #090A0A;
+}
+.cf-overview-screen video { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* frosted pills floating over the laptop */
 .cf-glass-pills {
@@ -2211,7 +2223,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   }
   .cf-overview-text { width: auto; max-width: 540px; }
   .cf-glass-pills { position: static; flex-direction: row; flex-wrap: wrap; }
-  .cf-overview-mockup { position: static; transform: none; width: calc(100% + 32px + var(--cf-gutter)); max-width: none; margin-right: calc(-32px - var(--cf-gutter)); align-self: flex-start; }
+  .cf-overview-mockup { position: relative; top: auto; left: auto; transform: none; width: calc(100% + 32px + var(--cf-gutter)); max-width: none; margin-right: calc(-32px - var(--cf-gutter)); align-self: flex-start; }
 
   .cf-split { grid-template-columns: 1fr !important; gap: 28px; }
   .cf-row--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
