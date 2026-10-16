@@ -2164,6 +2164,7 @@ function flickFrom(v, headStartMs = 0) {
 function onCarouselSettled(target) {
   isInteracting = false;
   updateWorkNav();
+  refreshCardHoverAtCursor();
   const settled = ((target % N) + N) % N;
   if (settled === PENT_UP_INDEX) {
     const myToken = ++awardToken;
@@ -2290,8 +2291,18 @@ window._carouselFade = 0;
 carouselEl.style.opacity = '0';
 layoutCards();
 
-carouselEl.addEventListener('mousemove', (e) => {
-  const el = document.elementFromPoint(e.clientX, e.clientY);
+carouselEl.addEventListener('mousemove', (e) => updateCardHover(e.clientX, e.clientY));
+
+// After the carousel lands, the cursor may already be resting on the new front
+// card without moving — check what's under it so the hover kicks in right away.
+function refreshCardHoverAtCursor() {
+  if (!cursorMain.classList.contains('active') || cursorMain.classList.contains('is-away')) return;
+  const el = document.elementFromPoint(mouseX, mouseY);
+  if (el && carouselEl.contains(el)) updateCardHover(mouseX, mouseY);
+}
+
+function updateCardHover(x, y) {
+  const el = document.elementFromPoint(x, y);
   const hoveredCard = el?.classList.contains('project-card') ? el : el?.closest('.project-card');
   cards.forEach(card => {
     card._targetLift = card === hoveredCard ? -30 : 0;
@@ -2319,13 +2330,13 @@ if (badge) {
 const onCard = !!hoveredCard;
 if (onCard && !isBlobMode) expandToBlob(hoveredCard, false);
   else if (!onCard && isBlobMode) {
-    const hovered = document.elementsFromPoint(e.clientX, e.clientY).find(el =>
+    const hovered = document.elementsFromPoint(x, y).find(el =>
       el.matches?.("a[href], button, [role='button'], .btn-touch") ||
       el.closest?.("a[href], button, [role='button'], .btn-touch")
     );
     if (!hovered) shrinkBlob();
   }
-});
+}
 
 carouselEl.addEventListener('mouseleave', () => {
   cards.forEach(card => { card._targetLift = 0; card.classList.remove('cta-hover'); });
@@ -2510,6 +2521,7 @@ pill.addEventListener('click', () => {
       onNear: () => jostleCardGraphics(cards[((destination % N) + N) % N]),
       onArrive: () => {
         updateWorkNav();
+        refreshCardHoverAtCursor();
         const settled = ((destination % N) + N) % N;
         if (settled === PENT_UP_INDEX) showAward();
         if (settled === SETTLYFE_INDEX) showBadge();

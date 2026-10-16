@@ -3404,6 +3404,9 @@ body.hero-covered .hero-section { visibility: hidden; }
   color: var(--cf-ink);
 }
 .cf-fin-text em { font-style: italic; }
+/* each letter wobbles on its own when the cursor knocks it (fin-letters.js) */
+.cf-fin-text { position: relative; user-select: none; -webkit-user-select: none; }
+.cf-fin-l { display: inline-block; transform-origin: 50% 55%; will-change: transform; }
 
 /* a frosted "Before" tag at the top centre of each V1 / V2 screenshot: these are Agent
    before my redesign, not my work */
