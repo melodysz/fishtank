@@ -42,6 +42,9 @@
     // 3. hold, then blink out in random order
     hold: 0,            // s the grid stays up before the blinking starts
     blinkGap: 0.07,     // s between one card blinking out and the next
+    blinkDip: 0.15,     // how far it drops at first (0 = gone, 1 = no dip)
+    blinkBack: 0.45,    // how bright it flashes back (1 = full strength; was 1, felt too intense)
+    blinkFade: 0.12,    // s for the last fade to nothing (0 = cuts out instantly)
 
     // 4. title unblurs into view while the cards are blinking away
     titleAt: 0.5,       // when it starts, as a share of the way through the blinking (0 = first blink, 1 = last)
@@ -135,17 +138,17 @@
     });
     const fanned = fanAt + (cards.length - 1) * INTRO.fanStagger + INTRO.fanTime * 0.6;   // (expo is basically there by 60%)
 
-    // 3. blink out in a random order: a quick off-on-off flicker each
+    // 3. blink out in a random order: a quick dip, a soft flash back, then a fade
     const order = cards.map((_, i) => i).sort(() => Math.random() - 0.5);
     const blinkAt = fanned + INTRO.hold;
     order.forEach((idx, k) => {
       const at = blinkAt + k * INTRO.blinkGap;
       const el = cards[idx];
-      tl.set(el, { autoAlpha: 0 }, at)
-        .set(el, { autoAlpha: 1 }, at + 0.04)
-        .set(el, { autoAlpha: 0 }, at + 0.08);
+      tl.set(el, { opacity: INTRO.blinkDip }, at)
+        .set(el, { opacity: INTRO.blinkBack }, at + 0.04)
+        .to(el, { autoAlpha: 0, duration: INTRO.blinkFade, ease: 'power1.in' }, at + 0.08);
     });
-    const gone = blinkAt + (cards.length - 1) * INTRO.blinkGap + 0.08;
+    const gone = blinkAt + (cards.length - 1) * INTRO.blinkGap + 0.08 + INTRO.blinkFade;
 
     // 4. title unblurs into view, partway through the blinking
     const titleAt = blinkAt + (gone - blinkAt) * INTRO.titleAt;
