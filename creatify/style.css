@@ -3157,6 +3157,19 @@ body.hero-covered .hero-section { visibility: hidden; }
   -webkit-user-drag: none;
 }
 
+/* the eight skill cards: sit in the middle; skills-intro.js moves them (x / y / tilt) */
+.sk-skill {
+  position: absolute;
+  left: calc(50% - var(--sk-card-w, 20vw) / 2);
+  top: calc(50% - var(--sk-card-w, 20vw) / 2 * 1024 / 1624);
+  width: var(--sk-card-w, 20vw);
+  height: auto;
+  display: block;
+  visibility: hidden;             /* until they swoop in */
+  will-change: transform;
+  -webkit-user-drag: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sk-intro.is-shining .sk-word::after, .ag-intro.is-in .ag-word::after { animation: none; }   /* (a still gradient) */
 }

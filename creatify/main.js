@@ -567,11 +567,11 @@ document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
   });
 });
 
-// Show the section nav once the overview card is at least halfway onto the screen
-// (its middle reaches the bottom of the window)
+// Show the section nav the moment you start scrolling away from the hero
+// (it was: once the overview card was halfway onto the screen)
 ScrollTrigger.create({
-  trigger: ".cf-overview",
-  start: "center bottom",
+  start: 1,          // px scrolled
+  end: 'max',
   onEnter: () => {
     document.querySelector('.sidebar-nav').classList.add('visible');
     window.replaySideNavIntro?.();     // rises in, then the current section's pill springs open

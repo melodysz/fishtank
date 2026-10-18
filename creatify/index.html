@@ -18,7 +18,7 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=179">
+  <link rel="stylesheet" href="style.css?v=180">
   <link rel="stylesheet" href="../css/page-wipe.css?v=11">
   <script src="../js/splash.js?v=9"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
@@ -586,8 +586,8 @@
 </section>
 
 <!-- ===== 03 Design · Agent Skills ===== -->
-<!-- ===== Skills intro: four stages of Skills start as a tidy 2×2, then get pulled out to
-     the corners as the title fades in (skills-intro.js). Inspired by Apple's "Love at first Mac". ===== -->
+<!-- ===== Skills intro: nine skill cards swoop up into a pile, fan out into a 3×3 grid,
+     then blink out before the title comes in (skills-intro.js). ===== -->
 <section class="sk-intro" id="skillsIntro" aria-label="Designing (and redesigning) Skills">
   <div class="sk-card">
     <div class="sk-intro-text">
@@ -596,10 +596,17 @@
     </div>
   </div>
   <div class="sk-shots" aria-hidden="true">
-    <img class="sk-shot" data-corner="tl" src="images/skills-intro-1-plus-menu.webp" width="1400" height="905" alt="" draggable="false">
-    <img class="sk-shot" data-corner="tr" src="images/skills-intro-2-chip.webp" width="1400" height="905" alt="" draggable="false">
-    <img class="sk-shot" data-corner="bl" src="images/skills-intro-3-gallery-v1.webp" width="1400" height="905" alt="" draggable="false">
-    <img class="sk-shot" data-corner="br" src="images/skills-intro-4-gallery-v2.webp" width="1400" height="905" alt="" draggable="false">
+    <!-- order = cascade order = grid spot (left→right, top→bottom). The mint card (2) is in twice:
+         opposite corners, first and last to fly in. Similar colours never touch. -->
+    <img class="sk-skill" src="images/skill-card-2.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-1.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-7.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-5.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-3.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-6.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-8.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-4.webp" width="1000" height="631" alt="" draggable="false">
+    <img class="sk-skill" src="images/skill-card-2.webp" width="1000" height="631" alt="" draggable="false">
   </div>
 </section>
 
@@ -1195,14 +1202,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=3"></script>
 <script src="../js/page-wipe.js?v=19"></script>
-<script src="main.js?v=40"></script>
+<script src="main.js?v=41"></script>
 <script src="problem-shot.js?v=16"></script>
 <script src="agent-hero.js?v=17"></script>
 <script src="highlights.js?v=46"></script>
 <script src="lightbox.js?v=2"></script>
 <script src="highlights-text.js?v=2"></script>
 <script src="research.js?v=9"></script>
-<script src="skills-intro.js?v=14"></script>
+<script src="skills-intro.js?v=24"></script>
 <script src="big-question.js?v=7"></script>
 <script src="skills-section.js?v=3"></script>
 <script src="agent-intro.js?v=8"></script>
