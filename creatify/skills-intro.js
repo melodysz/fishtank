@@ -2,9 +2,9 @@
 // The grey card starts empty. Once the section is half on screen, nine skill cards
 // slide up from the bottom centre of the screen one after another, each starting
 // tilted at its own angle and straightening out as it lands in a pile in the middle.
-// The moment the last card is in place, the pile fans out into a 3 × 3 grid, holds, and the
-// cards blink out one by one in random order. Halfway through the blinking, the title
-// unblurs into view and "Skills" shines.
+// The moment the last card is in place, the pile fans out a little past a 3 × 3 grid, hangs
+// there, and as the cards drift back into the grid they blink out one by one in random
+// order. Halfway through the blinking, the title unblurs into view and "Skills" shines.
 // (The previous version, screenshots pulled out to the corners, is in git history.)
 (() => {
   const section = document.getElementById('skillsIntro');
@@ -35,12 +35,17 @@
     // 2. fan out into the grid, as soon as the last card is in place
     landedAt: 0.7,      // share of its flight when a card looks in place (the rest is a barely-moving soft landing)
     pause: 0,           // s with the pile sitting still before it fans out
-    fanTime: 0.75,
+    fanTime: 0.35,      // s (was 0.75, then 0.5: shorter = snappier)
     fanStagger: 0,      // s between cards starting to fan out (0 = all at once)
     fanEase: 'expo.out',
+    overshoot: 0.12,    // they fly this much further out than their grid spots (0.12 = 12% wider grid)…
+    grow: 1.08,         // …and get this much bigger (1 = no change), shrinking back as they drift in…
+    hang: 0.1,          // …hang there this long (s, on top of the fan's own slow finish)…
+    recedeTime: 0.8,    // …then drift back into their real spots over this long (s), blinking away as they go
+    recedeEase: 'power3.in',   // starts slow, then speeds up and arrives at full speed (was power2.inOut: eased in and out)
 
-    // 3. hold, then blink out in random order
-    hold: 0,            // s the grid stays up before the blinking starts
+    // 3. blink out in random order, while they drift back
+    blinkStart: 0.3,    // s into the drift back before the first blink (was 0.05)
     blinkGap: 0.07,     // s between one card blinking out and the next
     blinkDip: 0.15,     // how far it drops at first (0 = gone, 1 = no dip)
     blinkBack: 0.45,    // how bright it flashes back (1 = full strength; was 1, felt too intense)
@@ -96,7 +101,7 @@
     tl = null;
     played = false;
     gsap.killTweensOf(title);
-    gsap.set(cards, { x: 0, y: 0, rotation: 0, autoAlpha: 0 });
+    gsap.set(cards, { x: 0, y: 0, rotation: 0, scale: 1, autoAlpha: 0 });
     gsap.set(title, { opacity: 0, filter: `blur(${INTRO.titleBlur}px)` });
     section.classList.remove('is-shining');
   }
@@ -130,17 +135,21 @@
     });
     const landed = (cards.length - 1) * INTRO.cascade + INTRO.swoopTime * INTRO.landedAt;
 
-    // 2. fan out into the grid
+    // 2. fan out a little past the grid, hang, then drift back into the grid
     const fanAt = landed + INTRO.pause;
+    const far = 1 + INTRO.overshoot;
     cards.forEach((el, i) => {
-      tl.to(el, { x: slots[i].x, y: slots[i].y, rotation: 0, duration: INTRO.fanTime, ease: INTRO.fanEase,
+      tl.to(el, { x: slots[i].x * far, y: slots[i].y * far, scale: INTRO.grow, rotation: 0, duration: INTRO.fanTime, ease: INTRO.fanEase,
                   onStart: () => { el._fanning = true; } }, fanAt + i * INTRO.fanStagger);
     });
-    const fanned = fanAt + (cards.length - 1) * INTRO.fanStagger + INTRO.fanTime * 0.6;   // (expo is basically there by 60%)
+    const recedeAt = fanAt + (cards.length - 1) * INTRO.fanStagger + INTRO.fanTime * 0.6 + INTRO.hang;   // (expo is basically there by 60%)
+    cards.forEach((el, i) => {
+      tl.to(el, { x: slots[i].x, y: slots[i].y, scale: 1, duration: INTRO.recedeTime, ease: INTRO.recedeEase, overwrite: 'auto' }, recedeAt);
+    });
 
     // 3. blink out in a random order: a quick dip, a soft flash back, then a fade
     const order = cards.map((_, i) => i).sort(() => Math.random() - 0.5);
-    const blinkAt = fanned + INTRO.hold;
+    const blinkAt = recedeAt + INTRO.blinkStart;
     order.forEach((idx, k) => {
       const at = blinkAt + k * INTRO.blinkGap;
       const el = cards[idx];

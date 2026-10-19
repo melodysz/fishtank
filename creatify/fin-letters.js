@@ -1,5 +1,5 @@
-// "FIN." LETTERS: each letter is a little object on a spring. Sweep the cursor through
-// them and the letters it touches get shoved along with it (and tip over, depending on
+// "FIN." LETTERS: they bounce in one by one when "Fin." comes on screen. After that, each
+// letter is a little object on a spring: sweep the cursor through them and the letters it touches get shoved along with it (and tip over, depending on
 // where they were hit). A shoved letter knocks into its neighbour and passes the bump
 // along, then everything wobbles back into place.
 (() => {
@@ -24,6 +24,54 @@
     el, x: 0, y: 0, r: 0, vx: 0, vy: 0, vr: 0,
   }));
   if (!letters.length) return;
+
+  // --- entrance: the letters pop up one by one, bouncily, once "Fin." is half on screen ---
+  // (uses the separate CSS translate / scale / opacity, so it never fights the wobble's transform)
+  const ENTER = {
+    rise: 0.6,        // how far below its spot each letter starts (in letter heights)
+    fromScale: 0.3,   // how small it starts
+    time: 1.2,        // s each letter takes to settle (most of that is the bounce)
+    gap: 0.1,         // s between one letter and the next
+    ease: 'elastic.out(1, 0.4)',   // bounciness: lower second number = more wobbles
+    showAt: 0.5,      // share of "Fin." on screen before it plays
+  };
+  function hideLetters() {
+    letters.forEach((l) => { l.el.style.opacity = '0'; l.el.style.translate = `0 ${ENTER.rise}em`; l.el.style.scale = ENTER.fromScale; });
+  }
+  function enter() {
+    if (!window.gsap) { letters.forEach((l) => { l.el.style.opacity = l.el.style.translate = l.el.style.scale = ''; }); return; }
+    letters.forEach((l, i) => {
+      const o = { y: ENTER.rise, s: ENTER.fromScale, a: 0 };
+      (l.enterTweens || []).forEach((t) => t.kill());   // (replaying: stop the last run)
+      const draw = () => { l.el.style.translate = `0 ${o.y.toFixed(3)}em`; l.el.style.scale = o.s.toFixed(3); l.el.style.opacity = o.a.toFixed(3); };
+      draw();
+      l.enterTweens = [
+        gsap.to(o, { y: 0, s: 1, duration: ENTER.time, ease: ENTER.ease, delay: i * ENTER.gap, onUpdate: draw,
+                     onComplete: () => { l.el.style.translate = l.el.style.scale = ''; } }),
+        gsap.to(o, { a: 1, duration: 0.2, ease: 'power1.out', delay: i * ENTER.gap }),
+      ];
+    });
+  }
+  text.classList.remove('cf-reveal');   // (the letters do their own entrance instead of the whole word fading up)
+  if (window.gsap && 'IntersectionObserver' in window) {
+    hideLetters();
+    new IntersectionObserver(([en], obs) => {
+      if (en.intersectionRatio < ENTER.showAt) return;
+      obs.disconnect();
+      enter();
+    }, { threshold: ENTER.showAt }).observe(text);
+  }
+
+  // DESIGN HELPER: a "replay" button for the entrance, only on localhost (never on the live site)
+  if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '↻ replay fin.';
+    btn.style.cssText = 'position:fixed;right:16px;bottom:64px;z-index:99999;padding:10px 16px;border:0;border-radius:999px;' +
+      'background:#111;color:#fff;font:500 14px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2)';
+    btn.addEventListener('click', () => { hideLetters(); enter(); });
+    document.body.appendChild(btn);
+  }
 
   // where each letter sits when still (relative to the "Fin." line; transforms don't move these)
   function measure() {
