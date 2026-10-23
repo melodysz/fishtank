@@ -76,8 +76,12 @@ body.nav-on-light .bubble-dot {
      reads darker at the same colour */
   background-color: rgba(239, 239, 242, 0.7);
 }
-/* only on for an instant while the page checks what's behind the nav */
-html.nav-probe * { pointer-events: auto !important; }
+/* only on for an instant while the page checks what's behind the nav. Just the pictures,
+   videos etc. (the only things the check looks for that can be "unclickable"): switching
+   this on for every element (*) made the browser restyle the whole page ~3x a second while
+   scrolling, which stuttered on long pages like Creatify. Verified to give the same answer
+   at every scroll position on all case studies. */
+html.nav-probe :is(img, video, canvas, svg, picture, iframe) { pointer-events: auto !important; }
 
 /* the bottom section nav (case studies): grey frost over white, but over grey boxes,
    pictures, videos and dark sections the top nav's lighter white frost (page-wipe.js) */
