@@ -30,6 +30,7 @@
       const value = input.value.trim();
       const bad = !value || (input.type === 'email' && !EMAIL_RE.test(value));
       input.closest('.field').classList.toggle('is-invalid', bad);
+      if (bad) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');   // (screen readers hear "invalid" too)
       if (bad && !firstBad) firstBad = input;
     });
     if (firstBad) {
@@ -45,6 +46,7 @@
   form.addEventListener('input', (e) => {
     const field = e.target.closest('.field');
     if (field) field.classList.remove('is-invalid');
+    e.target.removeAttribute?.('aria-invalid');
     if (statusEl.classList.contains('is-error')) setStatus('', false);
   });
 
@@ -67,6 +69,9 @@
       : 'thanks for writing! talk soon ✶';
     form.hidden = true;
     receipt.hidden = false;
+    // move keyboard / screen-reader focus to the receipt (the form it was on just disappeared)
+    receipt.setAttribute('tabindex', '-1');
+    receipt.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -106,11 +111,15 @@
     sendBtn.textContent = 'sending…';
     setStatus('', false);
 
+    // give up after 20s, so a slow or down form service can't leave it on "sending…" forever
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
     try {
       const res = await fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || String(json.success) !== 'true') throw new Error(json.message || res.status);
@@ -119,6 +128,7 @@
       console.warn('Contact form failed:', err);
       setStatus(`Hmm, that didn’t go through. Try again, or <a href="${mailtoLink(d)}" class="interactable">send it by email instead</a>.`, true);
     } finally {
+      clearTimeout(timeout);
       sendBtn.disabled = false;
       sendBtn.textContent = 'send it!';
     }

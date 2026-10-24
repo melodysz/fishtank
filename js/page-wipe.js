@@ -54,13 +54,13 @@
     return null;
   }
 
-  let leaving = false;
+  let leaving = false, cover = null;
   function wipeOut(target) {
     if (leaving) return;
     leaving = true;
     if (typeof lenis !== 'undefined' && lenis.stop) lenis.stop();
 
-    const cover = document.createElement('div');
+    cover = document.createElement('div');
     cover.className = 'page-wipe label-ready';
     const text = document.createElement('div');
     text.className = 'page-wipe-label';
@@ -82,6 +82,19 @@
       onComplete: () => setTimeout(() => { window.location.href = target.url; }, 850),   // linger till the asterisk's spin settles
     });
   }
+
+  // Coming back with the browser's Back button can restore this page exactly as it was
+  // left: still covered by the splash, with links switched off. Slide it away again.
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted || !leaving) return;
+    leaving = false;
+    if (typeof lenis !== 'undefined' && lenis.start) lenis.start();
+    const c = cover;
+    cover = null;
+    if (!c) return;
+    gsap.killTweensOf(c);
+    gsap.to(c, { y: -(window.innerHeight + 40), duration: 0.7, ease: 'power3.inOut', delay: 0.1, onComplete: () => c.remove() });
+  });
 
   // Runs before the page's own link handlers, so every route home / to a project gets the wipe
   document.addEventListener('click', (e) => {

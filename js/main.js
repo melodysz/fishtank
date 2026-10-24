@@ -2193,9 +2193,13 @@ function releaseVelocity() {
   return dt > 0.008 ? (b.x - a.x) / dt : 0;
 }
 
+// Cmd/Ctrl/Shift-click = the browser's own "open in new tab / window": let it happen.
+const isNewTabClick = (e) => e.metaKey || e.ctrlKey || e.shiftKey;
+
 carouselEl.addEventListener('click', (e) => {
   const card = e.target.closest?.('.project-card');
   if (!card) return;
+  if (isNewTabClick(e)) return;
   e.preventDefault();
   if (e.detail === 0) openProject(Number(card.getAttribute('data-index'))); // keyboard
 });
@@ -2207,6 +2211,9 @@ carouselEl.addEventListener('dragstart', (e) => e.preventDefault());
 
 carouselEl.addEventListener('pointerdown', (e) => {
   if (!carouselReady) return;
+  // only a plain left press drags / opens: right-click (menu), middle-click (new tab)
+  // and Cmd/Ctrl/Shift-click are left to the browser
+  if (e.pointerType === 'mouse' && (e.button !== 0 || isNewTabClick(e))) return;
   isInteracting = true;
   // hideAward();
   // hideBadge();

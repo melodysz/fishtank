@@ -612,6 +612,7 @@ html, body { overflow: auto; height: auto; }
   gap: 24px;
 }
 .contact-receipt[hidden] { display: none; }
+.contact-receipt:focus { outline: none; }   /* (focus is moved here after sending, for screen readers; no visible ring) */
 
 .receipt-paper {
   width: min(400px, 100%);
