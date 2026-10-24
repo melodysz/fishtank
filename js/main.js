@@ -1987,6 +1987,102 @@ document.fonts.ready.then(sizeWorkNavPills);
 document.fonts.load("300 16px 'HafferXH'").then(sizeWorkNavPills); // re-measure once the numbers' font arrives
 window.addEventListener('resize', sizeWorkNavPills);
 
+// ===== CASE STUDY SUMMARY ("work info") =====
+// A panel beside the front card (under it on narrow screens) with a quick summary of
+// that project. It opens while you hover the front card, once the carousel has
+// stopped, and stays open while you move onto it (to click "read the case study");
+// it closes a moment after you've left both. Any movement of the cards closes it.
+// On touch screens (no hover) it simply shows for the front card whenever the
+// carousel stops. The words live in index.html (#workInfo).
+const workInfo = document.getElementById('workInfo');
+const workInfoProjects = workInfo ? [...workInfo.querySelectorAll('.wi-project')] : [];
+const WORK_INFO = { gap: 32, width: 300, settleMs: 220, openDelay: 120, closeDelay: 250 };
+const wiCanHover = window.matchMedia('(hover: hover)').matches;
+let wiLastOffset = null, wiTimer = 0, wiShownIndex = -1;
+let wiSettledIndex = -1;                       // the front card, once the carousel has stopped (-1 while moving)
+let wiOverCard = false, wiOverPanel = false, wiHoverTimer = 0;
+
+function hideWorkInfo() {
+  if (!workInfo || wiShownIndex === -1) return;
+  wiShownIndex = -1;
+  workInfo.classList.remove('is-shown');
+}
+function placeWorkInfo(index) {
+  const stage = workInfo.parentElement.getBoundingClientRect();
+  const ring = carouselEl.getBoundingClientRect();
+  const cx = ring.left + ring.width / 2 - stage.left;
+  const cy = ring.top + ring.height / 2 - stage.top;
+  const cardW = cards[index].offsetWidth, cardH = cards[index].offsetHeight;
+  const roomBeside = cx + cardW / 2 + WORK_INFO.gap + WORK_INFO.width + 16 <= stage.width;
+  workInfo.classList.toggle('is-below', !roomBeside);
+  if (roomBeside) {
+    workInfo.style.width = WORK_INFO.width + 'px';
+    workInfo.style.left = (cx + cardW / 2 + WORK_INFO.gap) + 'px';
+    workInfo.style.top = Math.round(cy - workInfo.offsetHeight / 2) + 'px';
+  } else {
+    const w = Math.min(cardW, stage.width - 32);
+    workInfo.style.width = w + 'px';
+    workInfo.style.left = Math.round(cx - w / 2) + 'px';
+    workInfo.style.top = Math.round(cy + cardH / 2 + 24) + 'px';
+  }
+}
+function showWorkInfo(index) {
+  if (!workInfo || !workInfoProjects.length) return;
+  if (index === wiShownIndex) return;
+  workInfoProjects.forEach((el) => { el.hidden = Number(el.dataset.index) !== index; });
+  placeWorkInfo(index);
+  wiShownIndex = index;
+  workInfo.classList.add('is-shown');
+}
+// open or close it to match: stopped + (touch screen, or hovering the front card / the panel)
+function updateWorkInfo() {
+  if (!workInfo) return;
+  const want = wiSettledIndex !== -1 && (!wiCanHover || wiOverCard || wiOverPanel);
+  clearTimeout(wiHoverTimer);
+  if (want && wiShownIndex !== wiSettledIndex) wiHoverTimer = setTimeout(() => showWorkInfo(wiSettledIndex), wiCanHover ? WORK_INFO.openDelay : 0);
+  else if (!want && wiShownIndex !== -1) wiHoverTimer = setTimeout(hideWorkInfo, WORK_INFO.closeDelay);
+}
+// called from the carousel's hover check with the card under the mouse (or null)
+function setWorkInfoHover(card) {
+  const over = !!card && Number(card.dataset.index) === wiSettledIndex;
+  if (over === wiOverCard) return;
+  wiOverCard = over;
+  updateWorkInfo();
+}
+// still for settleMs, sitting on a card, nobody holding it: that card is now "the front card"
+function checkWorkInfo() {
+  wiTimer = 0;
+  if (!carouselReady || (window._carouselFade ?? 1) < 1) return;   // (the cards' intro brings it in when it's done)
+  if (dragging || glide || Math.abs(offset - Math.round(offset)) > 0.01) { wiTimer = setTimeout(checkWorkInfo, 150); return; }
+  wiSettledIndex = ((Math.round(offset) % N) + N) % N;
+  if (wiCanHover && typeof refreshCardHoverAtCursor === 'function') refreshCardHoverAtCursor();   // (mouse may already be resting on it)
+  updateWorkInfo();
+}
+// called on every layout: any movement closes it and restarts the "still" countdown
+function trackWorkInfo() {
+  if (!workInfo) return;
+  if (offset === wiLastOffset && !dragging) return;   // (hover lift re-lays out without moving)
+  wiLastOffset = offset;
+  wiSettledIndex = -1;
+  wiOverCard = false;
+  clearTimeout(wiHoverTimer);
+  hideWorkInfo();
+  clearTimeout(wiTimer);
+  wiTimer = setTimeout(checkWorkInfo, WORK_INFO.settleMs);
+}
+if (workInfo) {
+  window.addEventListener('resize', () => { if (wiShownIndex !== -1) placeWorkInfo(wiShownIndex); });
+  workInfo.addEventListener('mouseenter', () => { wiOverPanel = true; updateWorkInfo(); });
+  workInfo.addEventListener('mouseleave', () => { wiOverPanel = false; updateWorkInfo(); });
+  // "read the case study": a plain click gets the usual navy wipe; Cmd/Ctrl/Shift-click opens a new tab as normal
+  workInfo.addEventListener('click', (e) => {
+    const link = e.target.closest('.wi-link');
+    if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    openProject(Number(link.dataset.index));
+  });
+}
+
 function layoutCards() {
   cards.forEach((card, i) => {
     let pos = i - offset;
@@ -2014,6 +2110,7 @@ card.style.opacity = String(distOpacity * (window._carouselFade ?? 1));
   });
   requestPillContrastCheck();
   if (typeof turnWorkDial === 'function' && workDial) turnWorkDial(offset);
+  trackWorkInfo();
 }
 
 // Pills over a project card get darker text (the default blue is hard to read
@@ -2311,6 +2408,7 @@ function refreshCardHoverAtCursor() {
 function updateCardHover(x, y) {
   const el = document.elementFromPoint(x, y);
   const hoveredCard = el?.classList.contains('project-card') ? el : el?.closest('.project-card');
+  setWorkInfoHover(hoveredCard);
   cards.forEach(card => {
     card._targetLift = card === hoveredCard ? -30 : 0;
     const hovered = card === hoveredCard;
@@ -2347,6 +2445,7 @@ if (onCard && !isBlobMode) expandToBlob(hoveredCard, false);
 
 carouselEl.addEventListener('mouseleave', () => {
   cards.forEach(card => { card._targetLift = 0; card.classList.remove('cta-hover'); });
+  setWorkInfoHover(null);
   setBadgeTilt(awardEl, false, AWARD_TILT);
   setBadgeTilt(badgeEl, false, BADGE_TILT);
   shrinkBlob();

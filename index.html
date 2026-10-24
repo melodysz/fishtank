@@ -29,7 +29,7 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="css/style.css?v=119">
+  <link rel="stylesheet" href="css/style.css?v=122">
   <script src="js/splash.js?v=9"></script>
   <!-- hold the first frame until the splash exists, so arriving from a project stays seamless -->
   <link rel="expect" href="#work-wipe-overlay" blocking="render">
@@ -444,6 +444,77 @@
     <img src="https://melodysz.github.io/baubles/coming%20soon.webp?v=2" class="coming-soon-badge" alt="Coming Soon">
 
   </div>
+
+  <!-- CASE STUDY SUMMARY: opens beside the front card while you hover it
+       (js/main.js, "work info"). One article per card, same order as the
+       cards. Edit the words here. -->
+  <aside class="work-info" id="workInfo" aria-label="Project summary" aria-live="polite">
+    <article class="wi-project" data-index="0" style="--wi-accent:#D2ABFF" hidden>
+      <h3 class="wi-name">creatify</h3>
+      <dl class="wi-facts">
+        <div><dt>role</dt><dd>Product Design Intern</dd></div>
+        <div><dt>team</dt><dd>Sole designer</dd></div>
+        <div><dt>time</dt><dd>May – Aug 2026</dd></div>
+      </dl>
+      <p class="wi-label">the problem</p>
+      <p>Creatify’s AI Agent could do a lot, but users couldn’t find its best features.</p>
+      <p class="wi-label">what i did</p>
+      <p>Redesigned how people discover Agent (Skills, in-chat workflows, navigation and the homepage), then coded and shipped it myself.</p>
+      <p class="wi-label">the result</p>
+      <p class="wi-result">38% more Agent Skill sessions after launch.</p>
+      <a class="wi-link" href="creatify/" data-index="0">read the case study</a>
+    </article>
+    <article class="wi-project" data-index="1" style="--wi-accent:#83E7FF" hidden>
+      <h3 class="wi-name">settlyfe</h3>
+      <p>Designing an AI-powered rental experience for iOS.</p>
+      <p class="wi-result">Case study coming soon.</p>
+    </article>
+    <article class="wi-project" data-index="2" style="--wi-accent:#EFEDF8" hidden>
+      <h3 class="wi-name">deep24</h3>
+      <dl class="wi-facts">
+        <div><dt>role</dt><dd>Founding Designer</dd></div>
+        <div><dt>team</dt><dd>1 designer, 2 developers</dd></div>
+        <div><dt>time</dt><dd>Oct 2025 – Jan 2026</dd></div>
+      </dl>
+      <p class="wi-label">the problem</p>
+      <p>An iOS well-being coaching app that worked well but felt crowded and inconsistent.</p>
+      <p class="wi-label">what i did</p>
+      <p>Created its visual identity, restructured the core flows, and designed new features as the app grew.</p>
+      <p class="wi-label">the result</p>
+      <p class="wi-result">Clearer navigation, a stronger identity, and a design system that scales.</p>
+      <a class="wi-link" href="deep24/" data-index="2">read the case study</a>
+    </article>
+    <article class="wi-project" data-index="3" style="--wi-accent:#F5B7FF" hidden>
+      <h3 class="wi-name">pent up</h3>
+      <dl class="wi-facts">
+        <div><dt>role</dt><dd>Project Co-Lead, Product Designer</dd></div>
+        <div><dt>team</dt><dd>3 designers, 4 developers</dd></div>
+        <div><dt>time</dt><dd>Aug – Dec 2025</dd></div>
+      </dl>
+      <p class="wi-label">the problem</p>
+      <p>Penn students had nowhere to share feelings without likes, rankings and social pressure.</p>
+      <p class="wi-label">what i did</p>
+      <p>Pitched it to Penn Spark to build the team, led design end to end, and made the design system and launch materials.</p>
+      <p class="wi-label">the result</p>
+      <p class="wi-result">A live, Penn-only anonymous platform with no likes or rankings. Winner of Best Red Project.</p>
+      <a class="wi-link" href="pent-up/" data-index="3">read the case study</a>
+    </article>
+    <article class="wi-project" data-index="4" style="--wi-accent:#D1FFA4" hidden>
+      <h3 class="wi-name">knouri</h3>
+      <dl class="wi-facts">
+        <div><dt>role</dt><dd>Sole Designer</dd></div>
+        <div><dt>team</dt><dd>Designer, developer, product manager</dd></div>
+        <div><dt>time</dt><dd>Jun – Aug 2025</dd></div>
+      </dl>
+      <p class="wi-label">the problem</p>
+      <p>Patients leave the hospital with complex medications and almost no guidance, leading to avoidable readmissions.</p>
+      <p class="wi-label">what i did</p>
+      <p>Proposed the direction, led the UX/UI for a care-manager portal, and ran the survey that shifted us from patients to hospitals.</p>
+      <p class="wi-label">the result</p>
+      <p class="wi-result">A dashboard that helps case managers spot at-risk patients and escalate fast.</p>
+      <a class="wi-link" href="knouri/" data-index="4">read the case study</a>
+    </article>
+  </aside>
 </div>
 </section>
 
@@ -555,7 +626,7 @@
   
   <!-- Your JavaScript -->
   <script src="js/favicon.js?v=3"></script>
-  <script src="js/main.js?v=152"></script>
+  <script src="js/main.js?v=154"></script>
   <script src="js/panels.js?v=8"></script>
 </body>
 </html>

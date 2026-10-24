@@ -2852,3 +2852,84 @@ html.panel-who .cursor-dot.is-blob.is-pill,
 html.panel-play .cursor-dot.is-blob,
 html.panel-play .cursor-dot.is-blob.is-pill { opacity: 0.7; mix-blend-mode: multiply; }
 html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: the sidebar's blue */
+
+/* ============================================================
+   CASE STUDY SUMMARY ("work info"): a floating panel beside the
+   front card with role / team / time, the problem, what I did
+   and the result. js/main.js positions it (beside the card on
+   wide screens, under it on narrow ones) and fades it in once
+   the carousel stops; it hides while the cards move.
+   ============================================================ */
+.work-info {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 120;                    /* above the side cards (they go up to 100) */
+  width: 300px;
+  padding: 22px 24px 24px;
+  border-radius: 20px;
+  background: #090C22;              /* solid: the side card behind it shouldn't show through */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  color: #EDEFFB;
+  text-align: left;                /* (the work section centres text) */
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  opacity: 0;
+  visibility: hidden;
+  translate: -10px 0;
+  transition: opacity 0.18s ease, translate 0.18s ease, visibility 0s linear 0.18s;
+}
+.work-info.is-shown {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  transition: opacity 0.35s ease, translate 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s;
+}
+.work-info.is-below { translate: 0 -10px; }
+.work-info.is-below.is-shown { translate: 0 0; }
+.wi-project { display: flex; flex-direction: column; gap: 6px; }
+.wi-project[hidden] { display: none; }
+.wi-project p { margin: 0; }
+.wi-name {
+  margin: 0 0 6px;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--wi-accent, #fff);
+}
+.wi-facts {
+  margin: 0 0 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: grid;
+  gap: 4px;
+}
+.wi-facts div { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: baseline; }
+.wi-facts dt, .wi-label {
+  font-family: 'Xanh Mono', monospace;
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(237, 239, 251, 0.55);
+}
+.wi-facts dd { margin: 0; }
+.wi-label { margin-top: 6px !important; }
+.wi-result { color: var(--wi-accent, #fff); font-weight: 500; }
+.wi-link {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--wi-accent, #fff);
+  color: #0B1238;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+}
+.wi-link::after { content: ' →'; }
+.wi-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .work-info, .work-info.is-shown { transition: opacity 0.2s ease, visibility 0s; translate: 0 0; }
+}
