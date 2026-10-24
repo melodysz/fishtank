@@ -23,7 +23,7 @@
 
   // everything else: black with pink text
   const OTHERS = { 'work': 'work!', 'who': 'who?', 'play': 'play!', 'home': 'home', 'say hi': 'say hi!' };
-  const OTHER_BG = '#000000';
+  const OTHER_BG = '#030309';
   const OTHER_TEXT = '#F5B7FF';
 
   // the site's asterisk, sitting at its usual tilt (the shape from the Figma

@@ -1,0 +1,9 @@
+/* Shared companion palette; motion, size, and hover shapes remain page-owned. */
+#cursor:not(.has-label) {
+  background-color: #0a9eff;
+  mix-blend-mode: color-dodge;
+}
+#cursor.is-blob:not(.has-label) { mix-blend-mode: color-dodge; }
+#cursor.active:not(.has-label) { opacity: .7; }
+#cursor[data-companion-surface="light"]:not(.has-label) { mix-blend-mode: multiply; }
+#cursor.is-away { opacity: 0 !important; }

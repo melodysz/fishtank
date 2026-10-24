@@ -82,7 +82,7 @@
 .intro-screen {
   position: fixed;
   inset: 0;
-  background-color: #000000;
+  background-color: #030309;
   z-index: 10000;
   display: flex;
   justify-content: center;
@@ -103,7 +103,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: black;
+  background: #030309;
   z-index: 1;
 }
 
@@ -225,7 +225,7 @@
 }
 
 .ripple-black {
-  background-color: #000000;
+  background-color: #030309;
   border: none;
 }
 
@@ -565,7 +565,7 @@ background-color: #0313E4;
   left: 0;
   width: 100vw;
   height: 50vh;  /* Black safety zone */
-  background: #000000;
+  background: #030309;
   z-index: 17;  /* Just below the border */
   pointer-events: none;
 }
@@ -935,7 +935,7 @@ background-color: #0313E4;
     #E7A0FE 4%, 
     #006EE9 18%, 
     #0D00C4 30%,
-    #000000 70%  /* NEW: Fades to black at bottom */
+    #030309 70%  /* NEW: Fades to black at bottom */
   );
   border-radius: 0;
   z-index: 1; 
@@ -1128,7 +1128,7 @@ background-color: #0313E4;
 .third-section {
   /* extra space above the cards: everything below the project pills (cards,
      decor, background gradient) moves down together; the pills stay put */
-  --work-top-space: 40px;
+  --work-top-space: 70px;
   position: relative;
   z-index: 50;
   min-height: calc(110vh + var(--work-top-space));
@@ -1137,8 +1137,8 @@ background-color: #0313E4;
   justify-content: center;
   /* solid black strip for the extra space, then the original gradient, unchanged */
   background:
-    linear-gradient(#000000, #000000) top / 100% var(--work-top-space) no-repeat,
-    linear-gradient(to bottom, #000000 30%, transparent 100%) 0 var(--work-top-space) / 100% calc(100% - var(--work-top-space)) no-repeat;
+    linear-gradient(#030309, #030309) top / 100% var(--work-top-space) no-repeat,
+    linear-gradient(to bottom, #030309 30%, transparent 100%) 0 var(--work-top-space) / 100% calc(100% - var(--work-top-space)) no-repeat;
   color: #F9F5EC;
   display: flex;
   flex-direction: column;
@@ -1404,14 +1404,14 @@ background-color: #0313E4;
   initial-value: 0px;
 }
 .btn-touch {
-  --btn-grow: 24px;               /* how much longer it gets on hover */
-  --btn-arrow: 40px;              /* arrow hole size */
+  --btn-grow: 20px;               /* how much longer it gets on hover */
+  --btn-arrow: 34px;              /* arrow hole size */
   --btn-hole: 0px;                /* hole radius: 0 at rest, opens on hover */
   position: relative;
   display: inline-block;
-  padding: 0.8rem 2.4rem;
+  padding: 0.65rem 2rem;
   font-family: 'PP Neue Montreal', sans-serif;
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   text-decoration: none;
   color: #E7A0FE !important;
   background: transparent;
@@ -1460,7 +1460,7 @@ background-color: #0313E4;
 
 .btn-touch:hover {
   transform: scale(1.1);
-  color: #000000 !important;
+  color: #030309 !important;
   --btn-hole: calc(var(--btn-arrow) / 2);
   transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
               color 0.3s ease,
@@ -1610,6 +1610,8 @@ background-color: #0313E4;
 
 
 .hero-fish {
+  opacity: 0;
+  visibility: hidden;
   position: absolute;
   width: 220px; 
   height: 90px;
@@ -1698,7 +1700,7 @@ body {
 .black-cover {
   position: fixed;
   inset: 0;
-  background: #000000;
+  background: #030309;
   z-index: 1; /* Above body (0) but below everything else */
   pointer-events: none;
   opacity: 0;
@@ -1887,7 +1889,7 @@ a, button, [role="button"] {
     ellipse 80% 60% at 50% 100%,
     #009DD6 0%,
     #000180 40%,
-    #000000 70%
+    #030309 70%
   );
   opacity: 0; /* fades in when work section arrives */
 }
@@ -2223,7 +2225,7 @@ a, button, [role="button"] {
 .section-2-backdrop-black {
   position: absolute;
   inset: 0;
-  background: #000000;
+  background: #030309;
   opacity: 0;
 }
 
@@ -2285,7 +2287,7 @@ body.section2-offscreen .section-2-wrapper {
   right: 0;
   top: calc(100% - 2vh);
   height: 60vh;
-  background: #000000;
+  background: #030309;
   pointer-events: none;
 }
 
@@ -2299,7 +2301,7 @@ body.section2-offscreen .section-2-wrapper {
   right: 0;
   bottom: calc(100% - 2vh);
   height: 120vh;
-  background: #000000;
+  background: #030309;
   pointer-events: none;
 }
 
@@ -2912,14 +2914,18 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
 }
 .wi-facts div { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: baseline; }
 .wi-facts dt, .wi-label {
-  font-family: 'Xanh Mono', monospace;
-  font-style: italic;
-  font-size: 14px;
+  font-family: 'Haffer XH Mono', monospace;
+  font-weight: 600;
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: rgba(237, 239, 251, 0.55);
 }
 .wi-facts dd { margin: 0; }
 .wi-label { margin-top: 6px !important; }
-.wi-result { color: var(--wi-accent, #fff); font-weight: 500; }
+.wi-result { color: inherit; font-weight: 500; }
 .wi-link {
   align-self: flex-start;
   margin-top: 12px;
@@ -2931,7 +2937,46 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
   font-size: 14px;
   text-decoration: none;
 }
-.wi-link::after { content: ' →'; }
+/* Like dive in: the label stays put while the pill extends for its arrow. */
+.wi-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  transform-origin: left center;
+  transition: padding-right .4s cubic-bezier(.22,1,.36,1), transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.wi-link::after {
+  content: '→';
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #0B1238;
+  color: var(--wi-accent, #fff);
+  opacity: 0;
+  transform: translateY(-50%) scale(.3);
+  transition: transform .2s ease, opacity .12s ease;
+}
+.wi-link:hover, .wi-link:focus-visible {
+  padding-right: 36px;
+  transform: scale(1.03);
+}
+.wi-link:hover::after, .wi-link:focus-visible::after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wi-link, .wi-link::after { transition: none; }
+}
 .wi-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) {
   .work-info, .work-info.is-shown { transition: opacity 0.2s ease, visibility 0s; translate: 0 0; }
@@ -2987,7 +3032,7 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
   scrollbar-width: thin;
 }
 .wi-content[hidden] { display: none; }
-.wi-facts dt, .wi-label { color: #ffffffbf; }
+.wi-facts dt, .wi-label { color: var(--wi-accent, #fff); }
 .wi-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 @media (hover: none) {
   .work-info.is-shown { transform: translate(-50%, -50%) translate(50px, -20px) rotate(8deg); }
@@ -3026,7 +3071,7 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
 .work-layout-toggle:hover { background: #292941; }
 .work-layout-toggle:focus-visible { outline: 2px solid #d2abff; outline-offset: 4px; }
 .layout-symbol { font-size: 20px; line-height: 1; }
-.third-section.is-grid { min-height: 0; padding-top: 130px; padding-bottom: 90px; background: #000; }
+.third-section.is-grid { min-height: 0; padding-top: 130px; padding-bottom: 90px; background: #030309; }
 .is-grid .third-stage { min-height: 0; }
 .is-grid .circular-carousel {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3070,7 +3115,10 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
    study" pinned to the bottom so it's never clipped. */
 .wi-content {
   inset: 0;
-  padding: 26px 26px 24px;
+  /* Match the project tags’ 45px inset on their 447px design canvas. */
+  --wi-content-inset: calc(var(--wi-card-width, 380px) * 45 / 447);
+  padding: var(--wi-content-inset);
+  padding-bottom: calc(var(--wi-content-inset) + 10px);
   display: flex;
   flex-direction: column;
 }
@@ -3079,9 +3127,9 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
 .wi-toggle { z-index: 2; }                      /* (stays clickable above the content) */
 .wi-content .wi-link { margin-top: auto; }
 .wi-content .wi-result { margin-bottom: 12px !important; }
-/* a little tighter, so the longest summary (Knouri) still fits with room to spare */
-.wi-content .wi-project { gap: 4px; line-height: 1.4; }
-.wi-content .wi-label { margin-top: 4px !important; }
+/* Separate sections while keeping each caption close to its paragraph. */
+.wi-content .wi-project { gap: 6px; line-height: 1.4; }
+.wi-content .wi-label { margin-top: 18px !important; }
 .wi-content .wi-facts { margin-bottom: 6px; padding-bottom: 10px; }
 
 /* Settlyfe has no case study yet: a closed eye instead of the open one */
@@ -3146,3 +3194,20 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
    always visible: the same left/top as before now measure from the card itself. */
 .project-card > .pent-up-award,
 .project-card > .coming-soon-badge { opacity: 1; will-change: auto; }
+
+/* Keep the experimental layout switch out of the portfolio UI. */
+#workLayoutToggle { display: none; }
+
+/* Preview summary cards without a drop shadow. */
+.work-info, .work-info.is-expanded { box-shadow: none; filter: none; }
+
+/* A swiped-away summary slides back under its own moving cover before recycling. */
+.work-info.is-shown.is-expanded.is-dismissing {
+  transform: translate(22px, -8px) rotate(4deg) scale(.97);
+  transition: transform .3s cubic-bezier(.22,1,.36,1);
+  pointer-events: none;
+}
+.work-info.is-shown.is-expanded.is-dismissing.is-tucked { z-index: var(--wi-z, 95); }
+@media (prefers-reduced-motion: reduce) {
+  .work-info.is-shown.is-expanded.is-dismissing { transition: none; }
+}

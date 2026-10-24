@@ -1411,7 +1411,7 @@ h3 {
 
 .case-footer {
   position: relative;
-  background: linear-gradient(to bottom, #000000 0%, #0F4163 100%);
+  background: linear-gradient(to bottom, #030309 0%, #0F4163 100%);
   color: #83E7FF;
   min-height: 100vh;
   display: flex;

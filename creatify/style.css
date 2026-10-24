@@ -614,7 +614,7 @@ a[href], button, [role="button"], .interactable {
 
 .case-footer {
   position: relative;
-  background: linear-gradient(to bottom, #000000 0%, #2D6913 50%, #A2B838 100%);
+  background: linear-gradient(to bottom, #030309 0%, #2D6913 50%, #A2B838 100%);
   color: #D1FFA4;
   min-height: 100vh;
   display: flex;
@@ -1332,7 +1332,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .ps-dim {
   position: absolute;
   inset: 0;
-  background: #000;
+  background: #030309;
   opacity: 0;
 }
 
@@ -2251,7 +2251,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 
 .case-footer {
   margin-top: 0;               /* the last section's own gap is enough */
-  background: linear-gradient(to bottom, #000000 0%, #602BBC 49%, #D187FF 100%);
+  background: linear-gradient(to bottom, #030309 0%, #602BBC 49%, #D187FF 100%);
 }
 
 .case-footer-star-wrapper,

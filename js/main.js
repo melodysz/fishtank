@@ -96,7 +96,6 @@ if (skipIntro) {
     gsap.set([".hero-peek-layer", ".hero-halo"], { autoAlpha: 1, scale: 1 });
     gsap.set(".hero-orbit", { autoAlpha: 1, scale: 0.9 });
     gsap.set(".hero-identity-frame", { autoAlpha: 1 });
-    gsap.set([".fish-clown-1", ".fish-clown-2", ".fish-tang"], { x: 0, autoAlpha: 1, scale: 1 });
     gsap.set(".hero-star", { autoAlpha: 1 });
   });
   
@@ -202,7 +201,7 @@ function drawHeroWindow() {
   const mw = heroWindowMask.naturalWidth * sc, mh = heroWindowMask.naturalHeight * sc;
   const mx = (w - mw) / 2, my = (h - mh) / 2;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = '#030309';
 
   if (heroWindowOpen >= 1) {
     // normal: keep the black only where the mask image is solid
@@ -252,7 +251,7 @@ function buildHeroHole(mx, my, mw, mh) {
   const c = document.createElement('canvas');
   c.width = bw; c.height = bh;
   const hc = c.getContext('2d');
-  hc.fillStyle = '#000000';
+  hc.fillStyle = '#030309';
   hc.fillRect(0, 0, bw, bh);
   hc.globalCompositeOperation = 'destination-out';
   hc.drawImage(heroWindowMask, mx - x0, my - y0, mw, mh);
@@ -306,7 +305,12 @@ function predecodePageImages() {
   return Promise.all(jobs);
 }
 
+let heroFishEntranceStarted = false;
+let heroFishEntranceRunning = false;
 function playHeroFishIn() {
+  if (heroFishEntranceRunning) return;
+  heroFishEntranceStarted = true;
+  heroFishEntranceRunning = true;
   const fish = [".fish-clown-1", ".fish-clown-2", ".fish-tang"];
   gsap.killTweensOf(fish);
   gsap.set(".fish-clown-1", { x: -100, autoAlpha: 0, scale: 1 });
@@ -314,7 +318,7 @@ function playHeroFishIn() {
   gsap.set(".fish-tang", { x: -45, autoAlpha: 0, scale: 1 });
   gsap.to(".fish-clown-1", { x: 0, autoAlpha: 1, duration: 1.0, ease: "power2.out" });
   gsap.to(".fish-clown-2", { x: 0, autoAlpha: 1, duration: 1.0, ease: "power2.out", delay: 0.10 });
-  gsap.to(".fish-tang", { x: 0, autoAlpha: 1, duration: 1.0, ease: "power2.out", delay: 0.20 });
+  gsap.to(".fish-tang", { x: 0, autoAlpha: 1, duration: 1.0, ease: "power2.out", delay: 0.20, onComplete: () => { heroFishEntranceRunning = false; } });
 }
 
 // document.querySelectorAll('.fish-clown-1, .fish-clown-2, .fish-tang').forEach(fish => {
@@ -499,7 +503,7 @@ if (entryOverlay) {
     for (let i = 0; i < 2; i++) {
       setTimeout(() => {
         addRipple('#061a8a');                          // blue
-        setTimeout(() => addRipple('#000000'), 60);    // black, right behind it
+        setTimeout(() => addRipple('#030309'), 60);    // black, right behind it
       }, i * 200);
     }
     
@@ -551,7 +555,7 @@ scalingRig.style.filter = "brightness(0.25)";
             const rippleR = rippleMaxR * cssEaseOut(rippleP);
 
             ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#030309';
             ctx.fillRect(0, 0, w, h);
             ctx.fillStyle = '#061a8a';
             ctx.beginPath();
@@ -562,8 +566,8 @@ scalingRig.style.filter = "brightness(0.25)";
             if (rPx > 0) {
               const outer = rPx + featherPx;
               const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, outer);
-              g.addColorStop(rPx / outer, 'rgba(0,0,0,1)');
-              g.addColorStop(1, 'rgba(0,0,0,0)');
+              g.addColorStop(rPx / outer, 'rgba(3,3,9,1)');
+              g.addColorStop(1, 'rgba(3,3,9,0)');
               ctx.globalCompositeOperation = 'destination-out';
               ctx.fillStyle = g;
               ctx.fillRect(cx - outer, cy - outer, outer * 2, outer * 2);
@@ -751,7 +755,9 @@ document.addEventListener('visibilitychange', () => {
         gsap.set(['.hero-peek-layer', '.hero-halo'], { autoAlpha: 1, scale: 1 });
         gsap.set('.hero-orbit', { autoAlpha: 1, scale: 0.9 });
         gsap.set('.hero-identity-frame', { autoAlpha: 1 });
+        if (heroFishEntranceStarted && !heroFishEntranceRunning) {
         gsap.set(['.fish-clown-1', '.fish-clown-2', '.fish-tang'], { x: 0, autoAlpha: 1, scale: 1 });
+        }
         gsap.set('.hero-star', { autoAlpha: 1 });
         restoreScalingRigMask();
       }
@@ -1074,6 +1080,10 @@ const CURSOR_HOVER_SEL = "a[href], button, [role='button'], .btn-touch, .work-na
 document.addEventListener('pointerover', (e) => {
   const el = e.target.closest?.(CURSOR_HOVER_SEL);
   const hovered = el && !el.closest('.project-card') ? el : null;
+  if (hovered?.matches('.wi-link')) {
+    if (blobTarget !== hovered) expandToBlob(hovered, 'box');
+    return;
+  }
   if (blobTarget && blobTarget.contains(e.target)) return;   // still on the locked nav item
   if (hovered && !isBlobMode) expandToBlob(hovered, false);
   else if (!hovered && isBlobMode && !e.target.closest?.('.project-card')) shrinkBlob();
@@ -1410,7 +1420,7 @@ const r = Math.round(0 + (p * 0));
 const g = Math.round(1 + (p * 109));
 const b = Math.round(128 + (p * 105));
 const centerOpacity = Math.min(1, p * 3);
-workFooterGradient.style.background = `radial-gradient(ellipse ${w}% ${h}% at 50% 100%, rgba(${r}, ${g}, ${b}, ${centerOpacity}) 0%, rgba(${r}, ${g}, ${b}, ${centerOpacity}) 5%, #000180 ${midStop}%, #000000 ${darkStop}%)`;
+workFooterGradient.style.background = `radial-gradient(ellipse ${w}% ${h}% at 50% 100%, rgba(${r}, ${g}, ${b}, ${centerOpacity}) 0%, rgba(${r}, ${g}, ${b}, ${centerOpacity}) 5%, #000180 ${midStop}%, #030309 ${darkStop}%)`;
   }
 });
 
@@ -2049,6 +2059,7 @@ const wiContent = document.getElementById('workPreviewContent');
 const wiColors = ['#392455', '#123F50', '#333345', '#512448', '#294329'];
 let wiLastOffset = null, wiTimer = 0, wiShownIndex = -1;
 let wiSettledIndex = -1, wiExpanded = false;
+let wiDismissing = false, wiWaitingForStop = false;
 
 // The front/back swap borrows the bounce from the Creatify case study's Higgsfield /
 // Creatify screenshots (creatify/research.js, introShots): the moment the cards swap,
@@ -2072,7 +2083,7 @@ function bounceIntoPlace(el, delay = 0) {
 let wiRideKey = '';
 function rideWorkInfo() {
   if (!workInfo || workGridMode) return;
-  const idx = ((Math.round(offset) % N) + N) % N;
+  const idx = (wiDismissing || wiWaitingForStop) && wiShownIndex >= 0 ? wiShownIndex : ((Math.round(offset) % N) + N) % N;
   const card = cards[idx], p = card && card._pose;
   if (!p) return;
   // (left / top / rotate in css/style.css: never animated, so it follows the card
@@ -2110,9 +2121,10 @@ function backPoseFor(card) {
   return { x: WI_BACK_POSE.x * k + d * Math.sin(th), y: WI_BACK_POSE.y * k + d * (1 - Math.cos(th)), rot: WI_BACK_POSE.rot * k };
 }
 function closeWorkPreview(restoreFocus = false) {
-  if (!workInfo) return;
+  if (!workInfo || wiDismissing) return;
   const hadFocus = workInfo.contains(document.activeElement);
   const wasExpanded = wiExpanded;
+  wiWaitingForStop = false;
   wiExpanded = false;
   workInfo.classList.remove('is-expanded');
   if (wasExpanded) swapWorkCards(false);
@@ -2134,8 +2146,49 @@ function closeWorkPreview(restoreFocus = false) {
   wiContent.hidden = true;
   if (wiUseHover) setTimeout(updateWorkInfoHover);   // (closed the summary: tuck it away unless still hovered)
 }
+// During a swipe, keep the summary attached to its original card until tucked away.
+function dismissWorkInfoForSwipe() {
+  if (wiDismissing) return;
+  wiDismissing = true;
+  wiWaitingForStop = false;
+  wiExpanded = false;
+  setCursorLabel('');
+  clearTimeout(wiHoverTimer);
+  clearTimeout(workInfo._switchTimer);
+  workInfo.classList.remove('is-switching');
+  workInfo.classList.add('is-dismissing');
+  workInfo.inert = true;
+  const cover = cards[wiShownIndex];
+  [workInfo, cover].forEach(el => {
+    if (el?._bounceTl) el._bounceTl.kill();
+    if (el) el.style.translate = '';
+  });
+  const finish = () => {
+    workInfo.classList.remove('is-expanded', 'is-shown', 'is-fanned', 'is-dismissing');
+    wiToggle.setAttribute('aria-expanded', 'false');
+    wiToggle.firstElementChild.textContent = 'sneak peek';
+    wiContent.hidden = true;
+    wiShownIndex = -1;
+    wiDismissing = false;
+    wiRideKey = '';
+    layoutCards();
+  };
+  gsap.to(wiSwap, {
+    k: 0, duration: wiReduceMotion ? 0 : .3, ease: 'power2.out', overwrite: true,
+    onUpdate: () => {
+      if (wiSwap.k < .55) workInfo.classList.add('is-tucked');
+      layoutCards();
+    },
+    onComplete: () => { workInfo.classList.remove('is-tucked'); finish(); },
+  });
+}
 function hideWorkInfo() {
   if (!workInfo) return;
+  if (wiDismissing) return;
+  if (wiExpanded) {
+    wiWaitingForStop = true;
+    return;
+  }
   setCursorLabel('');
   closeWorkPreview();
   workInfo.classList.remove('is-shown', 'is-fanned');
@@ -2148,6 +2201,7 @@ function placeWorkInfo(index) {
   workInfo.style.setProperty('--wi-card-height', surface.offsetHeight + 'px');
 }
 function showWorkInfo(index) {
+  if (wiDismissing || wiWaitingForStop) return;
   if (workGridMode) return;
   if (!workInfo || !workInfoProjects.length) return;
   if (index !== wiShownIndex) closeWorkPreview();
@@ -2207,6 +2261,13 @@ function readyWorkInfoIndex() {
 }
 function checkWorkInfo() {
   wiTimer = 0;
+  if (wiWaitingForStop) {
+    // Wait for the real end of the gesture and glide, not the earlier visual-settle threshold.
+    if (!dragging && !glide && !isInteracting && Math.abs(offset - Math.round(offset)) < .001) {
+      dismissWorkInfoForSwipe();
+    }
+    return;
+  }
   const index = readyWorkInfoIndex();
   if (index < 0) return;
   const newlySettled = wiSettledIndex !== index;
@@ -2247,6 +2308,7 @@ if (workInfo) {
   workInfo.addEventListener('focusout', () => { wiOverPanel = false; updateWorkInfoHover(); });
   carouselEl.addEventListener('focusout', () => requestAnimationFrame(() => setWorkInfoHover(null)));
   wiToggle.addEventListener('click', () => {
+    if (wiDismissing) return;
     if (wiExpanded) { closeWorkPreview(true); return; }
     stopGlide();
     wiExpanded = true;
@@ -2469,6 +2531,7 @@ function flickFrom(v, headStartMs = 0) {
 
 function onCarouselSettled(target) {
   isInteracting = false;
+  if (wiWaitingForStop) checkWorkInfo();
   updateWorkNav();
   refreshCardHoverAtCursor();
   const settled = ((target % N) + N) % N;
@@ -3408,9 +3471,11 @@ onLeaveBack: () => {
         line.style.transform = 'translateY(0px)';
       });
     }
+if (heroFishEntranceStarted && !heroFishEntranceRunning) {
 gsap.set(".fish-clown-1", { x: 0, autoAlpha: 1, scale: 1 });
 gsap.set(".fish-clown-2", { x: 0, autoAlpha: 1, scale: 1 });
 gsap.set(".fish-tang",   { x: 0, autoAlpha: 1, scale: 1 });
+}
     restoreScalingRigMask(); // ← add this
     gsap.set(".hero-star", { autoAlpha: 1 });
   },

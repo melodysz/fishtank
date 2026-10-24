@@ -73,7 +73,7 @@ a, button, [role="button"], .interactable {
 }
 
 html, body {
-  background: #000000 !important;
+  background: #030309 !important;
 }
 
 body {
@@ -1285,7 +1285,7 @@ h3 {
 
 .case-footer {
   position: relative;
-  background: linear-gradient(to bottom, #000000 0%, #866626 50%, #d6c279 100%);
+  background: linear-gradient(to bottom, #030309 0%, #866626 50%, #d6c279 100%);
   color: #fff3bf;
   min-height: 100vh;
   display: flex;
