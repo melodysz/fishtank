@@ -693,7 +693,7 @@ lenis = new Lenis({
   smoothWheel: true,
   wheelMultiplier: 0.7,
   touchMultiplier: 1.5,
-  prevent: (node) => node.classList.contains('btn-touch') || !!node.closest('#circularCarousel')
+  prevent: (node) => node.classList.contains('btn-touch') || !!node.closest('.work-info')
 });
 
 let pageReady = false;
@@ -937,6 +937,22 @@ ScrollTrigger.refresh();
 // Cursor
 const cursorMain = document.getElementById('cursor');
 let isBlobMode = false;
+// Cursor label: the dot can turn into a pill with a word in it (e.g. "sneak peek" over
+// the summary card). It sits to the right of the pointer and wins over the hover blob.
+const cursorLabelEl = document.createElement('span');
+cursorLabelEl.className = 'cursor-label';
+cursorMain.appendChild(cursorLabelEl);
+let cursorLabel = '', cursorLabelW = 0;
+function setCursorLabel(text) {
+  if (text === cursorLabel) return;
+  cursorLabel = text;
+  if (text) {
+    cursorLabelEl.textContent = text;
+    cursorLabelW = Math.ceil(cursorLabelEl.offsetWidth) + 26;   // text + 13px each side
+    cursorMain.style.setProperty('--label-w', cursorLabelW + 'px');
+  }
+  cursorMain.classList.toggle('has-label', !!text);
+}
 let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
 
 // At rest the dot sits just past the tail end of the arrow pointer (below and to the
@@ -986,11 +1002,13 @@ function followBlobTarget() {
 let mouseTargetX = 0, mouseTargetY = 0, blobH = 0;
 
 function animateCursor() {
-  if (blobTarget) followBlobTarget();
-  const tx = blobTarget ? mouseTargetX : mouseX + CURSOR_TAIL_X, ty = blobTarget ? mouseTargetY : mouseY + CURSOR_TAIL_Y;
+  const locked = blobTarget && !cursorLabel;
+  if (locked) followBlobTarget();
+  const tx = locked ? mouseTargetX : mouseX + CURSOR_TAIL_X + (cursorLabel ? cursorLabelW / 2 - 6 : 0);
+  const ty = locked ? mouseTargetY : mouseY + CURSOR_TAIL_Y;
   const dx = tx - curX, dy = ty - curY;
   const lag = Math.hypot(dx, dy);
-  const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
+  const targetScale = isBlobMode || cursorLabel ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
   const scaleChanging = Math.abs(targetScale - cursorScale) > 0.002;
   if (lag > 0.05 || scaleChanging) {
     const lerp = 0.12;
@@ -1257,8 +1275,8 @@ onStart: () => {
       hideBadge();
       gsap.killTweensOf(badgeEl);
       gsap.killTweensOf(awardEl);
-      if (badgeEl) { badgeEl.style.opacity = '0'; badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
-      if (awardEl) { awardEl.style.opacity = '0'; awardEl._currentLift = 0; awardEl._targetLift = 0; }
+      if (badgeEl) { badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
+      if (awardEl) { awardEl._currentLift = 0; awardEl._targetLift = 0; }
 
       workNavPills.forEach(pill => {
         gsap.set(pill, { opacity: 0 });
@@ -1941,7 +1959,43 @@ let carouselReady = false;
 let isInteracting = false;
 const awardEl = document.querySelector('.pent-up-award');
 const badgeEl = document.querySelector('.coming-soon-badge');
+// The award / "coming soon" badge live ON their cards (always there, no animating in
+// or out): moved inside the card, so they lift, bounce, tilt and slide with it.
+// (Same spot as before: css/style.css positions them from the card's centre.)
+if (awardEl) { cards[PENT_UP_INDEX].appendChild(awardEl); gsap.set(awardEl, { rotate: 12.46, opacity: 1 }); }
+if (badgeEl) { cards[SETTLYFE_INDEX].appendChild(badgeEl); gsap.set(badgeEl, { rotate: -12.46, opacity: 1 }); }
 const workNavPills = document.querySelectorAll('.work-nav-pill');
+let workGridMode = false;
+const workLayoutToggle = document.getElementById('workLayoutToggle');
+workLayoutToggle.addEventListener('click', () => {
+  stopGlide();
+  clearTimeout(wheelSwipe.timer);
+  wheelSwipe.mode = 'idle';
+  dragging = false;
+  isInteracting = false;
+  workGridMode = !workGridMode;
+  hideWorkInfo();
+  hideAward(); hideBadge(); shrinkBlob();
+  cards.forEach(card => { card._currentLift = 0; card._targetLift = 0; });
+  document.getElementById('third-section').classList.toggle('is-grid', workGridMode);
+  workLayoutToggle.setAttribute('aria-pressed', String(workGridMode));
+  workLayoutToggle.setAttribute('aria-label', workGridMode ? 'Show projects in a circle' : 'Show projects in a grid');
+  workLayoutToggle.querySelector('.layout-label').textContent = workGridMode ? 'circle' : 'grid';
+  workLayoutToggle.querySelector('.layout-symbol').textContent = workGridMode ? '◯' : '▦';
+  if (!workGridMode) {
+    offset = Math.round(offset);
+    layoutCards();
+  }
+  requestAnimationFrame(() => {
+    lenis.resize();
+    ScrollTrigger.refresh();
+    // Both layouts start beneath the same toolbar, even when switching mid-grid.
+    lenis.scrollTo(document.getElementById('third-section'), { immediate: true });
+  });
+});
+workLayoutToggle.addEventListener('mouseenter', () => expandToBlob(workLayoutToggle, 'box'));
+workLayoutToggle.addEventListener('mouseleave', shrinkBlob);
+
 
 // Pills show just their number. While hovered — or while its card is the one
 // in front (selected) — a pill springs wider and its name fades in; the other
@@ -1987,103 +2041,251 @@ document.fonts.ready.then(sizeWorkNavPills);
 document.fonts.load("300 16px 'HafferXH'").then(sizeWorkNavPills); // re-measure once the numbers' font arrives
 window.addEventListener('resize', sizeWorkNavPills);
 
-// ===== CASE STUDY SUMMARY ("work info") =====
-// A panel beside the front card (under it on narrow screens) with a quick summary of
-// that project. It opens while you hover the front card, once the carousel has
-// stopped, and stays open while you move onto it (to click "read the case study");
-// it closes a moment after you've left both. Any movement of the cards closes it.
-// On touch screens (no hover) it simply shows for the front card whenever the
-// carousel stops. The words live in index.html (#workInfo).
+// ===== CASE STUDY PREVIEW: a fanned card behind the selected project =====
 const workInfo = document.getElementById('workInfo');
 const workInfoProjects = workInfo ? [...workInfo.querySelectorAll('.wi-project')] : [];
-const WORK_INFO = { gap: 32, width: 300, settleMs: 220, openDelay: 120, closeDelay: 250 };
-const wiCanHover = window.matchMedia('(hover: hover)').matches;
+const wiToggle = workInfo?.querySelector('.wi-toggle');
+const wiContent = document.getElementById('workPreviewContent');
+const wiColors = ['#392455', '#123F50', '#333345', '#512448', '#294329'];
 let wiLastOffset = null, wiTimer = 0, wiShownIndex = -1;
-let wiSettledIndex = -1;                       // the front card, once the carousel has stopped (-1 while moving)
-let wiOverCard = false, wiOverPanel = false, wiHoverTimer = 0;
+let wiSettledIndex = -1, wiExpanded = false;
 
+// The front/back swap borrows the bounce from the Creatify case study's Higgsfield /
+// Creatify screenshots (creatify/research.js, introShots): the moment the cards swap,
+// both pop up a little and bounce down into place, the second a hair (0.05s) after
+// the first. The card going behind lands first, then the one coming forward.
+const wiReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function bounceIntoPlace(el, delay = 0) {
+  if (!el || !window.gsap || wiReduceMotion) return;
+  if (el._bounceTl) el._bounceTl.kill();
+  // pops up the instant the cards swap (so the bounce *is* the swap, not a step after
+  // it), holds there a beat if it's the second one, then bounces down into place
+  const o = { y: -16 };
+  const draw = () => { el.style.translate = `0 ${o.y.toFixed(2)}px`; };   // (CSS translate: separate from the card's own transform)
+  draw();
+  el._bounceTl = gsap.timeline({ onComplete: () => { el.style.translate = ''; } })
+    .to(o, { y: 0, duration: 0.6, ease: 'bounce.out', onUpdate: draw }, delay);
+}
+// The summary card never fades: it always sits exactly behind the card nearest the
+// front (same spot and angle, a touch smaller, one layer below), riding along as the
+// cards move, so it's perfectly hidden until it fans out.
+let wiRideKey = '';
+function rideWorkInfo() {
+  if (!workInfo || workGridMode) return;
+  const idx = ((Math.round(offset) % N) + N) % N;
+  const card = cards[idx], p = card && card._pose;
+  if (!p) return;
+  // (left / top / rotate in css/style.css: never animated, so it follows the card
+  // exactly, hover lift included, and can't restart the fan-out's own animation)
+  const key = [p.x.toFixed(2), p.y.toFixed(2), (p.lift || 0).toFixed(2), p.angle.toFixed(3), card.style.zIndex, card.style.opacity].join();
+  if (key === wiRideKey) return;
+  wiRideKey = key;
+  workInfo.style.setProperty('--wi-x', p.x.toFixed(2) + 'px');
+  workInfo.style.setProperty('--wi-y', p.y.toFixed(2) + 'px');
+  workInfo.style.setProperty('--wi-lift', (p.lift || 0).toFixed(2) + 'px');
+  workInfo.style.setProperty('--wi-rot', p.angle.toFixed(3) + 'deg');
+  workInfo.style.setProperty('--wi-z', String(Number(card.style.zIndex || 100) - 1));
+  workInfo.style.opacity = card.style.opacity;       // (matches the card while the cards fade in)
+}
+// the whole project card bounces, its "dive in" button and award / badge included
+function cardBounceGroup(index) {
+  return [cards[index]];   // (its award / badge sit inside the card, so they come along)
+}
+function bounceGroup(els, delay) { els.forEach((el) => bounceIntoPlace(el, delay)); }
+// Opening the summary swaps the two cards' spots and angles: the summary takes the
+// project card's place, and the project card tilts into the summary's back spot
+// (the same pose as .work-info.is-shown in css/style.css: 22px right, 8px up,
+// 4° turned about a point 85% down the card). wiSwap.k: 0 = normal, 1 = swapped.
+const WI_BACK_POSE = { x: 22, y: -8, rot: 4, originY: 0.85 };
+const wiSwap = { k: 0 };
+// (an instant "blip" into the swapped spots; the staggered bounce masks the jump)
+function swapWorkCards(open) {
+  wiSwap.k = open ? 1 : 0;
+  layoutCards();
+}
+// the extra move + turn for the front project card while swapped
+function backPoseFor(card) {
+  const k = wiSwap.k, th = WI_BACK_POSE.rot * k * Math.PI / 180;
+  const d = (WI_BACK_POSE.originY - 0.5) * card.offsetHeight;   // (turning about that point, not the centre)
+  return { x: WI_BACK_POSE.x * k + d * Math.sin(th), y: WI_BACK_POSE.y * k + d * (1 - Math.cos(th)), rot: WI_BACK_POSE.rot * k };
+}
+function closeWorkPreview(restoreFocus = false) {
+  if (!workInfo) return;
+  const hadFocus = workInfo.contains(document.activeElement);
+  const wasExpanded = wiExpanded;
+  wiExpanded = false;
+  workInfo.classList.remove('is-expanded');
+  if (wasExpanded) swapWorkCards(false);
+  if (wasExpanded && wiShownIndex >= 0) {
+    // the project card comes back in front, with the same pop and quick ease
+    workInfo.classList.add('is-switching');
+    clearTimeout(workInfo._switchTimer);
+    workInfo._switchTimer = setTimeout(() => workInfo.classList.remove('is-switching'), 400);
+    bounceIntoPlace(workInfo, 0);                        // summary (going behind) lands first…
+    bounceGroup(cardBounceGroup(wiShownIndex), 0.05);     // …then the project card, button and badge together
+    // the summary was covering it, so the card thinks the mouse left: re-check what's
+    // under the (possibly unmoved) cursor once the project card is back in front
+    requestAnimationFrame(() => refreshCardHoverAtCursor());
+  }
+  wiToggle.setAttribute('aria-expanded', 'false');
+  if (wiShownIndex >= 0) wiToggle.setAttribute('aria-label', 'Sneak peek at ' + workInfoProjects[wiShownIndex].querySelector('.wi-name').textContent);
+  wiToggle.firstElementChild.textContent = 'sneak peek';
+  if (restoreFocus || hadFocus) wiToggle.focus({ preventScroll: true });
+  wiContent.hidden = true;
+  if (wiUseHover) setTimeout(updateWorkInfoHover);   // (closed the summary: tuck it away unless still hovered)
+}
 function hideWorkInfo() {
-  if (!workInfo || wiShownIndex === -1) return;
+  if (!workInfo) return;
+  setCursorLabel('');
+  closeWorkPreview();
+  workInfo.classList.remove('is-shown', 'is-fanned');
+  workInfo.inert = true;
   wiShownIndex = -1;
-  workInfo.classList.remove('is-shown');
 }
 function placeWorkInfo(index) {
-  const stage = workInfo.parentElement.getBoundingClientRect();
-  const ring = carouselEl.getBoundingClientRect();
-  const cx = ring.left + ring.width / 2 - stage.left;
-  const cy = ring.top + ring.height / 2 - stage.top;
-  const cardW = cards[index].offsetWidth, cardH = cards[index].offsetHeight;
-  const roomBeside = cx + cardW / 2 + WORK_INFO.gap + WORK_INFO.width + 16 <= stage.width;
-  workInfo.classList.toggle('is-below', !roomBeside);
-  if (roomBeside) {
-    workInfo.style.width = WORK_INFO.width + 'px';
-    workInfo.style.left = (cx + cardW / 2 + WORK_INFO.gap) + 'px';
-    workInfo.style.top = Math.round(cy - workInfo.offsetHeight / 2) + 'px';
-  } else {
-    const w = Math.min(cardW, stage.width - 32);
-    workInfo.style.width = w + 'px';
-    workInfo.style.left = Math.round(cx - w / 2) + 'px';
-    workInfo.style.top = Math.round(cy + cardH / 2 + 24) + 'px';
-  }
+  const surface = cards[index];
+  workInfo.style.setProperty('--wi-card-width', surface.offsetWidth + 'px');
+  workInfo.style.setProperty('--wi-card-height', surface.offsetHeight + 'px');
 }
 function showWorkInfo(index) {
+  if (workGridMode) return;
   if (!workInfo || !workInfoProjects.length) return;
-  if (index === wiShownIndex) return;
-  workInfoProjects.forEach((el) => { el.hidden = Number(el.dataset.index) !== index; });
+  if (index !== wiShownIndex) closeWorkPreview();
+  workInfoProjects.forEach(el => { el.hidden = Number(el.dataset.index) !== index; });
+  workInfo.style.setProperty('--wi-bg', wiColors[index]);
+  workInfo.dataset.project = index;   // (per-project bits in css/style.css, e.g. Settlyfe's closed eye)
+  wiToggle.setAttribute('aria-label', 'Sneak peek at ' + workInfoProjects[index].querySelector('.wi-name').textContent);
   placeWorkInfo(index);
   wiShownIndex = index;
+  workInfo.inert = false;
   workInfo.classList.add('is-shown');
 }
-// open or close it to match: stopped + (touch screen, or hovering the front card / the panel)
-function updateWorkInfo() {
-  if (!workInfo) return;
-  const want = wiSettledIndex !== -1 && (!wiCanHover || wiOverCard || wiOverPanel);
+// ONLY ON HOVER: true = the summary card fans out only while you hover the front
+// card (or the summary card itself), and tucks away a moment after you leave.
+// false = it fans out whenever the carousel stops. Touch screens (no hover) always
+// behave like false, or they'd never see it.
+const WI_ON_HOVER = true;
+const wiUseHover = WI_ON_HOVER && window.matchMedia('(hover: hover)').matches;
+let wiOverCard = false, wiOverPanel = false, wiHoverTimer = 0;
+function updateWorkInfoHover() {
+  if (!workInfo || !wiUseHover) return;
+  const want = wiSettledIndex >= 0 && !workGridMode && (wiOverCard || wiOverPanel || wiExpanded);
   clearTimeout(wiHoverTimer);
-  if (want && wiShownIndex !== wiSettledIndex) wiHoverTimer = setTimeout(() => showWorkInfo(wiSettledIndex), wiCanHover ? WORK_INFO.openDelay : 0);
-  else if (!want && wiShownIndex !== -1) wiHoverTimer = setTimeout(hideWorkInfo, WORK_INFO.closeDelay);
+  if (want && wiShownIndex !== wiSettledIndex) wiHoverTimer = setTimeout(() => showWorkInfo(wiSettledIndex), 0);
+  else if (!want && wiShownIndex !== -1) wiHoverTimer = setTimeout(() => {   // (no lingering: it un-fans as the card drops back)
+    if (cursorStillOnWorkCards()) return;
+    hideWorkInfo();
+  }, 0);
 }
-// called from the carousel's hover check with the card under the mouse (or null)
+// Safety check before tucking it away: is the cursor really still over the front card
+// or the summary? (Chrome sometimes re-checks hover mid-swap, while the cards change
+// layers, and briefly sees neither.) Moving off them still tucks it away at once.
+function cursorStillOnWorkCards() {
+  if (wiSettledIndex < 0 || workGridMode || !cursorMain.classList.contains('active') || cursorMain.classList.contains('is-away')) return false;
+  const inside = (el) => { if (!el) return false; const r = el.getBoundingClientRect(); return mouseX >= r.left && mouseX <= r.right && mouseY >= r.top && mouseY <= r.bottom; };
+  const under = document.elementFromPoint(mouseX, mouseY);
+  if (!under || !carouselEl.contains(under)) return false;          // (e.g. the cursor is over the pills or nav)
+  return inside(cards[wiSettledIndex]) || (wiShownIndex >= 0 && inside(workInfo));
+}
 function setWorkInfoHover(card) {
+  if (!workInfo || workGridMode) return;
   const over = !!card && Number(card.dataset.index) === wiSettledIndex;
+  workInfo.classList.toggle('is-fanned', over);
   if (over === wiOverCard) return;
   wiOverCard = over;
-  updateWorkInfo();
+  updateWorkInfoHover();
 }
-// still for settleMs, sitting on a card, nobody holding it: that card is now "the front card"
+
+// Reveal once the card is visually settled, including the intro's tiny tail.
+// Keep the reveal visible through those final frames instead of restarting it.
+function readyWorkInfoIndex() {
+  if (!carouselReady || workGridMode || dragging || (window._carouselFade ?? 1) < 1) return -1;
+  if (isInteracting && !glide) return -1;
+  if (Math.abs(offset - Math.round(offset)) > 0.025) return -1;
+  if (glide && Math.abs(velX) > 0.3) return -1;
+  return ((Math.round(offset) % N) + N) % N;
+}
 function checkWorkInfo() {
   wiTimer = 0;
-  if (!carouselReady || (window._carouselFade ?? 1) < 1) return;   // (the cards' intro brings it in when it's done)
-  if (dragging || glide || Math.abs(offset - Math.round(offset)) > 0.01) { wiTimer = setTimeout(checkWorkInfo, 150); return; }
-  wiSettledIndex = ((Math.round(offset) % N) + N) % N;
-  if (wiCanHover && typeof refreshCardHoverAtCursor === 'function') refreshCardHoverAtCursor();   // (mouse may already be resting on it)
-  updateWorkInfo();
+  const index = readyWorkInfoIndex();
+  if (index < 0) return;
+  const newlySettled = wiSettledIndex !== index;
+  wiSettledIndex = index;
+  if (wiUseHover) {
+    // the mouse may already be resting on the new front card
+    if (newlySettled) { wiOverCard = false; refreshCardHoverAtCursor(); updateWorkInfoHover(); }
+    return;
+  }
+  if (wiShownIndex !== index) showWorkInfo(index);
 }
-// called on every layout: any movement closes it and restarts the "still" countdown
 function trackWorkInfo() {
   if (!workInfo) return;
-  if (offset === wiLastOffset && !dragging) return;   // (hover lift re-lays out without moving)
+  const readyIndex = readyWorkInfoIndex();
+  if (readyIndex >= 0) {
+    wiLastOffset = offset;
+    clearTimeout(wiTimer);
+    checkWorkInfo();
+    return;
+  }
+  if (offset === wiLastOffset && !dragging) return;
   wiLastOffset = offset;
   wiSettledIndex = -1;
-  wiOverCard = false;
-  clearTimeout(wiHoverTimer);
   hideWorkInfo();
   clearTimeout(wiTimer);
-  wiTimer = setTimeout(checkWorkInfo, WORK_INFO.settleMs);
+  wiTimer = setTimeout(checkWorkInfo, 40);
 }
+
 if (workInfo) {
+  // Siblings, rather than nested controls inside the project link.
+  carouselEl.appendChild(workInfo);
+  workInfo.inert = true;
+  workInfo.style.opacity = '0';   // (until the cards are laid out and it can tuck behind one)
+  // (on the summary card itself: keep it open, so you can reach "sneak peek")
+  workInfo.addEventListener('mouseenter', () => { wiOverPanel = true; updateWorkInfoHover(); });
+  workInfo.addEventListener('mouseleave', () => { wiOverPanel = false; updateWorkInfoHover(); });
+  workInfo.addEventListener('focusin', () => { wiOverPanel = true; updateWorkInfoHover(); });
+  workInfo.addEventListener('focusout', () => { wiOverPanel = false; updateWorkInfoHover(); });
+  carouselEl.addEventListener('focusout', () => requestAnimationFrame(() => setWorkInfoHover(null)));
+  wiToggle.addEventListener('click', () => {
+    if (wiExpanded) { closeWorkPreview(true); return; }
+    stopGlide();
+    wiExpanded = true;
+    wiContent.hidden = false;
+    wiContent.scrollTop = 0;
+    wiToggle.setAttribute('aria-expanded', 'true');
+    wiToggle.setAttribute('aria-label', 'Close summary');
+    wiToggle.firstElementChild.textContent = '';
+    workInfo.classList.add('is-expanded');
+    setCursorLabel('');   // (opened: back to the normal cursor)
+    swapWorkCards(true);
+    if (wiShownIndex >= 0) { bounceGroup(cardBounceGroup(wiShownIndex), 0); bounceIntoPlace(workInfo, 0.05); }
+  });
+  carouselEl.addEventListener('focusin', e => {
+    const card = e.target.closest('.project-card');
+    if (card) setWorkInfoHover(card);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && wiExpanded) { e.preventDefault(); closeWorkPreview(true); }
+  });
+  document.addEventListener('pointerdown', e => {
+    if (wiExpanded && !workInfo.contains(e.target)) closeWorkPreview();
+  });
   window.addEventListener('resize', () => { if (wiShownIndex !== -1) placeWorkInfo(wiShownIndex); });
-  workInfo.addEventListener('mouseenter', () => { wiOverPanel = true; updateWorkInfo(); });
-  workInfo.addEventListener('mouseleave', () => { wiOverPanel = false; updateWorkInfo(); });
-  // "read the case study": a plain click gets the usual navy wipe; Cmd/Ctrl/Shift-click opens a new tab as normal
-  workInfo.addEventListener('click', (e) => {
+  workInfo.addEventListener('click', e => {
+    // The exposed back card is one generous target; keep its button keyboard accessible.
+    if (!wiExpanded && !e.target.closest('.wi-toggle')) {
+      wiToggle.click();
+      return;
+    }
     const link = e.target.closest('.wi-link');
-    if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    if (!link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     openProject(Number(link.dataset.index));
   });
 }
 
 function layoutCards() {
+  if (workGridMode) return;
   cards.forEach((card, i) => {
     let pos = i - offset;
     // Wrap into (-N/2, N/2] — using strict less-than avoids the boundary flip at exactly N/2
@@ -2102,12 +2304,19 @@ function layoutCards() {
     card.style.transformOrigin = 'center center';
     card.style.transition = 'none';
     const lift = card._currentLift || 0;
+    let bx = 0, by = 0, brot = 0;
+    if (wiSwap.k && i === wiShownIndex) {                 // summary opened: this card sits in the back spot
+      const b = backPoseFor(card);
+      bx = b.x; by = b.y; brot = b.rot;   // (keeps its hover lift, like the summary does: an exact swap)
+    }
 
-card.style.transform = `translate(-50%, -50%) translateX(${x}px) translateY(${y + lift}px) rotate(${angle}deg)`;
+card.style.transform = `translate(-50%, -50%) translateX(${x + bx}px) translateY(${y + lift + by}px) rotate(${angle + brot}deg)`;
 const distOpacity = absDist > 2.5 ? 0 : Math.max(0, 1 - (absDist - 1.5) * 0.7);
 card.style.opacity = String(distOpacity * (window._carouselFade ?? 1));
     card.style.zIndex = String(Math.round(100 - absDist * 10));
+    card._pose = { x, y, angle, lift };
   });
+  rideWorkInfo();
   requestPillContrastCheck();
   if (typeof turnWorkDial === 'function' && workDial) turnWorkDial(offset);
   trackWorkInfo();
@@ -2298,7 +2507,7 @@ carouselEl.addEventListener('click', (e) => {
   if (!card) return;
   if (isNewTabClick(e)) return;
   e.preventDefault();
-  if (e.detail === 0) openProject(Number(card.getAttribute('data-index'))); // keyboard
+  if (workGridMode || e.detail === 0) openProject(Number(card.getAttribute('data-index'))); // keyboard
 });
 
 // Cards are links, and browsers turn press-and-drag on a link into "drag this URL
@@ -2306,24 +2515,38 @@ carouselEl.addEventListener('click', (e) => {
 // card spins the carousel (a plain click still opens the project).
 carouselEl.addEventListener('dragstart', (e) => e.preventDefault());
 
+// A drag can start on the summary card too (open or not). There it only becomes a
+// swipe once it moves sideways past 6px, so plain clicks on "sneak peek", the ×
+// or "read the case study" still work (and aren't captured by the carousel).
+let pendingInfoDrag = null;
 carouselEl.addEventListener('pointerdown', (e) => {
+  if (workGridMode) return;
   if (!carouselReady) return;
   // only a plain left press drags / opens: right-click (menu), middle-click (new tab)
   // and Cmd/Ctrl/Shift-click are left to the browser
   if (e.pointerType === 'mouse' && (e.button !== 0 || isNewTabClick(e))) return;
+  // on the summary card, or anywhere while it's open: maybe just a click (e.g. on the
+  // project card behind it, which closes it), so only a real sideways move starts a drag
+  if (e.target.closest('.work-info') || wiExpanded) { pendingInfoDrag = { x: e.clientX }; return; }
+  beginCarouselDrag(e.clientX, e.pointerId);
+});
+function beginCarouselDrag(x, pointerId) {
   isInteracting = true;
-  // hideAward();
-  // hideBadge();
   dragging = true;
   didDrag = false;
-  startX = e.clientX; startOffset = offset; velX = 0; lastX = e.clientX;
-  carouselEl.setPointerCapture(e.pointerId);
+  startX = x; startOffset = offset; velX = 0; lastX = x;
+  carouselEl.setPointerCapture(pointerId);
   stopGlide();
   motionSamples.length = 0;
   sampleMotion();
-});
+}
 
 carouselEl.addEventListener('pointermove', (e) => {
+  if (pendingInfoDrag && !dragging) {
+    if (Math.abs(e.clientX - pendingInfoDrag.x) <= 6) return;   // (still just a click)
+    beginCarouselDrag(pendingInfoDrag.x, e.pointerId);         // a real sideways drag: spin the cards
+    pendingInfoDrag = null;
+  }
   if (!dragging) return;
   if (Math.abs(e.clientX - startX) > 6) {
     didDrag = true;
@@ -2337,9 +2560,11 @@ carouselEl.addEventListener('pointermove', (e) => {
 });
 
 carouselEl.addEventListener('pointerup', (e) => {
+  pendingInfoDrag = null;
   if (!dragging) return;
   dragging = false;
   if (!didDrag) {
+    isInteracting = false;   // (a click, not a swipe: don't leave the carousel thinking it's mid-gesture)
     // Use elementFromPoint to find what's visually under the click
     const el = document.elementFromPoint(e.clientX, e.clientY);
     const clickedCard = el?.closest('.project-card');
@@ -2349,23 +2574,34 @@ carouselEl.addEventListener('pointerup', (e) => {
   settleFrom(releaseVelocity());
 });
 
+let pendingInfoTouch = null;
 carouselEl.addEventListener('touchstart', (e) => {
+  if (workGridMode) return;
   if (!carouselReady) return;
+  if (e.target.closest('.work-info') || wiExpanded) { pendingInfoTouch = { x: e.touches[0].clientX }; return; }   // (maybe a tap)
+  beginCarouselTouch(e.touches[0].clientX);
+}, { passive: true });
+function beginCarouselTouch(x) {
   isInteracting = true;
   hideAward();
   hideBadge();
   lenis.stop();
   dragging = true; didDrag = false;
-  startX = e.touches[0].clientX;
+  startX = x;
   startOffset = offset;
   velX = 0;
-  lastX = e.touches[0].clientX;
+  lastX = x;
   stopGlide();
   motionSamples.length = 0;
   sampleMotion();
-}, { passive: true });
+}
 
 carouselEl.addEventListener('touchmove', (e) => {
+  if (pendingInfoTouch && !dragging) {
+    if (Math.abs(e.touches[0].clientX - pendingInfoTouch.x) <= 6) return;   // (still just a tap)
+    beginCarouselTouch(pendingInfoTouch.x);
+    pendingInfoTouch = null;
+  }
   if (!dragging) return;
   const dx = e.touches[0].clientX - startX;
   if (Math.abs(dx) > 6) {
@@ -2379,11 +2615,13 @@ carouselEl.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 carouselEl.addEventListener('touchend', () => {
+  pendingInfoTouch = null;
   if (!dragging) return;
   dragging = false;
   lenis.start();
   
   if (!didDrag) {
+    isInteracting = false;
     const idx = ((Math.round(offset) % N) + N) % N;
     openProject(Number(cards[idx]?.getAttribute('data-index')));
     return;
@@ -2408,32 +2646,26 @@ function refreshCardHoverAtCursor() {
 function updateCardHover(x, y) {
   const el = document.elementFromPoint(x, y);
   const hoveredCard = el?.classList.contains('project-card') ? el : el?.closest('.project-card');
-  setWorkInfoHover(hoveredCard);
+  // on the summary card: its project card stays hovered (lifted, "dive in" grown)
+  const liftCard = hoveredCard || (wiShownIndex >= 0 && el?.closest('#workInfo') ? cards[wiShownIndex] : null);
+  setCursorLabel(wiShownIndex >= 0 && !wiExpanded && el?.closest('#workInfo') ? 'sneak peek' : '');
+  setWorkInfoHover(liftCard);
+  // (kept out by the safety check? re-check on every move, so it tucks away once you're really off)
+  if (wiShownIndex !== -1 && !wiOverCard && !wiOverPanel && !wiExpanded) updateWorkInfoHover();
   cards.forEach(card => {
-    card._targetLift = card === hoveredCard ? -30 : 0;
-    const hovered = card === hoveredCard;
+    card._targetLift = card === liftCard ? -30 : 0;
+    const hovered = card === liftCard;
     if (hovered && !card.classList.contains('cta-hover')) jostleCardGraphics(card);
     card.classList.toggle('cta-hover', hovered);
   });
   
-  // Move award with pent up card when it's hovered
-  const pentUpCard = cards[PENT_UP_INDEX];
-  const award = awardEl;
-  if (award && awardVisible) {
-    pentUpCard._targetLift === pentUpCard._targetLift; // already set above
-    award._targetLift = award._targetLift || 0;
-    award._targetLift = (hoveredCard === pentUpCard) ? -50 : 0;
-  }
-  
-  const settlyfeCard = cards[SETTLYFE_INDEX];
-const badge = badgeEl;
-if (badge) {
-  badge._targetLift = (hoveredCard === settlyfeCard) ? -50 : 0;
-}
-
-
 const onCard = !!hoveredCard;
-if (onCard && !isBlobMode) expandToBlob(hoveredCard, false);
+const hoveredCTA = el?.closest('.card-cta:not(.card-cta--wide)');
+if (hoveredCTA) {
+  if (blobTarget !== hoveredCTA) expandToBlob(hoveredCTA, 'box');
+} else if (onCard && (!isBlobMode || blobTarget?.classList.contains('card-cta'))) {
+  expandToBlob(hoveredCard, false);
+}
   else if (!onCard && isBlobMode) {
     const hovered = document.elementsFromPoint(x, y).find(el =>
       el.matches?.("a[href], button, [role='button'], .btn-touch") ||
@@ -2445,6 +2677,7 @@ if (onCard && !isBlobMode) expandToBlob(hoveredCard, false);
 
 carouselEl.addEventListener('mouseleave', () => {
   cards.forEach(card => { card._targetLift = 0; card.classList.remove('cta-hover'); });
+  setCursorLabel('');
   setWorkInfoHover(null);
   setBadgeTilt(awardEl, false, AWARD_TILT);
   setBadgeTilt(badgeEl, false, BADGE_TILT);
@@ -2543,56 +2776,11 @@ function setBadgeTilt(el, hovered, restTilt) {
 let awardToken = 0;
 let lastHideTime = 0;
 
-function showAward() {
-  // if (performance.now() - lastHideTime < 500) return;
-  awardVisible = true;
-  const award = awardEl;
-
-  if (award) {
-    gsap.killTweensOf(award);
-    award._tiltHovered = false;
-    gsap.fromTo(award,
-      { opacity: 0, rotate: -25, scale: 0.9 },
-      { opacity: 1, rotate: 12.46, scale: 1, duration: 0.5, ease: "back.out(4)" }
-    );
-  }
-}
-
-function hideBadge() {
-  lastHideTime = performance.now();
-  const badge = badgeEl;
-
-  if (!badge) return;
-  gsap.killTweensOf(badge);
-  gsap.to(badge, { opacity: 0, duration: 0.15, ease: "power1.out", overwrite: true });
-  badge.style.transition = '';
-}
-
-function showBadge() {
-  const badge = badgeEl;
-
-  if (!badge) return;
-  badge.style.transition = '';
-  badge.style.opacity = '';  // clear any inline opacity hideBadge() set
-  gsap.killTweensOf(badge);
-  badge._tiltHovered = false;
-  gsap.fromTo(badge,
-    { opacity: 0, rotate: 25, scale: 0.9 },
-    { opacity: 1, rotate: -12.46, scale: 1, duration: 0.5, ease: "back.out(4)" }
-  );
-}
-
-function hideAward() {
-  awardVisible = false;
-  awardToken++;
-  lastHideTime = performance.now();
-  const award = awardEl;
-
-  if (!award) return;
-  gsap.killTweensOf(award);
-  gsap.to(award, { opacity: 0, duration: 0.15, ease: "power1.out", overwrite: true });
-  award.style.transition = '';
-}
+// (the award and badge are always visible on their cards now: nothing to show or hide)
+function showAward() { awardVisible = true; }
+function hideAward() { awardVisible = false; awardToken++; lastHideTime = performance.now(); }
+function showBadge() {}
+function hideBadge() { lastHideTime = performance.now(); }
 
 // Pills fade in one after another. One staggered tween (not a timer per pill), so
 // it can be cancelled if you scroll back out mid-animation — the old timers could
@@ -2608,6 +2796,10 @@ workNavPills.forEach(pill => {
 
 pill.addEventListener('click', () => {
   const target = parseInt(pill.dataset.index);
+  if (workGridMode) {
+    lenis.scrollTo(cards[target], { offset: -140 });
+    return;
+  }
     const current = ((Math.round(offset) % N) + N) % N;
     // already in front: just give its graphics their hop (badge/award stay as they are)
     if (target === current) { jostleCardGraphics(cards[target]); return; }
@@ -2680,30 +2872,6 @@ function renderLoop() {
   });
   if (liftMoving) layoutCards();
 
-  // Animate award lift in sync with pent up card
-  const award = awardEl;
-
-  if (award && awardVisible) {
-    award._currentLift = award._currentLift || 0;
-    award._targetLift = award._targetLift || 0;
-    if (Math.abs(award._targetLift - award._currentLift) > 0.05) {
-      award._currentLift += (award._targetLift - award._currentLift) * 0.12;
-      gsap.set(award, { y: award._currentLift });
-    }
-  }
-  
-const badge = badgeEl;
-
-if (badge) {
-  badge._currentLift = badge._currentLift || 0;
-  badge._targetLift = badge._targetLift || 0;
-  if (Math.abs(badge._targetLift - badge._currentLift) > 0.05) {
-    badge._currentLift += (badge._targetLift - badge._currentLift) * 0.12;
-    if (gsap.getProperty(badge, 'opacity') > 0.01) {
-      gsap.set(badge, { y: badge._currentLift });
-    }
-  }
-}
 
   if (offset !== lastHighlightOffset) {
     lastHighlightOffset = offset;
@@ -2808,8 +2976,8 @@ onLeaveBack: () => {
     // Hard reset badge and award to avoid stuck state
     gsap.killTweensOf(badgeEl);
     gsap.killTweensOf(awardEl);
-    if (badgeEl) { badgeEl.style.opacity = '0'; badgeEl.style.transition = ''; }
-    if (awardEl) { awardEl.style.opacity = '0'; awardEl.style.transition = ''; }
+    if (badgeEl) { badgeEl.style.transition = ''; }
+    if (awardEl) { awardEl.style.transition = ''; }
       if (badgeEl) { badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
     if (awardEl) { awardEl._currentLift = 0; awardEl._targetLift = 0; }  
   const pills = workNavPills;
@@ -3003,8 +3171,8 @@ window.addEventListener('load', () => {
       onPageScrollLayout();
       gsap.killTweensOf(badgeEl);
 gsap.killTweensOf(awardEl);
-if (badgeEl) { badgeEl.style.opacity = '0'; badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
-if (awardEl) { awardEl.style.opacity = '0'; awardEl._currentLift = 0; awardEl._targetLift = 0; }
+if (badgeEl) { badgeEl._currentLift = 0; badgeEl._targetLift = 0; }
+if (awardEl) { awardEl._currentLift = 0; awardEl._targetLift = 0; }
       ScrollTrigger.refresh();
     }, 800);
   }
@@ -3102,20 +3270,59 @@ function letGoOfWheel() {
   if (TRACKPAD_FEEL === 'flick') flickFrom(v); else settleFrom(v);
 }
 
-window.addEventListener('wheel', (e) => {
-  const overCarousel = carouselEl.contains(e.target) || e.target === carouselEl;
+// A soft directional preference, re-evaluated on every event. Clear intent switches
+// immediately; near-diagonal jitter keeps the current direction for this gesture.
+const carouselGesture = { axis: null, lastTime: 0 };
+function carouselGestureAxis(dx, dy, now) {
+  const x = Math.abs(dx), y = Math.abs(dy);
+  if (now - carouselGesture.lastTime > 160) carouselGesture.axis = null;
+  carouselGesture.lastTime = now;
+  if (x > y * 1.15) carouselGesture.axis = 'x';
+  else if (y > x * 1.15) carouselGesture.axis = 'y';
+  else if (!carouselGesture.axis) carouselGesture.axis = x > y ? 'x' : 'y';
+  return carouselGesture.axis;
+}
 
-  if (overCarousel) {
-    e.preventDefault();
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) carouselWheel(e.deltaX);
+// Capture before Lenis sees the gesture. Horizontal swipes never leak their Y
+// component into page scrolling; vertical gestures use the normal page scroller.
+window.addEventListener('wheel', (e) => {
+  if (e.ctrlKey || e.defaultPrevented || window.fishtankPanelOpen) return;
+  const onInfo = !!e.target.closest?.('.work-info');
+  const overWork = !!e.target.closest?.('#third-section');
+  const overCarousel = carouselEl.contains(e.target);
+  const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+  const dx = e.deltaX * unit, dy = e.deltaY * unit;
+  if (!dx && !dy) return;
+  // Over the summary card, or anywhere on the cards while it's open: a sideways swipe
+  // still spins the carousel (which tucks the summary away); up/down behaves as before.
+  if (onInfo || (wiExpanded && overCarousel)) {
+    if (carouselGesture.axis !== 'x' && carouselGestureAxis(dx, dy, performance.now()) !== 'x') {
+      if (onInfo) return;
+      e.preventDefault(); e.stopImmediatePropagation(); return;
+    }
+  }
+  if (overWork && workGridMode) return;
+  if (overWork) {
+    const previousAxis = carouselGesture.axis;
+    if (carouselGestureAxis(dx, dy, performance.now()) === 'x') {
+      if (previousAxis !== 'x') lenis.scrollTo(lenis.scroll, { immediate: true });
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (dx) carouselWheel(dx);
+    } else if (wheelSwipe.mode === 'track') {
+      // Let a deliberate vertical turn scroll right away, while the cards settle.
+      clearTimeout(wheelSwipe.timer);
+      wheelSwipe.mode = 'idle';
+      settleFrom(releaseVelocity());
+    }
     return;
   }
-
-  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+  if (Math.abs(dx) > Math.abs(dy)) {
     e.preventDefault();
-    lenis.scrollTo(lenis.scroll + e.deltaX * 0.8, { immediate: false });
+    e.stopImmediatePropagation();
+    lenis.scrollTo(lenis.scroll + dx * 0.8, { immediate: false });
   }
-}, { passive: false });
+}, { passive: false, capture: true });
 
 const diamondPattern = document.querySelector('.diamond-pattern');
 let diamondOffset = 0;

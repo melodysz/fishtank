@@ -297,8 +297,8 @@ body {
 
 /* --- CURSOR & BUBBLE EMITTER --- */
 .cursor-dot {
-  width: 14px;
-  height: 14px;
+  width: 8px;
+  height: 8px;
 background-color: #0313E4;
   border-radius: 50%;
   position: fixed;
@@ -349,8 +349,11 @@ background-color: #0313E4;
               border-radius 0.3s ease;
 }
 
-/* hovering a project card: the plain see-through bubble, no blend */
+/* Project-card hover: a medium square, retaining the trailing motion. */
 .cursor-dot.is-blob.on-card {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
   mix-blend-mode: normal;
   opacity: 0.4;
 }
@@ -2869,7 +2872,7 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
   padding: 22px 24px 24px;
   border-radius: 20px;
   background: #090C22;              /* solid: the side card behind it shouldn't show through */
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: none;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
   color: #EDEFFB;
   text-align: left;                /* (the work section centres text) */
@@ -2933,3 +2936,213 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
 @media (prefers-reduced-motion: reduce) {
   .work-info, .work-info.is-shown { transition: opacity 0.2s ease, visibility 0s; translate: 0 0; }
 }
+
+/* Fanned preview card: the closed layer stays behind the front project (z:100). */
+.work-info {
+  left: 50%; top: 50%; z-index: 95;
+  box-sizing: border-box;
+  width: var(--wi-card-width, 380px);
+  height: var(--wi-card-height, 507px);
+  padding: 0; border-radius: 24px;
+  background: var(--wi-bg, #392455);
+  translate: none;
+  transform-origin: 50% 85%;
+  /* Start tucked fully behind the project, then pivot outward on arrival. */
+  transform: translate(-50%, -50%) translate(0, 10px) rotate(-2deg) scale(.98);
+  transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .15s ease, visibility 0s linear .3s;
+  pointer-events: none;
+}
+.work-info.is-shown {
+  translate: none; pointer-events: auto;
+  transform: translate(-50%, -50%) translate(22px, -8px) rotate(4deg);
+  transition: transform .36s cubic-bezier(.22,1.12,.36,1), opacity .15s ease, visibility 0s;
+}
+/* Bouncy fan-out: a spring that swings ~9% past its spot, eases back and settles in 0.45s (0.7s, then 0.6s felt slow)
+   (first a quick ease-out read as floaty; then a 25% spring bounced too much).
+   Browsers without linear() keep the cubic-bezier above. */
+.work-info.is-shown {
+  transition: transform .45s linear(0, 0.052, 0.178, 0.34, 0.512, 0.672, 0.81, 0.919, 0.999, 1.052, 1.082, 1.094, 1.093, 1.083, 1.068, 1.052, 1.036, 1.022, 1.011, 1.003, 0.997, 0.993, 0.991, 0.991, 0.992, 0.993, 0.994, 0.996, 1), opacity .15s ease, visibility 0s;
+}
+.wi-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  position: absolute; right: 12px; top: 18px;
+  width: 124px; min-height: 44px; padding: 10px 12px;
+  border: 0; border-radius: 0;
+  background: transparent; color: #fff;
+  font: 14px 'PP Neue Montreal', sans-serif;
+}
+.work-info.is-expanded {
+  z-index: 150;
+  /* opened: it takes the project card's spot and angle (the project card tilts into
+     the back spot instead: js/main.js, swapWorkCards) */
+  transform: translate(-50%, -50%);
+  box-shadow: 0 24px 70px #0009;
+}
+.work-info.is-expanded .wi-toggle { width: 44px; padding: 10px; justify-content: center; gap: 0; }
+.work-info.is-expanded .wi-toggle > span:first-child { display: none; }
+.wi-content {
+  position: absolute; inset: 80px 0 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 25px 26px; user-select: text;
+  scrollbar-width: thin;
+}
+.wi-content[hidden] { display: none; }
+.wi-facts dt, .wi-label { color: #ffffffbf; }
+.wi-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+@media (hover: none) {
+  .work-info.is-shown { transform: translate(-50%, -50%) translate(50px, -20px) rotate(8deg); }
+  .work-info.is-expanded { transform: translate(-50%, -50%) rotate(0deg); }
+}
+@media (max-width: 600px) {
+  .work-info { width: min(var(--wi-card-width, 380px), calc(100vw - 52px)); }
+  .work-info.is-shown { transform: translate(-50%, -50%) translate(16px, -35px) rotate(5deg); }
+  .work-info.is-expanded { transform: translate(-50%, -50%); max-height: 70dvh; }
+  .wi-toggle { top: 8px; }
+  .wi-content { inset-block-start: 66px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-info, .work-info.is-shown { transition: opacity .15s; }
+}
+
+/* Let the cursor distinguish the case-study CTA from the rest of its card. */
+.card-cta { pointer-events: auto; }
+.cursor-dot.is-blob.on-card.on-pill {
+  width: var(--blob-w);
+  height: var(--blob-h);
+  border-radius: var(--blob-r, 999px);
+  mix-blend-mode: color-dodge;
+  opacity: 0.7;
+}
+
+/* Experimental layout switch, separated from the project navigation. */
+.work-layout-toggle {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-left: 22px; padding: 8px 12px;
+  border: 1px solid #a5a6d44d; border-radius: 8px;
+  background: #141526e6; color: #e1dcf1;
+  font: 14px 'PP Neue Montreal', sans-serif;
+  min-height: 38px; white-space: nowrap;
+}
+.work-layout-toggle:hover { background: #292941; }
+.work-layout-toggle:focus-visible { outline: 2px solid #d2abff; outline-offset: 4px; }
+.layout-symbol { font-size: 20px; line-height: 1; }
+.third-section.is-grid { min-height: 0; padding-top: 130px; padding-bottom: 90px; background: #000; }
+.is-grid .third-stage { min-height: 0; }
+.is-grid .circular-carousel {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px; box-sizing: border-box; padding: 0 32px;
+  height: auto; max-width: 1120px; margin: 0 auto;
+  opacity: 1 !important; touch-action: pan-y;
+}
+.is-grid .circular-carousel .project-card {
+  position: relative !important; width: 100% !important;
+  left: auto; top: auto; transform: none !important;
+  opacity: 1 !important; z-index: auto !important;
+  filter: none !important;
+}
+.is-grid .work-circle, .is-grid .third-decor,
+.is-grid .pent-up-award, .is-grid .coming-soon-badge,
+.is-grid .work-info { display: none !important; }
+@media (max-width: 900px) {
+  .is-grid .circular-carousel { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+}
+@media (max-width: 560px) {
+  .is-grid .circular-carousel { grid-template-columns: minmax(0,1fr); max-width: 420px; padding: 0 28px; }
+  .work-layout-toggle { margin-left: 10px; padding: 8px; }
+  .work-layout-toggle .layout-label { display: none; }
+}
+
+.wi-toggle-icon { display: inline-flex; align-items: center; justify-content: center; }
+.wi-eye { display: block; flex-shrink: 0; }
+.wi-close-icon { display: none; }
+.wi-toggle[aria-expanded="true"] .wi-eye { display: none; }
+.wi-toggle[aria-expanded="true"] .wi-close-icon { display: inline; }
+
+/* Summary card ↔ project card swap: both blip straight into their swapped spots;
+   js/main.js (bounceSwap) adds the case study's staggered hop-and-bounce on top. */
+.work-info.is-shown.is-expanded,
+.work-info.is-shown.is-switching {
+  transition: none;   /* the swap is an instant blip; the bounce (js/main.js) masks it */
+}
+
+/* Open summary layout: content starts near the top (the toggle / × sits in the
+   top-right corner, beside the project name) and fills the card, with "read the case
+   study" pinned to the bottom so it's never clipped. */
+.wi-content {
+  inset: 0;
+  padding: 26px 26px 24px;
+  display: flex;
+  flex-direction: column;
+}
+.wi-content .wi-project:not([hidden]) { flex: 1 0 auto; }
+.wi-content .wi-name { padding-right: 52px; }   /* (clear of the × in the corner) */
+.wi-toggle { z-index: 2; }                      /* (stays clickable above the content) */
+.wi-content .wi-link { margin-top: auto; }
+.wi-content .wi-result { margin-bottom: 12px !important; }
+/* a little tighter, so the longest summary (Knouri) still fits with room to spare */
+.wi-content .wi-project { gap: 4px; line-height: 1.4; }
+.wi-content .wi-label { margin-top: 4px !important; }
+.wi-content .wi-facts { margin-bottom: 6px; padding-bottom: 10px; }
+
+/* Settlyfe has no case study yet: a closed eye instead of the open one */
+.wi-eye-closed { display: none; flex-shrink: 0; }
+.work-info[data-project="1"] .wi-toggle[aria-expanded="false"] .wi-eye { display: none; }
+.work-info[data-project="1"] .wi-toggle[aria-expanded="false"] .wi-eye-closed { display: block; }
+
+/* Cursor label pill (e.g. "sneak peek" over the summary card): the dot grows into a
+   solid blue pill with white text, to the right of the pointer (js/main.js setCursorLabel). */
+.cursor-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  color: #fff;
+  font: 500 13px/1 'PP Neue Montreal', sans-serif;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+.cursor-dot.has-label {
+  width: var(--label-w, 90px) !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  background-color: #0313E4 !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+}
+.cursor-dot.has-label .cursor-label { opacity: 1; transition: opacity 0.18s ease 0.08s; }
+
+/* The summary card is always there (no fading): tucked exactly behind the front
+   project card, a touch smaller and one layer below, and it fans out from there.
+   It follows the card through left / top / rotate (set every frame by js/main.js
+   rideWorkInfo; never animated, so following can't restart or slow the fan-out),
+   and only `transform` (the fan itself) is animated. The fan's offsets are the old
+   pose (22px right, 8px up, 4° about a point 85% down) worked out for turning about
+   the centre, like the project cards do. */
+.work-info {
+  opacity: 1;
+  visibility: visible;
+  z-index: var(--wi-z, 95);
+  left: calc(50% - var(--wi-card-width, 380px) / 2 + var(--wi-x, 0px));
+  top: calc(50% - var(--wi-card-height, 507px) / 2 + var(--wi-y, 0px) + var(--wi-lift, 0px));
+  rotate: var(--wi-rot, 0deg);
+  transform-origin: 50% 50%;
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.work-info.is-shown {
+  transform: translate(calc(22px + var(--wi-card-height, 507px) * 0.0244), calc(-8px + var(--wi-card-height, 507px) * 0.00085)) rotate(4deg);
+  transition: transform .45s linear(0, 0.052, 0.178, 0.34, 0.512, 0.672, 0.81, 0.919, 0.999, 1.052, 1.082, 1.094, 1.093, 1.083, 1.068, 1.052, 1.036, 1.022, 1.011, 1.003, 0.997, 0.993, 0.991, 0.991, 0.992, 0.993, 0.994, 0.996, 1);
+}
+.work-info.is-shown.is-expanded { transform: none; }
+
+/* Opened: the close button is the closed eye (not ×) */
+.wi-toggle[aria-expanded="true"] .wi-close-icon { display: none; }
+.wi-toggle[aria-expanded="true"] .wi-eye-closed { display: block; }
+
+/* The award / "coming soon" badge sit inside their project card now (js/main.js),
+   always visible: the same left/top as before now measure from the card itself. */
+.project-card > .pent-up-award,
+.project-card > .coming-soon-badge { opacity: 1; will-change: auto; }
