@@ -1,6 +1,6 @@
 /* Shared companion palette; motion, size, and hover shapes remain page-owned. */
 #cursor:not(.has-label) {
-  background-color: #0a9eff;
+  background-color: var(--companion-color, #0a9eff);   /* case studies: their highlight colour (js/companion-blend.js) */
   mix-blend-mode: color-dodge;
 }
 #cursor.is-blob:not(.has-label) { mix-blend-mode: color-dodge; }
