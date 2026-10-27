@@ -3099,6 +3099,7 @@ html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: th
 
 .wi-toggle-icon { display: inline-flex; align-items: center; justify-content: center; }
 .wi-eye { display: block; flex-shrink: 0; }
+.wi-eye, .wi-eye-closed { color: var(--wi-accent, #fff); }   /* the project card's color (set per project in js/main.js, showWorkInfo) */
 .wi-close-icon { display: none; }
 .wi-toggle[aria-expanded="true"] .wi-eye { display: none; }
 .wi-toggle[aria-expanded="true"] .wi-close-icon { display: inline; }

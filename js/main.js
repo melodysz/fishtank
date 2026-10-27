@@ -2058,7 +2058,7 @@ const wiToggle = workInfo?.querySelector('.wi-toggle');
 const wiContent = document.getElementById('workPreviewContent');
 const wiColors = ['#392455', '#123F50', '#333345', '#512448', '#294329'];
 let wiLastOffset = null, wiTimer = 0, wiShownIndex = -1;
-let wiSettledIndex = -1, wiExpanded = false;
+let wiSettledIndex = -1, wiExpanded = false, wiHoverIndex = -1, wiLastShownIndex = -1, wiHiddenAt = -Infinity;
 let wiDismissing = false, wiWaitingForStop = false;
 
 // The front/back swap borrows the bounce from the Creatify case study's Higgsfield /
@@ -2083,7 +2083,9 @@ function bounceIntoPlace(el, delay = 0) {
 let wiRideKey = '';
 function rideWorkInfo() {
   if (!workInfo || workGridMode) return;
-  const idx = (wiDismissing || wiWaitingForStop) && wiShownIndex >= 0 ? wiShownIndex : ((Math.round(offset) % N) + N) % N;
+  // (behind the card it's showing for, which can be a side card you hovered; once tucked
+  // away it stays behind that card until the carousel moves, so it un-fans in place)
+  const idx = wiShownIndex >= 0 ? wiShownIndex : wiLastShownIndex >= 0 ? wiLastShownIndex : ((Math.round(offset) % N) + N) % N;
   const card = cards[idx], p = card && card._pose;
   if (!p) return;
   // (left / top / rotate in css/style.css: never animated, so it follows the card
@@ -2193,7 +2195,25 @@ function hideWorkInfo() {
   closeWorkPreview();
   workInfo.classList.remove('is-shown', 'is-fanned');
   workInfo.inert = true;
+  if (wiShownIndex >= 0) { wiLastShownIndex = wiShownIndex; wiHiddenAt = performance.now(); }
   wiShownIndex = -1;
+}
+function leaveWorkInfoGhost() {
+  const now = getComputedStyle(workInfo).transform;   // (wherever it is mid-animation)
+  const ghost = workInfo.cloneNode(true);
+  ghost.removeAttribute('id');
+  ghost.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+  ghost.classList.remove('is-shown', 'is-fanned', 'is-expanded', 'is-switching');
+  ghost.classList.add('wi-ghost');
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.inert = true;
+  Object.assign(ghost.style, { pointerEvents: 'none', transition: 'none', transform: now });
+  workInfo.before(ghost);
+  void ghost.offsetWidth;
+  Object.assign(ghost.style, { transition: '', transform: '' });   // (tucks in with the usual .3s ease)
+  const done = () => ghost.remove();
+  ghost.addEventListener('transitionend', (e) => { if (e.target === ghost && e.propertyName === 'transform') done(); });   // (not its children's)
+  setTimeout(done, 450);
 }
 function placeWorkInfo(index) {
   const surface = cards[index];
@@ -2205,12 +2225,33 @@ function showWorkInfo(index) {
   if (workGridMode) return;
   if (!workInfo || !workInfoProjects.length) return;
   if (index !== wiShownIndex) closeWorkPreview();
+  // Hopping to another card while this summary is still out (or still tucking away):
+  // a copy stays behind to finish tucking in, while the real one moves on.
+  const from = wiShownIndex >= 0 ? wiShownIndex : wiLastShownIndex;
+  if (from >= 0 && from !== index && (wiShownIndex >= 0 || performance.now() - wiHiddenAt < 300)) leaveWorkInfoGhost();
+  const restartFan = index !== wiShownIndex;
+  if (restartFan) {
+    // Also reset when the previous summary is mid-hide (wiShownIndex is -1).
+    // Its ghost finishes the old exit; the reused element starts fully tucked.
+    clearTimeout(workInfo._switchTimer);
+    if (workInfo._bounceTl) workInfo._bounceTl.kill();
+    workInfo.style.translate = '';
+    workInfo.style.transition = 'none';
+    workInfo.classList.remove('is-shown', 'is-switching');
+  }
   workInfoProjects.forEach(el => { el.hidden = Number(el.dataset.index) !== index; });
   workInfo.style.setProperty('--wi-bg', wiColors[index]);
+  workInfo.style.setProperty('--wi-accent', workInfoProjects[index].style.getPropertyValue('--wi-accent'));   // (tints the eye to match the project card)
   workInfo.dataset.project = index;   // (per-project bits in css/style.css, e.g. Settlyfe's closed eye)
   wiToggle.setAttribute('aria-label', 'Sneak peek at ' + workInfoProjects[index].querySelector('.wi-name').textContent);
   placeWorkInfo(index);
   wiShownIndex = index;
+  rideWorkInfo();   // (tuck behind this card before fanning out from it)
+  if (restartFan) {
+    // Commit the tucked pose at the NEW card before enabling the reveal.
+    void workInfo.offsetWidth;
+    workInfo.style.transition = '';
+  }
   workInfo.inert = false;
   workInfo.classList.add('is-shown');
 }
@@ -2223,9 +2264,11 @@ const wiUseHover = WI_ON_HOVER && window.matchMedia('(hover: hover)').matches;
 let wiOverCard = false, wiOverPanel = false, wiHoverTimer = 0;
 function updateWorkInfoHover() {
   if (!workInfo || !wiUseHover) return;
-  const want = wiSettledIndex >= 0 && !workGridMode && (wiOverCard || wiOverPanel || wiExpanded);
+  // Any card you hover gets its summary, not just the front one (open: it stays put).
+  const target = wiExpanded || (wiOverPanel && !wiOverCard) ? wiShownIndex : wiOverCard ? wiHoverIndex : -1;
+  const want = wiSettledIndex >= 0 && !workGridMode && target >= 0;
   clearTimeout(wiHoverTimer);
-  if (want && wiShownIndex !== wiSettledIndex) wiHoverTimer = setTimeout(() => showWorkInfo(wiSettledIndex), 0);
+  if (want && wiShownIndex !== target) wiHoverTimer = setTimeout(() => showWorkInfo(target), 0);
   else if (!want && wiShownIndex !== -1) wiHoverTimer = setTimeout(() => {   // (no lingering: it un-fans as the card drops back)
     if (cursorStillOnWorkCards()) return;
     hideWorkInfo();
@@ -2239,14 +2282,16 @@ function cursorStillOnWorkCards() {
   const inside = (el) => { if (!el) return false; const r = el.getBoundingClientRect(); return mouseX >= r.left && mouseX <= r.right && mouseY >= r.top && mouseY <= r.bottom; };
   const under = document.elementFromPoint(mouseX, mouseY);
   if (!under || !carouselEl.contains(under)) return false;          // (e.g. the cursor is over the pills or nav)
-  return inside(cards[wiSettledIndex]) || (wiShownIndex >= 0 && inside(workInfo));
+  return inside(cards[wiShownIndex >= 0 ? wiShownIndex : wiSettledIndex]) || (wiShownIndex >= 0 && inside(workInfo));
 }
 function setWorkInfoHover(card) {
   if (!workInfo || workGridMode) return;
-  const over = !!card && Number(card.dataset.index) === wiSettledIndex;
+  const idx = card ? Number(card.dataset.index) : -1;
+  const over = idx >= 0 && wiSettledIndex >= 0;   // (any card, once the carousel has stopped)
   workInfo.classList.toggle('is-fanned', over);
-  if (over === wiOverCard) return;
+  if (over === wiOverCard && (!over || idx === wiHoverIndex)) return;
   wiOverCard = over;
+  wiHoverIndex = over ? idx : -1;
   updateWorkInfoHover();
 }
 
@@ -2292,6 +2337,7 @@ function trackWorkInfo() {
   wiLastOffset = offset;
   wiSettledIndex = -1;
   hideWorkInfo();
+  wiLastShownIndex = -1;   // (moving again: it rides the front card)
   clearTimeout(wiTimer);
   wiTimer = setTimeout(checkWorkInfo, 40);
 }
@@ -2917,6 +2963,11 @@ function renderLoop() {
       liftMoving = true;
       card._currentLift += diff * 0.12;
     }
+
+    // A settled hovered card still has a shadow. Stop rendering it once its
+    // lift is unchanged, rather than treating that shadow as ongoing motion.
+    if (card._renderedLift === card._currentLift) return;
+    card._renderedLift = card._currentLift;
 
     // Calculate how far the card has actually lifted (0 = resting, 1 = fully up)
     const liftProgress = Math.max(0, -card._currentLift / 30); // 30 = max lift amount
