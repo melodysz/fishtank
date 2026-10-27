@@ -29,7 +29,7 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="css/style.css?v=navy-bg-fish-entry-fix-summary-cta-20261024-peekready7-140">
+  <link rel="stylesheet" href="css/style.css?v=navy-bg-fish-entry-fix-summary-cta-20261024-peekready7-151">
   <script src="js/splash.js?v=navy-bg-9"></script>
   <!-- hold the first frame until the splash exists, so arriving from a project stays seamless -->
   <link rel="expect" href="#work-wipe-overlay" blocking="render">
@@ -45,7 +45,7 @@
   </script>
 <link rel="icon" type="image/x-icon" href="https://melodysz.github.io/baubles/favicon.ico">
 
-  <link rel="stylesheet" href="css/companion-blend.css?v=4">
+  <link rel="stylesheet" href="css/companion-blend.css?v=5">
 </head>
 <body>
 
@@ -587,7 +587,7 @@
 
 <div class="home-panel home-panel--play" id="playPanel" aria-hidden="true" data-lenis-prevent>
   <div class="play-content">
-  <aside class="play-sidebar">
+  <header class="play-header">
     <div class="play-title-wrap">
       <svg class="play-star" viewBox="0 0 110 110" fill="none" aria-hidden="true">
         <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" stroke="currentColor" stroke-width="0.8"/>
@@ -597,21 +597,32 @@
       <p class="play-subtitle">m.s.z.’s hither-thither tidbits</p>
     </div>
     <nav class="play-cats" aria-label="Categories">
-      <button class="play-cat is-active interactable" data-cat="all" data-heading="The whole shebang">Everything!</button>
+      <button class="play-cat is-active interactable" data-cat="all">Everything!</button>
       <button class="play-cat interactable" data-cat="illustration">Illustrations</button>
       <button class="play-cat interactable" data-cat="magazine">Magazine design</button>
       <button class="play-cat interactable" data-cat="graphic">Graphic design</button>
       <button class="play-cat interactable" data-cat="merch">Merch design</button>
     </nav>
-  </aside>
-  <div class="play-main">
-    <div class="play-grid" id="playGrid">
-      <div class="play-col play-col--left">
-        <p class="play-heading" id="playHeading">The whole shebang</p>
-      </div>
-      <div class="play-col play-col--right"></div>
-    </div>
+  </header>
+  <!-- masonry: same-width columns, pieces keep their own heights (js/panels.js fills them) -->
+  <div class="play-grid" id="playGrid"></div>
+  <p class="play-end" aria-hidden="true">that’s all, folks!</p>
   </div>
+</div>
+
+<!-- PLAY lightbox: opens when you click a piece (js/panels.js) -->
+<div class="play-lightbox" id="playLightbox" role="dialog" aria-modal="true" aria-labelledby="playLbTitle" aria-hidden="true" data-lenis-prevent>
+  <div class="play-lb-card">
+    <div class="play-lb-media"><div class="play-lb-piece"></div></div>
+    <div class="play-lb-info">
+      <p class="play-lb-cat"></p>
+      <h2 class="play-lb-title" id="playLbTitle"></h2>
+      <p class="play-lb-date"></p>
+      <p class="play-lb-desc"></p>
+    </div>
+    <button type="button" class="play-lb-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
   </div>
 </div>
 
@@ -623,8 +634,8 @@
   
   <!-- Your JavaScript -->
   <script src="js/favicon.js?v=3"></script>
-  <script src="js/main.js?v=navy-bg-fish-entry-fix-peekready7-178"></script>
-  <script src="js/panels.js?v=8"></script>
-  <script src="js/companion-blend.js?v=2"></script>
+  <script src="js/main.js?v=navy-bg-fish-entry-fix-peekready7-179"></script>
+  <script src="js/panels.js?v=12"></script>
+  <script src="js/companion-blend.js?v=3"></script>
 </body>
 </html>

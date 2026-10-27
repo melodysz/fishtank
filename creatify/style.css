@@ -136,17 +136,7 @@ body, html {
 /* over big clickable things (folded research cards, screenshots): the dot just grows.
    Over a screenshot that opens full size, it also shows the eye from "See all". (main.js) */
 .cursor-dot.is-big { width: 56px; height: 56px; }
-.cursor-dot.is-zoom::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 24px;
-  height: 24px;
-  background: #fff;
-  -webkit-mask: url(icons/eye.svg) center / contain no-repeat;
-  mask: url(icons/eye.svg) center / contain no-repeat;
-}
+/* (the eye itself, boiling + blinking, is shared: ../css/companion-blend.css) */
 .cursor-dot.active.is-zoom { opacity: 0.85; }
 
 .cursor-dot.is-blob {

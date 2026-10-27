@@ -53,6 +53,7 @@
 
   // Switch which panel is showing (instantly — the splash hides the swap).
   function show(name) {
+    if (open === 'play' && name !== 'play') playPanel.closeLightbox();
     Object.entries(panels).forEach(([k, el]) => {
       el.classList.toggle('is-open', k === name);
       el.setAttribute('aria-hidden', k === name ? 'false' : 'true');
@@ -94,96 +95,166 @@
     if (panels[h]) openPanel(h, { updateUrl: false });
     else if (open) closePanel({ updateUrl: false });
   });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (playPanel && playPanel.closeLightbox()) return;   // Esc shuts the lightbox first, then the panel
+    closePanel();
+  });
 
   // for main.js: the nav links call these
   window.fishtankPanels = { open: openPanel, close: closePanel, isOpen: () => !!open, current: () => open };
 
   // ============================================================
-  // PLAY (mockup): placeholder pieces in two same-width columns,
-  // filtered by the sidebar; the right column scrolls a little slower.
+  // PLAY (mockup): a Cosmos-style masonry board. Every column is the
+  // same width; each piece keeps its own height and drops into the
+  // shortest column, so the board stays level. How many columns:
+  // --play-cols in style.css (changes with screen width).
   // ============================================================
   const playPanel = !playOn ? null : (function () {
+    // h = height when the width is 100 (100 = square, 150 = tall, 70 = wide)
+    // For the lightbox, a piece can also have its own title, date and desc;
+    // until it does, it borrows the placeholders below (DEFAULT_DESC etc.).
     const PIECES = [
       { cat: 'illustration', h: 150, label: 'illustration' },
       { cat: 'magazine',     h: 130, label: 'magazine' },
-      { cat: 'graphic',      h: 118, label: 'poster' },
+      { cat: 'graphic',      h: 75,  label: 'poster' },
       { cat: 'merch',        h: 100, label: 'merch' },
       { cat: 'illustration', h: 125, label: 'illustration' },
       { cat: 'graphic',      h: 140, label: 'poster' },
-      { cat: 'magazine',     h: 128, label: 'spread' },
+      { cat: 'magazine',     h: 70,  label: 'spread' },
       { cat: 'merch',        h: 90,  label: 'sticker sheet' },
-      { cat: 'illustration', h: 110, label: 'illustration' },
+      { cat: 'illustration', h: 178, label: 'illustration' },
       { cat: 'graphic',      h: 150, label: 'poster' },
       { cat: 'magazine',     h: 132, label: 'cover' },
       { cat: 'illustration', h: 95,  label: 'illustration' },
+      { cat: 'merch',        h: 120, label: 'tote' },
+      { cat: 'graphic',      h: 100, label: 'logo' },
+      { cat: 'magazine',     h: 62,  label: 'spread' },
+      { cat: 'illustration', h: 140, label: 'illustration' },
+      { cat: 'graphic',      h: 160, label: 'poster' },
+      { cat: 'merch',        h: 80,  label: 'pin set' },
+      { cat: 'magazine',     h: 128, label: 'cover' },
+      { cat: 'illustration', h: 110, label: 'illustration' },
+      { cat: 'graphic',      h: 56,  label: 'banner' },
+      { cat: 'merch',        h: 135, label: 'tee' },
+      { cat: 'illustration', h: 100, label: 'illustration' },
+      { cat: 'magazine',     h: 145, label: 'spread' },
+      { cat: 'graphic',      h: 118, label: 'poster' },
     ];
     const TINTS = { illustration: '#E9E6FB', magazine: '#E3EEFB', graphic: '#F3E6F7', merch: '#EAF3E6' };
-    const PARALLAX = 0.12;   // right column lags by 12% of the scroll (0 = no parallax)
+    const CAT_NAMES = { illustration: 'Illustration', magazine: 'Magazine design', graphic: 'Graphic design', merch: 'Merch design' };
+    const DEFAULT_DATE = 'Spring 2025';
+    const DEFAULT_DESC = 'A placeholder description: what this piece is, who it was for, and the idea behind it. A couple of sentences is plenty.';
 
     const panel = panels.play;
-    const leftCol = panel.querySelector('.play-col--left');
-    const rightCol = panel.querySelector('.play-col--right');
-    const heading = panel.querySelector('#playHeading');
-    const main = panel.querySelector('.play-main');
-    let shift = 0;
-    let smooth = null;
+    const grid = panel.querySelector('#playGrid');
+    let cat = 'all';
+    let cols = 0;
 
-    function render(cat) {
-      leftCol.querySelectorAll('.play-piece').forEach((el) => el.remove());
-      rightCol.innerHTML = '';
-      let hL = 0, hR = 0;   // fill whichever column is shorter, so they stay balanced
+    function columnCount() {
+      return parseInt(getComputedStyle(grid).getPropertyValue('--play-cols'), 10) || 1;
+    }
+
+    function render(animate = true) {
+      cols = columnCount();
+      grid.innerHTML = '';
+      const colEls = [], heights = [];
+      for (let c = 0; c < cols; c++) {
+        const col = document.createElement('div');
+        col.className = 'play-col';
+        grid.appendChild(col);
+        colEls.push(col);
+        heights.push(0);
+      }
       PIECES.filter((p) => cat === 'all' || p.cat === cat).forEach((p, i) => {
-        const el = document.createElement('div');
+        const el = document.createElement('button');
+        el.type = 'button';
         el.className = 'play-piece';
+        el.setAttribute('aria-label', `Open ${titleOf(p)}`);
+        el.addEventListener('click', () => openLightbox(p, el));
+        // hover: a fresh random tilt each time, 2–5° either way (the bounce is in style.css)
+        el.addEventListener('pointerenter', () => {
+          el.style.setProperty('--tilt', `${(Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 3)}deg`);
+        });
         el.style.aspectRatio = `100 / ${p.h}`;
         el.style.setProperty('--piece-bg', TINTS[p.cat]);
-        el.style.animationDelay = `${i * 50}ms`;
+        if (animate) el.style.animationDelay = `${i * 40}ms`;
+        else el.style.animation = 'none';
         el.textContent = p.label;
-        if (hL <= hR) { leftCol.appendChild(el); hL += p.h; } else { rightCol.appendChild(el); hR += p.h; }
+        const c = heights.indexOf(Math.min(...heights));   // the shortest column
+        colEls[c].appendChild(el);
+        heights[c] += p.h;
       });
-      requestAnimationFrame(fitScrollLength);
     }
 
-    // The right column moves slower, so it needs extra scroll to reach its end.
-    function fitScrollLength() {
-      main.style.minHeight = '';
-      const vh = panel.clientHeight;
-      const rightBottom = rightCol.getBoundingClientRect().bottom + panel.scrollTop - shift;
-      const need = Math.max(0, (rightBottom + 80 - vh) / (1 - PARALLAX));
-      if (need + vh > panel.scrollHeight) main.style.minHeight = `${need + vh}px`;
-      update();
+    // the cursor shows an eye over a piece ("click to see it big"; look in style.css)
+    const cursor = document.getElementById('cursor');
+    if (cursor) {
+      document.addEventListener('pointerover', (e) => {
+        const on = open === 'play' && !!e.target.closest?.('.play-piece');
+        if (on !== cursor.classList.contains('is-zoom')) cursor.classList.toggle('is-zoom', on);
+      });
     }
 
-    function update(y) {
-      const scroll = y ?? panel.scrollTop;
-      shift = window.matchMedia('(max-width: 800px)').matches ? 0 : scroll * PARALLAX;
-      rightCol.style.transform = shift ? `translate3d(0, ${shift}px, 0)` : '';
+    function titleOf(p) {
+      return p.title || p.label.charAt(0).toUpperCase() + p.label.slice(1);
     }
+
+    // ---------- lightbox: the piece on the left, its info on the right ----------
+    const lb = document.getElementById('playLightbox');
+    const lbMedia = lb.querySelector('.play-lb-piece');
+    const lbClose = lb.querySelector('.play-lb-close');
+    let lbFrom = null;   // the piece that opened it (focus goes back there on close)
+
+    function openLightbox(p, from) {
+      lbFrom = from;
+      cursor?.classList.remove('is-zoom');   // (the lightbox now covers the piece)
+      lbMedia.style.setProperty('--ratio', 100 / p.h);
+      lbMedia.style.setProperty('--piece-bg', TINTS[p.cat]);
+      lbMedia.textContent = p.label;
+      lb.querySelector('.play-lb-cat').textContent = CAT_NAMES[p.cat];
+      lb.querySelector('.play-lb-title').textContent = titleOf(p);
+      lb.querySelector('.play-lb-date').textContent = p.date || DEFAULT_DATE;
+      lb.querySelector('.play-lb-desc').textContent = p.desc || DEFAULT_DESC;
+      lb.querySelector('.play-lb-info').scrollTop = 0;
+      lb.classList.add('is-open');
+      lb.setAttribute('aria-hidden', 'false');
+      lbClose.focus({ preventScroll: true });
+    }
+    // returns true if it was open (so Esc knows it had something to close)
+    function closeLightbox() {
+      if (!lb.classList.contains('is-open')) return false;
+      lb.classList.remove('is-open');
+      lb.setAttribute('aria-hidden', 'true');
+      if (lbFrom) lbFrom.focus({ preventScroll: true });
+      return true;
+    }
+    lbClose.addEventListener('click', closeLightbox);
+    lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });   // click the dimmed area
 
     panel.querySelectorAll('.play-cat').forEach((btn) => {
       btn.addEventListener('click', () => {
         panel.querySelectorAll('.play-cat').forEach((b) => b.classList.toggle('is-active', b === btn));
-        heading.textContent = btn.dataset.heading || btn.textContent;
-        render(btn.dataset.cat);
+        cat = btn.dataset.cat;
+        render();
       });
     });
 
     // smooth scrolling inside the panel, like the homepage
+    let smooth = null;
     if (typeof Lenis !== 'undefined') {
       smooth = new Lenis({ wrapper: panel, content: panel.firstElementChild, lerp: 0.16 });   // (was 0.1: less glide)
-      smooth.on('scroll', ({ scroll }) => update(scroll));
       requestAnimationFrame(function raf(t) { if (open === 'play') smooth.raf(t); requestAnimationFrame(raf); });
-    } else {
-      panel.addEventListener('scroll', () => update(), { passive: true });
     }
-    window.addEventListener('resize', () => { if (open === 'play') fitScrollLength(); });
+    // re-deal the pieces only when the number of columns changes
+    window.addEventListener('resize', () => { if (columnCount() !== cols) render(false); });
 
-    render('all');
+    render();
     return {
+      closeLightbox,
       enter() {
         if (smooth) smooth.scrollTo(0, { immediate: true });
-        requestAnimationFrame(fitScrollLength);
+        if (columnCount() !== cols) render(false);
       },
     };
   })();

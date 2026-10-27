@@ -2,6 +2,19 @@
 (() => {
   const companion = document.getElementById('cursor');
   if (!companion) return;
+  // the cursor eye's "boiling" wobble (look: companion-blend.css): wavy noise nudges the
+  // eye's edges and changes 8 times a second, so it shimmers like hand-drawn animation
+  document.body.insertAdjacentHTML('beforeend', `
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <filter id="eye-boil" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="0" result="noise">
+          <animate attributeName="seed" values="1;2;3;4" dur="0.5s" calcMode="discrete" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </svg>`);
+  // load the closed eye now, so the first blink doesn't flash empty
+  if (document.currentScript) new Image().src = new URL('../images/eye-closed.svg', document.currentScript.src).href;
   const homepage = !!document.getElementById('circularCarousel');
   // Case studies: the companion takes the page's highlight colour (the bolded-phrase
   // highlight, strong.cf-hl on Creatify, .highlight elsewhere), read from its CSS, so

@@ -7,3 +7,29 @@
 #cursor.active:not(.has-label) { opacity: .7; }
 #cursor[data-companion-surface="light"]:not(.has-label) { mix-blend-mode: multiply; }
 #cursor.is-away { opacity: 0 !important; }
+
+/* The eye the companion shows over things that open full size (Creatify screenshots,
+   play pieces). Shared by every page; each page decides when to add .is-zoom.
+   - "boiling" hand-drawn wobble: the #eye-boil filter, added to each page by
+     js/companion-blend.js (higher baseFrequency = tighter wiggles, scale = bigger wobble)
+   - every so often it blinks: a soft fade to the closed eye and back, twice quickly
+   (the eye is drawn as an image, not a mask: a mask would trim the wobble back off) */
+.cursor-dot.is-zoom::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  background: url(../images/eye.svg) center / contain no-repeat;
+  filter: url(#eye-boil);
+  animation: eye-blink 4.5s ease-in-out infinite;
+}
+@keyframes eye-blink {
+  0%, 86%, 100% { background-image: url(../images/eye.svg); }
+  89%, 90.5%    { background-image: url(../images/eye-closed.svg); }
+  92.5%         { background-image: url(../images/eye.svg); }
+  94.5%         { background-image: url(../images/eye-closed.svg); }
+  97%           { background-image: url(../images/eye.svg); }
+}
+@media (prefers-reduced-motion: reduce) { .cursor-dot.is-zoom::after { filter: none; animation: none; } }

@@ -1111,6 +1111,12 @@ document.querySelectorAll('.footer-right a').forEach((a) => {
   a.addEventListener('mouseleave', () => shrinkBlob());
 });
 
+// play page category tabs (Everything!, Illustrations…): the same pill as the nav
+document.querySelectorAll('.play-cat').forEach((btn) => {
+  btn.addEventListener('mouseenter', () => expandToBlob(btn, true));
+  btn.addEventListener('mouseleave', () => shrinkBlob());
+});
+
 // Nav name
 const navName = document.getElementById('nav-name');
 const nameInner = navName.querySelector('.name-inner');
