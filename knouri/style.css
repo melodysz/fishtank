@@ -654,16 +654,13 @@ h3 {
   margin-top: 3rem;
 }
 
+/* Key phrases: lightly bolded (PP Neue Montreal Medium, a step up from the body text).
+   Was a green highlighter sweeping in. The colour stays defined but unshown (size 0):
+   ../js/companion-blend.js reads it to colour the cursor on this page. */
 .highlight {
-  background: linear-gradient(to right, rgba(206, 232, 137, 0.6) 0%, rgba(206, 232, 137, 0.6) 100%);
-  background-size: 0% 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.6s ease;
-  padding: 2px 4px;
-}
-
-.highlight.animate-in {
-  background-size: 100% 100%;
+  font-weight: 500;
+  background: linear-gradient(to right, rgba(206, 232, 137, 0.6) 0%, rgba(206, 232, 137, 0.6) 100%) no-repeat;
+  background-size: 0 0;
 }
 
 .overview-section {
