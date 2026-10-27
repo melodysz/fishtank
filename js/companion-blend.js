@@ -3,6 +3,12 @@
   const companion = document.getElementById('cursor');
   if (!companion) return;
   const homepage = !!document.getElementById('circularCarousel');
+  // Case studies: the companion takes the page's highlight colour (the bolded-phrase
+  // highlight, strong.cf-hl on Creatify, .highlight elsewhere), read from its CSS, so
+  // changing a highlight colour changes the cursor too. Other pages keep Sky Glow.
+  const mark = document.querySelector('strong.cf-hl, .highlight');
+  const hl = mark && getComputedStyle(mark).backgroundImage.match(/rgba?\(\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)/);
+  if (hl) companion.style.setProperty('--companion-color', `rgb(${hl[1]}, ${hl[2]}, ${hl[3]})`);
   let px = 0, py = 0, queued = false, lastCheck = -Infinity;
   function update() {
     queued = false;

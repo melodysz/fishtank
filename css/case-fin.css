@@ -18,8 +18,24 @@
 .cf-fin-links .is-current { opacity: 0.4; }
 .cf-fin-links .num { font-family: 'HafferXH', monospace; font-weight: 300; font-size: 16px; }
 
-/* Creatify: "Fin." has the screen to itself, so the list just sits under it there */
-.cf-fin { flex-direction: column; gap: 36px; }
+/* "Fin.": every case study ends the same way, Creatify's: a screen to itself, the word
+   in Instrument Serif (italic "i") at the size of Creatify's title, the list under it.
+   (Creatify sets --cf-title-size from its fitted title; elsewhere it's about 11% of the
+   window's width, which is what Creatify's comes to on a laptop.) Each letter bounces in
+   and wobbles when the cursor knocks it: js/fin-letters.js (Creatify: its own copy). */
+.cf-fin { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.cf-fin-text {
+  margin: 0;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: var(--cf-title-size, clamp(64px, 11vw, 156px));
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--cf-ink, #1E1C1D);
+  position: relative; user-select: none; -webkit-user-select: none;
+}
+.cf-fin-text em { font-style: italic; }
+.cf-fin-l { display: inline-block; transform-origin: 50% 55%; will-change: transform; }
 .cf-fin .cf-fin-links { margin: 0; padding: 0; }
 
 /* (no footer to reveal under the page any more) */
