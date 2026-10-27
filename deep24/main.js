@@ -273,7 +273,7 @@ document.addEventListener('visibilitychange', () => {
 
 // Blob on sidebar/footer links
 const clickableEls = document.querySelectorAll(
-  '.case-footer a, .case-footer-right a, .case-footer-links a, .sidebar-nav a, .nav-link'
+  '.case-footer a, .case-footer-right a, .case-footer-links a, .cf-fin-links a, .sidebar-nav a, .nav-link'
 );
 
 const navWordmarkEl = document.querySelector('.nav-wordmark');

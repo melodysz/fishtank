@@ -3,7 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
   
 window.addEventListener('scroll', () => {
-  heroBgImg.style.transform = `translateY(${window.scrollY * 1.3}px)`;
+  // (capped once the page has covered the hero: it sank 1.3x faster than the scroll, so
+  // left alone it stayed below the end of the page and kept making the page longer)
+  heroBgImg.style.transform = `translateY(${Math.min(window.scrollY, window.innerHeight * 1.2) * 1.3}px)`;
   document.getElementById('heroPostcards').style.transform = `translateY(${window.scrollY * 0.09}px)`;
 });
 
@@ -406,7 +408,7 @@ document.addEventListener('visibilitychange', () => {
 
 // Blob on sidebar/footer links
 const clickableEls = document.querySelectorAll(
-  '.case-footer a, .case-footer-right a, .case-footer-links a, .sidebar-nav a, .nav-link'
+  '.case-footer a, .case-footer-right a, .case-footer-links a, .cf-fin-links a, .sidebar-nav a, .nav-link'
 );
 
 const navWordmarkEl = document.querySelector('.nav-wordmark');
