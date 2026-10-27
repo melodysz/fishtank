@@ -105,46 +105,19 @@
   window.fishtankPanels = { open: openPanel, close: closePanel, isOpen: () => !!open, current: () => open };
 
   // ============================================================
-  // PLAY (mockup): a Cosmos-style masonry board. Every column is the
-  // same width; each piece keeps its own height and drops into the
-  // shortest column, so the board stays level. How many columns:
-  // --play-cols in style.css (changes with screen width).
+  // PLAY: a Cosmos-style masonry board of the artwork in
+  // js/play-pieces.js. Every column is the same width; each piece
+  // keeps its own height and drops into the shortest column, so the
+  // board stays level. How many columns: --play-cols in style.css
+  // (changes with screen width).
   // ============================================================
   const playPanel = !playOn ? null : (function () {
-    // h = height when the width is 100 (100 = square, 150 = tall, 70 = wide)
-    // For the lightbox, a piece can also have its own title, date and desc;
-    // until it does, it borrows the placeholders below (DEFAULT_DESC etc.).
-    const PIECES = [
-      { cat: 'illustration', h: 150, label: 'illustration' },
-      { cat: 'magazine',     h: 130, label: 'magazine' },
-      { cat: 'graphic',      h: 75,  label: 'poster' },
-      { cat: 'merch',        h: 100, label: 'merch' },
-      { cat: 'illustration', h: 125, label: 'illustration' },
-      { cat: 'graphic',      h: 140, label: 'poster' },
-      { cat: 'magazine',     h: 70,  label: 'spread' },
-      { cat: 'merch',        h: 90,  label: 'sticker sheet' },
-      { cat: 'illustration', h: 178, label: 'illustration' },
-      { cat: 'graphic',      h: 150, label: 'poster' },
-      { cat: 'magazine',     h: 132, label: 'cover' },
-      { cat: 'illustration', h: 95,  label: 'illustration' },
-      { cat: 'merch',        h: 120, label: 'tote' },
-      { cat: 'graphic',      h: 100, label: 'logo' },
-      { cat: 'magazine',     h: 62,  label: 'spread' },
-      { cat: 'illustration', h: 140, label: 'illustration' },
-      { cat: 'graphic',      h: 160, label: 'poster' },
-      { cat: 'merch',        h: 80,  label: 'pin set' },
-      { cat: 'magazine',     h: 128, label: 'cover' },
-      { cat: 'illustration', h: 110, label: 'illustration' },
-      { cat: 'graphic',      h: 56,  label: 'banner' },
-      { cat: 'merch',        h: 135, label: 'tee' },
-      { cat: 'illustration', h: 100, label: 'illustration' },
-      { cat: 'magazine',     h: 145, label: 'spread' },
-      { cat: 'graphic',      h: 118, label: 'poster' },
-    ];
-    const TINTS = { illustration: '#E9E6FB', magazine: '#E3EEFB', graphic: '#F3E6F7', merch: '#EAF3E6' };
-    const CAT_NAMES = { illustration: 'Illustration', magazine: 'Magazine design', graphic: 'Graphic design', merch: 'Merch design' };
-    const DEFAULT_DATE = 'Spring 2025';
-    const DEFAULT_DESC = 'A placeholder description: what this piece is, who it was for, and the idea behind it. A couple of sentences is plenty.';
+    const PIECES = window.PLAY_PIECES || [];
+    const ART = 'play/art/';
+    const CAT_NAMES = { illustration: 'Illustration', magazine: 'Magazine design', graphic: 'Graphic design',
+                        merch: 'Merch design', 'fine-art': 'Fine art', sculpture: 'Sculpture' };
+    // several images: "15 pages" for print pieces, "10 photos" for the rest
+    const countLabel = (p) => `${p.imgs.length} ${['magazine', 'graphic'].includes(p.cat) ? 'pages' : 'photos'}`;
 
     const panel = panels.play;
     const grid = panel.querySelector('#playGrid');
@@ -167,23 +140,34 @@
         heights.push(0);
       }
       PIECES.filter((p) => cat === 'all' || p.cat === cat).forEach((p, i) => {
+        const cover = p.imgs[0];
         const el = document.createElement('button');
         el.type = 'button';
         el.className = 'play-piece';
-        el.setAttribute('aria-label', `Open ${titleOf(p)}`);
+        el.setAttribute('aria-label', `Open ${p.title}`);
         el.addEventListener('click', () => openLightbox(p, el));
-        // hover: a fresh random tilt each time, 2–5° either way (the bounce is in style.css)
+        // hover: a fresh random tilt each time, 1–2.5° either way (was 2–5°; the bounce is in style.css)
         el.addEventListener('pointerenter', () => {
-          el.style.setProperty('--tilt', `${(Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 3)}deg`);
+          el.style.setProperty('--tilt', `${(Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 1.5)}deg`);
         });
-        el.style.aspectRatio = `100 / ${p.h}`;
-        el.style.setProperty('--piece-bg', TINTS[p.cat]);
-        if (animate) el.style.animationDelay = `${i * 40}ms`;
+        el.style.aspectRatio = `${cover.w} / ${cover.h}`;
+        if (animate) el.style.animationDelay = `${Math.min(i, 20) * 40}ms`;
         else el.style.animation = 'none';
-        el.textContent = p.label;
+        const img = document.createElement('img');
+        img.src = `${ART}thumb/${cover.src}.webp`;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        el.appendChild(img);
+        if (p.imgs.length > 1) {
+          const badge = document.createElement('span');
+          badge.className = 'play-piece-count';
+          badge.textContent = countLabel(p);
+          el.appendChild(badge);
+        }
         const c = heights.indexOf(Math.min(...heights));   // the shortest column
         colEls[c].appendChild(el);
-        heights[c] += p.h;
+        heights[c] += cover.h / cover.w;
       });
     }
 
@@ -196,26 +180,44 @@
       });
     }
 
-    function titleOf(p) {
-      return p.title || p.label.charAt(0).toUpperCase() + p.label.slice(1);
-    }
-
     // ---------- lightbox: the piece on the left, its info on the right ----------
+    // One image: as big as fits. Several (a PDF, a zine, more photos): they stack and
+    // the left side scrolls through them.
     const lb = document.getElementById('playLightbox');
-    const lbMedia = lb.querySelector('.play-lb-piece');
+    const lbCard = lb.querySelector('.play-lb-card');
+    const lbMedia = lb.querySelector('.play-lb-media');
     const lbClose = lb.querySelector('.play-lb-close');
     let lbFrom = null;   // the piece that opened it (focus goes back there on close)
+
+    function setText(sel, text) {
+      const el = lb.querySelector(sel);
+      el.textContent = text || '';
+      el.hidden = !text;
+    }
 
     function openLightbox(p, from) {
       lbFrom = from;
       cursor?.classList.remove('is-zoom');   // (the lightbox now covers the piece)
-      lbMedia.style.setProperty('--ratio', 100 / p.h);
-      lbMedia.style.setProperty('--piece-bg', TINTS[p.cat]);
-      lbMedia.textContent = p.label;
-      lb.querySelector('.play-lb-cat').textContent = CAT_NAMES[p.cat];
-      lb.querySelector('.play-lb-title').textContent = titleOf(p);
-      lb.querySelector('.play-lb-date').textContent = p.date || DEFAULT_DATE;
-      lb.querySelector('.play-lb-desc').textContent = p.desc || DEFAULT_DESC;
+      const many = p.imgs.length > 1;
+      lbCard.classList.toggle('is-pages', many);
+      lbMedia.replaceChildren(...p.imgs.map((im, i) => {
+        const img = document.createElement('img');
+        img.className = 'play-lb-piece';
+        img.src = `${ART}full/${im.src}.webp`;
+        img.width = im.w;
+        img.height = im.h;
+        img.style.setProperty('--ratio', im.w / im.h);
+        img.alt = many ? `${p.title}, ${i + 1} of ${p.imgs.length}` : p.title;
+        if (i > 1) img.loading = 'lazy';   // the rest load as you scroll to them
+        img.decoding = 'async';
+        return img;
+      }));
+      lbMedia.scrollTop = 0;
+      setText('.play-lb-cat', CAT_NAMES[p.cat]);
+      setText('.play-lb-title', p.title);
+      setText('.play-lb-date', p.date);
+      setText('.play-lb-count', many ? `${countLabel(p)} · scroll to see them all` : '');
+      setText('.play-lb-desc', p.desc);
       lb.querySelector('.play-lb-info').scrollTop = 0;
       lb.classList.add('is-open');
       lb.setAttribute('aria-hidden', 'false');

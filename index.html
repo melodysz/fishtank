@@ -29,7 +29,7 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
-  <link rel="stylesheet" href="css/style.css?v=navy-bg-fish-entry-fix-summary-cta-20261024-peekready7-151">
+  <link rel="stylesheet" href="css/style.css?v=navy-bg-fish-entry-fix-summary-cta-20261024-peekready7-154">
   <script src="js/splash.js?v=navy-bg-9"></script>
   <!-- hold the first frame until the splash exists, so arriving from a project stays seamless -->
   <link rel="expect" href="#work-wipe-overlay" blocking="render">
@@ -602,6 +602,8 @@
       <button class="play-cat interactable" data-cat="magazine">Magazine design</button>
       <button class="play-cat interactable" data-cat="graphic">Graphic design</button>
       <button class="play-cat interactable" data-cat="merch">Merch design</button>
+      <button class="play-cat interactable" data-cat="fine-art">Fine arts</button>
+      <button class="play-cat interactable" data-cat="sculpture">Sculptures</button>
     </nav>
   </header>
   <!-- masonry: same-width columns, pieces keep their own heights (js/panels.js fills them) -->
@@ -613,11 +615,12 @@
 <!-- PLAY lightbox: opens when you click a piece (js/panels.js) -->
 <div class="play-lightbox" id="playLightbox" role="dialog" aria-modal="true" aria-labelledby="playLbTitle" aria-hidden="true" data-lenis-prevent>
   <div class="play-lb-card">
-    <div class="play-lb-media"><div class="play-lb-piece"></div></div>
+    <div class="play-lb-media"></div>
     <div class="play-lb-info">
       <p class="play-lb-cat"></p>
       <h2 class="play-lb-title" id="playLbTitle"></h2>
       <p class="play-lb-date"></p>
+      <p class="play-lb-count"></p>
       <p class="play-lb-desc"></p>
     </div>
     <button type="button" class="play-lb-close" aria-label="Close">
@@ -633,9 +636,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   
   <!-- Your JavaScript -->
-  <script src="js/favicon.js?v=3"></script>
+  <script src="js/favicon.js?v=4"></script>
   <script src="js/main.js?v=navy-bg-fish-entry-fix-peekready7-179"></script>
-  <script src="js/panels.js?v=12"></script>
+  <script src="js/play-pieces.js?v=15"></script>
+  <script src="js/panels.js?v=14"></script>
   <script src="js/companion-blend.js?v=3"></script>
 </body>
 </html>
