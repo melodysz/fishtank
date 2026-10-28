@@ -67,6 +67,7 @@
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = '↻ replay fin.';
+    btn.dataset.devUi = '';   // (doubletake's Shift+H hides it)
     btn.style.cssText = 'position:fixed;right:16px;bottom:64px;z-index:99999;padding:10px 16px;border:0;border-radius:999px;' +
       'background:#111;color:#fff;font:500 14px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2)';
     btn.addEventListener('click', () => { hideLetters(); enter(); });

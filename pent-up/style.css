@@ -600,16 +600,14 @@ h3 {
   margin-top: 3rem;
 }
 
-/* Animated highlight — orange */
+/* Key phrases: lightly bolded (PP Neue Montreal Medium, a step up from the body text).
+   Was a orange highlighter sweeping in. The colour stays defined but unshown (size 0):
+   ../js/companion-blend.js reads it to colour the cursor on this page. */
 .highlight {
-  padding: 2px 4px;
-  background: linear-gradient(to right, rgba(243, 119, 32, 0.3) 0%, rgba(243, 119, 32, 0.3) 100%);
-  background-size: 0% 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.6s ease;
+  font-weight: 500;
+  background: linear-gradient(to right, rgba(243, 119, 32, 0.3) 0%, rgba(243, 119, 32, 0.3) 100%) no-repeat;
+  background-size: 0 0;
 }
-
-.highlight.animate-in { background-size: 100% 100%; }
 
 /* ================================
    OVERVIEW

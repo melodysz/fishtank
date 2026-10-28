@@ -165,6 +165,7 @@ let cursorBig = false;   // (grown over big clickable things: updateCursorSize)
 
 const LERP_NORMAL = 0.12;
 const LERP_BLOB = 0.10; // slightly slower when blob for smoothness
+const LERP_PILL = 0.25; // top tabs: settles onto the tab quickly so it lines up with it exactly
 
 // Cursor dot follows the mouse with a little lag. The further behind it is
 // (i.e. the faster the mouse moves), the bigger it swells — up to ~1.7x —
@@ -186,13 +187,13 @@ function blobTextBox(el) {
 }
 let blobR = '';
 function followBlobTarget() {
-  // bottom-nav pills: the bubble takes the pill's own box + corner rounding
-  // (following it as it springs wider), like the homepage work-nav pills
-  if (blobTarget.closest('.sidebar-nav')) {
+  // bottom-nav pills and the top section tabs: the bubble takes the pill's own box +
+  // corner rounding (following it as it springs wider), like the homepage work-nav pills
+  if (blobTarget.closest('.sidebar-nav, .tb-tabs, .tb-right, .tb-home')) {
     const p = blobTarget.getBoundingClientRect();
     blobTargetX = p.left + p.width / 2;
     blobTargetY = p.top + p.height / 2;
-    const pw = Math.round(p.width), ph = Math.round(p.height);
+    const pw = +p.width.toFixed(2), ph = +p.height.toFixed(2);   // (exact, not rounded: fills the pill edge to edge)
     if (pw !== blobW) { blobW = pw; cursorMain.style.setProperty('--blob-w', pw + 'px'); }
     if (ph !== blobH) { blobH = ph; cursorMain.style.setProperty('--blob-h', ph + 'px'); }
     const r = getComputedStyle(blobTarget).borderRadius;
@@ -216,10 +217,11 @@ function animateCursor() {
   const targetScale = isBlobMode || cursorBig ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
   const scaleChanging = Math.abs(targetScale - cursorScale) > 0.002;
   if (lag > 0.05 || scaleChanging) {
-    const lerp = isBlobMode ? LERP_BLOB : LERP_NORMAL;
+    const onTab = isBlobMode && blobTarget?.closest('.tb-tabs, .tb-right, .tb-home');
+    const lerp = onTab ? LERP_PILL : isBlobMode ? LERP_BLOB : LERP_NORMAL;
     curX += dx * lerp;
     curY += dy * lerp;
-    cursorScale += (targetScale - cursorScale) * 0.18;
+    cursorScale += (targetScale - cursorScale) * (onTab ? 0.4 : 0.18);   // (back to true size fast, so it doesn't overhang the tab)
     cursorMain.style.transform = `translate3d(${curX}px, ${curY}px, 0) translate(-50%, -50%) scale(${cursorScale})`;
   }
   requestAnimationFrame(animateCursor);
@@ -295,7 +297,7 @@ function expandToBlob(el) {
   gsap.set(cursorMain, { clearProps: 'width,height' });   // size comes from --blob-w/--blob-h only
   blobTarget = el;                 // lock onto this link (see followBlobTarget)
   cursorMain.classList.toggle('on-dark', onDarkBackground(el));
-  cursorMain.classList.toggle('on-pill', !!el.closest('.sidebar-nav'));
+  cursorMain.classList.toggle('on-pill', !!el.closest('.sidebar-nav, .tb-tabs, .tb-right, .tb-home'));
   blobW = 0; blobH = 0; blobR = '';
   followBlobTarget();
   cursorMain.classList.add('is-blob');
@@ -320,9 +322,27 @@ function shrinkBlob() {
 
   // Grow cursor on other clickable elements (non-nav)
 const clickableEls = document.querySelectorAll(
-  '.case-footer a, .case-footer-right a, .case-footer-links a, .sidebar-nav a, .nav-link'
+  '.case-footer a, .case-footer-right a, .case-footer-links a, .cf-fin-links a, .sidebar-nav a, .nav-link'
 );
   
+// top section tabs (01 overview…, built by nav-tabs.js): the bubble morphs into the
+// hovered tab's pill and slides to the next one as you move along
+const tbTabs = document.querySelector('.tb-tabs');
+if (tbTabs) {
+  tbTabs.addEventListener('mouseover', (e) => {
+    const tab = e.target.closest('.tb-tab');
+    if (tab && blobTarget !== tab) expandToBlob(tab);
+    else if (!tab && blobTarget?.closest('.tb-tabs')) shrinkBlob();   // (the gaps between tabs)
+  });
+  tbTabs.addEventListener('mouseleave', () => { if (blobTarget?.closest('.tb-tabs')) shrinkBlob(); });
+}
+// works / who / play at the right end of the tab bar, and the home asterisk at the left:
+// same morph, filling each one's box
+document.querySelectorAll('.tb-right .tb-link, .cf-tabbar .tb-home').forEach(link => {
+  link.addEventListener('mouseenter', () => expandToBlob(link));
+  link.addEventListener('mouseleave', () => { if (blobTarget === link) shrinkBlob(); });
+});
+
 const navWordmarkEl = document.querySelector('.nav-wordmark');
 navWordmarkEl.addEventListener('mouseenter', () => expandToBlob(navWordmarkEl));
 navWordmarkEl.addEventListener('mouseleave', () => shrinkBlob());
@@ -909,7 +929,10 @@ function sizeHero() {
   const summary = document.querySelector('.cf-summary');
   const needed = parseFloat(getComputedStyle(pageMain).paddingTop) + summary.offsetHeight + TITLE_BREATHING;
   const natural = window.innerWidth * 761 / 1470;
-  const h = Math.max(HERO_MIN, Math.min(natural, window.innerHeight - needed));
+  // (tabs mode: the hero grows upward by --hero-pad, the tab bar's height, so its own
+  // h still shows in full below the bar; that space comes out of the screen too)
+  const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hero-pad')) || 0;
+  const h = Math.max(HERO_MIN, Math.min(natural, window.innerHeight - pad - needed));
   document.documentElement.style.setProperty('--hero-h', h + 'px');
 }
 sizeHero();

@@ -1111,6 +1111,12 @@ document.querySelectorAll('.footer-right a').forEach((a) => {
   a.addEventListener('mouseleave', () => shrinkBlob());
 });
 
+// play page category tabs (Everything!, Illustrations…): the same pill as the nav
+document.querySelectorAll('.play-cat').forEach((btn) => {
+  btn.addEventListener('mouseenter', () => expandToBlob(btn, true));
+  btn.addEventListener('mouseleave', () => shrinkBlob());
+});
+
 // Nav name
 const navName = document.getElementById('nav-name');
 const nameInner = navName.querySelector('.name-inner');
@@ -2229,12 +2235,15 @@ function showWorkInfo(index) {
   // a copy stays behind to finish tucking in, while the real one moves on.
   const from = wiShownIndex >= 0 ? wiShownIndex : wiLastShownIndex;
   if (from >= 0 && from !== index && (wiShownIndex >= 0 || performance.now() - wiHiddenAt < 300)) leaveWorkInfoGhost();
-  if (wiShownIndex >= 0 && index !== wiShownIndex) {
-    // hopping straight from one card to another: start the new fan-out from tucked
+  const restartFan = index !== wiShownIndex;
+  if (restartFan) {
+    // Also reset when the previous summary is mid-hide (wiShownIndex is -1).
+    // Its ghost finishes the old exit; the reused element starts fully tucked.
+    clearTimeout(workInfo._switchTimer);
+    if (workInfo._bounceTl) workInfo._bounceTl.kill();
+    workInfo.style.translate = '';
     workInfo.style.transition = 'none';
-    workInfo.classList.remove('is-shown');
-    void workInfo.offsetWidth;
-    workInfo.style.transition = '';
+    workInfo.classList.remove('is-shown', 'is-switching');
   }
   workInfoProjects.forEach(el => { el.hidden = Number(el.dataset.index) !== index; });
   workInfo.style.setProperty('--wi-bg', wiColors[index]);
@@ -2244,6 +2253,11 @@ function showWorkInfo(index) {
   placeWorkInfo(index);
   wiShownIndex = index;
   rideWorkInfo();   // (tuck behind this card before fanning out from it)
+  if (restartFan) {
+    // Commit the tucked pose at the NEW card before enabling the reveal.
+    void workInfo.offsetWidth;
+    workInfo.style.transition = '';
+  }
   workInfo.inert = false;
   workInfo.classList.add('is-shown');
 }
@@ -2256,6 +2270,7 @@ const wiUseHover = WI_ON_HOVER && window.matchMedia('(hover: hover)').matches;
 let wiOverCard = false, wiOverPanel = false, wiHoverTimer = 0;
 function updateWorkInfoHover() {
   if (!workInfo || !wiUseHover) return;
+  if (projectWipeInProgress) return;   // (heading into a case study: freeze, see updateCardHover)
   // Any card you hover gets its summary, not just the front one (open: it stays put).
   const target = wiExpanded || (wiOverPanel && !wiOverCard) ? wiShownIndex : wiOverCard ? wiHoverIndex : -1;
   const want = wiSettledIndex >= 0 && !workGridMode && target >= 0;
@@ -2745,6 +2760,10 @@ function refreshCardHoverAtCursor() {
 }
 
 function updateCardHover(x, y) {
+  // Heading into a case study: keep the clicked card lifted and its summary out. The
+  // rising splash passes under the cursor and used to read as "left the card", so the
+  // summary tucked away and the card dropped mid-wipe (a visible jitter).
+  if (projectWipeInProgress) return;
   const el = document.elementFromPoint(x, y);
   const hoveredCard = el?.classList.contains('project-card') ? el : el?.closest('.project-card');
   // on the summary card: its project card stays hovered (lifted, "dive in" grown)
@@ -2777,6 +2796,7 @@ if (hoveredCTA) {
 }
 
 carouselEl.addEventListener('mouseleave', () => {
+  if (projectWipeInProgress) return;   // (the splash rising over the cursor; see updateCardHover)
   cards.forEach(card => { card._targetLift = 0; card.classList.remove('cta-hover'); });
   setCursorLabel('');
   setWorkInfoHover(null);
@@ -2786,6 +2806,7 @@ carouselEl.addEventListener('mouseleave', () => {
 });
 
 carouselEl.addEventListener('mouseleave', () => {
+  if (projectWipeInProgress) return;
   cards.forEach(card => { card._hoverLift = 0; });
   shrinkBlob();
 });
@@ -2955,6 +2976,11 @@ function renderLoop() {
       liftMoving = true;
       card._currentLift += diff * 0.12;
     }
+
+    // A settled hovered card still has a shadow. Stop rendering it once its
+    // lift is unchanged, rather than treating that shadow as ongoing motion.
+    if (card._renderedLift === card._currentLift) return;
+    card._renderedLift = card._currentLift;
 
     // Calculate how far the card has actually lifted (0 = resting, 1 = fully up)
     const liftProgress = Math.max(0, -card._currentLift / 30); // 30 = max lift amount

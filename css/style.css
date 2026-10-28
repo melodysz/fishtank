@@ -2699,39 +2699,32 @@ body.section2-offscreen .section-2-wrapper {
 
 .home-panel--play {
   --play-blue: #3136E6;
-  --sidebar-w: clamp(260px, 25vw, 420px);
+  --play-gutter: 48px;   /* page edges: lines up with the nav + footer */
+  --play-gap: 32px;      /* space between pieces, across and down */
 }
 
+.play-content { padding: 112px var(--play-gutter) 120px; }
 
-/* ---------- sidebar (fixed) ---------- */
-.play-sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: var(--sidebar-w);
-  padding: 0 48px;
+/* ---------- header: title on the left, categories as tabs (like Cosmos) ---------- */
+.play-header {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 44px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 48px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
   color: var(--play-blue);
-  /* periwinkle fading to lilac, with a faint diamond pattern */
-  background:
-    repeating-conic-gradient(from 45deg, rgba(255, 255, 255, 0.10) 0 25%, transparent 0 50%) 0 0 / 34px 34px,
-    linear-gradient(to bottom, #A9A9F6 0%, #BCB3F5 50%, #E7D6F7 100%);
-  z-index: 5;
 }
 
 .play-title-wrap { position: relative; }
 
 .play-star {
   position: absolute;
-  width: 120px;
-  height: 120px;
-  left: 64%;
+  width: 72px;
+  height: 72px;
+  left: 78%;
   top: 50%;
-  margin-top: -64px;
+  margin-top: -40px;
   color: #F4EE8C;
   animation: play-star-spin 30s linear infinite;
   pointer-events: none;
@@ -2757,9 +2750,8 @@ body.section2-offscreen .section-2-wrapper {
 
 .play-cats {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 22px;
+  flex-wrap: wrap;
+  gap: 10px 28px;
 }
 .play-cat {
   font-family: 'Zen Old Mincho', serif;
@@ -2770,82 +2762,244 @@ body.section2-offscreen .section-2-wrapper {
   background: none;
   border: 0;
   padding: 0;
-  text-align: left;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  opacity: 0.45;   /* the tab you're on is full strength, the rest are faded */
+  transition: opacity 0.2s ease;
 }
-.play-cat:hover { transform: translateX(4px); }
-.play-cat.is-active::before { content: ">> "; }
+.play-cat:hover { opacity: 0.8; }
+.play-cat.is-active { opacity: 1; }
 
-/* ---------- work (right) ---------- */
-.play-main {
-  margin-left: var(--sidebar-w);
-  padding: 130px 56px 120px;
-}
-
+/* ---------- the board: same-width columns, pieces keep their own heights ---------- */
 .play-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: start;
-  max-width: 1100px;
+  --play-cols: 4;   /* js/panels.js reads this to know how many columns to fill (was 5) */
+  display: flex;
+  align-items: flex-start;
+  gap: var(--play-gap);
 }
-
 .play-col {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: var(--play-gap);
 }
-/* staggered: the left column starts lower, under the heading */
-.play-col--left { padding-top: 80px; }
-.play-col--right { will-change: transform; }
+@media (max-width: 1400px) { .play-grid { --play-cols: 3; } }   /* (was 4) */
+@media (max-width: 1100px) { .play-grid { --play-cols: 2; } }   /* (was 3; phones stay at 2) */
 
-.play-heading {
-  margin-bottom: -16px;
-  font-family: 'Zen Old Mincho', serif;
-  font-size: 17px;
-  letter-spacing: 0.02em;
+/* each piece is a button (opens the lightbox) holding its first image; js/panels.js sets its shape */
+.play-piece {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #F2F1F6;   /* shows while the image loads */
+  animation: play-piece-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.play-piece img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* several pages / photos: a small label in the corner ("15 pages") */
+.play-piece-count {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--play-blue);
 }
-
-/* placeholder pieces (swap for real images later) */
+/* hover: tips over to a random angle (js/panels.js picks it) with a soft spring: a small
+   overshoot and one gentle swing back before it settles (the linear() curve; toned down
+   from a bigger multi-wobble). Browsers without linear() get a single overshoot. */
 .play-piece {
-  width: 100%;
-  border-radius: 14px;
-  background: var(--piece-bg, #ECEBF7);
-  display: flex;
-  align-items: flex-end;
-  padding: 14px 16px;
-  font-family: 'PP Neue Montreal', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(49, 54, 230, 0.55);
-  animation: play-piece-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: rotate 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: rotate 0.7s linear(0.000, 0.074, 0.255, 0.487, 0.724, 0.930, 1.086, 1.185, 1.229, 1.229, 1.197, 1.146, 1.090, 1.038, 0.996, 0.966, 0.950, 0.945, 0.950, 0.960, 0.973, 0.985, 0.997, 1.005, 1.010, 1.013, 1.012, 1.011, 1.008, 1.005, 1.002, 1.000, 0.998, 0.997, 0.997, 0.997, 0.998, 0.999, 0.999, 1.000, 1);
 }
+.play-piece:hover { rotate: var(--tilt, 3deg); }
+@media (prefers-reduced-motion: reduce) { .play-piece:hover { rotate: none; } }
 @keyframes play-piece-in {
   from { opacity: 0; transform: translateY(24px); }
 }
 
-/* ---------- smaller screens: sidebar on top, one column ---------- */
-@media (max-width: 800px) {
-  .play-sidebar {
-    position: relative;
-    width: auto;
-    padding: 110px 20px 32px;
-    gap: 28px;
-  }
-  .play-cats { flex-direction: row; flex-wrap: wrap; gap: 10px 18px; }
-  .play-main { margin-left: 0; padding: 32px 16px 80px; }
-  .play-grid { grid-template-columns: 1fr; gap: 20px; }
-  .play-col { gap: 20px; }
-  .play-col--left { padding-top: 0; }
-  .play-col--right { transform: none !important; }
+/* ---------- sign-off at the bottom of the board ---------- */
+.play-end {
+  margin-top: 96px;
+  text-align: center;
+  font-family: 'SD Georgia Light', Georgia, serif;   /* the body text font (was Alex Brush) */
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1;
+  color: var(--play-blue);
+  rotate: -4deg;
+  transition: rotate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.play-end:hover { rotate: 3deg; }   /* a little wobble when you reach it */
+
+/* ---------- lightbox: piece on the left, title / date / description on the right ---------- */
+.play-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;   /* over the nav (it comes later in the page), under the cursor (10001) */
+  display: grid;
+  place-items: center;
+  padding: 48px;
+  background: rgba(9, 12, 34, 0.72);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+.play-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease, visibility 0s;
+}
+.play-lb-card {
+  --lb-pad: 40px;
+  --lb-frame: 12px;   /* white edge wrapped round the gray piece side, like a frame */
+  position: relative;
+  width: min(1120px, 100%);
+  max-height: calc(100vh - 96px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  border-radius: 20px;
+  background: #ffffff;
+  overflow: hidden;
+  translate: 0 16px;
+  scale: 0.98;
+  transition: translate 0.35s cubic-bezier(0.22, 1, 0.36, 1), scale 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.play-lightbox.is-open .play-lb-card { translate: 0 0; scale: 1; }
+/* several pages: the card takes the full height and the left side scrolls */
+.play-lb-card.is-pages {
+  height: calc(100vh - 96px);
+  grid-template-rows: minmax(0, 1fr);
 }
 
-/* PLAY is still being built: hidden on the live site, shown on the local
-   preview (js/favicon.js adds .show-play on localhost). To launch it, remove
-   the line marked PLAY SWITCH in js/favicon.js. */
+.play-lb-media {
+  display: grid;
+  place-items: center;
+  margin: var(--lb-frame) 0 var(--lb-frame) var(--lb-frame);   /* (none on the right: it meets the info side) */
+  padding: var(--lb-pad);
+  border-radius: calc(20px - var(--lb-frame));   /* follows the card's rounded corners */
+  background: #F5F5F7;
+}
+/* one image: as big as fits, full width of its side unless that would make it taller than the card */
+.play-lb-piece {
+  display: block;
+  width: min(100%, calc((100vh - 96px - var(--lb-frame) * 2 - var(--lb-pad) * 2) * var(--ratio, 1)));
+  height: auto;
+  border-radius: 4px;
+  background: #ECEBF7;   /* shows while it loads */
+}
+/* several: stacked full width, scroll through them */
+.is-pages .play-lb-media {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.is-pages .play-lb-piece { width: 100%; flex: none; }
+
+.play-lb-info {
+  padding: 72px var(--lb-pad) var(--lb-pad);   /* (top clears the close button) */
+  overflow-y: auto;
+  color: #1D1D1F;
+}
+.play-lb-cat {
+  font-family: 'Zen Old Mincho', serif;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--play-blue, #3136E6);
+}
+.play-lb-title {
+  margin-top: 14px;
+  font-family: 'Unbounded', 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--play-blue, #3136E6);
+}
+.play-lb-date {
+  margin-top: 10px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 14px;
+  color: rgba(29, 29, 31, 0.55);
+}
+.play-lb-count {
+  margin-top: 18px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--play-blue, #3136E6);
+}
+.play-lb-desc {
+  margin-top: 28px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.play-lb-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #F5F5F7;
+  color: #1D1D1F;
+  cursor: pointer;
+}
+.play-lb-close svg { width: 20px; height: 20px; }
+
+/* ---------- phone ---------- */
+@media (max-width: 800px) {
+  /* stacked: piece on top, info underneath, the whole card scrolls */
+  .play-lightbox { padding: 16px; }
+  .play-lb-card {
+    --lb-pad: 20px;
+    --lb-frame: 0px;   /* (no frame on phones, for now) */
+    max-height: calc(100vh - 32px);
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .play-lb-piece { width: min(100%, calc(55vh * var(--ratio, 1))); }
+  .play-lb-info { padding-top: 24px; overflow: visible; }
+  /* several pages: the info comes first (so you don't scroll past 15 pages to find it),
+     then the pages; the whole card scrolls */
+  .play-lb-card.is-pages { height: auto; grid-template-rows: none; }
+  .is-pages .play-lb-media { overflow: visible; }
+  .is-pages .play-lb-info { order: -1; padding-top: 64px; padding-bottom: 0; }   /* (top clears the close button) */
+  .play-lb-close { top: 12px; right: 12px; }
+  .play-lb-desc { font-size: 15px; }
+  .home-panel--play { --play-gutter: 16px; --play-gap: 12px; }
+  .play-content { padding-top: 96px; padding-bottom: 80px; }
+  .play-header { margin-bottom: 24px; }
+  .play-cats { gap: 8px 18px; }
+  .play-cat { font-size: 14px; }
+  .play-piece-count { right: 6px; bottom: 6px; padding: 3px 7px; font-size: 9px; }
+  .play-end { margin-top: 56px; }
+}
+
+/* PLAY SWITCH: js/favicon.js adds .show-play (on every page now that play is live);
+   without it the "play" nav link hides. */
 html:not(.show-play) .nav-link-item[data-default="play"] { display: none; }
 
 /* cursor colour per panel — like each page has its own */
@@ -2856,7 +3010,16 @@ html.panel-who .cursor-dot.is-blob,
 html.panel-who .cursor-dot.is-blob.is-pill,
 html.panel-play .cursor-dot.is-blob,
 html.panel-play .cursor-dot.is-blob.is-pill { opacity: 0.7; mix-blend-mode: multiply; }
-html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: the sidebar's blue */
+html.panel-play .cursor-dot { background-color: #3136E6; }           /* play: the title's blue */
+/* play: over a piece (it opens in the lightbox), the bubble shows the eye (look:
+   css/companion-blend.css). The eye stays stark white: the bubble drops its blend mode +
+   see-through opacity (they'd tint the eye too) for a slightly see-through fill.
+   js/panels.js adds .is-zoom. */
+html.panel-play #cursor.cursor-dot.is-zoom:not(.has-label) {
+  mix-blend-mode: normal;
+  opacity: 1;
+  background-color: color-mix(in srgb, var(--companion-color, #0a9eff) 75%, transparent);
+}
 
 /* ============================================================
    CASE STUDY SUMMARY ("work info"): a floating panel beside the

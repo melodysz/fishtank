@@ -323,19 +323,132 @@
     run();
   }
 
-  return { start: startIntro, replay: () => startIntro(true), reset: () => { toStart(); introStarted = false; } };
+  // The page hero's entrance after the logo flies off: everything is already at full
+  // size and slides up + fades in, title → composer → chips, while the waves rise.
+  // (start() above is Creatify's own staged entrance, still used by the look & feel copy.)
+  function slideIn() {
+    if (introStarted) return;
+    introStarted = true;
+    waves.start();
+    hero.classList.add('is-playing');
+    set(composer, { position: '', top: '', left: '', width: '', height: '', opacity: 1, transition: '' });
+    content.style.opacity = 1;
+    chips.forEach((c) => set(c, { transition: '', opacity: 1, transform: '' }));
+    const parts = [titleWrap, slot, chipsRow];
+    parts.forEach((el) => set(el, { transition: 'none', opacity: 0, transform: 'translateY(48px)' }));
+    void hero.offsetWidth;
+    const d = reduceMotion ? 0 : 1;
+    parts.forEach((el, i) => set(el, {
+      transition: `opacity ${700 * d}ms ease-out ${i * 110 * d}ms, transform ${1000 * d}ms ${SETTLE_EASE} ${i * 110 * d}ms`,
+      opacity: 1, transform: 'translateY(0)',
+    }));
+    at(650 * d, () => { bands.forEach((b) => b.classList.add('is-sweeping')); startTyping(); });
+  }
+
+  return { start: startIntro, slideIn, replay: () => startIntro(true), reset: () => { toStart(); introStarted = false; } };
   }
   const intro = makeIntro(hero, waves);
-  const startIntro = () => intro.start();
   window.cfAgentHeroIntro = makeIntro;
 
-  // Start once the page's entry splash starts sliding away (the page is ready),
-  // or straight away if there's no splash.
+  // ---------- the Creatify logo, first (both nav modes) ----------
+  // On the plain black hero, Creatify's own loading logo (creatify-logo.json, copied from
+  // Creatify's front end: component/loader/logo-lottie-loading.json) draws itself in.
+  // How it leaves (CSS: .ah-logo):
+  //   'slide': the triangle normally slides right a little to make room for the speed
+  //            stripes, then stops. Here it never stops: it speeds up and slides off the
+  //            right of the hero, fading away as it goes, and the stripes, still growing
+  //            in, follow it out.
+  //   'fade':  it finishes drawing, then blurs and fades away where it is.
+  const LOGO_EXIT = 'slide';
+  const LOGO_SPEED = 1.5;        // Creatify plays it at 2×
+  // 'slide' (in the logo's own frames, 25 per second before LOGO_SPEED):
+  const SLIDE_FRAMES = 40;       // from where the triangle usually stops to off screen
+  const SLIDE_HERO_AT = 46;      // the frame the hero starts sliding up
+  const SLIDE_FADE_FROM = 32;    // the frame it starts fading away as it slides (CSS: .ah-logo.is-fading)
+  // 'fade':
+  const LOGO_LAST_FRAME = 60;    // fully drawn, speed lines out (it then pulls them back in)
+  const LOGO_HOLD = 180;         // ms it rests before fading
+  const LOGO_HEAD_START = 200;   // ms it fades before the hero starts sliding up
+
+  const logo = hero.querySelector('.ah-logo');
+
+  // Rewrites the logo's movement (layer "04" = triangle, the rest = stripes): the
+  // triangle's slide right (frames 20→29) keeps its speed at frame 29 and then speeds
+  // up until it has gone `distance` further; from frame 29 the stripes move with it.
+  function keepSliding(data, distance) {
+    const T0 = 20, T1 = 29, T2 = T1 + SLIDE_FRAMES;
+    const tri = data.layers.find((l) => l.nm === '04');
+    const [x0, y] = tri.ks.p.k[0].s, x1 = tri.ks.p.k[1].s[0];
+    const v = (x1 - x0) / (T1 - T0), avg = distance / (T2 - T1);
+    const flat = { to: [0, 0, 0], ti: [0, 0, 0] };
+    // (ends 1→2 at its own speed; 2→3 starts at that same speed, so there's no hitch)
+    const leave = { o: { x: 0.5, y: 0.5 * v / avg }, i: { x: 0.85, y: 0.85 } };
+    tri.ks.p.k = [
+      { t: T0, s: [x0, y, 0], o: { x: 0.33, y: 0 }, i: { x: 0.67, y: 0.67 }, ...flat },
+      { t: T1, s: [x1, y, 0], ...leave, ...flat },
+      { t: T2, s: [x1 + distance, y, 0] },
+    ];
+    data.layers.filter((l) => l !== tri).forEach((l) => {
+      const [sx, sy] = l.ks.p.k;
+      l.ks.p = { a: 1, k: [{ t: T1, s: [sx, sy, 0], ...leave, ...flat }, { t: T2, s: [sx + distance, sy, 0] }] };
+    });
+    return T2;
+  }
+
+  let heroStarted = false;
+  async function startIntro() {
+    if (heroStarted) return;
+    heroStarted = true;
+    if (!logo || !window.lottie || reduceMotion) { logo?.remove(); intro.slideIn(); return; }
+    let data;
+    try { data = await (await fetch('creatify-logo.json')).json(); } catch (e) { logo.remove(); intro.slideIn(); return; }
+
+    let heroIn = false;
+    const showHero = () => { if (!heroIn) { heroIn = true; intro.slideIn(); } };
+    let finished = false;
+    const done = () => { if (finished) return; finished = true; showHero(); anim.destroy(); logo.remove(); };
+    setTimeout(done, 6000);   // (never get stuck on the logo)
+
+    let lastFrame = LOGO_LAST_FRAME;
+    if (LOGO_EXIT === 'slide') {
+      // how far is "off screen", in the logo's own units (447 across)
+      const unitsPerPx = data.w / logo.offsetWidth;
+      const pastEdge = hero.getBoundingClientRect().right - logo.getBoundingClientRect().left;
+      lastFrame = keepSliding(data, pastEdge * unitsPerPx + 200);   // (+ the stripes trailing behind it)
+      logo.classList.add('is-sliding');
+    }
+    const anim = lottie.loadAnimation({ container: logo, renderer: 'svg', loop: false, autoplay: false, animationData: data });
+    anim.addEventListener('DOMLoaded', () => {
+      // only the logo's outer box, so it can slide out of it (the stripes' own clips are
+      // what grow them in)
+      logo.querySelector('svg > g[clip-path]')?.removeAttribute('clip-path');
+      anim.setSpeed(LOGO_SPEED);
+      anim.playSegments([0, lastFrame], true);
+    });
+    if (LOGO_EXIT === 'slide') {
+      anim.addEventListener('enterFrame', (e) => {
+        if (e.currentTime >= SLIDE_FADE_FROM) logo.classList.add('is-fading');
+        if (e.currentTime >= SLIDE_HERO_AT) showHero();
+      });
+      anim.addEventListener('complete', done);
+    } else {
+      anim.addEventListener('complete', () => setTimeout(() => {
+        logo.classList.add('is-leaving');
+        setTimeout(showHero, LOGO_HEAD_START);
+        setTimeout(done, 800);
+      }, LOGO_HOLD));
+    }
+  }
+
+  // Start once the page's entry splash has lifted fully out of view (page-wipe.js removes
+  // it then), or straight away if there's no splash.
   const splash = document.getElementById('page-entry-overlay');
   if (!splash) startIntro();
   else {
     new MutationObserver((_, obs) => { if (!document.body.contains(splash)) { obs.disconnect(); startIntro(); } })
       .observe(document.body, { childList: true });
-    window.addEventListener('load', () => setTimeout(startIntro, 450));   // (the splash starts leaving ~0.15s after load)
+    // (backup only: the splash lifts away 0.15s after load and takes 0.7s, then is removed,
+    // which is what normally starts it; this waits well past that)
+    window.addEventListener('load', () => setTimeout(startIntro, 2000));
   }
 })();

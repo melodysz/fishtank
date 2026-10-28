@@ -136,18 +136,16 @@ body, html {
 /* over big clickable things (folded research cards, screenshots): the dot just grows.
    Over a screenshot that opens full size, it also shows the eye from "See all". (main.js) */
 .cursor-dot.is-big { width: 56px; height: 56px; }
-.cursor-dot.is-zoom::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 24px;
-  height: 24px;
-  background: #fff;
-  -webkit-mask: url(icons/eye.svg) center / contain no-repeat;
-  mask: url(icons/eye.svg) center / contain no-repeat;
-}
+/* (the eye itself, boiling + blinking, is shared: ../css/companion-blend.css) */
 .cursor-dot.active.is-zoom { opacity: 0.85; }
+/* the eye stays stark white: the dot's blend mode and see-through opacity would tint it
+   too (a pseudo-element can't opt out of its parent's), so on a zoomable image the dot
+   drops both and gets a slightly see-through fill instead. Beats companion-blend.css. */
+#cursor.cursor-dot.is-zoom:not(.has-label) {
+  mix-blend-mode: normal;
+  opacity: 1;
+  background-color: color-mix(in srgb, var(--companion-color, #0a9eff) 75%, transparent);
+}
 
 .cursor-dot.is-blob {
   width: var(--blob-w, 80px);
@@ -1019,7 +1017,7 @@ body.nav-over-dark .bubble-dot {
    shrunk when needed so the title, summary and tags always fit on screen at the top */
 .hero-section {
   top: 0;
-  height: var(--hero-h, min(51.77vw, 100vh));
+  height: calc(var(--hero-h, min(51.77vw, 100vh)) + var(--hero-pad, 0px));   /* (+ the tab bar's height in tabs mode) */
   background: #090A0A;
   animation: none;
 }
@@ -1058,7 +1056,7 @@ body.nav-over-dark .bubble-dot {
 body.hero-covered .hero-section { visibility: hidden; }
 
 .main-content {
-  margin-top: var(--hero-h, min(51.77vw, 100vh));
+  margin-top: calc(var(--hero-h, min(51.77vw, 100vh)) + var(--hero-pad, 0px));
   padding-top: 44px;
   border-radius: 0;
   overflow-x: clip;            /* the overview laptop runs off the screen edge, not into a sideways scroll */
@@ -1078,7 +1076,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 
 /* the title fills the left column's full height (summary text + tags); summary and tags
-   stack on the right, tags right-aligned with the summary text. The title's size is fitted
+   stack on the right, tags left-aligned with the summary text. The title's size is fitted
    in main.js (fitTitle) so its letters run exactly from the top of the summary text to the
    bottom of the tags. */
 .cf-summary-row { display: contents; }
@@ -1114,7 +1112,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   grid-column: 2;
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;      /* right edge lines up with the summary text's */
+  justify-content: flex-start;    /* left edge lines up with the summary text's (was right-aligned) */
   gap: 5px;
 }
 
@@ -1359,8 +1357,13 @@ body.hero-covered .hero-section { visibility: hidden; }
 .ps-stage:not(.is-labeled) .ps-marks { opacity: 0; transition: opacity 0.2s ease; }   /* (labels hidden: no outlines either) */
 @media (prefers-reduced-motion: reduce) { .ps-marks > * { transition: opacity 0.2s ease; } }
 
-/* hovering a label fades the others back (a filter, so it doesn't wait on the pop-in stagger delay) */
-.ps-stage.is-focusing .ps-pill:not(.is-hovered) { filter: opacity(0.35); }
+/* hovering a label fades the others back, but keeps their frost: only the white tint
+   (::before) and the words/icons fade, never the blurred copy of the screenshot (::after),
+   or the sharp screenshot would show through and they'd lose their blur. (Filters, so it
+   doesn't wait on the pop-in stagger delay.) */
+.ps-stage.is-focusing .ps-pill:not(.is-hovered)::before { opacity: 0.25; }
+.ps-stage.is-focusing .ps-pill:not(.is-hovered) > :is(.ps-icon, .ps-label, .ps-detail, .ps-eye) { filter: opacity(0.35); }
+.ps-eye { transition: filter 0.25s ease; }
 /* …and their outlines too (e.g. with "See all" on, only the hovered label's outline stays bright) */
 .ps-stage.is-focusing .ps-marks > .is-on:not(.is-hovered) { opacity: 0.35; }
 
@@ -1461,7 +1464,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   border: 1.5px solid currentColor;
   border-radius: 50%;
   box-sizing: border-box;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.25s ease;
 }
 
 .ps-icon::before,
@@ -1486,7 +1489,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   position: absolute;
   left: 49px;
   top: 15px;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, filter 0.25s ease;
 }
 
 .ps-label { white-space: nowrap; }
@@ -1661,7 +1664,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 .cf-head--v2 .cf-h2 {
   font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 50px;
   line-height: 55px;
   letter-spacing: -0.05em;
@@ -1693,7 +1696,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 /* "Iterations": same type as the section titles (.cf-head--v2 .cf-h2) */
 .cf-versions-title {
   font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 50px;
   line-height: 55px;
   letter-spacing: -0.05em;
@@ -1977,10 +1980,10 @@ body.hero-covered .hero-section { visibility: hidden; }
   color: var(--cf-accent);
 }
 
-/* Figma: DM Sans Medium 50, line height 55, letter spacing -5% */
+/* Figma: DM Sans Medium 50 (bumped to SemiBold on screen), line height 55, letter spacing -5% */
 .cf-overview-text .cf-h2 {
   font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 50px;
   line-height: 55px;
   letter-spacing: -0.05em;
@@ -3109,7 +3112,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .sk-intro-title {
   margin: 0;
   font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: clamp(36px, 4.45vw, 65px);
   line-height: 1;
   letter-spacing: -0.05em;
@@ -3195,6 +3198,8 @@ body.hero-covered .hero-section { visibility: hidden; }
 /* (no longer a full screen of room: just the page's usual 150px section spacing around it) */
 .bq-scene { position: relative; margin-top: calc(var(--cf-space) - 56px); }   /* 56px = .cf-inner's gap, already there */
 .bq-scene--own { margin-top: 0; }   /* (a section of its own: the section gap already spaces it) */
+/* as wide as a section's gray card: out past the section's side padding */
+.bq-scene { margin-left: calc(-1 * var(--cf-pad-x)); margin-right: calc(-1 * var(--cf-pad-x)); }
 .bq-stick { display: flex; align-items: center; }
 .bq-box { width: 100%; margin: 0; will-change: clip-path; }
 
@@ -3215,7 +3220,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 
 /* ================================
    03 · AGENT SKILLS (Figma: "03a — Agent Skills")
-   Labels: Haffer Mono, purple · titles: DM Sans Medium · text: PP Neue Montreal
+   Labels: Haffer Mono, purple · titles: DM Sans SemiBold · text: PP Neue Montreal
    (Book, Medium for the bold bits). Grey panels reach the section's edges.
    Videos play only while on screen (skills-section.js).
    ================================ */
@@ -3240,7 +3245,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .sk-title {
   margin: 0;
   font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 40px;
   line-height: 45px;
   letter-spacing: -0.04em;
@@ -3382,7 +3387,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 .ag-intro.is-in .ag-text { opacity: 1; transform: none; }
 .ag-num { font-family: 'HafferXH', monospace; font-weight: 600; font-size: clamp(24px, 2.4vw, 35px); line-height: 1.2; }
-.ag-title { margin: 0; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: clamp(44px, 5.45vw, 80px); line-height: 1; letter-spacing: -0.05em; }
+.ag-title { margin: 0; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: clamp(44px, 5.45vw, 80px); line-height: 1; letter-spacing: -0.05em; }
 .ag-sub { margin: 0; font-size: 18px; line-height: 30px; }
 
 .ag-word { position: relative; display: inline-block; }
@@ -3406,7 +3411,20 @@ body.hero-covered .hero-section { visibility: hidden; }
 
 /* "Fin." (Figma): Instrument Serif, the i in italic; a whole screen to itself, the same size
    as the "Creatify" title (main.js copies the title's fitted size into --cf-title-size) */
-.cf-fin { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; }
+.cf-fin { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+/* the case studies, right under "Fin." (this replaced the old green footer) */
+.cf-fin-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 32px; }
+.cf-fin-links a {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 16px; line-height: 20px;
+  color: #000; text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+.cf-fin-links a:hover { opacity: 0.55; }
+.cf-fin-links .is-current { opacity: 0.4; }
+.cf-fin-links .num { font-family: 'HafferXH', monospace; font-weight: 300; font-size: 16px; }
+/* (no footer to reveal under the page any more: no room left for it) */
+.main-content { padding-bottom: 0; }
 .cf-fin-text {
   margin: 0;
   font-family: 'Instrument Serif', serif;
@@ -3465,26 +3483,17 @@ body.hero-covered .hero-section { visibility: hidden; }
 .sk-media { position: relative; }
 
 /* ================================
-   HIGHLIGHTED PHRASES (replaces the bold): a lilac highlighter sweeps in from the left
-   when the phrase comes on screen, like the other case studies (.highlight there);
-   phrases in the same paragraph go one after another (highlights-text.js)
+   KEY PHRASES: lightly bolded (PP Neue Montreal Medium, a step up from the body's
+   Book weight). Was a lilac highlighter sweeping in (highlights-text.js still tags
+   them .cf-hl; the sweep no longer shows).
    ================================ */
 strong.cf-hl {
-  font-weight: inherit !important;   /* (no bold any more: the highlight does the emphasis) */
-  padding: 1px 3px;
-  margin: 0 -1px;
-  border-radius: 0;
-  background-image: linear-gradient(to right, rgba(210, 171, 255, 0.32), rgba(210, 171, 255, 0.32));   /* (paler: was 0.55) */
-  background-size: 0% 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.6s ease;
+  font-weight: 500 !important;
+  /* not shown (size 0): kept only because ../js/companion-blend.js reads this lilac
+     to colour the cursor on this page */
+  background-image: linear-gradient(to right, rgba(210, 171, 255, 0.32), rgba(210, 171, 255, 0.32));
+  background-size: 0 0 !important;
 }
-strong.cf-hl.animate-in { background-size: 100% 100%; }
-/* on the lilac research card the lilac wouldn't show: white instead */
-.rs-card--2 strong.cf-hl { background-image: linear-gradient(to right, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)); }
-/* on the dark research card: a lighter touch, so the white text stays readable */
-.rs-card--3 strong.cf-hl { background-image: linear-gradient(to right, rgba(210, 171, 255, 0.35), rgba(210, 171, 255, 0.35)); }
-@media (prefers-reduced-motion: reduce) { strong.cf-hl { transition: none; } }
 
 .lightbox-video[hidden], .lightbox img[hidden] { display: none; }
 
@@ -4022,3 +4031,358 @@ strong.cf-hl.animate-in { background-size: 100% 100%; }
 /* a statement block's smaller two-paragraph note (the visual direction's reception) */
 .cf-hmw-body--sm { display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 26px; }
 .cf-hmw-body--sm p { margin: 0; }
+
+/* ---------- Problem wheel (DRAFT, placeholder shapes) ----------
+   Agent's capabilities as widgets on a big wheel whose hub sits just off the Problem
+   block's top-right corner, so only a few spokes show. Scrolling turns it
+   (problem-wheel.js). Every size is in cqw (1% of the corner box's width), so it
+   scales with the box. Tune the shape here: */
+#problem { position: relative; padding-bottom: 0; }   /* (the gray card ends right at the bottom of the fully grown deep-dive screenshot) */
+/* clipped to the gray card's own edges (rounded corners included), like the Figma */
+.pb-wheel-clip {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* the corner the wheel is sized and placed from */
+.pb-wheel-area {
+  --pb-hub-x: 112cqw;     /* hub: past the card's right edge… */
+  --pb-hub-y: -42cqw;     /* …and above its top */
+  --pb-inner: 74cqw;      /* hub → start of each spoke (bigger = widgets further apart; tried 32 and 94) */
+  --pb-length: 62cqw;     /* spoke length (pill) */
+  --pb-thick: 14cqw;      /* spoke thickness (pill) */
+  --pb-dot: 19cqw;        /* circle size (circle) */
+  --pb-color: #E2E2E6;
+  position: absolute; top: 0; right: 0;
+  width: min(460px, 36%);
+  aspect-ratio: 1.1;
+  container-type: inline-size;
+}
+#problem .cf-inner { position: relative; }   /* (text stays above the wheel) */
+.pb-wheel {
+  position: absolute; left: var(--pb-hub-x); top: var(--pb-hub-y);
+  width: 0; height: 0;
+  /* turned by scrolling (problem-wheel.js) */
+}
+.pb-widget {
+  position: absolute; left: 0; top: 0;
+  background: var(--pb-color);
+  transform-origin: 0 50%;
+}
+.pb-wheel[data-shape="bars"] .pb-widget, .pb-wheel[data-shape="pill"] .pb-widget {
+  width: var(--pb-length); height: var(--pb-thick);
+  margin-top: calc(var(--pb-thick) / -2);
+  border-radius: calc(var(--pb-thick) * .3);
+  transform: rotate(var(--a)) translateX(var(--pb-inner));
+}
+.pb-wheel[data-shape="dots"] .pb-widget, .pb-wheel[data-shape="circle"] .pb-widget {
+  width: var(--pb-dot); height: var(--pb-dot);
+  margin-top: calc(var(--pb-dot) / -2);
+  border-radius: 50%;
+  transform: rotate(var(--a)) translateX(calc(var(--pb-inner) + (var(--pb-length) - var(--pb-dot)) / 2));
+}
+/* chips + icons: placed at the middle of where a spoke would be, and turned back by their
+   angle plus the wheel's (--wheel-rot, problem-wheel.js) so they stay upright as it turns.
+   --s = size (icons: biggest in the middle of the corner, smaller either side; problem-wheel.js) */
+.pb-wheel:is([data-shape="chips"], [data-shape="icons"]) .pb-widget {
+  --pb-mid: calc(var(--pb-inner) + var(--pb-length) / 2);
+  display: flex; align-items: center; justify-content: center;
+  background: #fff;
+  color: var(--cf-ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.07);
+  transform-origin: 0 0;
+  transform: rotate(var(--a)) translateX(var(--pb-mid)) rotate(calc(-1 * var(--a) - var(--wheel-rot, 0deg))) scale(var(--s, 1)) translate(-50%, -50%);
+}
+/* radial: lined up with the spoke instead (--flip turns round the ones that would read
+   upside down) */
+.pb-wheel[data-orient="radial"]:is([data-shape="chips"], [data-shape="icons"]) .pb-widget {
+  transform: rotate(var(--a)) translateX(var(--pb-mid)) rotate(var(--flip, 0deg)) scale(var(--s, 1)) translate(-50%, -50%);
+}
+.pb-wheel[data-shape="chips"] .pb-widget {
+  gap: 1.6cqw;
+  padding: 2.2cqw 4cqw 2.2cqw 3cqw;
+  border-radius: 999px;
+  font: 500 3.4cqw/1.2 'PP Neue Montreal', sans-serif;
+  white-space: nowrap;
+}
+/* icons: a smaller wheel whose hub sits further left and lower, so more of its circle
+   shows in the corner (the other shapes keep the big wheel above) */
+.pb-wheel[data-shape="icons"] { --pb-hub-x: 84cqw; --pb-hub-y: -4cqw; --pb-inner: 39cqw; }   /* (hub was 100 / -20: moved in so more of the wheel shows) */
+.pb-wheel[data-shape="icons"] .pb-widget { width: 18cqw; height: 18cqw; border-radius: 50%; }   /* (was 13) */
+.pb-icon {
+  flex: none; display: block;
+  width: 3.8cqw; height: 3.8cqw;
+  background: var(--cf-icon, #6F68FF);
+  -webkit-mask: var(--i) center / contain no-repeat;
+          mask: var(--i) center / contain no-repeat;
+}
+.pb-wheel[data-shape="icons"] .pb-icon { width: 7.6cqw; height: 7.6cqw; }   /* (was 5.4) */
+/* radial icons: a further quarter turn, so each one sits across its spoke instead of along it */
+.pb-wheel[data-orient="radial"][data-shape="icons"] .pb-icon { rotate: 90deg; }
+
+/* narrower screens: the corner would run into the text (for now, until it's designed) */
+@media (max-width: 1100px) { .pb-wheel-clip { display: none; } }
+
+/* ---------- Problem strip ----------
+   Agent's capabilities as white icon circles across the gray card, edge to edge (Figma
+   "Oscillating strip", 2528:4863). The circles bob in one smooth, even wave: each is the
+   same small step behind the one before, so the crests are evenly spaced and roll along
+   the row (was the CodePen's every-5th-in-step pattern, which jumped and felt messy), and
+   the whole row drifts slowly left forever. When it's 30% on screen (problem-strip.js adds .is-in), the
+   circles fade in one by one, left to right, already moving. Tune it here: */
+.pb-strip {
+  --pb-size: 82px;        /* circle (Figma 93 felt too big, 72 too small) */
+  --pb-icon: 32px;        /* icon inside it */
+  --pb-gap: 14px;         /* between circles */
+  --pb-amp: 85%;          /* how far each one bobs above and below the middle, as a % of its own height (was 55%, then asked for higher peaks) */
+  --pb-wave: 8s;          /* one full bob, up and back down (bigger = calmer) */
+  --pb-length: 10;        /* circles from one crest to the next. Keep 20 (problem-strip.js PER_LOOP) a multiple of it */
+  --pb-drift: 160s;       /* how long the row takes to drift one loop (20 circles, ~1920px) left: ~12px a second (bigger = slower) */
+  --pb-fade: 0.6s;        /* each circle's fade-in */
+  --pb-stagger: 0.09s;    /* how long after the one before it each circle starts fading in */
+  position: relative;
+  /* out past the card's side padding, so the circles run off its edges */
+  margin: 72px calc(-1 * var(--cf-pad-x)) 0;   /* (72 above, was 32) */
+  height: calc(var(--pb-size) * 2.8);   /* (room for the bob: 85% of a circle above and below, plus a little) */
+  overflow: hidden;
+  pointer-events: none;
+}
+.pb-strip-track {
+  position: absolute; left: -33px; top: 50%;   /* (Figma: the first circle starts a bit off the left edge) */
+  display: flex; gap: var(--pb-gap);
+  width: max-content;
+  margin-top: calc(var(--pb-size) / -2);
+  animation: pb-drift var(--pb-drift) linear infinite;
+}
+@keyframes pb-drift { to { transform: translateX(-50%); } }   /* (one copy's width: the track holds two) */
+.pb-bob {
+  flex: none;
+  display: grid; place-items: center;
+  width: var(--pb-size); height: var(--pb-size);
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--cf-line);   /* (same outline as the summary pills, .cf-pill) */
+  /* each one a 10th of a bob behind the one before: an even wave, crests 10 circles apart */
+  animation: pb-bob var(--pb-wave) ease-in-out calc(var(--n) * var(--pb-wave) / var(--pb-length) * -1) infinite;
+  /* hidden (but already moving) until it fades in */
+  opacity: 0;
+  transition: opacity var(--pb-fade) ease calc(var(--k) * var(--pb-stagger));
+}
+.pb-strip.is-in .pb-bob { opacity: 1; }
+@keyframes pb-bob {   /* (ease-in-out between the two ends: a smooth, sine-like swing) */
+  0%, 100% { translate: 0 var(--pb-amp); }
+  50% { translate: 0 calc(-1 * var(--pb-amp)); }
+}
+.pb-strip-icon {
+  display: block;
+  width: var(--pb-icon); height: var(--pb-icon);
+  background: var(--cf-ink);
+  -webkit-mask: var(--icon-url) center / contain no-repeat;
+          mask: var(--icon-url) center / contain no-repeat;
+}
+/* off screen (problem-strip.js): stop moving */
+.pb-strip.is-paused :is(.pb-strip-track, .pb-bob) { animation-play-state: paused; }
+/* reduced motion: all there at once, and held still (keeping the wave's shape) */
+@media (prefers-reduced-motion: reduce) {
+  .pb-strip-track { animation: none; }
+  .pb-bob { animation-play-state: paused; opacity: 1; transition: none; }
+}
+@media (max-width: 800px) {
+  .pb-strip { --pb-size: 58px; --pb-icon: 22px; --pb-gap: 9px; --pb-drift: 110s; margin-top: 44px; }   /* (was 16) */
+  .pb-strip-track { left: -20px; }
+}
+
+/* "Where Agent started", below the strip (was 64, the Figma spacing; more room asked for) */
+#problem .cf-versions { margin-top: 104px; }
+@media (max-width: 800px) { #problem .cf-versions { margin-top: 68px; } }
+
+/* ---------- Hero: the Creatify logo first (agent-hero.js) ----------
+   Creatify's loading logo draws itself in on the black hero once the splash has lifted
+   away, then leaves as the hero slides up and the waves start: it slides off to the
+   right, or blurs and fades in place (LOGO_EXIT in agent-hero.js). */
+.ah-logo {
+  position: absolute; inset: 0; margin: auto;
+  width: clamp(64px, 6vw, 96px); aspect-ratio: 1;
+  z-index: 0;   /* behind the hero's content, which slides up over it as it goes */
+}
+.ah-logo.is-sliding svg { overflow: visible; }   /* (the triangle slides out of its own box) */
+.ah-logo.is-fading { opacity: 0; transition: opacity .45s ease; }   /* (quicker than the slide: gone well before the edge) */
+.ah-logo.is-leaving {
+  opacity: 0;
+  filter: blur(14px);
+  transition: opacity .55s ease, filter .55s ease;
+}
+
+/* ---------- NAV EXPERIMENT: tab bar (html.nav-tabs, nav-tabs.js) ----------
+   One ChatGPT-style bar replaces the pill nav, the side nav and the progress bar. */
+html.nav-tabs #scroll-progress,
+html.nav-tabs .nav-pill-wrap,
+html.nav-tabs #bubbleDotsWrap,
+html.nav-tabs #workBubble,
+html.nav-tabs .sidebar-nav { display: none !important; }
+
+.cf-tabbar, .cf-frame { display: none; }
+html:not(.nav-tabs) .tb-bubble { display: none; }   /* (the tab bar's copy of the work dropdown) */
+:root { --frame-color: rgba(238, 238, 241, 0.75); --frame-top: 50px; /* (tab bar height, was 42) */ --frame-side: 8px; --frame-radius: 14px; }
+/* the window frame: see-through frosted glass everywhere outside one rounded hole. The
+   hole is cut with a clip-path that nav-tabs.js draws to the window's size (backdrop blur
+   follows the clip, so the page inside the hole stays sharp). The tab bar itself is
+   clear and sits on top of the frame's top edge. */
+html.nav-tabs .cf-frame {
+  display: block;
+  position: fixed; inset: 0; z-index: 8999;
+  pointer-events: none;
+  background: var(--frame-color);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+          backdrop-filter: blur(22px) saturate(1.5);
+}
+@media (max-width: 700px) { :root { --frame-side: 5px; --frame-radius: 12px; } }
+/* a soft white fade just under the tab bar: the page's tops melt into it as they scroll
+   up, without going solid (it starts at 80% white, so their colours still show faintly).
+   Only once the white page has covered the hero (body.hero-covered, main.js): over the
+   dark hero it would just be a grey haze. Sits under the frame, so its corners stay round. */
+.cf-topfade { display: none; }
+/* the white fades' strength (the top one under the tab bar + the carousels' sides):
+   how white at the very edge, and partway in */
+:root { --fade-edge: rgba(255, 255, 255, 0.5); --fade-mid: rgba(255, 255, 255, 0.25); }   /* (edge was 0.8: too strong) */
+/* carousels: the same fade down the left and right, where their cards slide under the
+   frame's sides. The two strips sit at the frame's edges, wherever the carousel is in the
+   column (nav-tabs.js sets --edge-l / --edge-r: how far its box is from them). */
+html.nav-tabs .hl-viewport::before,
+html.nav-tabs .hl-viewport::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; z-index: 3;
+  width: 18px;
+  pointer-events: none;
+}
+html.nav-tabs .hl-viewport::before { left: calc(-1 * var(--edge-l, 0px)); background: linear-gradient(to right, var(--fade-edge), var(--fade-mid) 40%, rgba(255, 255, 255, 0)); }
+html.nav-tabs .hl-viewport::after { right: calc(-1 * var(--edge-r, 0px)); background: linear-gradient(to left, var(--fade-edge), var(--fade-mid) 40%, rgba(255, 255, 255, 0)); }
+html.nav-tabs .cf-topfade {
+  display: block;
+  position: fixed; z-index: 8998;
+  top: var(--frame-top); left: var(--frame-side); right: var(--frame-side);
+  height: 18px;   /* (was 56px: too obvious) */
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--fade-edge), var(--fade-mid) 40%, rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+html.nav-tabs body.hero-covered .cf-topfade { opacity: 1; }
+/* HIDDEN FOR NOW (both white fades: under the tab bar + the carousels' sides).
+   To bring them back, delete this rule. */
+html.nav-tabs .cf-topfade,
+html.nav-tabs .hl-viewport::before,
+html.nav-tabs .hl-viewport::after { display: none; }
+/* the hero grows upward by the tab bar's height (main.js sizeHero), and the Agent replica
+   starts below the bar, so the whole hero still shows under it (centred in what you see) */
+html.nav-tabs { --hero-pad: var(--frame-top); }
+html.nav-tabs .hero-section .agent-hero { top: var(--hero-pad); }
+html.nav-tabs .cf-tabbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
+  display: flex; align-items: center; gap: 6px;
+  height: var(--frame-top); padding: 0 14px;
+  background: transparent;   /* (the frame behind it, .cf-frame, is the glass) */
+  font: 500 16px/1 'PP Neue Montreal', sans-serif;   /* (medium, was book: bolder nav text; 16px, was 14) */
+  color: #1d1d1f;
+}
+.tb-btn {
+  flex: none; display: grid; place-items: center;
+  width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
+  background: transparent; color: #55555b;
+  transition: background .15s, color .15s;
+}
+.tb-home { margin-right: 14px; }   /* (more room between the asterisk and the tabs) */
+.tb-home img { display: block; width: 22px; height: 22px; transform: rotate(-18deg); }   /* (resting tilt, before the script takes over) */
+.tb-btn:hover { background: rgba(0, 0, 0, 0.06); color: #1d1d1f; }
+.tb-home:hover { background: transparent; }   /* (the cursor bubble fills it instead) */
+.tb-tabs {
+  position: relative; flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 10px;   /* (was 2px) */
+  height: 100%; overflow-x: auto; scrollbar-width: none;
+}
+.tb-tabs::-webkit-scrollbar { display: none; }
+.tb-indicator {   /* the white "selected tab" card, sliding to whichever tab is current */
+  position: absolute; left: 0; top: 50%;
+  height: 30px; margin-top: -15px;
+  border-radius: 9px;
+  background: #fff;   /* (flat: no shadow) */
+  transition: transform .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1), opacity .3s ease;
+}
+.tb-tab {
+  position: relative;   /* (above the indicator) */
+  flex: none; display: flex; align-items: center; gap: 8px;
+  height: 30px; padding: 0 14px; border: 0; border-radius: 9px;
+  background: transparent; color: #6e6e75;
+  font: inherit; white-space: nowrap;
+  transition: color .2s, background .15s;
+}
+.tb-tab:not(.is-active):hover { color: #1d1d1f; }   /* (no grey fill: the cursor bubble fills the tab instead) */
+.tb-tab.is-active { color: #1d1d1f; }
+.tb-num { font: 400 16px/1 'HafferXH', monospace; letter-spacing: .04em; color: #1d1d1f; transition: color .2s; }   /* (black when not selected; purple when selected) */
+.tb-tab.is-active .tb-num { color: var(--cf-accent, #7354F2); }
+
+
+
+
+
+
+
+.tb-right { flex: none; display: flex; align-items: center; gap: 8px; padding-left: 6px; border-left: 1px solid rgba(0, 0, 0, 0.08); margin-left: 4px; }
+.tb-link { padding: 7px 11px; border-radius: 8px; color: #55555b; text-decoration: none; transition: background .15s, color .15s; }
+.tb-link:hover { color: #1d1d1f; }   /* (no grey fill: the cursor bubble fills the link instead) */
+@media (max-width: 700px) {
+  html.nav-tabs .cf-tabbar { padding: 0 8px; gap: 2px; }
+  .tb-right { display: none; }
+  .tb-tab { padding: 0 12px; }
+}
+
+/* the classic ⇄ tabs switch (experiment), bottom-left */
+.nav-mode-toggle {
+  position: fixed; left: 16px; bottom: 16px; z-index: 9001;
+  display: flex; gap: 2px; padding: 3px;
+  border-radius: 999px;
+  background: rgba(24, 24, 27, 0.78);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+.nav-mode-toggle button {
+  padding: 6px 12px; border: 0; border-radius: 999px;
+  background: transparent; color: rgba(255, 255, 255, 0.7);
+  font: 12px/1 'PP Neue Montreal', sans-serif;
+  transition: background .2s, color .2s;
+}
+.nav-mode-toggle button[aria-pressed="true"] { background: #fff; color: #18181b; }
+
+/* tabs mode: corners follow the window frame's (--frame-radius, 14px; 12px on phones) so
+   the page's boxes echo the frame instead of being twice as round. Big backgrounds match
+   it exactly; the screenshots / media inside them are a step smaller. Classic mode keeps
+   30px / 20px. (Pills stay fully round.) */
+html.nav-tabs :is(.cf-section, .cf-hmw, .cf-impact, .cf-overview, .cf-identity, .hl-card,
+  .sk-card, .sk-panel, #research .rs-glance, .sk-box, .sk-lookback .sk-lookback-box,
+  .hero-border, .rs-card) { border-radius: var(--frame-radius); }
+html.nav-tabs :is(.cf-ph, .cf-media, .ps-frame, .cf-card, .cf-flows, .sk-callout,
+  .sk-card-white, .sk-evo-box, #problemShot .ps-frame) { border-radius: calc(var(--frame-radius) - 4px); }
+html.nav-tabs .hero-image { border-radius: 0 0 var(--frame-radius) var(--frame-radius); }
+
+/* the Problem wheel's visuals switch (draft), above the classic / tabs switch */
+.wheel-toggle {
+  position: fixed; left: 16px; bottom: 56px; z-index: 9001;
+  display: flex; align-items: center; gap: 2px; padding: 3px 3px 3px 10px;
+  border-radius: 999px;
+  background: rgba(24, 24, 27, 0.78);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  font: 12px/1 'PP Neue Montreal', sans-serif;
+}
+.wheel-toggle span { color: rgba(255, 255, 255, 0.45); margin-right: 4px; }
+.wheel-toggle-sep { width: 1px; height: 14px; margin: 0 4px; background: rgba(255, 255, 255, 0.2); }
+.wheel-toggle button {
+  padding: 6px 10px; border: 0; border-radius: 999px;
+  background: transparent; color: rgba(255, 255, 255, 0.7);
+  font: inherit;
+  transition: background .2s, color .2s;
+}
+.wheel-toggle button[aria-pressed="true"] { background: #fff; color: #18181b; }
