@@ -46,6 +46,7 @@
   </script>
   <link rel="stylesheet" href="style.css?v=navy-bg-19-bold">
   <link rel="stylesheet" href="../css/nav-tabs.css?v=1">
+  <link rel="stylesheet" href="../css/case-fin.css?v=3">
   <link rel="stylesheet" href="../css/case-v2.css?v=4">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
   <script src="../js/splash.js?v=navy-bg-9"></script>
@@ -590,55 +591,23 @@
 
   </section>
 
-  <!-- FIN -->
-  <section class="fin-section">
-    <div class="content-column">
-      <div class="fin-title-row">
-        <div class="fin-pill">
-          <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/fin-icon.png" alt="fish" class="fin-fish-icon">
-        </div>
-        <h2 class="fin-title">FIN.<span class="title-asterisk">*</span></h2>
-      </div>
+<!-- the end: "Fin." gets a screen to itself (the same as Creatify's), with the list of
+     case studies right under it. Letters bounce in and wobble: ../js/fin-letters.js -->
+<section class="cf-fin" aria-label="End of the case study">
+  <p class="cf-fin-text"><span class="cf-fin-l">F</span><em class="cf-fin-l">i</em><span class="cf-fin-l">n</span><span class="cf-fin-l">.</span></p>
+  <nav aria-label="Case studies">
+    <ul class="cf-fin-links">
+      <li><a href="../creatify/" class="interactable"><span class="num">01</span>creatify</a></li>
+      <li><a href="./" class="interactable is-current" aria-current="page"><span class="num">02</span>deep24</a></li>
+      <li><a href="../pent-up/" class="interactable"><span class="num">03</span>pent up</a></li>
+      <li><a href="../knouri/" class="interactable"><span class="num">04</span>knouri</a></li>
+    </ul>
+  </nav>
+</section>
 
-  </section>
 
   <!-- Footer -->
-  <footer class="case-footer">
-    <div class="case-footer-inner">
-      <div class="case-footer-main">
-        <div class="case-footer-star-wrapper">
-          <svg id="case-footer-star-icon" width="80" height="80" viewBox="0 0 110 110" fill="none">
-            <defs>
-              <radialGradient id="caseStarGradient" cx="50%" cy="50%">
-                <stop offset="0%" stop-color="#83E7FF" />
-                <stop offset="100%" stop-color="#83E7FF" />
-              </radialGradient>
-            </defs>
-            <path d="M55 110L58.3992 65.4616L87.3282 99.4959L63.8992 61.4656L107.308 71.9959L66 55L107.308 38.0041L63.8992 48.5344L87.3282 10.5041L58.3992 44.5384L55 0L51.6008 44.5384L22.6718 10.5041L46.1008 48.5344L2.69189 38.0041L44 55L2.69189 71.9959L46.1008 61.4656L22.6718 99.4959L51.6008 65.4616L55 110Z" fill="url(#caseStarGradient)"/>
-            <circle cx="55" cy="55" r="41.5" stroke="#83E7FF"/>
-          </svg>
-        </div>
-        <h2 class="cf-footer-title">what’s next?</h2>
-        <ul class="cf-footer-links">
-          <li><a href="../creatify/" class="interactable"><span class="num">01</span>creatify</a></li>
-          <li><a href="#" class="interactable is-current" aria-current="page"><span class="num">02</span>deep24</a></li>
-          <li><a href="../pent-up/" class="interactable"><span class="num">03</span>pent up</a></li>
-          <li><a href="../knouri/" class="interactable"><span class="num">04</span>knouri</a></li>
-        </ul>
-        
-      </div>
-    </div>
-    <div class="case-footer-bottom">
-      <div class="case-footer-left">
-        <span class="case-footer-signature">Melody Zhang</span>
-        <span class="case-footer-copy">© 2026</span>
-      </div>
-      <div class="case-footer-right">
-        <a href="mailto:melodyserenazhang@gmail.com" class="interactable">[EMAIL]</a>
-        <a href="https://www.linkedin.com/in/melody-zhang-90605b217/" target="_blank" class="interactable">[LINKEDIN]</a>
-      </div>
-    </div>
-  </footer>
+  <!-- (the old green "what's next?" footer was removed: the case-study list now sits at the end of the Fin. section above) -->
 
 </main>
 
@@ -651,6 +620,7 @@
 <script src="../js/page-wipe.js?v=20"></script>
 <script src="../js/nav-tabs.js?v=10"></script>
 <script src="main.js?v=22"></script>
+<script src="../js/fin-letters.js?v=2"></script>
 <script src="../js/case-v2.js?v=1"></script>
   <script src="../js/companion-blend.js?v=3"></script>
 </body>

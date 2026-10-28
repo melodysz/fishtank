@@ -1,0 +1,47 @@
+/* The end of every case study: the list of case studies sits at the end of the page's
+   own Fin. section, in black. It replaced the old green "what's next?" footer, which used
+   to rise up from under the page (hence the room that's taken away below). */
+.cf-fin-links {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0 0 120px;
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 10px 32px;
+}
+.cf-fin-links a {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 16px; line-height: 20px;
+  color: #000; text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+.cf-fin-links a:hover { opacity: 0.55; }
+.cf-fin-links .is-current { opacity: 0.4; }
+.cf-fin-links .num { font-family: 'HafferXH', monospace; font-weight: 300; font-size: 16px; }
+
+/* "Fin.": every case study ends the same way, Creatify's: a screen to itself, the word
+   in Instrument Serif (italic "i") at the size of Creatify's title, the list under it.
+   (Creatify sets --cf-title-size from its fitted title; elsewhere it's about 11% of the
+   window's width, which is what Creatify's comes to on a laptop.) Each letter bounces in
+   and wobbles when the cursor knocks it: js/fin-letters.js (Creatify: its own copy). */
+.cf-fin { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.cf-fin-text {
+  margin: 0;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: var(--cf-title-size, clamp(64px, 11vw, 156px));
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--cf-ink, #1E1C1D);
+  position: relative; user-select: none; -webkit-user-select: none;
+}
+.cf-fin-text em { font-style: italic; }
+.cf-fin-l { display: inline-block; transform-origin: 50% 55%; will-change: transform; }
+.cf-fin .cf-fin-links { margin: 0; padding: 0; }
+
+/* (no footer to reveal under the page any more) */
+.main-content { padding-bottom: 0; }
+/* the Fin. section's own bottom spacing used to sit against the footer; now it would
+   stick out past the end of the page and show the hero behind it, so it goes. (Its
+   decorations, like pent up's dashed line, are trimmed at its edge for the same reason.) */
+.main-content > :last-child { margin-bottom: 0; }
+.fin-section { overflow: clip; }
