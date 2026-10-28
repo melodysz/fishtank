@@ -153,6 +153,7 @@ let isBlobMode = false;
 
 const LERP_NORMAL = 0.12;
 const LERP_BLOB = 0.10;
+const LERP_PILL = 0.25; // tab bar items: settles onto the item quickly so it lines up with it exactly
 const BLOB_HEIGHT = 40;
 
 // Cursor dot follows the mouse with a little lag. The further behind it is
@@ -177,11 +178,11 @@ let blobR = '';
 function followBlobTarget() {
   // bottom section-nav pills: the bubble takes the pill's own box + corner rounding
   // (following it as it springs wider)
-  if (blobTarget.closest('.sidebar-nav')) {
+  if (blobTarget.closest('.sidebar-nav, .tb-tabs, .tb-right, .tb-home')) {   // (+ the tab bar's items)
     const p = blobTarget.getBoundingClientRect();
     blobTargetX = p.left + p.width / 2;
     blobTargetY = p.top + p.height / 2;
-    const pw = Math.round(p.width), ph = Math.round(p.height);
+    const pw = +p.width.toFixed(2), ph = +p.height.toFixed(2);   // (exact, not rounded: fills the pill edge to edge)
     if (pw !== blobW) { blobW = pw; cursorMain.style.setProperty('--blob-w', pw + 'px'); }
     if (ph !== blobH) { blobH = ph; cursorMain.style.setProperty('--blob-h', ph + 'px'); }
     const r = getComputedStyle(blobTarget).borderRadius;
@@ -205,10 +206,11 @@ function animateCursor() {
   const targetScale = isBlobMode ? 1 : 1 + Math.min(lag / 160, 1) * 0.7;
   const scaleChanging = Math.abs(targetScale - cursorScale) > 0.002;
   if (lag > 0.05 || scaleChanging) {
-    const lerp = isBlobMode ? LERP_BLOB : LERP_NORMAL;
+    const onTab = isBlobMode && blobTarget?.closest('.tb-tabs, .tb-right, .tb-home');
+    const lerp = onTab ? LERP_PILL : isBlobMode ? LERP_BLOB : LERP_NORMAL;
     curX += dx * lerp;
     curY += dy * lerp;
-    cursorScale += (targetScale - cursorScale) * 0.18;
+    cursorScale += (targetScale - cursorScale) * (onTab ? 0.4 : 0.18);   // (back to true size fast, so it doesn't overhang the item)
     cursorMain.style.transform = `translate3d(${curX}px, ${curY}px, 0) translate(-50%, -50%) scale(${cursorScale})`;
   }
   requestAnimationFrame(animateCursor);
@@ -249,7 +251,7 @@ function expandToBlob(el) {
   gsap.set(cursorMain, { clearProps: 'width,height' });   // size comes from --blob-w/--blob-h only
   blobTarget = el;                 // lock onto this link (see followBlobTarget)
   cursorMain.classList.toggle('on-dark', onDarkBackground(el));
-  cursorMain.classList.toggle('on-pill', !!el.closest('.sidebar-nav'));
+  cursorMain.classList.toggle('on-pill', !!el.closest('.sidebar-nav, .tb-tabs, .tb-right, .tb-home'));
   blobW = 0; blobH = 0; blobR = '';
   followBlobTarget();
   cursorMain.classList.add('is-blob');
@@ -288,6 +290,22 @@ clickableEls.forEach(el => {
   // footer + sidebar text links: the bubble locks onto the text, like the nav
   el.addEventListener('mouseenter', () => expandToBlob(el));
   el.addEventListener('mouseleave', () => { if (blobTarget === el) shrinkBlob(); });
+});
+
+// tab bar (js/nav-tabs.js): the bubble morphs into the hovered tab and slides to the next
+// one as you move along; works / who / play and the home asterisk get the same morph
+const tbTabs = document.querySelector('.tb-tabs');
+if (tbTabs) {
+  tbTabs.addEventListener('mouseover', (e) => {
+    const tab = e.target.closest('.tb-tab');
+    if (tab && blobTarget !== tab) expandToBlob(tab);
+    else if (!tab && blobTarget?.closest('.tb-tabs')) shrinkBlob();   // (the gaps between tabs)
+  });
+  tbTabs.addEventListener('mouseleave', () => { if (blobTarget?.closest('.tb-tabs')) shrinkBlob(); });
+}
+document.querySelectorAll('.tb-right .tb-link, .cf-tabbar .tb-home').forEach(link => {
+  link.addEventListener('mouseenter', () => expandToBlob(link));
+  link.addEventListener('mouseleave', () => { if (blobTarget === link) shrinkBlob(); });
 });
 
 // Nav link items — flip text on hover + blob cursor

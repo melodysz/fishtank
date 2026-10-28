@@ -22,7 +22,7 @@
   <script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
   <!-- Nav mode: "tabs" (one ChatGPT-style tab bar, the default) or "classic" (pill nav +
        side nav + progress bar). ?nav=tabs / ?nav=classic switches and remembers it;
-       so does the toggle in the bottom-left corner. Logic: nav-tabs.js -->
+       so does the toggle in the bottom-left corner. Logic: ../js/nav-tabs.js, look: ../css/nav-tabs.css -->
   <script>
     (function () {
       var m = new URLSearchParams(location.search).get('nav');
@@ -41,7 +41,8 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=navy-bg-245">
+  <link rel="stylesheet" href="style.css?v=navy-bg-246">
+  <link rel="stylesheet" href="../css/nav-tabs.css?v=1">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
   <script src="../js/splash.js?v=navy-bg-9"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
@@ -122,8 +123,8 @@
   </ul>
 </nav>
 
-<!-- EXPERIMENT: tab-bar nav (html.nav-tabs). The section tabs are built from the side
-     nav above and the "+" menu from the work dropdown (nav-tabs.js), so they stay in sync. -->
+<!-- Tab-bar nav (html.nav-tabs, the default). The section tabs are built from the side nav
+     above and the works dropdown from the classic one (../js/nav-tabs.js), so they stay in sync. -->
 <header class="cf-tabbar" aria-label="Case study navigation">
   <a class="tb-btn tb-home interactable" href="../" aria-label="Back to home">
     <img src="https://cdn.jsdelivr.net/gh/melodysz/baubles@main/asterisk.svg" alt="" width="22" height="22">
@@ -1236,7 +1237,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=4"></script>
 <script src="../js/page-wipe.js?v=20"></script>
-<script src="nav-tabs.js?v=9"></script>
+<script src="../js/nav-tabs.js?v=10"></script>
 <script src="main.js?v=47"></script>
 <script src="problem-shot.js?v=16"></script>
 <script src="problem-strip.js?v=6"></script>

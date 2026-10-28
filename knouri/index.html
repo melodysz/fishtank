@@ -34,7 +34,18 @@
 <link rel="preload" as="image" href="https://melodysz.github.io/baubles/border-top.webp">
 
   <!-- Your CSS -->
+  <!-- Nav mode: "tabs" (one ChatGPT-style tab bar, the default) or "classic" (pill nav +
+       side nav + progress bar). ?nav=tabs / ?nav=classic switches and remembers it;
+       so does the toggle in the bottom-left corner. Logic: ../js/nav-tabs.js, look: ../css/nav-tabs.css -->
+  <script>
+    (function () {
+      var m = new URLSearchParams(location.search).get('nav');
+      try { if (m === 'tabs' || m === 'classic') localStorage.setItem('cfNavMode', m); else m = localStorage.getItem('cfNavMode'); } catch (e) {}
+      if (m !== 'classic') document.documentElement.classList.add('nav-tabs');   // (tabs unless classic was picked)
+    })();
+  </script>
   <link rel="stylesheet" href="style.css?v=navy-bg-17-bold">
+  <link rel="stylesheet" href="../css/nav-tabs.css?v=1">
   <link rel="stylesheet" href="../css/case-v2.css?v=4">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
   <script src="../js/splash.js?v=navy-bg-9"></script>
@@ -112,6 +123,28 @@
     <li class="nav-item"><a href="#reflection" class="nav-link"><span class="nav-num">04</span><span class="nav-name">reflection</span></a></li>
   </ul>
 </nav>
+
+<!-- Tab-bar nav (html.nav-tabs, the default). The section tabs are built from the side nav
+     above and the works dropdown from the classic one (../js/nav-tabs.js), so they stay in sync. -->
+<header class="cf-tabbar" aria-label="Case study navigation">
+  <a class="tb-btn tb-home interactable" href="../" aria-label="Back to home">
+    <img src="https://cdn.jsdelivr.net/gh/melodysz/baubles@main/asterisk.svg" alt="" width="22" height="22">
+  </a>
+  <nav class="tb-tabs" aria-label="Sections"><span class="tb-indicator" aria-hidden="true"></span></nav>
+  <div class="tb-right">
+    <a class="tb-link tb-works interactable" href="../#third-section">works</a>
+    <a class="tb-link interactable" href="../#who">who</a>
+    <a class="tb-link interactable" href="../#play">play</a>
+  </div>
+</header>
+<!-- the tab bar's gray continues down the sides and along the bottom, thin, with rounded
+     inner corners: the page sits inside it like a window (tabs mode only) -->
+<div class="cf-frame" aria-hidden="true"></div>
+<div class="nav-mode-toggle" data-dev-ui role="group" aria-label="Navigation style (experiment)">
+  <button type="button" data-mode="classic" class="interactable">classic</button>
+  <button type="button" data-mode="tabs" class="interactable">tabs</button>
+</div>
+
 
 <!-- Hero Section -->
 <section class="hero-section">
@@ -501,7 +534,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=4"></script>
 <script src="../js/page-wipe.js?v=20"></script>
-<script src="main.js?v=21"></script>
+<script src="../js/nav-tabs.js?v=10"></script>
+<script src="main.js?v=22"></script>
 <script src="../js/case-v2.js?v=1"></script>
   <script src="../js/companion-blend.js?v=3"></script>
 </body>

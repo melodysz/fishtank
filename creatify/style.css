@@ -4214,30 +4214,9 @@ strong.cf-hl {
   transition: opacity .55s ease, filter .55s ease;
 }
 
-/* ---------- NAV EXPERIMENT: tab bar (html.nav-tabs, nav-tabs.js) ----------
-   One ChatGPT-style bar replaces the pill nav, the side nav and the progress bar. */
-html.nav-tabs #scroll-progress,
-html.nav-tabs .nav-pill-wrap,
-html.nav-tabs #bubbleDotsWrap,
-html.nav-tabs #workBubble,
-html.nav-tabs .sidebar-nav { display: none !important; }
-
-.cf-tabbar, .cf-frame { display: none; }
-html:not(.nav-tabs) .tb-bubble { display: none; }   /* (the tab bar's copy of the work dropdown) */
-:root { --frame-color: rgba(238, 238, 241, 0.75); --frame-top: 50px; /* (tab bar height, was 42) */ --frame-side: 8px; --frame-radius: 14px; }
-/* the window frame: see-through frosted glass everywhere outside one rounded hole. The
-   hole is cut with a clip-path that nav-tabs.js draws to the window's size (backdrop blur
-   follows the clip, so the page inside the hole stays sharp). The tab bar itself is
-   clear and sits on top of the frame's top edge. */
-html.nav-tabs .cf-frame {
-  display: block;
-  position: fixed; inset: 0; z-index: 8999;
-  pointer-events: none;
-  background: var(--frame-color);
-  -webkit-backdrop-filter: blur(22px) saturate(1.5);
-          backdrop-filter: blur(22px) saturate(1.5);
-}
-@media (max-width: 700px) { :root { --frame-side: 5px; --frame-radius: 12px; } }
+/* ---------- Tab bar: Creatify-only extras ----------
+   (the tab bar itself, its frame and the classic/tabs switch live in ../css/nav-tabs.css,
+   shared by every case study) */
 /* a soft white fade just under the tab bar: the page's tops melt into it as they scroll
    up, without going solid (it starts at 80% white, so their colours still show faintly).
    Only once the white page has covered the hero (body.hero-covered, main.js): over the
@@ -4278,83 +4257,6 @@ html.nav-tabs .hl-viewport::after { display: none; }
    starts below the bar, so the whole hero still shows under it (centred in what you see) */
 html.nav-tabs { --hero-pad: var(--frame-top); }
 html.nav-tabs .hero-section .agent-hero { top: var(--hero-pad); }
-html.nav-tabs .cf-tabbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
-  display: flex; align-items: center; gap: 6px;
-  height: var(--frame-top); padding: 0 14px;
-  background: transparent;   /* (the frame behind it, .cf-frame, is the glass) */
-  font: 500 16px/1 'PP Neue Montreal', sans-serif;   /* (medium, was book: bolder nav text; 16px, was 14) */
-  color: #1d1d1f;
-}
-.tb-btn {
-  flex: none; display: grid; place-items: center;
-  width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
-  background: transparent; color: #55555b;
-  transition: background .15s, color .15s;
-}
-.tb-home { margin-right: 14px; }   /* (more room between the asterisk and the tabs) */
-.tb-home img { display: block; width: 22px; height: 22px; transform: rotate(-18deg); }   /* (resting tilt, before the script takes over) */
-.tb-btn:hover { background: rgba(0, 0, 0, 0.06); color: #1d1d1f; }
-.tb-home:hover { background: transparent; }   /* (the cursor bubble fills it instead) */
-.tb-tabs {
-  position: relative; flex: 1; min-width: 0;
-  display: flex; align-items: center; gap: 10px;   /* (was 2px) */
-  height: 100%; overflow-x: auto; scrollbar-width: none;
-}
-.tb-tabs::-webkit-scrollbar { display: none; }
-.tb-indicator {   /* the white "selected tab" card, sliding to whichever tab is current */
-  position: absolute; left: 0; top: 50%;
-  height: 30px; margin-top: -15px;
-  border-radius: 9px;
-  background: #fff;   /* (flat: no shadow) */
-  transition: transform .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1), opacity .3s ease;
-}
-.tb-tab {
-  position: relative;   /* (above the indicator) */
-  flex: none; display: flex; align-items: center; gap: 8px;
-  height: 30px; padding: 0 14px; border: 0; border-radius: 9px;
-  background: transparent; color: #6e6e75;
-  font: inherit; white-space: nowrap;
-  transition: color .2s, background .15s;
-}
-.tb-tab:not(.is-active):hover { color: #1d1d1f; }   /* (no grey fill: the cursor bubble fills the tab instead) */
-.tb-tab.is-active { color: #1d1d1f; }
-.tb-num { font: 400 16px/1 'HafferXH', monospace; letter-spacing: .04em; color: #1d1d1f; transition: color .2s; }   /* (black when not selected; purple when selected) */
-.tb-tab.is-active .tb-num { color: var(--cf-accent, #7354F2); }
-
-
-
-
-
-
-
-.tb-right { flex: none; display: flex; align-items: center; gap: 8px; padding-left: 6px; border-left: 1px solid rgba(0, 0, 0, 0.08); margin-left: 4px; }
-.tb-link { padding: 7px 11px; border-radius: 8px; color: #55555b; text-decoration: none; transition: background .15s, color .15s; }
-.tb-link:hover { color: #1d1d1f; }   /* (no grey fill: the cursor bubble fills the link instead) */
-@media (max-width: 700px) {
-  html.nav-tabs .cf-tabbar { padding: 0 8px; gap: 2px; }
-  .tb-right { display: none; }
-  .tb-tab { padding: 0 12px; }
-}
-
-/* the classic ⇄ tabs switch (experiment), bottom-left */
-.nav-mode-toggle {
-  position: fixed; left: 16px; bottom: 16px; z-index: 9001;
-  display: flex; gap: 2px; padding: 3px;
-  border-radius: 999px;
-  background: rgba(24, 24, 27, 0.78);
-  -webkit-backdrop-filter: blur(12px);
-          backdrop-filter: blur(12px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-}
-.nav-mode-toggle button {
-  padding: 6px 12px; border: 0; border-radius: 999px;
-  background: transparent; color: rgba(255, 255, 255, 0.7);
-  font: 12px/1 'PP Neue Montreal', sans-serif;
-  transition: background .2s, color .2s;
-}
-.nav-mode-toggle button[aria-pressed="true"] { background: #fff; color: #18181b; }
-
 /* tabs mode: corners follow the window frame's (--frame-radius, 14px; 12px on phones) so
    the page's boxes echo the frame instead of being twice as round. Big backgrounds match
    it exactly; the screenshots / media inside them are a step smaller. Classic mode keeps
