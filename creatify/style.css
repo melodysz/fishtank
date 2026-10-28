@@ -1665,9 +1665,9 @@ body.hero-covered .hero-section { visibility: hidden; }
 .cf-head--v2 .cf-h2 {
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 50px;
-  line-height: 55px;
-  letter-spacing: -0.05em;
+  font-size: 40px;   /* (all section headers = .sk-h's 40px, was 50) */
+  line-height: 45px;
+  letter-spacing: -0.04em;
 }
 .cf-head--v2 .cf-body { max-width: 720px; font-size: 18px; line-height: 30px; }
 .cf-head--v2 .cf-body strong { font-weight: 700; }
@@ -1680,7 +1680,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   letter-spacing: -0.01em;
 }
 @media (max-width: 700px) {
-  .cf-head--v2 .cf-h2 { font-size: 34px; line-height: 40px; }
+  .cf-head--v2 .cf-h2 { font-size: 30px; line-height: 36px; }   /* (as .sk-h on phones) */
   .cf-hmw--v2 .cf-quote { font-size: 24px; line-height: 32px; }
 }
 
@@ -1697,13 +1697,13 @@ body.hero-covered .hero-section { visibility: hidden; }
 .cf-versions-title {
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 50px;
-  line-height: 55px;
-  letter-spacing: -0.05em;
+  font-size: 40px;   /* (all section headers = .sk-h's 40px, was 50) */
+  line-height: 45px;
+  letter-spacing: -0.04em;
   color: var(--cf-ink);
 }
 @media (max-width: 700px) {
-  .cf-versions-title { font-size: 34px; line-height: 40px; }
+  .cf-versions-title { font-size: 30px; line-height: 36px; }
 }
 .cf-versions-text { font-size: 18px; line-height: 30px; color: var(--cf-ink); }
 .cf-versions-text strong { font-weight: 700; }
@@ -1823,14 +1823,14 @@ body.hero-covered .hero-section { visibility: hidden; }
   margin-bottom: -36px;           /* 56px column gap − 36 = 20px to the screenshot, same as "Get the highlights." to its carousel */
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 44px;
+  font-size: 40px;   /* (all section headers = .sk-h's 40px, was 44) */
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   text-align: center;
   color: var(--cf-ink);
 }
 @media (max-width: 700px) {
-  .cf-deep-title { font-size: 32px; margin-top: 32px; }
+  .cf-deep-title { font-size: 30px; margin-top: 32px; }
 }
 
 /* ---------- flow pills (know → invoke) ---------- */
@@ -1984,9 +1984,9 @@ body.hero-covered .hero-section { visibility: hidden; }
 .cf-overview-text .cf-h2 {
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 50px;
-  line-height: 55px;
-  letter-spacing: -0.05em;
+  font-size: 40px;   /* (all section headers = .sk-h's 40px, was 50) */
+  line-height: 45px;
+  letter-spacing: -0.04em;
 }
 
 /* Figma: PP Neue Montreal Book 16 (bumped to 18 on screen), line height 30, 20px between paragraphs */
@@ -2241,7 +2241,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   .cf-section { --cf-pad-x: 20px; }
   .cf-title { font-size: 56px; }
   .cf-h2 { font-size: 30px; line-height: 38px; }
-  .cf-overview-text .cf-h2 { font-size: 36px; line-height: 40px; }
+  .cf-overview-text .cf-h2 { font-size: 30px; line-height: 36px; }
   .cf-h3 { font-size: 22px; line-height: 30px; }
   .cf-quote { font-size: 24px; line-height: 32px; }
   .cf-row--2, .cf-row--4 { grid-template-columns: 1fr; }
@@ -2529,9 +2529,9 @@ body.hero-covered .hero-section { visibility: hidden; }
   margin: 0 0 20px;
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 44px;
+  font-size: 40px;   /* (all section headers = .sk-h's 40px, was 44) */
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   color: var(--cf-ink);
 }
 
@@ -2742,7 +2742,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .hl-dot.is-active { width: 30px; }
 
 @media (max-width: 700px) {
-  .hl-title { font-size: 32px; }
+  .hl-title { font-size: 30px; }
   .hl-track { gap: 14px; }
   .hl-card { border-radius: 20px; }
   .hl-dots { bottom: 14px; padding: 12px; }
@@ -3513,9 +3513,9 @@ strong.cf-hl {
   margin: 0;
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 44px;                /* same as "Get the highlights." (Figma: 50) */
+  font-size: 40px;   /* (all section headers = .sk-h's 40px, was 44) */
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   color: var(--cf-ink);
 }
 /* the TL;DR sits in a white rounded box */
@@ -3523,7 +3523,7 @@ strong.cf-hl {
 #research .rs-glance-item { padding-top: 0; border-top: 0; }
 @media (max-width: 900px) {
   #research .rs-glance { padding: 40px 32px; }
-  .rs-subhead { font-size: 32px; }
+  .rs-subhead { font-size: 30px; }
   #research.cf-section { padding-top: 64px; padding-bottom: 64px; }
 }
 
@@ -3777,7 +3777,7 @@ strong.cf-hl {
 .sk-wrap .sk-body { gap: 20px; }
 /* sub-headings (Figma: DM Sans SemiBold 40 / 50) */
 .sk-h { margin: 0; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 40px; line-height: 45px; letter-spacing: -0.04em; color: var(--cf-ink); }
-.sk-h--big { font-size: 50px; line-height: 55px; letter-spacing: -0.05em; }
+/* (.sk-h--big was 50px: now the same 40px as .sk-h, like every section header) */
 
 /* the chip + dropdown box (ink at 5%) */
 .sk-box { display: flex; flex-direction: column; gap: 64px; padding: 80px; border-radius: 30px; background: rgba(0, 0, 0, 0.05); }
