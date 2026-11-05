@@ -362,9 +362,10 @@
   const LOGO_EXIT = 'slide';
   const LOGO_SPEED = 1.5;        // Creatify plays it at 2×
   // 'slide' (in the logo's own frames, 25 per second before LOGO_SPEED):
-  const SLIDE_FRAMES = 40;       // from where the triangle usually stops to off screen
-  const SLIDE_HERO_AT = 46;      // the frame the hero starts sliding up
-  const SLIDE_FADE_FROM = 32;    // the frame it starts fading away as it slides (CSS: .ah-logo.is-fading)
+  const SLIDE_FRAMES = 55;       // from where the triangle usually stops to off screen
+  const SLIDE_HERO_AT = 52;      // the frame the hero starts sliding up
+  const SLIDE_FADE_FROM = 44;    // the frame it starts fading away as it slides (CSS: .ah-logo.is-fading);
+                                 // the last stripe grows in over frames 35→60 and is ~80% in by 44
   // 'fade':
   const LOGO_LAST_FRAME = 60;    // fully drawn, speed lines out (it then pulls them back in)
   const LOGO_HOLD = 180;         // ms it rests before fading
