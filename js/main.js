@@ -283,6 +283,9 @@ function predecodePageImages() {
   const urls = new Set();
   const jobs = [];
   document.querySelectorAll('img').forEach((img) => {
+    // (lazy images, like the play page's art, don't load until they're needed,
+    // so waiting on them would hold the intro until its 15s cap)
+    if (img.loading === 'lazy') return;
     if (img.src) { urls.add(img.src); jobs.push(img.decode().catch(() => {})); }
   });
   document.querySelectorAll('body *').forEach((el) => {
