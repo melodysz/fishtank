@@ -88,6 +88,10 @@ html.nav-tabs .cf-tabbar {
   .tb-tab { padding: 0 12px; }
 }
 
+/* design helpers (data-dev-ui) only show on the local preview: nav-tabs.js adds
+   html.is-dev on localhost */
+html:not(.is-dev) [data-dev-ui] { display: none !important; }
+
 /* the classic ⇄ tabs switch (experiment), bottom-left */
 .nav-mode-toggle {
   position: fixed; left: 16px; bottom: 16px; z-index: 9001;

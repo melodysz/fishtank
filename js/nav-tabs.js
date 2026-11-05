@@ -11,6 +11,8 @@
   const root = document.documentElement;
   const bar = document.querySelector('.cf-tabbar');
   const toggle = document.querySelector('.nav-mode-toggle');
+  // (the switch is a design helper: only shown on localhost, never on the live site)
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) root.classList.add('is-dev');
   if (!bar) return;
 
   // ---------- classic ⇄ tabs ----------
