@@ -21,14 +21,18 @@ html.nav-tabs .sidebar-nav { display: none !important; }
 .cf-tabbar, .cf-frame { display: none; }
 html:not(.nav-tabs) .tb-bubble { display: none; }   /* (the tab bar's copy of the work dropdown) */
 :root { --frame-color: rgba(238, 238, 241, 0.75); --frame-top: 50px; /* (tab bar height, was 42) */ --frame-side: 8px; --frame-radius: 14px; }
-/* the window frame: see-through frosted glass everywhere outside one rounded hole. The
-   hole is cut with a clip-path that nav-tabs.js draws to the window's size (backdrop blur
-   follows the clip, so the page inside the hole stays sharp). The tab bar itself is
-   clear and sits on top of the frame's top edge. */
+/* the window frame: see-through frosted glass everywhere outside one rounded hole, built
+   from four strips that nav-tabs.js places and clips to the window's size (so the page
+   inside the hole stays sharp). The tab bar itself is clear and sits on top of the
+   frame's top edge. */
 html.nav-tabs .cf-frame {
   display: block;
   position: fixed; inset: 0; z-index: 8999;
   pointer-events: none;
+}
+/* (the glass itself: four strips placed and clipped by nav-tabs.js, see shapeFrame) */
+.cf-frame-piece {
+  position: absolute;
   background: var(--frame-color);
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
           backdrop-filter: blur(22px) saturate(1.5);

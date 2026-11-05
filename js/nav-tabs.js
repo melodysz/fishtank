@@ -145,17 +145,40 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBubble(); });
   window.addEventListener('resize', () => { if (open) place(); });
 
-  // ---------- the window frame's hole (CSS: .cf-frame) ----------
-  // A clip-path covering the whole window minus a rounded rectangle (evenodd), sized
-  // from the CSS --frame-top / --frame-side / --frame-radius.
+  // ---------- the window frame (CSS: .cf-frame) ----------
+  // Frosted glass in four strips (the tab bar band, the two sides, the bottom edge) cut
+  // round a rounded hole, sized from the CSS --frame-top / --frame-side / --frame-radius.
+  // (Not one full-screen layer clipped to a ring: the browser blurs a backdrop layer's
+  // whole box every frame, even the clipped-away part, so that re-blurred the entire screen
+  // while scrolling.) Each strip's box reaches PAD px in past what shows, so the blur still
+  // takes in the page beside it, then it's clipped to its visible part.
   const frame = document.querySelector('.cf-frame');
+  const framePieces = frame ? ['top', 'bottom', 'left', 'right'].map((side) => {
+    const el = document.createElement('div');
+    el.className = 'cf-frame-piece cf-frame-piece--' + side;
+    frame.appendChild(el);
+    return el;
+  }) : [];
+  const placePiece = (el, x, y, w, h, clip) =>
+    Object.assign(el.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', clipPath: clip });
   function shapeFrame() {
     if (!frame || !root.classList.contains('nav-tabs')) return;
     const css = getComputedStyle(root), px = (v) => parseFloat(css.getPropertyValue(v)) || 0;
     const W = frame.clientWidth, H = frame.clientHeight;
-    const t = px('--frame-top'), sd = px('--frame-side'), r = px('--frame-radius');
-    const x0 = sd, y0 = t, x1 = W - sd, y1 = H - sd;
-    frame.style.clipPath = `path(evenodd, "M0 0H${W}V${H}H0Z M${x0 + r} ${y0}H${x1 - r}A${r} ${r} 0 0 1 ${x1} ${y0 + r}V${y1 - r}A${r} ${r} 0 0 1 ${x1 - r} ${y1}H${x0 + r}A${r} ${r} 0 0 1 ${x0} ${y1 - r}V${y0 + r}A${r} ${r} 0 0 1 ${x0 + r} ${y0}Z")`;
+    const t = px('--frame-top'), sd = px('--frame-side'), r = px('--frame-radius'), PAD = 40;
+    const [top, bottom, left, right] = framePieces;
+    // top: the tab bar band, down to where the hole's top corners finish curving
+    const tb = t + r;
+    placePiece(top, 0, 0, W, tb + PAD,
+      `path("M0 ${tb}V0H${W}V${tb}H${W - sd}A${r} ${r} 0 0 0 ${W - sd - r} ${t}H${sd + r}A${r} ${r} 0 0 0 ${sd} ${tb}Z")`);
+    // bottom: the thin bottom edge plus the hole's bottom corners (its box starts PAD higher)
+    const hb = sd + r + PAD;
+    placePiece(bottom, 0, H - hb, W, hb,
+      `path("M0 ${PAD}H${sd}A${r} ${r} 0 0 0 ${sd + r} ${hb - sd}H${W - sd - r}A${r} ${r} 0 0 0 ${W - sd} ${PAD}H${W}V${hb}H0Z")`);
+    // the two sides, between the corners
+    const sh = Math.max(0, H - tb - (sd + r));
+    placePiece(left, 0, tb, sd + PAD, sh, `inset(0 ${PAD}px 0 0)`);
+    placePiece(right, W - sd - PAD, tb, sd + PAD, sh, `inset(0 0 0 ${PAD}px)`);
   }
   window.addEventListener('resize', shapeFrame);
 
