@@ -3961,10 +3961,14 @@ strong.cf-hl {
 .chat-ba { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .chat-ba figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .chat-ba img { display: block; width: 100%; height: auto; border-radius: var(--r-md); }
-/* the audit: three screenshots, one height, columns sized by each one's width */
-.chat-audit { display: grid; grid-template-columns: 276fr 251fr 485fr; gap: 24px; align-items: start; margin-top: 4px; }
+/* the audit: each screenshot cropped to its question card, big enough to read at 1440px.
+   Claude + Flora share a row; Higgsfield's card is wide with small type, so it gets its own
+   row at its real size (900px) */
+.chat-audit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; align-items: start; margin-top: 4px; }
 .chat-audit figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
-.chat-audit img { display: block; width: 100%; aspect-ratio: calc(var(--w) / 300); object-fit: cover; object-position: top; border-radius: var(--r-sm); }
+.chat-audit img { display: block; width: 100%; height: auto; border-radius: var(--r-sm); }
+.chat-audit .chat-audit-wide { grid-column: 1 / -1; }
+.chat-audit .chat-audit-wide img { max-width: 900px; }
 .chat-audit figcaption { display: flex; flex-direction: column; gap: 4px; font-size: 15px; line-height: 22px; color: var(--cf-gray); }
 .chat-audit figcaption b { font-family: 'Haffer Mono', monospace; font-weight: 400; font-size: 12px; line-height: 15px; text-transform: uppercase; color: var(--cf-ink); }
 /* six input types */
@@ -3997,7 +4001,7 @@ strong.cf-hl {
 
 /* image strokes (Figma: 1px inside). An outline, not an inset box-shadow: a picture
    paints over its own inset shadow, so that never showed */
-.chat-ba img, .chat-summary > img { outline: 1px solid rgba(24, 24, 18, 0.1); outline-offset: -1px; }
+.chat-ba img, .chat-audit img, .chat-summary > img { outline: 1px solid rgba(24, 24, 18, 0.1); outline-offset: -1px; }
 .nav-audit-row img { box-shadow: none; outline: 1px solid rgba(0, 0, 0, 0.08); outline-offset: -1px; }
 
 /* ================================
