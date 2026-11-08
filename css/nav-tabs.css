@@ -40,7 +40,7 @@ html.nav-tabs .cf-frame {
 @media (max-width: 700px) { :root { --frame-side: 5px; --frame-radius: 12px; } }
 
 html.nav-tabs .cf-tabbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9002;   /* (above the cursor while it's on a tab: see below) */
   display: flex; align-items: center; gap: 6px;
   height: var(--frame-top); padding: 0 14px;
   background: transparent;   /* (the frame behind it, .cf-frame, is the glass) */
@@ -53,7 +53,10 @@ html.nav-tabs .cf-tabbar {
   background: transparent; color: #55555b;
   transition: background .15s, color .15s;
 }
-.tb-home { margin-right: 14px; }   /* (more room between the asterisk and the tabs) */
+/* the home asterisk: round, so the cursor bubble over it is a circle, and bigger than the
+   other buttons (38px, was 30) so that circle is roomy. The -4px / 10px margins keep the
+   asterisk and the tabs exactly where they were (same 44px footprint as 30 + 14) */
+.tb-home { width: 38px; height: 38px; margin-left: -4px; margin-right: 10px; border-radius: 50%; }
 .tb-home img { display: block; width: 22px; height: 22px; transform: rotate(-18deg); }   /* (resting tilt, before the script takes over) */
 .tb-btn:hover { background: rgba(0, 0, 0, 0.06); color: #1d1d1f; }
 .tb-home:hover { background: transparent; }   /* (the cursor bubble fills it instead) */
@@ -80,6 +83,16 @@ html.nav-tabs .cf-tabbar {
 }
 .tb-tab:not(.is-active):hover { color: #1d1d1f; }   /* (no grey fill: the cursor bubble fills the tab instead) */
 .tb-tab.is-active { color: #1d1d1f; }
+/* the cursor bubble on a tab: solid, not see-through + blended (that went a muddy dark
+   purple over the grey glass), and tucked just under the tab text (z 9001: above the frame
+   glass, below the tab bar) so the text stays readable. On the current tab the white card
+   steps aside while it's hovered, or it would hide the bubble */
+html.nav-tabs:has(.cf-tabbar:hover) #cursor.is-blob.on-pill:not(.has-label) {
+  opacity: 1; mix-blend-mode: normal; z-index: 9001;
+  /* (paler than the page's highlight colour: about half of it, mixed with white) */
+  background-color: color-mix(in srgb, var(--companion-color, #0a9eff) 50%, #fff);
+}
+.cf-tabbar:has(.tb-tab.is-active:hover) .tb-indicator { opacity: 0; }
 .tb-num { font: 400 16px/1 'HafferXH', monospace; letter-spacing: .04em; color: #1d1d1f; transition: color .2s; }   /* (black when not selected; the accent when selected) */
 .tb-tab.is-active .tb-num { color: var(--cf-accent, #7354F2); }   /* (each case study's own accent) */
 

@@ -247,6 +247,7 @@ function onDarkBackground(el) {
 }
 
 function expandToBlob(el) {
+  clearTimeout(tabShrinkTimer);
   isBlobMode = true;
   gsap.set(cursorMain, { clearProps: 'width,height' });   // size comes from --blob-w/--blob-h only
   blobTarget = el;                 // lock onto this link (see followBlobTarget)
@@ -255,6 +256,16 @@ function expandToBlob(el) {
   blobW = 0; blobH = 0; blobR = '';
   followBlobTarget();
   cursorMain.classList.add('is-blob');
+}
+
+// tab bar: leaving a tab doesn't shrink the bubble straight away. It waits TAB_GRACE ms,
+// so crossing the gap to the next tab slides it across instead of flashing back to a dot
+const TAB_GRACE = 140;
+let tabShrinkTimer = 0;
+function shrinkBlobSoon() {
+  clearTimeout(tabShrinkTimer);
+  const from = blobTarget;
+  tabShrinkTimer = setTimeout(() => { if (blobTarget === from) shrinkBlob(); }, TAB_GRACE);
 }
 
 function shrinkBlob() {
@@ -298,14 +309,14 @@ const tbTabs = document.querySelector('.tb-tabs');
 if (tbTabs) {
   tbTabs.addEventListener('mouseover', (e) => {
     const tab = e.target.closest('.tb-tab');
-    if (tab && blobTarget !== tab) expandToBlob(tab);
-    else if (!tab && blobTarget?.closest('.tb-tabs')) shrinkBlob();   // (the gaps between tabs)
+    if (tab) { clearTimeout(tabShrinkTimer); if (blobTarget !== tab) expandToBlob(tab); }   // (back on a tab: keep the bubble)
+    else if (blobTarget?.closest('.tb-tabs')) shrinkBlobSoon();   // (the gaps between tabs)
   });
-  tbTabs.addEventListener('mouseleave', () => { if (blobTarget?.closest('.tb-tabs')) shrinkBlob(); });
+  tbTabs.addEventListener('mouseleave', () => { if (blobTarget?.closest('.tb-tabs')) shrinkBlobSoon(); });
 }
 document.querySelectorAll('.tb-right .tb-link, .cf-tabbar .tb-home').forEach(link => {
   link.addEventListener('mouseenter', () => expandToBlob(link));
-  link.addEventListener('mouseleave', () => { if (blobTarget === link) shrinkBlob(); });
+  link.addEventListener('mouseleave', () => { if (blobTarget === link) shrinkBlobSoon(); });
 });
 
 // Nav link items — flip text on hover + blob cursor
