@@ -33,7 +33,7 @@
     tiltMax: 38,
 
     // 2. fan out into the grid, as soon as the last card is in place
-    landedAt: 0.7,      // share of its flight when a card looks in place (the rest is a barely-moving soft landing)
+    landedAt: 0.5,      // share of the last card's flight before the pile fans out (was 0.7: the pile sat still too long; at 0.5 it's ~88% landed, so the fan starts as it settles)
     pause: 0,           // s with the pile sitting still before it fans out
     fanTime: 0.35,      // s (was 0.75, then 0.5: shorter = snappier)
     fanStagger: 0,      // s between cards starting to fan out (0 = all at once)

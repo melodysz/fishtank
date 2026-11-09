@@ -251,6 +251,9 @@ function updateCursorSize(el) {
   const big = zoom || !!(el && el.closest && !document.querySelector('.lightbox.is-open') && el.closest(CURSOR_BIG));
   if (big !== cursorBig) { cursorBig = big; cursorMain.classList.toggle('is-big', big); }
   if (zoom !== cursorMain.classList.contains('is-zoom')) cursorMain.classList.toggle('is-zoom', zoom);
+  // the research file tabs (folded cards): a rounded square, like the files, not a circle
+  const square = big && !zoom && !!el.closest('.rs-card:not(.is-open) .rs-tab');
+  if (square !== cursorMain.classList.contains('is-square')) cursorMain.classList.toggle('is-square', square);
 }
 // a click can change what's under the mouse without it moving (a card opens, a
 // screenshot comes to the front, the lightbox opens/closes): check again
@@ -587,7 +590,9 @@ document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
       design: document.getElementById('skillsIntro'),
       agent: document.getElementById('agentIntro'),
     };
-    const offsets = { design: 0, agent: 0 };
+    // (Overview: its own scroll-margin-top, so in tabs mode it lands the same gap under
+    // the tab bar as at its sides; 20px otherwise)
+    const offsets = { design: 0, agent: 0, overview: -(parseFloat(getComputedStyle(landOn.overview).scrollMarginTop) || 20) };
     lenis.scrollTo(landOn[targetId] || `#${targetId}`, { offset: offsets[targetId] ?? -20, immediate: true });
 
     navItems.forEach(item => {

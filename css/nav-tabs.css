@@ -18,9 +18,13 @@ html.nav-tabs #bubbleDotsWrap,
 html.nav-tabs #workBubble,
 html.nav-tabs .sidebar-nav { display: none !important; }
 
+/* no page scrollbar, same as the homepage (css/style.css). Scrolling still works as normal */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+
 .cf-tabbar, .cf-frame { display: none; }
 html:not(.nav-tabs) .tb-bubble { display: none; }   /* (the tab bar's copy of the work dropdown) */
-:root { --frame-color: rgba(238, 238, 241, 0.75); --frame-top: 50px; /* (tab bar height, was 42) */ --frame-side: 8px; --frame-radius: 14px; }
+:root { --frame-color: rgba(238, 238, 241, 0.75); --frame-top: 44px; /* (tab bar height, was 50: shorter to match the smaller items, the same ~9px of room around them) */ --frame-side: 8px; --frame-radius: 14px; }
 /* the window frame: see-through frosted glass everywhere outside one rounded hole, built
    from four strips that nav-tabs.js places and clips to the window's size (so the page
    inside the hole stays sharp). The tab bar itself is clear and sits on top of the
@@ -29,6 +33,14 @@ html.nav-tabs .cf-frame {
   display: block;
   position: fixed; inset: 0; z-index: 8999;
   pointer-events: none;
+}
+/* a very faint thin stroke round the inside edge of the frame, so the page it holds reads as
+   a separate surface (sits just inside the hole, following its rounded corners) */
+html.nav-tabs .cf-frame::after {
+  content: ''; position: absolute; pointer-events: none;
+  top: var(--frame-top); left: var(--frame-side); right: var(--frame-side); bottom: var(--frame-side);
+  border-radius: var(--frame-radius);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);   /* (was 0.07: more subtle) */
 }
 /* (the glass itself: four strips placed and clipped by nav-tabs.js, see shapeFrame) */
 .cf-frame-piece {
@@ -39,12 +51,61 @@ html.nav-tabs .cf-frame {
 }
 @media (max-width: 700px) { :root { --frame-side: 5px; --frame-radius: 12px; } }
 
+/* EXPERIMENT (local only, html.win-inset, switched by the "window" button / ?win=): the
+   frame + tab bar pulled in from the screen edges by --win-m, like a window. Nothing covers
+   the margins: the page keeps running full screen behind, so it shows around the frame.
+   (nav-tabs.js sets --win-m and rounds the frame's outer corners.) */
+html.nav-tabs.win-inset .cf-frame { inset: var(--win-m); }
+html.nav-tabs.win-inset .cf-tabbar { top: var(--win-m); left: var(--win-m); right: var(--win-m); }
+/* the margins themselves: the page behind them, blurred and lightly tinted. Four strips,
+   one per edge, placed and clipped to the margin by nav-tabs.js. (Not one full-screen
+   layer: the browser blurs a backdrop layer's whole box every frame, even the clipped-away
+   part, so a full-screen one meant re-blurring the entire screen while scrolling.) */
+.win-blur { display: none; }
+html.nav-tabs.win-inset .win-blur {
+  display: block;
+  position: fixed; z-index: 8998;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(var(--win-blur, 30px));
+          backdrop-filter: blur(var(--win-blur, 30px));
+  /* a gradient over the blur: Creatify's bold purple into the lilac, 80% (the margin colour
+     panel can change it). Fixed to the screen, so the four strips share one gradient */
+  background: var(--win-tint, linear-gradient(135deg, rgba(111, 104, 255, 0.8), rgba(214, 201, 255, 0.8)));
+  background-attachment: fixed;
+}
+
+/* the margin colour panel (design helper, window mode only), above the switch */
+.win-panel { display: none; }
+html.nav-tabs.win-inset .win-panel {
+  position: fixed; left: 16px; bottom: 56px; z-index: 9001;
+  display: flex; flex-direction: column; gap: 10px;
+  width: 232px; padding: 12px;
+  border-radius: 14px;
+  background: rgba(24, 24, 27, 0.85);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  font: 12px/1 'PP Neue Montreal', sans-serif; color: rgba(255, 255, 255, 0.75);
+}
+.win-panel .wp-row { display: flex; align-items: center; gap: 8px; }
+.win-panel .wp-row > span:first-child { width: 48px; flex: none; }
+.win-panel input[type=range] { flex: 1; min-width: 0; accent-color: #fff; }
+.win-panel .wp-val { width: 34px; text-align: right; font-variant-numeric: tabular-nums; color: #fff; }
+.win-panel input[type=color] { width: 28px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: none; cursor: pointer; }
+.win-panel .wp-hex { white-space: nowrap; font-size: 11px; color: #fff; font-family: 'Haffer Mono', monospace; letter-spacing: .02em; user-select: all; }
+.win-panel .wp-swatches { display: flex; gap: 6px; }
+.win-panel .wp-from, .win-panel .wp-to { flex: none; }
+.win-panel .wp-swatch { width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.35); cursor: pointer; }
+.win-panel .wp-swatch[aria-pressed="true"] { outline: 2px solid #fff; outline-offset: 2px; }
+.win-panel .wp-reset { margin-left: auto; padding: 0; border: 0; background: none; color: rgba(255, 255, 255, 0.6); font: inherit; cursor: pointer; }
+.win-panel .wp-reset:hover { color: #fff; }
+
 html.nav-tabs .cf-tabbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 9002;   /* (above the cursor while it's on a tab: see below) */
   display: flex; align-items: center; gap: 6px;
   height: var(--frame-top); padding: 0 14px;
   background: transparent;   /* (the frame behind it, .cf-frame, is the glass) */
-  font: 500 16px/1 'PP Neue Montreal', sans-serif;   /* (medium, was book: bolder nav text; 16px, was 14) */
+  font: 500 14px/1 'PP Neue Montreal', sans-serif;   /* (medium, was book: bolder nav text; 14px) */
   color: #1d1d1f;
 }
 .tb-btn {
@@ -54,30 +115,30 @@ html.nav-tabs .cf-tabbar {
   transition: background .15s, color .15s;
 }
 /* the home asterisk: round, so the cursor bubble over it is a circle, and bigger than the
-   other buttons (38px, was 30) so that circle is roomy. The -4px / 10px margins keep the
-   asterisk and the tabs exactly where they were (same 44px footprint as 30 + 14) */
-.tb-home { width: 38px; height: 38px; margin-left: -4px; margin-right: 10px; border-radius: 50%; }
-.tb-home img { display: block; width: 22px; height: 22px; transform: rotate(-18deg); }   /* (resting tilt, before the script takes over) */
+   other buttons (32px) so that circle is roomy. The -1px / 13px margins keep the asterisk
+   and the tabs where they were (same 44px footprint as 30 + 14) */
+.tb-home { width: 32px; height: 32px; margin-left: -1px; margin-right: 13px; border-radius: 50%; }
+.tb-home img { display: block; width: 18px; height: 18px; transform: rotate(-18deg); }   /* (resting tilt, before the script takes over) */
 .tb-btn:hover { background: rgba(0, 0, 0, 0.06); color: #1d1d1f; }
 .tb-home:hover { background: transparent; }   /* (the cursor bubble fills it instead) */
 .tb-tabs {
   position: relative; flex: 1; min-width: 0;
-  display: flex; align-items: center; gap: 10px;   /* (was 2px) */
+  display: flex; align-items: center; gap: 8px;   /* (was 2px, then 10) */
   height: 100%; overflow-x: auto; scrollbar-width: none;
 }
 .tb-tabs::-webkit-scrollbar { display: none; }
 .tb-indicator {   /* the white "selected tab" card, sliding to whichever tab is current */
   position: absolute; left: 0; top: 50%;
-  height: 30px; margin-top: -15px;
-  border-radius: 9px;
+  height: 26px; margin-top: -13px;
+  border-radius: 8px;
   background: #fff;   /* (flat: no shadow) */
   transition: transform .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1), opacity .3s ease;
 }
 .tb-tab {
   position: relative;   /* (above the indicator) */
-  flex: none; display: flex; align-items: center; gap: 8px;
-  height: 30px; padding: 0 14px; border: 0; border-radius: 9px;
-  background: transparent; color: #6e6e75;
+  flex: none; display: flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 11px; border: 0; border-radius: 8px;
+  background: transparent; color: #88888f;   /* (unselected: faint; was #6e6e75, then #a1a1a8: too faint) */
   font: inherit; white-space: nowrap;
   transition: color .2s, background .15s;
 }
@@ -93,11 +154,13 @@ html.nav-tabs:has(.cf-tabbar:hover) #cursor.is-blob.on-pill:not(.has-label) {
   background-color: color-mix(in srgb, var(--companion-color, #0a9eff) 50%, #fff);
 }
 .cf-tabbar:has(.tb-tab.is-active:hover) .tb-indicator { opacity: 0; }
-.tb-num { font: 400 16px/1 'HafferXH', monospace; letter-spacing: .04em; color: #1d1d1f; transition: color .2s; }   /* (black when not selected; the accent when selected) */
+.tb-num { font: 400 14px/1 'HafferXH', monospace; letter-spacing: .04em; color: #77777e; transition: color .2s; }   /* (grey when not selected, was black; the accent when selected) */
+.tb-tab:not(.is-active):hover .tb-num { color: #1d1d1f; }   /* (hovered: back to black, with its name) */
 .tb-tab.is-active .tb-num { color: var(--cf-accent, #7354F2); }   /* (each case study's own accent) */
 
 .tb-right { flex: none; display: flex; align-items: center; gap: 8px; padding-left: 6px; border-left: 1px solid rgba(0, 0, 0, 0.08); margin-left: 4px; }
-.tb-link { padding: 7px 11px; border-radius: 8px; color: #55555b; text-decoration: none; transition: background .15s, color .15s; }
+.tb-link { padding: 6px 9px; border-radius: 8px; color: #88888f;   /* (faint, like the unselected tabs; was #55555b) */
+   text-decoration: none; transition: background .15s, color .15s; }
 .tb-link:hover { color: #1d1d1f; }   /* (no grey fill: the cursor bubble fills the link instead) */
 @media (max-width: 700px) {
   html.nav-tabs .cf-tabbar { padding: 0 8px; gap: 2px; }

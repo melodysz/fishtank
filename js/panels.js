@@ -221,7 +221,7 @@
       lb.querySelector('.play-lb-info').scrollTop = 0;
       lb.classList.add('is-open');
       lb.setAttribute('aria-hidden', 'false');
-      lbClose.focus({ preventScroll: true });
+      lbClose.focus({ preventScroll: true, focusVisible: false });   // (no focus ring for a click-open; Tab still shows one)
     }
     // returns true if it was open (so Esc knows it had something to close)
     function closeLightbox() {

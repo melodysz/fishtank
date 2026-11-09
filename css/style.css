@@ -2968,6 +2968,10 @@ body.section2-offscreen .section-2-wrapper {
   cursor: pointer;
 }
 .play-lb-close svg { width: 20px; height: 20px; }
+/* (focused when the lightbox opens: no browser double ring after a click, one ring only
+   when using the keyboard) */
+.play-lb-close:focus { outline: none; }
+.play-lb-close:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
 /* ---------- phone ---------- */
 @media (max-width: 800px) {

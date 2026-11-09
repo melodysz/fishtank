@@ -22,6 +22,7 @@ if (skipIntro) {
 if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
   const devBtn = document.createElement('button');
   devBtn.className = 'dev-replay-intro';
+  devBtn.dataset.devUi = '';   // (Shift+H hides it: js/dev-ui.js)
   devBtn.textContent = '↻ replay intro';
   devBtn.addEventListener('click', () => {
     try { sessionStorage.removeItem('fishtankIntroSeen'); sessionStorage.removeItem('fishtankWipe'); } catch (e) {}

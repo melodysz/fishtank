@@ -25,7 +25,7 @@
     else { img.src = src; img.alt = alt || ''; }
     box.classList.add('is-open');
     if (window.cfLenis) window.cfLenis.stop();
-    closeBtn.focus({ preventScroll: true });
+    closeBtn.focus({ preventScroll: true, focusVisible: false });   // (no focus ring for a click-open; Tab still shows one)
   }
   function close() {
     if (!box.classList.contains('is-open')) return;

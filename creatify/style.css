@@ -110,8 +110,8 @@ body, html {
 }
 
 .cursor-dot {
-  width: 14px;
-  height: 14px;
+  width: 8px;    /* (was 14: same size as the homepage / play) */
+  height: 8px;
   background-color: #89BD00;
   border-radius: 50%;
   position: fixed;
@@ -136,6 +136,7 @@ body, html {
 /* over big clickable things (folded research cards, screenshots): the dot just grows.
    Over a screenshot that opens full size, it also shows the eye from "See all". (main.js) */
 .cursor-dot.is-big { width: 56px; height: 56px; }
+.cursor-dot.is-big.is-square { border-radius: 14px; }   /* (over the research file tabs: a rounded square, main.js) */
 /* (the eye itself, boiling + blinking, is shared: ../css/companion-blend.css) */
 .cursor-dot.active.is-zoom { opacity: 0.85; }
 /* the eye stays stark white: the dot's blend mode and see-through opacity would tint it
@@ -2026,6 +2027,23 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 .cf-overview-screen video { display: block; width: 100%; height: 100%; object-fit: cover; }
 
+/* tabs mode, wide screens: the card fills the space inside the window frame, leaving the
+   same gap above and below it as at its sides (--ov-gap: the gutter minus the frame's own
+   inset, 37px). The laptop scales with the card's height so it never pokes out the top
+   or bottom, and the "01 overview" tab lands the card that same gap under the tab bar
+   (main.js reads scroll-margin-top). Floor of 600px for very short windows. */
+@media (min-width: 1101px) {
+  html.nav-tabs .cf-overview {
+    --ov-gap: calc(var(--cf-gutter) - var(--win-m, 0px) - var(--frame-side));
+    --ov-h: max(600px, calc(100vh - var(--frame-top) - var(--frame-side) - 2 * var(--win-m, 0px) - 2 * var(--ov-gap)));
+    height: var(--ov-h);
+    min-height: 0;
+    scroll-margin-top: calc(var(--frame-top) + var(--win-m, 0px) + var(--ov-gap));
+  }
+  /* (0.983: how much of the card's height the laptop takes at the old 746px card) */
+  html.nav-tabs .cf-overview-mockup { width: min(92.31%, calc(var(--ov-h) * 2643 / 1576 * 0.983)); }
+}
+
 /* frosted pills floating over the laptop */
 .cf-glass-pills {
   position: absolute;
@@ -2560,6 +2578,17 @@ body.hero-covered .hero-section { visibility: hidden; }
   container-type: inline-size;
 }
 
+/* tabs mode, wide screens: the cards shrink (keeping their shape, so nothing inside gets
+   cropped) when the window is too short for the title + card to fit inside the frame with
+   a 22px gap above and below (37px, like the overview card, shrank them too much).
+   60px = the title (40) + its gap (20). Never narrower than 900px */
+@media (min-width: 1101px) {
+  html.nav-tabs .cf-highlights {
+    --hl-gap: 22px;
+    --hl-max-h: calc(100vh - var(--frame-top) - var(--frame-side) - 2 * var(--win-m, 0px) - 2 * var(--hl-gap) - 60px);
+  }
+  html.nav-tabs .hl-card { flex-basis: min(1240px, 89.86%, max(900px, calc(var(--hl-max-h) * 1240 / 720))); }
+}
 .hl-card-inner { position: absolute; inset: 0; --u: calc(100cqw / 1240); --lift: 30; }   /* --lift: laptop sits this many design px above its Figma spot */
 
 .hl-caption {
@@ -3076,6 +3105,11 @@ body.hero-covered .hero-section { visibility: hidden; }
   transition: background 0.2s ease;
 }
 .lightbox-close:hover { background: rgba(255, 255, 255, 0.26); }
+/* the × gets focus when the lightbox opens (so Escape / Enter work from the keyboard), but
+   Chrome's default focus ring drew two circles round it after a click. No ring for mouse
+   opens; a single white ring only when you're actually using the keyboard */
+.lightbox-close:focus { outline: none; }
+.lightbox-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
 /* ================================
    SKILLS INTRO (skills-intro.js)
@@ -3100,6 +3134,10 @@ body.hero-covered .hero-section { visibility: hidden; }
   border-radius: 30px;
   background: #F5F5F7;
 }
+/* tabs mode: the tab bar covers the top of the screen, so the card starts that much lower,
+   leaving the same gap under the bar as at its sides (gutter minus the frame's inset). Its
+   bottom gap already matches: the frame's bottom edge + that gap = the gutter */
+html.nav-tabs .sk-card { top: calc(var(--frame-top) + var(--cf-gutter) - var(--frame-side)); }
 /* the section number above the title (Figma: Haffer XH Mono SemiBold 35, 10px above) */
 .sk-intro-text { display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0; }   /* faded in by skills-intro.js */
 .sk-intro-num {
@@ -3201,7 +3239,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 /* as wide as a section's gray card: out past the section's side padding */
 .bq-scene { margin-left: calc(-1 * var(--cf-pad-x)); margin-right: calc(-1 * var(--cf-pad-x)); }
 .bq-stick { display: flex; align-items: center; }
-.bq-box { width: 100%; margin: 0; will-change: clip-path; }
+.bq-box { width: 100%; margin: 0; }   /* (no will-change: the grow-in animation, big-question.js, is off) */
 
 /* Research "at a glance": where / why / how, above the cards */
 .rs-glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
@@ -3961,14 +3999,11 @@ strong.cf-hl {
 .chat-ba { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .chat-ba figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .chat-ba img { display: block; width: 100%; height: auto; border-radius: var(--r-md); }
-/* the audit: each screenshot cropped to its question card, big enough to read at 1440px.
-   Claude + Flora share a row; Higgsfield's card is wide with small type, so it gets its own
-   row at its real size (900px) */
-.chat-audit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; align-items: start; margin-top: 4px; }
+/* the audit: a compact row of thirds, each screenshot cropped to its question card (they
+   open full size: sk-zoom). Stacks on narrow screens with the other image grids */
+.chat-audit { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start; margin-top: 4px; }
 .chat-audit figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .chat-audit img { display: block; width: 100%; height: auto; border-radius: var(--r-sm); }
-.chat-audit .chat-audit-wide { grid-column: 1 / -1; }
-.chat-audit .chat-audit-wide img { max-width: 900px; }
 .chat-audit figcaption { display: flex; flex-direction: column; gap: 4px; font-size: 15px; line-height: 22px; color: var(--cf-gray); }
 .chat-audit figcaption b { font-family: 'Haffer Mono', monospace; font-weight: 400; font-size: 12px; line-height: 15px; text-transform: uppercase; color: var(--cf-ink); }
 /* six input types */
@@ -3978,20 +4013,29 @@ strong.cf-hl {
 .chat-types img { display: block; width: 100%; height: auto; }
 .chat-types figcaption { font-family: 'Haffer Mono', monospace; font-size: 12px; line-height: 15px; text-transform: uppercase; color: var(--cf-gray); }
 /* the three ways through */
-.chat-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 4px; }
+.chat-paths { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; margin-top: 4px; }   /* (the three paths + the summary) */
 .chat-path { display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: var(--r-sm); background: #fff; }
 .chat-path-img { height: 200px; display: flex; align-items: center; justify-content: center; }
 .chat-path-img img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
 .chat-path h4 { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 22px; line-height: 28px; color: var(--cf-ink); }
 .chat-path p { margin: 0; font-size: 16px; line-height: 24px; color: rgba(30, 28, 29, 0.7); }
 /* the summary */
-.chat-summary { display: flex; flex-direction: column; gap: 20px; }
-.chat-summary .sk-h { text-align: center; }
-.chat-summary > img { display: block; width: 100%; height: auto; border-radius: var(--r-lg); }
 /* Skills, proactively */
 .chat-skill { display: grid; grid-template-columns: minmax(0, 295fr) minmax(0, 625fr); gap: 40px; align-items: center; }
 .chat-skill > img { display: block; width: 100%; aspect-ratio: 625 / 467; object-fit: cover; border-radius: var(--r-md); }
 .chat-quote { text-align: center; }
+/* the status line under the before/after pair: the page's footnote style, across both columns */
+.chat-status { grid-column: 1 / -1; }
+/* the interview pull quote opening the section: a highlights quote card (.hl-quote), on its own
+   and larger (in the carousel they sit absolutely positioned at 153px wide) */
+.hl-quote.hl-quote--pull { position: relative; width: fit-content; max-width: 760px; padding: 32px 36px; gap: 14px; border-radius: var(--r-md); }
+.hl-quote--pull .hl-quote-mark { height: 16px; font-size: 80px; line-height: 50px; }
+.hl-quote--pull blockquote { width: auto; font-size: 34px; line-height: 44px; letter-spacing: -0.01em; }
+.hl-quote--pull figcaption { font-size: 17px; line-height: 28px; color: var(--cf-gray); }
+@media (max-width: 700px) {
+  .hl-quote.hl-quote--pull { padding: 24px; }
+  .hl-quote--pull blockquote { font-size: 24px; line-height: 32px; }
+}
 @media (max-width: 900px) {
   .chat-ba, .chat-audit, .chat-paths, .chat-skill { grid-template-columns: 1fr; }
   .chat-types { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -4001,7 +4045,7 @@ strong.cf-hl {
 
 /* image strokes (Figma: 1px inside). An outline, not an inset box-shadow: a picture
    paints over its own inset shadow, so that never showed */
-.chat-ba img, .chat-audit img, .chat-summary > img { outline: 1px solid rgba(24, 24, 18, 0.1); outline-offset: -1px; }
+.chat-ba img, .chat-audit img { outline: 1px solid rgba(24, 24, 18, 0.1); outline-offset: -1px; }
 .nav-audit-row img { box-shadow: none; outline: 1px solid rgba(0, 0, 0, 0.08); outline-offset: -1px; }
 
 /* ================================
@@ -4166,7 +4210,10 @@ strong.cf-hl {
   width: var(--pb-size); height: var(--pb-size);
   border-radius: 50%;
   background: #fff;
-  border: 1px solid var(--cf-line);   /* (same outline as the summary pills, .cf-pill) */
+  /* just a soft hairline (half a pixel, see-through grey), no drop shadow: the old 1px
+     #D4D4D4 outline read thick and stark, and a shadow looked muddy. Drawn as a ring, not a
+     border: Chrome rounds a 0.5px border up to a full 1px */
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
   /* each one a 10th of a bob behind the one before: an even wave, crests 10 circles apart */
   animation: pb-bob var(--pb-wave) ease-in-out calc(var(--n) * var(--pb-wave) / var(--pb-length) * -1) infinite;
   /* hidden (but already moving) until it fades in */
@@ -4185,6 +4232,10 @@ strong.cf-hl {
   -webkit-mask: var(--icon-url) center / contain no-repeat;
           mask: var(--icon-url) center / contain no-repeat;
 }
+/* EXPERIMENT (.pb-strip--bleed; remove the class to undo): not held inside the card. The
+   strip spans the whole screen, so the circles float out past the card's edges to the
+   screen's edges, over the white page margins */
+.pb-strip.pb-strip--bleed { width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
 /* off screen (problem-strip.js): stop moving */
 .pb-strip.is-paused :is(.pb-strip-track, .pb-bob) { animation-play-state: paused; }
 /* reduced motion: all there at once, and held still (keeping the wave's shape) */
@@ -4260,6 +4311,11 @@ html.nav-tabs .hl-viewport::after { display: none; }
 /* the hero grows upward by the tab bar's height (main.js sizeHero), and the Agent replica
    starts below the bar, so the whole hero still shows under it (centred in what you see) */
 html.nav-tabs { --hero-pad: var(--frame-top); }
+/* EXPERIMENT (inset window, ../css/nav-tabs.css): the sections pull in by the same margin
+   as the frame, so they keep their usual distance from it. The hero, full-width bands and
+   pictures that run off the edge still go to the screen edge. */
+html.nav-tabs.win-inset { --cf-gutter: calc(45px + var(--win-m)); }
+@media (max-width: 700px) { html.nav-tabs.win-inset { --cf-gutter: calc(12px + var(--win-m)); } }
 html.nav-tabs .hero-section .agent-hero { top: var(--hero-pad); }
 /* tabs mode: corners follow the window frame's (--frame-radius, 14px; 12px on phones) so
    the page's boxes echo the frame instead of being twice as round. Big backgrounds match

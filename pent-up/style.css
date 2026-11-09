@@ -128,8 +128,8 @@ body, html { margin: 0; padding: 0; }
    ================================ */
 
 .cursor-dot {
-  width: 14px;
-  height: 14px;
+  width: 8px;    /* (was 14: same size as the homepage / play) */
+  height: 8px;
   background-color: #f37720;
   border-radius: 50%;
   position: fixed;

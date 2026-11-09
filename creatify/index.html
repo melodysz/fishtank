@@ -41,8 +41,8 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=navy-bg-249">
-  <link rel="stylesheet" href="../css/nav-tabs.css?v=20">
+  <link rel="stylesheet" href="style.css?v=navy-bg-265">
+  <link rel="stylesheet" href="../css/nav-tabs.css?v=27">
   <link rel="stylesheet" href="../css/case-fin.css?v=3">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
   <script src="../js/splash.js?v=navy-bg-9"></script>
@@ -384,7 +384,7 @@
 
   <!-- Agent's capabilities as icons floating across the card edge to edge, each bobbing in a
        wave (Figma "Oscillating strip"). Built by problem-strip.js, look: style.css "Problem strip" -->
-  <div class="pb-strip cf-reveal" aria-hidden="true"><div class="pb-strip-track"></div></div>
+  <div class="pb-strip pb-strip--bleed cf-reveal" aria-hidden="true"><div class="pb-strip-track"></div></div>
 
   <div class="cf-inner">
     <!-- Agent changed mid-internship: V1 (when I joined) → V2 (the "before" for my redesign).
@@ -709,7 +709,7 @@
       </div>
       <div class="sk-captioned cf-reveal">
         <figure class="sk-gallery" data-grow>
-        <img class="sk-zoom interactable" data-full="images/skills-gallery-v1.webp" src="images/skills-gallery-v1.webp" width="2360" height="1406" loading="lazy" alt="The first Skills gallery: category chips, a Hot picks row and an Explore more grid, every card sharing one thumbnail.">
+        <img class="sk-zoom interactable" data-full="images/skills-gallery-v1.webp?v=2" src="images/skills-gallery-v1.webp?v=2" width="2360" height="1406" loading="lazy" alt="The first Skills gallery: category chips, a Hot picks row and an Explore more grid, every card sharing one thumbnail.">
       </figure>
         <p class="sk-caption">Iteration 1 · Skills gallery</p>
         <div class="sk-cols">
@@ -856,28 +856,36 @@
 <!-- ===== 03 Design · In-chat workflows ===== -->
 <section id="agent" class="cf-section cf-section--gray chat-sec">
   <div class="cf-inner">
+    <!-- the interview quote that opened the problem: a highlights quote card (.hl-quote), standalone and larger -->
+    <div class="cf-reveal">   <!-- (the reveal on a wrapper: the quote card's own carousel pop-in transition would override it) -->
+      <figure class="hl-quote hl-quote--pull">
+        <div class="hl-quote-mark" aria-hidden="true">“</div>
+        <blockquote>“You ask it a question, and it starts running.”</blockquote>
+        <figcaption><svg class="hl-quote-icon" viewBox="0 0 20 19" aria-hidden="true"><path fill="#6F68FF" d="M19.4082 17.6276C17.9803 15.1591 15.78 13.3891 13.2122 12.5501C14.4824 11.7939 15.4692 10.6417 16.0212 9.27048C16.5731 7.89922 16.6597 6.38468 16.2676 4.95945C15.8755 3.53422 15.0264 2.27711 13.8506 1.38117C12.6749 0.485228 11.2376 0 9.75941 0C8.28122 0 6.84391 0.485228 5.66818 1.38117C4.49246 2.27711 3.64334 3.53422 3.25123 4.95945C2.85911 6.38468 2.94569 7.89922 3.49765 9.27048C4.04961 10.6417 5.03644 11.7939 6.3066 12.5501C3.73878 13.3882 1.53847 15.1582 0.110659 17.6276C0.0582987 17.7129 0.0235684 17.8079 0.00851736 17.9069C-0.00653367 18.006 -0.00160057 18.107 0.0230256 18.2041C0.0476518 18.3011 0.0914723 18.3923 0.151901 18.4722C0.212331 18.552 0.288144 18.619 0.37487 18.6691C0.461595 18.7192 0.557476 18.7514 0.656854 18.7638C0.756232 18.7763 0.857095 18.7687 0.953492 18.7415C1.04989 18.7143 1.13987 18.6681 1.21812 18.6056C1.29637 18.5431 1.3613 18.4656 1.4091 18.3776C3.17535 15.3251 6.29722 13.5026 9.75941 13.5026C13.2216 13.5026 16.3435 15.3251 18.1097 18.3776C18.1575 18.4656 18.2225 18.5431 18.3007 18.6056C18.379 18.6681 18.4689 18.7143 18.5653 18.7415C18.6617 18.7687 18.7626 18.7763 18.862 18.7638C18.9613 18.7514 19.0572 18.7192 19.1439 18.6691C19.2307 18.619 19.3065 18.552 19.3669 18.4722C19.4273 18.3923 19.4712 18.3011 19.4958 18.2041C19.5204 18.107 19.5254 18.006 19.5103 17.9069C19.4952 17.8079 19.4605 17.7129 19.4082 17.6276ZM4.50941 6.75255C4.50941 5.7142 4.81732 4.69917 5.39419 3.83581C5.97107 2.97245 6.79101 2.29954 7.75032 1.90218C8.70963 1.50482 9.76523 1.40086 10.7836 1.60343C11.802 1.806 12.7375 2.30601 13.4717 3.04024C14.2059 3.77447 14.706 4.70993 14.9085 5.72833C15.1111 6.74673 15.0071 7.80233 14.6098 8.76164C14.2124 9.72095 13.5395 10.5409 12.6762 11.1178C11.8128 11.6946 10.7978 12.0026 9.75941 12.0026C8.36748 12.0011 7.03299 11.4475 6.04874 10.4632C5.0645 9.47897 4.5109 8.14448 4.50941 6.75255Z"/></svg>App developer, Creatify user interview</figcaption>
+      </figure>
+    </div>
     <div class="cf-head cf-head--v2 cf-reveal">
       <div class="cf-eyebrow cf-eyebrow--v2">04 Agent · In-chat workflows</div>
       <h2 class="cf-h2">Setup cards replaced long back-and-forths</h2>
       <div class="cf-body">
-        <p>When a prompt was missing details, Agent either <strong>guessed, wasting credits on off-target ads,</strong> or asked follow-up questions in a long block of text that users had to read, decode and answer by typing. I designed <strong>in-chat setup cards</strong> that ask one question at a time and take a click to answer.</p>
-        <p>I conceptualized <strong>12 unique scenarios</strong> that would involve set-up cards, including interruption states.</p>
+        <p>He’d burned through a month of credits with almost nothing usable. It sounded like a pricing complaint, but the real problem was that Agent acted on incomplete prompts. It either guessed, wasting credits on off-target ads, or asked follow-up questions in a long block of text that users had to read, decode, and answer by typing. I designed in-chat setup cards that ask one question at a time and take a click to answer.</p>
+        <p>I conceptualized <strong>12 unique scenarios</strong> that would involve setup cards, including interruption states.</p>
       </div>
     </div>
 
     <div class="chat-ba cf-reveal">
       <figure><img class="sk-zoom interactable" data-full="images/chat-before-crop.webp" src="images/chat-before-crop.webp" width="736" height="750" loading="lazy" alt="Before: Agent asks for the product, URL, headline and platform in one long numbered message."><figcaption class="sk-caption">Before — Follow-up questions as blocks of text</figcaption></figure>
       <figure><img class="sk-zoom interactable" data-full="images/chat-after-crop.webp" src="images/chat-after-crop.webp" width="736" height="750" loading="lazy" alt="After: a setup card asks one question with three clickable options, a field to type your own, Skip setup and Continue."><figcaption class="sk-caption">After — One question at a time</figcaption></figure>
+      <p class="sk-footnote chat-status">Status: Shipped to production.</p>
     </div>
 
-    <!-- the competitor audit -->
+    <!-- the competitor audit: a short lead-in to "Six ways to answer" -->
     <div class="sk-sub cf-reveal">
-      <h3 class="sk-h">Learning from other AI tools</h3>
-      <div class="sk-body"><p>I studied how Claude, Flora, Higgsfield, TapNow and Magnific ask questions in chat. Most offered <strong>a single list of options</strong> with a way to skip or write something else. Few handled what video ads need, like choosing a voice or uploading a logo, so I designed a card for each kind of answer.</p></div>
+      <div class="sk-body"><p>Most AI tools ask follow-ups as a single list of options. Video ads also need voices, uploads, and multi-select, so I designed a card for each kind of answer.</p></div>
       <div class="chat-audit">
         <figure><img class="sk-zoom interactable" data-full="images/chat-audit-claude-crop.webp" src="images/chat-audit-claude-crop.webp" width="1292" height="1145" loading="lazy" alt="Claude offering three numbered story premises to pick from."><figcaption><b>Claude</b>Numbered options to click, then keep chatting</figcaption></figure>
         <figure><img class="sk-zoom interactable" data-full="images/chat-audit-flora-crop.webp" src="images/chat-audit-flora-crop.webp" width="926" height="750" loading="lazy" alt="Flora asking which direction to use, with three numbered choices and “Something else”."><figcaption><b>Flora</b>Clickable multiple choice is its only in-chat UI</figcaption></figure>
-        <figure class="chat-audit-wide"><img class="sk-zoom interactable" data-full="images/chat-audit-higgsfield-crop.webp" src="images/chat-audit-higgsfield-crop.webp" width="900" height="508" loading="lazy" alt="Higgsfield listing five numbered choices with Skip and a free-text field."><figcaption><b>Higgsfield</b>A list of choices with Skip and a free-text field</figcaption></figure>
+        <figure><img class="sk-zoom interactable" data-full="images/chat-audit-higgsfield-crop.webp" src="images/chat-audit-higgsfield-crop.webp" width="900" height="508" loading="lazy" alt="Higgsfield listing five numbered choices with Skip and a free-text field."><figcaption><b>Higgsfield</b>A list of choices with Skip and a free-text field</figcaption></figure>
       </div>
     </div>
 
@@ -897,22 +905,17 @@
       </div>
     </div>
 
-    <!-- the three ways through -->
+    <!-- the three ways through, and the summary that closes the loop -->
     <div class="sk-sub cf-reveal">
-      <h3 class="sk-h">Always a way out</h3>
-      <div class="sk-body"><p>Users can answer every question, skip ahead, or close the card at any point. <strong>Skipped questions aren’t lost:</strong> Agent fills them in with its best choice.</p></div>
+      <h3 class="sk-h">Users stay in control</h3>
+      <div class="sk-body"><p>Users can answer every question, skip ahead, or close the card at any point. Skipped questions aren’t lost: Agent fills them in with its best choice and marks them ‘Agent will choose.’ Before anything generates, a summary lists every detail, showing which answers came from the user and which Agent chose.</p></div>
       <div class="chat-paths">
         <div class="chat-path"><div class="chat-path-img"><img src="images/chat-path-complete.webp" loading="lazy" alt="The finished setup card, every question answered."></div><span class="sk-col-num">01</span><h4>Complete setup</h4><p>Fill it in yourself for maximum control.</p></div>
         <div class="chat-path"><div class="chat-path-img"><img src="images/chat-path-skip.webp" loading="lazy" alt="The setup card after skipping: each answer reads “Agent will choose”."></div><span class="sk-col-num">02</span><h4>Skip setup</h4><p>Let Agent infer the remaining decisions and generate.</p></div>
         <div class="chat-path"><div class="chat-path-img"><img src="images/chat-path-close.webp" loading="lazy" alt="Back in the chat after closing the card, with an empty setup summary."></div><span class="sk-col-num">03</span><h4>Exit with ×</h4><p>Cancel the workflow entirely.</p></div>
+        <!-- (not a fourth path, so no number; the empty slot keeps it lined up with the others) -->
+        <div class="chat-path"><div class="chat-path-img"><img class="sk-zoom interactable" data-full="images/chat-summary.webp" src="images/chat-summary.webp" width="1440" height="900" loading="lazy" alt="The finished setup summary in the chat: hosts, angle, duration, tone and setting, ready to submit."></div><span class="sk-col-num" aria-hidden="true">&nbsp;</span><h4>Summary</h4><p>A clear record before anything generates.</p></div>
       </div>
-    </div>
-
-    <!-- the summary -->
-    <div class="chat-summary cf-reveal">
-      <h3 class="sk-h">A summary to close the loop</h3>
-      <img class="sk-zoom interactable" data-full="images/chat-summary.webp" src="images/chat-summary.webp" width="1440" height="900" loading="lazy" alt="The finished setup summary in the chat: hosts, angle, duration, tone and setting, ready to submit.">
-      <div class="sk-body"><p>Once setup is done, Agent lists every detail it collected in the chat, <strong>marking which answers came from the user and which it chose,</strong> so there’s a clear record before anything generates.</p></div>
     </div>
 
     <!-- Skills, proactively -->
@@ -1118,8 +1121,7 @@
       <div class="cf-eyebrow cf-eyebrow--v2">04 — Design · Visual direction</div>
       <h2 class="cf-h2">Showing Agent’s range before asking for credits</h2>
       <div class="cf-body">
-        <p>Agent’s homepage is the first screen most users see.</p>
-        <p>The existing homepage centered on a composer and prompt suggestions. It worked, but it still asked users to understand Agent before Agent had shown much of its range. Not only that, but trust Agent with their credits.</p>
+        <p>Agent’s homepage asked new users to understand Agent, and trust it with their credits, before it had shown what it could do.</p>
       </div>
     </div>
 
@@ -1237,19 +1239,21 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 <script src="../js/favicon.js?v=4"></script>
+<script src="../js/dev-ui.js?v=4"></script>
 <script src="../js/page-wipe.js?v=20"></script>
-<script src="../js/nav-tabs.js?v=19"></script>
-<script src="main.js?v=49"></script>
+<script src="../js/nav-tabs.js?v=25"></script>
+<script src="main.js?v=51"></script>
 <script src="problem-shot.js?v=16"></script>
 <script src="problem-strip.js?v=6"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
 <script src="agent-hero.js?v=25"></script>
 <script src="highlights.js?v=46"></script>
-<script src="lightbox.js?v=2"></script>
+<script src="lightbox.js?v=3"></script>
 <script src="highlights-text.js?v=2"></script>
 <script src="research.js?v=9"></script>
-<script src="skills-intro.js?v=32"></script>
-<script src="big-question.js?v=7"></script>
+<script src="skills-intro.js?v=33"></script>
+<!-- (big-question.js, the statement blocks' grow-in + un-blur animation, is switched off:
+     they just sit there. To bring it back: <script src="big-question.js?v=7"></script>) -->
 <script src="skills-section.js?v=3"></script>
 <script src="agent-intro.js?v=8"></script>
 <script src="look-feel.js?v=6"></script>
