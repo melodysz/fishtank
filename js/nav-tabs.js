@@ -367,8 +367,18 @@
   }
   window.addEventListener('scroll', () => updateCompact(false), { passive: true });
   window.addEventListener('resize', () => { if (compact) setCornerTone(); });
-  bar.addEventListener('mouseenter', () => { barHover = true; updateCompact(false); });
-  bar.addEventListener('mouseleave', () => { barHover = false; updateCompact(false); });
+  // hovering the strip or the corner logo opens the bar. It then stays open while the pointer
+  // is anywhere in the top band (the bar plus where the logo sits: the logo itself fades away
+  // as the bar opens, so leaving *it* can't be what closes it again), and folds back up once
+  // the pointer heads down into the page or off the window.
+  const navZone = () => frameTopPx() + 14 + 26 + 24;   // (bar + gap + logo + a little slack)
+  const openOnHover = () => { if (barHover) return; barHover = true; updateCompact(false); };
+  bar.addEventListener('mouseenter', openOnHover);
+  cornerLogo.addEventListener('mouseenter', openOnHover);
+  document.addEventListener('mousemove', (e) => {
+    if (barHover && e.clientY > navZone()) { barHover = false; updateCompact(false); }
+  }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', () => { if (barHover) { barHover = false; updateCompact(false); } });
   bar.addEventListener('focusin', () => updateCompact(false));
   bar.addEventListener('focusout', () => setTimeout(() => updateCompact(false), 0));
 
