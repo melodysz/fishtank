@@ -1,0 +1,388 @@
+/* =========================================================================
+   DEEP24 — Creatify-style sections (Figma "Deep24 — Layout Draft (Creatify style)",
+   node 2402:3873). Type, spacing and boxes follow the live Creatify page: DM Sans
+   headings, PP Neue Montreal body, Haffer Mono labels, grey #F5F5F7 cards. Deep24's own
+   accent is the sky blue from the draft's icons (#15ADFF; a deeper blue for small text
+   so it stays readable on grey).
+   The screenshots in images/ are 2x exports of the draft's panels.
+   ========================================================================= */
+
+:root {
+  --d24-ink: #1E1C1D;
+  --d24-gray: #5C5C61;
+  --d24-card: #F5F5F7;
+  --d24-accent: #15ADFF;        /* icons, big numbers */
+  --d24-accent-text: #0E8FD6;   /* small labels (more contrast than #15ADFF) */
+  --d24-sky: #A5D0FF;           /* the patterns' second card (Figma: Pattern — Familiar chat) */
+  --d24-gutter: 45px;           /* section edge → screen edge */
+  --d24-gap: 150px;             /* between sections */
+  --d24-pad-y: 100px;           /* inside the grey sections */
+  --d24-pad-x: clamp(20px, 7.25vw, 100px);
+  --d24-r: 30px;                /* section corners (14px in tabs mode, below) */
+  --d24-r-in: 20px;             /* cards inside sections */
+}
+
+/* ---------- title tags: icons in Deep24 blue ---------- */
+.d24-icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  background: var(--d24-accent);
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+.cf-tags .cf-pill { display: inline-flex; align-items: center; gap: 8px; padding-left: 11px; }
+
+/* ---------- shared section shell ---------- */
+.d24-sec {
+  width: calc(100% - var(--d24-gutter) * 2);
+  max-width: 1380px;
+  margin: 0 auto var(--d24-gap);
+  padding: var(--d24-pad-y) var(--d24-pad-x);
+  border-radius: var(--d24-r);
+  background: var(--d24-card);
+  color: var(--d24-ink);
+  scroll-margin-top: 20px;
+}
+#research.d24-sec { margin-bottom: var(--d24-gap); }   /* (undo the old "#research { margin-bottom: 0 }" in style.css) */
+/* the hero's title block → highlights: the same 150px as between sections (as on Creatify) */
+.cf-summary { margin-bottom: var(--d24-gap); }
+.d24-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+/* spacing rhythm: 28px between items, 96px (28 + 68) before every new sub-topic,
+   30px between stacked panels, 150px between sections */
+.d24-inner > .d24-head--sub,
+.d24-inner > .d24-block { margin-top: 68px; }
+
+.d24-head { display: flex; flex-direction: column; gap: 24px; }
+.d24-head--sub { gap: 24px; }
+.d24-block { display: flex; flex-direction: column; gap: 28px; }
+
+.d24-eyebrow {
+  font-family: 'Haffer Mono', monospace;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--d24-accent-text);
+}
+
+.d24-h2 {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 50px;
+  line-height: 55px;
+  letter-spacing: -0.04em;
+  color: var(--d24-ink);
+}
+.main-content .d24-h3 {   /* (.main-content: beats the shared ".main-content h3" rule) */
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 45px;
+  letter-spacing: -0.04em;
+  color: var(--d24-ink);
+}
+
+.d24-body {
+  max-width: 930px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 18px;
+  line-height: 30px;
+  color: var(--d24-ink);
+}
+.d24-body p { margin: 0; }
+.d24-body p + p { margin-top: 18px; }
+.d24-sec strong { font-weight: 700; }
+
+.d24-list { list-style: none; margin: 16px 0 0; padding: 0 0 0 4px; }
+.d24-list li::before { content: '•'; margin-right: 12px; }
+
+/* screenshots from the draft: each is a whole grey/beige panel, corners included */
+.d24-panel { display: block; width: 100%; height: auto; border-radius: var(--d24-r-in); }
+.d24-stack { display: flex; flex-direction: column; gap: 30px; }
+
+/* ---------- Highlights ---------- */
+.d24-highlights {
+  width: calc(100% - var(--d24-gutter) * 2);
+  max-width: 1380px;
+  margin: 0 auto var(--d24-gap);
+}
+.d24-hl-title {
+  margin: 0 0 30px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 40px;
+  letter-spacing: -0.04em;
+  color: var(--d24-ink);
+}
+.d24-hl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.d24-hl-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 313px;
+  padding: 60px 40px 40px;
+  border-radius: var(--d24-r);
+  background: var(--d24-card);
+}
+.d24-hl-num {
+  margin-bottom: 30px;
+  font-family: 'Haffer Mono', monospace;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--d24-accent);
+}
+.main-content .d24-hl-name {
+  margin: 0 0 14px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 30px;
+  color: var(--d24-ink);
+}
+.d24-hl-text {
+  margin: 0;
+  max-width: 360px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--d24-gray);
+}
+.d24-hl-text strong { color: var(--d24-ink); }
+
+/* ---------- 01 Overview: frosted card over the phones ---------- */
+.d24-overview {
+  position: relative;
+  overflow: hidden;
+  padding: 50px;
+  aspect-ratio: 1380 / 807;
+  min-height: 760px;
+}
+.d24-ov-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+  pointer-events: none;
+  user-select: none;
+}
+.d24-ov-card {
+  position: relative;
+  width: min(510px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 30px;
+  border-radius: var(--d24-r-in);
+  background: rgba(232, 232, 236, 0.62);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+.d24-h2--ov { font-size: 40px; line-height: 45px; margin-bottom: 4px; }
+.d24-ov-text {
+  margin: 0;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 20px;
+  line-height: 30px;
+  color: var(--d24-ink);
+}
+.d24-ov-pills { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 8px; }
+
+.d24-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 18px 9px 12px;
+  border-radius: 40px;
+  background: #fff;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--d24-ink);
+  white-space: nowrap;
+}
+.d24-pill .d24-icon { width: 20px; height: 20px; }
+.d24-pill--line { border: 1px solid #DCDCE0; padding: 11px 20px 11px 14px; }
+
+/* ---------- The big question / insight ---------- */
+.d24-hmw,
+.d24-insight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+.d24-hmw { padding: 80px clamp(24px, 8vw, 120px); }
+.d24-insight { padding: 60px clamp(24px, 7vw, 100px); border-radius: var(--d24-r-in); background: #fff; }
+.d24-quote {
+  margin: 0;
+  max-width: 1140px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 46px;
+  letter-spacing: -0.01em;
+  color: var(--d24-ink);
+  text-wrap: balance;
+}
+
+/* ---------- 03 Research: TL;DR + four pattern cards ---------- */
+.d24-tldr {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  padding: 50px;
+  border-radius: var(--d24-r);
+  background: #fff;
+}
+.d24-tldr-label {
+  margin-bottom: 10px;
+  font-family: 'Haffer Mono', monospace;
+  font-size: 15px;
+  line-height: 18px;
+  text-transform: uppercase;
+  color: var(--d24-accent-text);
+}
+.main-content .d24-tldr p { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-size: 17px; line-height: 26px; color: rgba(30, 28, 29, 0.7); }
+.d24-tldr strong { color: var(--d24-ink); }
+
+.d24-patterns { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.d24-pattern {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  min-height: 373px;
+  padding: 40px 30px;
+  border-radius: var(--d24-r-in);
+  background: #fff;
+  color: var(--d24-ink);
+}
+.d24-pattern--sky { background: var(--d24-sky); }
+.d24-pattern--dark { background: #1D1D1F; color: #fff; }
+.d24-pattern-num { font-family: 'Haffer Mono', monospace; font-size: 44px; line-height: 1; }
+.main-content .d24-pattern-name { margin: 0 0 12px; font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 22px; line-height: 28px; }
+.d24-pattern-text { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-size: 16px; line-height: 24px; opacity: 0.85; }
+
+/* ---------- 04 Visual system: big number ---------- */
+.d24-bigstat { display: flex; align-items: center; gap: 20px; }
+.d24-bigstat-num {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 100px;
+  line-height: 100px;
+  letter-spacing: -0.04em;
+  color: var(--d24-accent);
+  white-space: nowrap;
+}
+.d24-bigstat-arrow { margin: 0 0.04em; }
+.d24-bigstat-label {
+  max-width: 300px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+  color: var(--d24-ink);
+}
+.d24-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- 05 Onboarding: one white card per iteration ---------- */
+.d24-iter {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 50px;
+  border-radius: var(--d24-r);
+  background: #fff;
+}
+.d24-iter + .d24-iter { margin-top: 0; }
+.main-content .d24-iter-title {
+  margin: 0;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 38px;
+  color: var(--d24-ink);
+}
+.d24-iter-text {
+  margin: 0;
+  max-width: 930px;
+  font-family: 'PP Neue Montreal', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--d24-gray);
+}
+.d24-iter-text strong { color: var(--d24-ink); }
+.d24-verdicts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.d24-iter .d24-panel { margin: 0 0 4px; }
+
+/* ---------- copy beside a picture (chat sketches, the old chat button) ---------- */
+.d24-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 560px); gap: 60px; align-items: center; }
+.d24-split-img { display: block; width: 100%; height: auto; }
+.d24-split--small { grid-template-columns: 240px minmax(0, 1fr); align-items: center; }
+.d24-split--small .d24-split-img { border-radius: 12px; }
+
+/* ---------- 08 Reflection ---------- */
+.d24-rf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 60px 64px; margin-top: 36px; }
+.d24-rf-item { display: flex; flex-direction: column; gap: 12px; }
+.d24-rf-num { font-family: 'Haffer Mono', monospace; font-size: 30px; line-height: 36px; color: var(--d24-ink); }
+.main-content .d24-rf-title { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-weight: 500; font-size: 36px; line-height: 46px; color: var(--d24-ink); }
+.d24-rf-text { margin: 0; max-width: 570px; font-family: 'PP Neue Montreal', sans-serif; font-size: 16px; line-height: 26px; color: var(--d24-ink); }
+
+/* ---------- rise in on scroll (main.js adds .is-in) ---------- */
+.d24-reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.d24-reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .d24-reveal { opacity: 1; transform: none; transition: none; } }
+
+/* ---------- tabs mode: corners echo the window frame (as on Creatify) ---------- */
+html.nav-tabs { --d24-r: var(--frame-radius, 14px); --d24-r-in: calc(var(--frame-radius, 14px) - 2px); }
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 1100px) {
+  .d24-patterns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .d24-pattern { min-height: 280px; }
+  .d24-overview { aspect-ratio: auto; min-height: 0; padding: 32px; }
+  .d24-ov-art { position: relative; inset: auto; height: auto; margin: 24px -32px -32px; width: calc(100% + 64px); max-width: none; object-fit: contain; }
+  .d24-overview { display: flex; flex-direction: column-reverse; }
+  .d24-ov-card { width: 100%; background: #fff; }
+}
+@media (max-width: 900px) {
+  :root { --d24-gap: 96px; --d24-pad-y: 64px; }
+  .d24-h2 { font-size: 38px; line-height: 44px; }
+  .main-content .d24-h3 { font-size: 30px; line-height: 36px; }
+  .d24-hl-grid, .d24-tldr { grid-template-columns: 1fr; }
+  .d24-hl-card { min-height: 0; padding: 36px 30px; }
+  .d24-tldr { padding: 32px; gap: 28px; }
+  .d24-split, .d24-split--small { grid-template-columns: 1fr; gap: 28px; }
+  .d24-split--small .d24-split-img { max-width: 240px; }
+  .d24-rf-grid { grid-template-columns: 1fr; gap: 40px; }
+  .d24-quote { font-size: 28px; line-height: 36px; }
+  .d24-iter { padding: 28px 22px; }
+  .d24-bigstat-num { font-size: 72px; line-height: 76px; }
+}
+@media (max-width: 700px) {
+  :root { --d24-gutter: 12px; }
+  .d24-patterns { grid-template-columns: 1fr; }
+  .d24-pattern { min-height: 0; gap: 28px; }
+  .d24-hmw { padding: 56px 24px; }
+  .d24-insight { padding: 40px 22px; }
+  .d24-pill { white-space: normal; }
+  .d24-overview { padding: 20px; }
+  .d24-ov-art { margin: 20px -20px -20px; width: calc(100% + 40px); }
+  .d24-ov-card { padding: 22px; }
+  .d24-ov-text { font-size: 18px; line-height: 28px; }
+  .d24-bigstat { flex-direction: column; align-items: flex-start; gap: 6px; }
+}

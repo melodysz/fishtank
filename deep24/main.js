@@ -447,10 +447,12 @@ document.querySelectorAll('.bubble-item').forEach(item => {
 // ===================================
 
 const navItems = document.querySelectorAll('.nav-item');
+// the page's eight sections, in order (the side nav and the tab bar both list them)
+const SECTION_IDS = ['overview', 'problem', 'research', 'visual', 'onboarding', 'chat', 'pivot', 'reflection'];
 
 function updateActiveNav() {
   const scrollPos = window.scrollY + 200;
-  const mainSections = ['overview', 'research', 'design', 'pivot', 'reflection'];
+  const mainSections = SECTION_IDS;
   let currentSection = '';
   mainSections.forEach(sectionId => {
     const section = document.getElementById(sectionId);
@@ -471,12 +473,13 @@ document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(anchor => {
     e.preventDefault();
     const href = this.getAttribute('href');
     const targetId = href.substring(1);
-    const validSections = ['overview', 'research', 'design', 'pivot', 'reflection'];
-    if (!validSections.includes(targetId)) return;
-    const target = document.querySelector(`section#${targetId}.content-section`);
+    if (!SECTION_IDS.includes(targetId)) return;
+    const target = document.getElementById(targetId);
     if (!target) return;
-    const offsets = { overview: -50, research: 15, design: 10, pivot: -150, reflection: -150 };
-    lenis.scrollTo(`#${targetId}`, { offset: offsets[targetId] ?? -150, immediate: true });
+    // land with the section's top just under the tab bar (or 40px from the top in classic mode)
+    const top = document.documentElement.classList.contains('nav-tabs')
+      ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--frame-top')) || 44) + 20 : 40;
+    lenis.scrollTo(target, { offset: -top, immediate: true });
     navItems.forEach(item => {
       item.classList.remove('active');
       const link = item.querySelector('.nav-link');
@@ -613,7 +616,6 @@ lenis.on('scroll', (e) => {
 // ===================================
 
 gsap.to(".hero-image", { yPercent: 10, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "bottom top", scrub: true }});
-gsap.to(".hero-tagline-bg", { yPercent: 1, opacity: 0, filter: "blur(12px)", ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
 gsap.to(".hero-orbit-wrapper", { yPercent: 8, opacity: 0, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
 gsap.to(".hero-center-identity", { yPercent: 12, opacity: 0, ease: "none", immediateRender: false, scrollTrigger: { trigger: ".hero-section", start: "top top", end: "100% top", scrub: true }});
 
@@ -645,3 +647,48 @@ gsap.to(".hero-center-identity", { yPercent: 12, opacity: 0, ease: "none", immed
 })();
 
 });
+
+// ===================================
+// SECTION BLOCKS RISE IN AS THEY SCROLL INTO VIEW (same as Creatify's .cf-reveal)
+// ===================================
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('is-in');
+    revealObserver.unobserve(entry.target);
+  });
+}, { rootMargin: '0px 0px -8% 0px' });
+
+document.querySelectorAll('.d24-reveal').forEach(el => revealObserver.observe(el));
+
+// ===================================
+// TITLE + SUMMARY + TAGS FIT IN THE FIRST SCREEN (as on Creatify)
+// The page used to start at 84% of the screen height, which pushed the tags off the
+// bottom on shorter windows. Now it starts exactly where the title block (plus a little
+// breathing room) still fits; never higher than that 84%, never lower than 240px.
+// ===================================
+
+const TITLE_BREATHING = 36;   // space left under the tags
+function placeTitleBlock() {
+  const main = document.querySelector('.main-content');
+  const summary = document.querySelector('.cf-summary');
+  if (!main || !summary) return;
+  const needed = parseFloat(getComputedStyle(main).paddingTop) + summary.offsetHeight + TITLE_BREATHING;
+  const top = Math.max(240, Math.min(window.innerHeight * 0.84, window.innerHeight - needed));
+  main.style.marginTop = top + 'px';
+  // (tabs mode shifts the page up by the tab bar's height; measure where it actually lands
+  // and make up the difference so the tags really end TITLE_BREATHING above the bottom)
+  const landed = main.getBoundingClientRect().top + window.scrollY;
+  if (Math.abs(landed - top) > 1) main.style.marginTop = (2 * top - landed) + 'px';
+}
+placeTitleBlock();
+window.addEventListener('resize', placeTitleBlock);
+// (the title block's height settles only after the fonts load and case-v2.js fits the title,
+// so re-place it whenever that block changes size)
+let titleBlockTimer = 0;
+new ResizeObserver(() => {
+  placeTitleBlock();
+  clearTimeout(titleBlockTimer);
+  titleBlockTimer = setTimeout(() => window.ScrollTrigger?.refresh(), 150);
+}).observe(document.querySelector('.cf-summary'));

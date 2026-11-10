@@ -2846,10 +2846,10 @@ body.hero-covered .hero-section { visibility: hidden; }
   transition: flex-basis var(--rs-dur) var(--rs-ease);
 }
 .rs-card.is-open { flex-basis: calc(100% - 3 * (var(--rs-tab) + var(--rs-gap))); }
-.rs-card--1 { background: rgba(30, 28, 29, 0.05); box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.1); }   /* the design system's ink (#1E1C1D) at 5% (was #D9D9D9), with a thin outline */
+.rs-card--1 { background: rgba(30, 28, 29, 0.05); box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.05); }   /* the design system's ink (#1E1C1D) at 5% (was #D9D9D9), with a faint outline (was 10%: too stark) */
 .rs-card--2 { background: #D2ABFF; }
 .rs-card--3 { background: #1E1C1D; color: #fff; }
-.rs-card--4 { background: #fff; box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.1); }   /* thin outline (was 2px) */
+.rs-card--4 { background: #fff; box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.05); }   /* faint outline (was 2px, then 1px at 10%: too stark) */
 
 /* big mono number (tabs + open titles) */
 .rs-num {
@@ -3970,6 +3970,19 @@ strong.cf-hl {
 }
 .nav-final-shot .ps-frame { border-radius: var(--r-lg) var(--r-lg) 0 0; }
 .cf-section--gray.nav-sec { padding-bottom: 0; overflow: hidden; }
+/* Other contributions (the compressed nav rail + Agent icon): ends like any grey section,
+   not bled off the bottom like the old nav section's video did */
+.cf-section--gray.oc-sec { padding-bottom: var(--cf-card-pad); }
+.oc-sec .cf-inner { gap: 32px; }
+.oc-sec .cf-head { margin-bottom: 8px; }
+.oc-sec .nav-subbox { padding: 56px 64px; }   /* (tighter than the old nav boxes' 80px: this section is the compressed one) */
+@media (max-width: 700px) { .oc-sec .nav-subbox { padding: 32px 22px; } }
+.oc-icons { display: flex; align-items: center; justify-content: center; gap: 28px; }
+.oc-icons figure { margin: 0; flex: 0 1 200px; display: flex; flex-direction: column; gap: 10px; }
+.oc-icons img { display: block; width: 100%; height: auto; }
+.oc-arrow { flex: none; font-size: 32px; line-height: 1; color: var(--cf-gray); }
+.oc-closing { margin: 8px 0 0; }
+@media (max-width: 900px) { .oc-sec .nav-vote { grid-template-columns: 1fr; gap: 32px; } }
 @media (max-width: 900px) {
   .nav-subbox { padding: 32px 24px; }
   .nav-sec .nav-vote, .nav-icon-top { grid-template-columns: 1fr; }
@@ -4025,7 +4038,6 @@ strong.cf-hl {
 .chat-skill > img { display: block; width: 100%; aspect-ratio: 625 / 467; object-fit: cover; border-radius: var(--r-md); }
 .chat-quote { text-align: center; }
 /* the status line under the before/after pair: the page's footnote style, across both columns */
-.chat-status { grid-column: 1 / -1; }
 /* the interview pull quote opening the section: a highlights quote card (.hl-quote), on its own
    and larger (in the carousel they sit absolutely positioned at 153px wide) */
 .hl-quote.hl-quote--pull { position: relative; width: fit-content; max-width: 760px; padding: 32px 36px; gap: 14px; border-radius: var(--r-md); }
@@ -4295,7 +4307,7 @@ html.nav-tabs .hl-viewport::after { right: calc(-1 * var(--edge-r, 0px)); backgr
 html.nav-tabs .cf-topfade {
   display: block;
   position: fixed; z-index: 8998;
-  top: var(--frame-top); left: var(--frame-side); right: var(--frame-side);
+  top: var(--bar-h, var(--frame-top)); left: var(--frame-side); right: var(--frame-side);
   height: 18px;   /* (was 56px: too obvious) */
   pointer-events: none;
   background: linear-gradient(to bottom, var(--fade-edge), var(--fade-mid) 40%, rgba(255, 255, 255, 0));

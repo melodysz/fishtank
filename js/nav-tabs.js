@@ -269,7 +269,7 @@
     if (!frame || !root.classList.contains('nav-tabs')) return;
     const css = getComputedStyle(root), px = (v) => parseFloat(css.getPropertyValue(v)) || 0;
     const W = frame.clientWidth, H = frame.clientHeight;
-    const t = px('--frame-top'), sd = px('--frame-side'), r = px('--frame-radius'), PAD = 40;
+    const t = barH ?? px('--frame-top'), sd = px('--frame-side'), r = px('--frame-radius'), PAD = 40;   // (barH: the band's live height while it shrinks over the hero)
     // (inset window experiment: the outer corners are rounded too, one frame-width rounder)
     const Ro = root.classList.contains('win-inset') ? r + sd : 0;
     const [top, bottom, left, right] = framePieces;
@@ -307,6 +307,71 @@
   }
   window.addEventListener('resize', shapeFrame);
 
+  // ---------- compact bar over the hero (CSS: html.nav-compact, .tb-dots) ----------
+  // While the page is still on its hero, the band shrinks to a thin BAR_COMPACT px strip, the
+  // items fade out and the logo shows in the corner below it. Once the hero is mostly covered
+  // (the page's top passes HERO_OUT of the way up the screen), it opens back up; hovering or
+  // tabbing into the strip opens it too. The band's height is animated here, frame by frame,
+  // because the frame's glass strips are shaped by shapeFrame from it. (--frame-top itself
+  // never changes, so nothing laid out from it, like the hero's top padding, moves.)
+  const BAR_COMPACT = 12, HERO_OUT = 0.3, BAR_MS = 450;
+  let barH = null, barAnim = 0, compact = null, barHover = false;
+  const pageMain = document.querySelector('.main-content');
+  const frameTopPx = () => parseFloat(getComputedStyle(root).getPropertyValue('--frame-top')) || 44;
+  // the logo in the corner, just under the strip, while it's thin (links home, like the
+  // bar's own asterisk). White over a dark hero, its usual colour otherwise: toneBehind()
+  // finds the first solid background under that corner and checks how light it is.
+  const homeLink = bar.querySelector('.tb-home');
+  const cornerLogo = document.createElement('a');
+  cornerLogo.className = 'tb-corner-logo interactable';
+  cornerLogo.href = homeLink?.getAttribute('href') || '../';
+  cornerLogo.setAttribute('aria-label', 'Back to home');
+  cornerLogo.innerHTML = '<img src="https://cdn.jsdelivr.net/gh/melodysz/baubles@main/asterisk.svg" alt="" width="26" height="26">';
+  document.body.appendChild(cornerLogo);
+  function toneBehind() {
+    const r = cornerLogo.getBoundingClientRect();
+    // (look past things that only float over the page: the entry splash, the cursor, the frame)
+    const OVER = '.tb-corner-logo, .page-wipe, #page-entry-overlay, .cursor-dot, .cf-tabbar, .cf-frame, [data-dev-ui]';
+    let el = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2).find((e) => !e.closest(OVER));
+    for (; el; el = el.parentElement) {
+      const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
+      if (!m || (m.length > 3 && +m[3] < 0.5)) continue;   // (see-through: look further back)
+      const lum = (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
+      return lum < 0.5 ? 'dark' : 'light';
+    }
+    return 'light';
+  }
+  const setCornerTone = () => cornerLogo.classList.toggle('on-dark', toneBehind() === 'dark');
+  function animateBar(to, instant) {
+    cancelAnimationFrame(barAnim);
+    const from = barH ?? frameTopPx(), t0 = performance.now();
+    const ms = instant || matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : BAR_MS;
+    const step = (now) => {
+      const k = ms ? Math.min(1, (now - t0) / ms) : 1, e = 1 - Math.pow(1 - k, 3);
+      barH = from + (to - from) * e;
+      root.style.setProperty('--bar-h', barH + 'px');
+      shapeFrame();
+      if (k < 1) barAnim = requestAnimationFrame(step);
+      else if (!compact) { barH = null; root.style.removeProperty('--bar-h'); shapeFrame(); }
+    };
+    if (ms) barAnim = requestAnimationFrame(step); else step(t0);
+  }
+  function updateCompact(instant) {
+    const inHero = !!pageMain && pageMain.getBoundingClientRect().top > window.innerHeight * HERO_OUT;
+    const want = root.classList.contains('nav-tabs') && inHero && !barHover && !bar.matches(':focus-within');
+    if (want === compact) return;
+    compact = want;
+    if (want) setCornerTone();
+    root.classList.toggle('nav-compact', want);
+    animateBar(want ? BAR_COMPACT : frameTopPx(), instant);
+  }
+  window.addEventListener('scroll', () => updateCompact(false), { passive: true });
+  window.addEventListener('resize', () => { if (compact) setCornerTone(); });
+  bar.addEventListener('mouseenter', () => { barHover = true; updateCompact(false); });
+  bar.addEventListener('mouseleave', () => { barHover = false; updateCompact(false); });
+  bar.addEventListener('focusin', () => updateCompact(false));
+  bar.addEventListener('focusout', () => setTimeout(() => updateCompact(false), 0));
+
   // the carousels' side fades (CSS: .hl-viewport::before / ::after) sit at the frame's
   // inner edges: tell each carousel how far its box is from them
   function placeCarouselFades() {
@@ -324,4 +389,7 @@
   window.addEventListener('load', placeCarouselFades);
 
   setMode(root.classList.contains('nav-tabs') ? 'tabs' : 'classic', false);
+  updateCompact(true);   // (the page opens on its hero: start as the thin strip, no animation)
+  window.addEventListener('load', () => { if (compact) setCornerTone(); });   // (the hero's in: check what's behind the logo again)
+  setTimeout(() => { if (compact) setCornerTone(); }, 1500);   // (and once the entry splash has cleared)
 })();
