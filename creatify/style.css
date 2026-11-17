@@ -4104,6 +4104,7 @@ strong.cf-hl {
   border-radius: inherit;
   overflow: hidden;
   pointer-events: none;
+  z-index: 2;   /* in front of the Problem cards (they sit under the wheel's corner) */
 }
 /* the corner the wheel is sized and placed from */
 .pb-wheel-area {
@@ -4360,3 +4361,87 @@ html.nav-tabs .hero-image { border-radius: 0 0 var(--frame-radius) var(--frame-r
   transition: background .2s, color .2s;
 }
 .wheel-toggle button[aria-pressed="true"] { background: #fff; color: #18181b; }
+
+/* ---------- Problem cards ----------
+   The three problems as cards under the intro sentence, each with a small picture (Figma
+   "Pattern cards", 2616:6724): 287×386, 50 apart, centred. Number top, sentence bottom,
+   picture in the middle of the card. */
+.pb-cards {
+  display: flex; justify-content: center;
+  gap: clamp(16px, 3.5vw, 50px);
+  width: 100%;
+}
+.pb-card {
+  position: relative;
+  flex: 0 1 287px;
+  height: 386px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 36px 30px;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #fff;
+  color: var(--cf-ink, #1E1C1D);
+}
+.pb-card--2 { background: #D2ABFF; }
+.pb-card--3 { background: #1E1C1D; color: #fff; }
+.pb-card-num { position: relative; z-index: 1; font: 300 45px/normal 'HafferXH', monospace; }
+.pb-card--1 .pb-card-num { font-weight: 400; }   /* (Figma: 01 is Regular, 02 + 03 Light) */
+.pb-card-text { position: relative; z-index: 1; margin: 0; font: 400 20px/normal 'PP Neue Montreal', sans-serif; }
+/* the picture: a point at the card's centre that the pieces are placed around */
+.pb-card-art { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.pb-card-art > * { position: absolute; transform: translate(-50%, -50%); }
+
+/* 01: a "+" button in front of a tilted lightning (the shortcut skills hid behind) */
+.pb-chip {
+  display: flex; align-items: center; justify-content: center;
+  width: 75px; height: 75px; box-sizing: border-box;
+  border-radius: 100px;
+  background: #F5F5F7;
+  border: 1px solid rgba(24, 24, 18, 0.05);
+}
+.pb-chip img { display: block; }
+.pb-card-art > .pb-chip { left: 0; top: 0; margin: -37.5px 0 0 -37.5px; transform: none; }   /* (centred with margins, so the slide + tilt below stay simple) */
+.pb-chip--bolt { translate: 46px 1px; rotate: 16.67deg; }
+.pb-chip--add { filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, 0.25)); }
+
+/* 02: an empty prompt box */
+.pb-prompt {
+  display: flex; align-items: center; justify-content: center;
+  width: 196px; height: 106px; box-sizing: border-box;
+  border-radius: 10px;
+  background: #F5F5F7;
+  border: 1px solid rgba(24, 24, 18, 0.05);
+}
+.pb-type { font: 400 40px/1 Inter, 'Helvetica Neue', Arial, sans-serif; color: #000; transform: translateY(-0.28em); }
+.pb-type i { font-style: normal; }
+.pb-type i:last-child { display: none; }   /* (the "?": only in the typing animation) */
+
+/* animated (problem-cards.js adds .pb-anim; without it, or with reduced motion, the cards
+   stay as the still Figma picture). Resting state between plays: */
+.pb-cards.pb-anim .pb-chip--bolt { translate: 0 0; rotate: 0deg; }   /* tucked behind the "+" */
+.pb-cards.pb-anim .pb-type { transform: translateY(-0.12em); }   /* (shared baseline for the dots and the "?") */
+.pb-cards.pb-anim .pb-type i { visibility: hidden; }
+.pb-cards.pb-anim .pb-type i:last-child { display: inline; }
+.pb-cards.pb-anim .pb-type i.is-on { visibility: visible; }
+
+/* 03: four shapes in four different styles (each product area looked different) */
+.pb-shapes {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px;
+  width: 166px; height: 166px;
+  margin-left: 0.5px;
+}
+.pb-shape { display: block; }
+.pb-shape--1 { border-radius: 10px; background: linear-gradient(107.4deg, #EDEDF0 28.6%, #D2D2D8 86.46%); }
+.pb-shape--2 { border-radius: 10px; background: linear-gradient(to top, #878D99, #EDEDF0); rotate: -45deg; }
+.pb-shape--3 {
+  justify-self: start; align-self: end;
+  width: 89px; height: 89px; border-radius: 50%;
+  background: radial-gradient(85px 77px at 50% 100%, #EDEDF0 0%, #BABDC4 50%, #878D99 100%);
+}
+.pb-shape--4 { background: linear-gradient(112.08deg, #76A4C3 13.25%, #EDEDF0 94.37%); }
+
+/* phones: stacked, a little shorter */
+@media (max-width: 760px) {
+  .pb-cards { flex-direction: column; align-items: center; }
+  .pb-card { flex: none; width: min(100%, 340px); height: 340px; }
+}

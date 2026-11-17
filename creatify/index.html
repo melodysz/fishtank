@@ -41,7 +41,7 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=navy-bg-268">
+  <link rel="stylesheet" href="style.css?v=navy-bg-273">
   <link rel="stylesheet" href="../css/nav-tabs.css?v=29">
   <link rel="stylesheet" href="../css/case-fin.css?v=3">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
@@ -373,11 +373,32 @@
       <h2 class="cf-h2">Agent could do a lot.<br>Users just couldn’t see it.</h2>
       <div class="cf-body">
         <p>As Agent grew more capable, <strong>its best features got harder to find and understand.</strong></p>
-        <ul class="cf-list">
-          <li>Skills hid behind unfamiliar shortcuts</li>
-          <li>Complex tasks started from an empty prompt box</li>
-          <li>Each product area looked different (Agent vs Home vs Ad Flow)</li>
-        </ul>
+      </div>
+      <!-- the three problems as cards, each with a small picture of it (Figma "Pattern cards",
+           2616:6724). Look: style.css "Problem cards" -->
+      <div class="pb-cards">
+        <div class="pb-card pb-card--1">
+          <span class="pb-card-num">01</span>
+          <div class="pb-card-art" aria-hidden="true">
+            <span class="pb-chip pb-chip--bolt"><img src="icons/pb-card-bolt.svg" width="52" height="52" alt=""></span>
+            <span class="pb-chip pb-chip--add"><img src="icons/pb-card-add.svg" width="55" height="55" alt=""></span>
+          </div>
+          <p class="pb-card-text">Skills hid behind unfamiliar shortcuts.</p>
+        </div>
+        <div class="pb-card pb-card--2">
+          <span class="pb-card-num">02</span>
+          <div class="pb-card-art" aria-hidden="true">
+            <span class="pb-prompt"><span class="pb-type"><i>.</i><i>.</i><i>.</i><i>?</i></span></span>
+          </div>
+          <p class="pb-card-text">Complex tasks started from an empty prompt box.</p>
+        </div>
+        <div class="pb-card pb-card--3">
+          <span class="pb-card-num">03</span>
+          <div class="pb-card-art" aria-hidden="true">
+            <span class="pb-shapes"><i class="pb-shape pb-shape--1"></i><i class="pb-shape pb-shape--2"></i><i class="pb-shape pb-shape--3"></i><i class="pb-shape pb-shape--4"></i></span>
+          </div>
+          <p class="pb-card-text">Each product area looked different.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -1190,6 +1211,7 @@
 <script src="main.js?v=51"></script>
 <script src="problem-shot.js?v=16"></script>
 <script src="problem-strip.js?v=6"></script>
+<script src="problem-cards.js?v=4"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
 <script src="agent-hero.js?v=25"></script>
 <script src="highlights.js?v=46"></script>

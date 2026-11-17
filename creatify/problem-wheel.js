@@ -28,7 +28,7 @@
   // than the plain shapes
   const COUNT = { chips: 22, icons: 16 };   // (icons sit on a smaller wheel: fewer, so they don't touch)
   const SHAPES = ['chips', 'icons', 'bars', 'dots'];
-  const STORE = 'cfWheelShape', STORE_ORIENT = 'cfWheelOrient';
+  const STORE = 'cfWheelShape2', STORE_ORIENT = 'cfWheelOrient';
   // icons: the circle in the middle of the corner is the biggest, and they shrink the further
   // they are from it (it follows the turn: each one grows as it passes the middle)
   const SIZE_MAX = 1.35;    // the middle one (1 = the normal size in style.css)
@@ -64,18 +64,30 @@
     document.querySelectorAll('.wheel-toggle button[data-orient]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.orient === o)));
   }
 
+  // which one the Problem card shows while she decides: the wheel, the floating strip
+  // (problem-strip.js), or both. Sets html[data-pb-show]; style.css hides the other one.
+  const SHOWS = ['wheel', 'strip', 'both'], STORE_SHOW = 'cfProblemShow';
+  function show(v) {
+    document.documentElement.dataset.pbShow = v;
+    document.querySelectorAll('.wheel-toggle button[data-show]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.show === v)));
+    // (no schedule() here: the wheel's IntersectionObserver below re-runs it when it reappears)
+  }
+
   // the draft switch (bottom-left, above classic / tabs)
-  let saved = null, savedOrient = null;
-  try { saved = localStorage.getItem(STORE); savedOrient = localStorage.getItem(STORE_ORIENT); } catch (e) {}
+  let saved = null, savedOrient = null, savedShow = null;
+  try { saved = localStorage.getItem(STORE); savedOrient = localStorage.getItem(STORE_ORIENT); savedShow = localStorage.getItem(STORE_SHOW); } catch (e) {}
   const toggle = document.createElement('div');
   toggle.className = 'wheel-toggle';
   toggle.dataset.devUi = '';   // (doubletake's Shift+H hides it)
   toggle.setAttribute('role', 'group');
   toggle.setAttribute('aria-label', 'Problem wheel visuals (draft)');
-  toggle.innerHTML = '<span>wheel</span>' + SHAPES.map((s) => `<button type="button" class="interactable" data-shape="${s}">${s}</button>`).join('')
+  toggle.innerHTML = '<span>problem</span>' + SHOWS.map((v) => `<button type="button" class="interactable" data-show="${v}">${v}</button>`).join('')
+    + '<i class="wheel-toggle-sep"></i><span>wheel</span>' + SHAPES.map((s) => `<button type="button" class="interactable" data-shape="${s}">${s}</button>`).join('')
     + '<i class="wheel-toggle-sep"></i>' + ['upright', 'radial'].map((o) => `<button type="button" class="interactable" data-orient="${o}">${o}</button>`).join('');
   document.body.appendChild(toggle);
   toggle.addEventListener('click', (e) => {
+    const sb = e.target.closest('button[data-show]');
+    if (sb) { try { localStorage.setItem(STORE_SHOW, sb.dataset.show); } catch (err) {} show(sb.dataset.show); return; }
     const ob = e.target.closest('button[data-orient]');
     if (ob) { try { localStorage.setItem(STORE_ORIENT, ob.dataset.orient); } catch (err) {} orient(ob.dataset.orient); return; }
     const b = e.target.closest('button[data-shape]');
@@ -84,8 +96,9 @@
     build(b.dataset.shape);
     schedule();
   });
-  build(SHAPES.includes(saved) ? saved : (wheel.dataset.shape || 'chips'));
+  build(SHAPES.includes(saved) ? saved : (wheel.dataset.shape || 'icons'));
   orient(savedOrient === 'radial' ? 'radial' : 'upright');
+  show(SHOWS.includes(savedShow) ? savedShow : 'wheel');
 
   // the middle = halfway along the stretch of the wheel that shows inside the gray card
   function sizeByMiddle() {
