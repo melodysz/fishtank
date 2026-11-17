@@ -4384,8 +4384,7 @@ html.nav-tabs .hero-image { border-radius: 0 0 var(--frame-radius) var(--frame-r
 }
 .pb-card--2 { background: #D2ABFF; }
 .pb-card--3 { background: #1E1C1D; color: #fff; }
-.pb-card-num { position: relative; z-index: 1; font: 300 45px/normal 'HafferXH', monospace; }
-.pb-card--1 .pb-card-num { font-weight: 400; }   /* (Figma: 01 is Regular, 02 + 03 Light) */
+.pb-card-num { position: relative; z-index: 1; font: 400 45px/normal 'HafferXH', monospace; }   /* (all Regular, like Figma's 01) */
 .pb-card-text { position: relative; z-index: 1; margin: 0; font: 400 20px/normal 'PP Neue Montreal', sans-serif; }
 /* the picture: a point at the card's centre that the pieces are placed around */
 .pb-card-art { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
