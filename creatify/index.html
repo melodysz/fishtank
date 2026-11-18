@@ -41,7 +41,7 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=navy-bg-274">
+  <link rel="stylesheet" href="style.css?v=navy-bg-302">
   <link rel="stylesheet" href="../css/nav-tabs.css?v=29">
   <link rel="stylesheet" href="../css/case-fin.css?v=3">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
@@ -366,16 +366,15 @@
 
 <!-- ===== The problem ===== -->
 <section id="problem" class="cf-section cf-section--gray">
-  <!-- (the corner wheel that sat here is shelved in ~/fishtank-experiments/creatify-corner-wheel) -->
+  <!-- (the corner wheel moved to Research, just below; the floating strip stays hidden for now:
+       html[data-pb-show="wheel"]) -->
   <div class="cf-inner">
     <div class="cf-head cf-head--v2 cf-reveal">
       <div class="cf-eyebrow cf-eyebrow--v2">The problem</div>
       <h2 class="cf-h2">Agent could do a lot.<br>Users just couldn’t see it.</h2>
-      <div class="cf-body">
-        <p>As Agent grew more capable, <strong>its best features got harder to find and understand.</strong></p>
-      </div>
-      <!-- the three problems as cards, each with a small picture of it (Figma "Pattern cards",
-           2616:6724). Look: style.css "Problem cards" -->
+      <!-- the three problems as a fanned-out hand of cards, each with a small picture of it
+           (Figma "Pattern cards", 2667:26239, updated: title + line on each). Look: style.css "Problem cards" -->
+      <div class="pb-fan">
       <div class="pb-cards">
         <div class="pb-card pb-card--1">
           <span class="pb-card-num">01</span>
@@ -383,22 +382,33 @@
             <span class="pb-chip pb-chip--bolt"><img src="icons/pb-card-bolt.svg" width="52" height="52" alt=""></span>
             <span class="pb-chip pb-chip--add"><img src="icons/pb-card-add.svg" width="55" height="55" alt=""></span>
           </div>
-          <p class="pb-card-text">Skills hid behind unfamiliar shortcuts.</p>
+          <div class="pb-card-copy">
+            <h4 class="pb-card-title">Low Visibility</h4>
+            <p class="pb-card-text">Agent’s best features hid behind unfamiliar shortcuts.</p>
+          </div>
         </div>
         <div class="pb-card pb-card--2">
           <span class="pb-card-num">02</span>
           <div class="pb-card-art" aria-hidden="true">
-            <span class="pb-prompt"><span class="pb-type"><i>.</i><i>.</i><i>.</i><i>?</i></span></span>
+            <span class="pb-prompt"><span class="pb-type"><i>.</i><i>.</i><i>.</i><i>?</i></span><span class="pb-send"><img src="icons/pb-card-arrow-up.svg" width="23.332" height="23.332" alt=""></span></span>
           </div>
-          <p class="pb-card-text">Complex tasks started from an empty prompt box.</p>
+          <div class="pb-card-copy">
+            <h4 class="pb-card-title">Blank Slate</h4>
+            <p class="pb-card-text">Complex tasks started from an empty prompt box.</p>
+          </div>
         </div>
         <div class="pb-card pb-card--3">
           <span class="pb-card-num">03</span>
           <div class="pb-card-art" aria-hidden="true">
-            <span class="pb-shapes"><i class="pb-shape pb-shape--1"></i><i class="pb-shape pb-shape--2"></i><i class="pb-shape pb-shape--3"></i><i class="pb-shape pb-shape--4"></i></span>
+            <span class="pb-shapes"><img class="pb-shape pb-shape--1" src="icons/pb-card-asterisk.svg" width="83" height="83" alt=""><i class="pb-shape pb-shape--2"></i><i class="pb-shape pb-shape--3"></i><i class="pb-shape pb-shape--4"></i></span>
           </div>
-          <p class="pb-card-text">Each product area looked different.</p>
+          <div class="pb-card-copy">
+            <h4 class="pb-card-title">Going Generic</h4>
+            <p class="pb-card-text">Agent’s colorful identity was fading into a generic AI look.</p>
+          </div>
         </div>
+      </div>
+      </div>
       </div>
     </div>
   </div>
@@ -413,10 +423,9 @@
     <div class="cf-versions cf-reveal">
       <h3 class="cf-versions-title">Where Agent started</h3>
       <p class="cf-versions-text">Before I redesigned it, Agent went through two versions. <strong>V1 had a strong visual identity</strong> but hid its best features. <strong>The V2 that replaced it was cleaner but more generic,</strong> and its features stayed just as hidden.</p>
-      <!-- swipeable row: same swiping as the highlights carousel (highlights.js runs on every .hl-viewport) -->
-      <div class="hl-viewport cf-versions-viewport">
-        <div class="hl-track">
-          <figure class="cf-version">
+      <!-- V1, then V2 below it (the V2 card is the deep-dive screenshot further down: it stays
+           on screen as you scroll and grows into it) -->
+      <figure class="cf-version cf-version--v1">
             <div class="cf-version-shot"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt="Agent V1: a dark screen with a purple and pink glow behind a “What do you want to create?” prompt box."></div>
             <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v1.webp?v=2" width="2400" height="1400" loading="lazy" draggable="false" alt=""></div></div>
             <div class="cf-version-fade" aria-hidden="true"></div>
@@ -431,37 +440,39 @@
               </span>
             </figcaption>
           </figure>
-          <figure class="cf-version">
-            <div class="cf-version-shot"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt="Agent V2: a flat dark screen with a “What will you create today?” heading and an empty prompt box."></div>
-            <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-agent-v2-thumb.webp?v=2" width="2400" height="1401" loading="lazy" draggable="false" alt=""></div></div>
-            <div class="cf-version-fade" aria-hidden="true"></div>
-            <figcaption>
-              <span class="cf-version-title">[V2] Agent before my redesign</span>
-              <span class="cf-version-by">By developers • Jul–Aug</span>
-              <span class="cf-version-tags">
-                <span class="cf-version-tag"><img src="icons/check.svg" width="22" height="22" alt="Strength:"><span>Clean &amp; sleek</span></span>
-                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Features hidden</span></span>
-                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Generic</span></span>
-                <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Lack of animations</span></span>
-              </span>
-            </figcaption>
-          </figure>
-        </div>
-        <div class="hl-dots" aria-label="Choose a version"></div>
-      </div>
     </div>
 
-    <h3 class="cf-deep-title cf-reveal">Deep dive into V2</h3>
-
-    <!-- The original Agent (before). It grows to the section width as it scrolls in and
-         darkens, then frosted labels pop up; hovering (or tapping) a label opens its
-         note. Label spots = the label's top-left corner, as % of the image (Figma frame
-         1378×775). Logic: problem-shot.js -->
+    <!-- V2 → deep dive. Starts as a card the same size as V1 with its caption over the bottom;
+         as you scroll it stays on screen (sticky inside .ps-track) and grows to the section's
+         width, the caption fades out, "Deep dive into V2" fades in bottom-left, it darkens, and
+         the frosted labels pop up; hovering (or tapping) a label opens its note. Label spots =
+         the label's top-left corner, as % of the image (Figma frame 1378×775). Logic: problem-shot.js -->
+    <div class="ps-track">
     <div class="ps-stage" id="problemShot">
       <div class="ps-frame">
         <img class="ps-img" src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" alt="The original Agent homepage: a chat history sidebar, a “What will you create today?” heading, a Creative / Performance toggle, an empty prompt box and a row of shortcut chips.">
+        <!-- the V2 card's caption (fades out as it grows) -->
+        <div class="ps-v2">
+          <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div></div>
+          <div class="cf-version-fade" aria-hidden="true"></div>
+          <figcaption>
+                <span class="cf-version-title">[V2] Agent before my redesign</span>
+                <span class="cf-version-by">By developers • Jul–Aug</span>
+                <span class="cf-version-tags">
+                  <span class="cf-version-tag"><img src="icons/check.svg" width="22" height="22" alt="Strength:"><span>Clean &amp; sleek</span></span>
+                  <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Features hidden</span></span>
+                  <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Generic</span></span>
+                  <span class="cf-version-tag"><img src="icons/x.svg" width="22" height="22" alt="Weakness:"><span>Lack of animations</span></span>
+                </span>
+              </figcaption>
+        </div>
+        <!-- a soft dark blur in the bottom-left corner so "Deep dive into V2" stands out
+             (a blurred copy of the screenshot + a black glow, fading out from the corner) -->
+        <div class="ps-deep-shade" aria-hidden="true"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div>
         <div class="ps-dim" aria-hidden="true"></div>
       </div>
+      <!-- takes the caption's place once it's grown (white, bottom-left) -->
+      <h3 class="ps-deep-title">Deep dive into V2</h3>
       <div class="ps-pills">
         <!-- thin purple outlines around what each label points at. Each one shows while its
              label (data-k = the label's order below) is hovered or open; "See all" shows them all.
@@ -512,6 +523,7 @@
         </button>
       </div>
     </div>
+    </div>
 
   </div>
 </section>
@@ -534,6 +546,12 @@
 
 <!-- ===== 02 Research ===== -->
 <section id="research" class="cf-section">
+  <!-- corner wheel (moved here from The problem): Agent's capabilities as icon circles on a
+       wheel just off the card's top-right corner, turned by scrolling, the middle one biggest.
+       Logic: problem-wheel.js, look: style.css "Problem wheel" (+ "Research wheel") -->
+  <div class="pb-wheel-clip" aria-hidden="true">
+    <div class="pb-wheel-area"><div class="pb-wheel" data-shape="icons" data-count="15"></div></div>
+  </div>
   <div class="cf-inner">
     <div class="cf-head cf-head--v2 cf-reveal">
       <div class="cf-eyebrow cf-eyebrow--v2">[02] Research</div>
@@ -541,7 +559,8 @@
       <div class="cf-body"><p>Was the friction I saw in Agent a one-off, or a pattern across all of Creatify? I looked at it from <strong>four angles: analytics, user calls, competitor audits, and product audits.</strong></p></div>
     </div>
 
-    <div class="cf-bigstat cf-reveal"><span class="cf-bigstat-num">1 in 3</span><span class="cf-bigstat-label">new sign-ups ever rendered a video</span></div>
+    <!-- Figma 2279:8420: the stat in a white box, centred -->
+    <div class="cf-bigstat cf-bigstat--box cf-reveal"><span class="cf-bigstat-num">1 in 3</span><span class="cf-bigstat-label">of new sign-ups rendered a video</span></div>
 
     <!-- the TL;DR: how the four sources connect, for readers who won't open every card -->
     <div class="rs-block">
@@ -1209,9 +1228,10 @@
 <script src="../js/page-wipe.js?v=20"></script>
 <script src="../js/nav-tabs.js?v=29"></script>
 <script src="main.js?v=51"></script>
-<script src="problem-shot.js?v=16"></script>
+<script src="problem-shot.js?v=20"></script>
 <script src="problem-strip.js?v=6"></script>
-<script src="problem-cards.js?v=4"></script>
+<script src="problem-wheel.js?v=17"></script>
+<script src="problem-cards.js?v=20"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
 <script src="agent-hero.js?v=25"></script>
 <script src="highlights.js?v=46"></script>

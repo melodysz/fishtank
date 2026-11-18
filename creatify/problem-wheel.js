@@ -66,7 +66,7 @@
 
   // which one the Problem card shows while she decides: the wheel, the floating strip
   // (problem-strip.js), or both. Sets html[data-pb-show]; style.css hides the other one.
-  const SHOWS = ['wheel', 'strip', 'both'], STORE_SHOW = 'cfProblemShow';
+  const SHOWS = ['wheel', 'strip', 'both'], STORE_SHOW = 'cfProblemShow2';
   function show(v) {
     document.documentElement.dataset.pbShow = v;
     document.querySelectorAll('.wheel-toggle button[data-show]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.show === v)));
@@ -81,7 +81,7 @@
   toggle.dataset.devUi = '';   // (doubletake's Shift+H hides it)
   toggle.setAttribute('role', 'group');
   toggle.setAttribute('aria-label', 'Problem wheel visuals (draft)');
-  toggle.innerHTML = '<span>problem</span>' + SHOWS.map((v) => `<button type="button" class="interactable" data-show="${v}">${v}</button>`).join('')
+  toggle.innerHTML = '<span>show</span>' + SHOWS.map((v) => `<button type="button" class="interactable" data-show="${v}">${v}</button>`).join('')
     + '<i class="wheel-toggle-sep"></i><span>wheel</span>' + SHAPES.map((s) => `<button type="button" class="interactable" data-shape="${s}">${s}</button>`).join('')
     + '<i class="wheel-toggle-sep"></i>' + ['upright', 'radial'].map((o) => `<button type="button" class="interactable" data-orient="${o}">${o}</button>`).join('');
   document.body.appendChild(toggle);

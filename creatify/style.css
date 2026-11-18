@@ -1320,11 +1320,15 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 
 .ps-stage.is-anim .ps-frame {
-  inset: 0 auto auto 50%;
+  inset: calc((var(--ps-h) - var(--ps-h0)) / 2) auto auto 50%;   /* (the small card sits in the middle of the grown-size stage) */
   width: var(--ps-w0);
   height: var(--ps-h0);
-  transform-origin: 50% 0;
+  transform-origin: 50% 50%;   /* grows from its centre */
+  z-index: 1;
 }
+/* stays on screen while it grows (problem-shot.js sets --ps-top so it's centred) */
+.ps-stage.is-anim { position: sticky; top: var(--ps-top); z-index: 1; pointer-events: none; }
+.ps-stage.is-anim .ps-pills, .ps-stage.is-anim .ps-deep-title { z-index: 2; }
 
 .ps-img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
@@ -1709,34 +1713,24 @@ body.hero-covered .hero-section { visibility: hidden; }
 .cf-versions-text { font-size: 18px; line-height: 30px; color: var(--cf-ink); }
 .cf-versions-text strong { font-weight: 700; }
 
-/* the row: a .hl-viewport, so it swipes exactly like the highlights carousel (highlights.js);
-   cards off to the side stay visible up to the screen edge, like there */
-.cf-versions-viewport .hl-track { gap: 24px; }
-
-/* Each card (Figma, Oct 4): dark, rounded, the screenshot on top (cropped from the
-   bottom to 832×432) and the text below it in light colours. Where the screenshot meets
-   the text, a frosted fade: Figma's progressive background blur (0 → 50, from 323px
-   down) + a black gradient at 50%. The blur is made of blurred copies of the screenshot
-   (a real backdrop blur shows nothing inside the swiping, transformed row). */
+/* The two versions, one above the other (normal scrolling). Each card (V1 here, V2 = the
+   deep-dive screenshot's starting look, #problemShot) is the screenshot at 16:9, rounded,
+   with its caption over the bottom on a frosted fade: blurred copies of the screenshot
+   (6 / 12 / 24 / 48px) fading in from --fade-top down to --blur-end, plus a black gradient.
+   Both are --v-card wide (problem-shot.js uses the same width for V2). */
+.cf-versions { --v-card: min(72%, 900px); }
+@media (max-width: 760px) { .cf-versions { --v-card: 100%; } }   /* (phones: V2 has no growing, so both cards run the full width) */
 .cf-version {
   position: relative;
-  flex: 0 0 88%;                  /* 88% of the content column (Figma was 832px; full width felt too big); text stays the same size */
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  width: var(--v-card);
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
   border-radius: 15px;
   overflow: hidden;
   background: #0D0D0D;
-  container-type: inline-size;
-  /* the text rides up over the screenshot's bottom by --lift (Figma px), making the card
-     shorter; the gradient + blur move up with it */
-  --lift: 90;
-  --fade-top: calc(363 - var(--lift) + 45);   /* Figma px from the card's top where the gradient + blur start (Figma: 323); +45 keeps more of the screenshot clear */
-  --blur-end: calc(440 - var(--lift) + 30);   /* …and where the blur is full (just under the title) */
 }
-.cf-version-shot { position: relative; aspect-ratio: 832 / 432; overflow: hidden; }
-.cf-version-shot img {
+.cf-version-shot { position: absolute; inset: 0; }
+.cf-version-shot img, .cf-version-blur img {
   position: absolute;
   inset: 0;
   display: block;
@@ -1746,53 +1740,79 @@ body.hero-covered .hero-section { visibility: hidden; }
   object-position: top;
   -webkit-user-drag: none;
 }
-/* Progressive blur: four copies of the screenshot, blurred 6 / 12 / 24 / 48px, each fading
-   in a little further down: none at 323px → full by 440px (just past the screenshot's
-   bottom edge; Figma's ramp runs to the card's bottom, 584px, but reads weaker).
-   Each copy sits in a full-height layer, so its blur spills down past the screenshot's
-   bottom edge into the dark card: the screenshot itself seems to melt into it.
-   (--u = one Figma px; stops are in Figma px from the card's top.) */
-.cf-version-blurs { position: absolute; inset: 0; pointer-events: none; --u: calc(100cqw / 832); }
+.cf-version-blurs { position: absolute; inset: 0; pointer-events: none; --fade-top: 71%; --blur-end: 85%; }   /* (only behind the caption itself; 45% then 64% both reached too high) */
 .cf-version-blur {
   position: absolute;
   inset: 0;
-  -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--u) * var(--from)), #000 calc(var(--u) * var(--to)));
-  mask-image: linear-gradient(to bottom, transparent calc(var(--u) * var(--from)), #000 calc(var(--u) * var(--to)));
+  -webkit-mask-image: linear-gradient(to bottom, transparent var(--from), #000 var(--to));
+  mask-image: linear-gradient(to bottom, transparent var(--from), #000 var(--to));
 }
-.cf-version-blur img {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: calc(var(--u) * 432);
-  object-fit: cover;
-  object-position: top;
-  filter: blur(var(--r));
-}
-/* the four copies split the ramp from --fade-top (where the gradient + blur start) to
-   440 (full blur, just past the screenshot's bottom edge at 432) into even quarters */
+.cf-version-blur img { filter: blur(var(--r)); }
 .cf-version-blur--1 { --r: 6px;  --from: var(--fade-top); --to: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.25); }
 .cf-version-blur--2 { --r: 12px; --from: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.25); --to: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.5); }
 .cf-version-blur--3 { --r: 24px; --from: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.5); --to: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.75); }
 .cf-version-blur--4 { --r: 48px; --from: calc(var(--fade-top) + (var(--blur-end) - var(--fade-top)) * 0.75); --to: var(--blur-end); }
 .cf-version-fade {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100cqw * var(--fade-top) / 832);
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+  left: 0; right: 0; top: 66%; bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7));
   pointer-events: none;
 }
-.cf-version figcaption {
-  position: relative;             /* (above the fade) */
+.cf-version figcaption, .ps-v2 figcaption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  padding: 0 30px 30px;
-  margin-top: calc(-1 * var(--lift) * 100cqw / 832);   /* up over the screenshot (see --lift) */
+  padding: 0 30px 28px;
 }
+/* V2's caption layer inside the deep-dive frame (fades out as it grows: problem-shot.js) */
+.ps-v2 { position: absolute; inset: 0; pointer-events: none; }
+.ps-track { margin-top: -32px; }   /* (56px column gap − 32 = 24px under V1) */
+/* "Deep dive into V2": white, bottom-left of the grown screenshot, where V2's caption was.
+   Placed in the grown size (like the labels), so it's never scaled. */
+.ps-deep-title {
+  position: absolute;
+  left: 30px; bottom: 28px;
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+.ps-stage.is-anim .ps-deep-title {
+  left: calc(50% - var(--ps-w) / 2 + 30px);
+  bottom: 28px;   /* (the stage is the grown image's height, so this is its bottom edge; problem-shot.js slides it in to the smaller card's corner while it grows) */
+}
+/* the soft dark blur behind it: a blurred copy of the screenshot plus a black glow, both
+   fading out from the bottom-left corner (a real backdrop blur shows nothing inside the
+   scaled frame). Inside the frame, under the darkening, so it dims along with the rest. */
+.ps-deep-shade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 55% 42% at 0% 100%, #000 35%, transparent 100%);
+          mask-image: radial-gradient(ellipse 55% 42% at 0% 100%, #000 35%, transparent 100%);
+}
+.ps-deep-shade img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(14px); }
+.ps-deep-shade::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); }
+.ps-stage.is-static .ps-deep-title, .ps-stage.is-static .ps-deep-shade { opacity: 1; }
+.ps-stage.is-list .ps-deep-shade { display: none; }
+.ps-stage.is-static .ps-v2 { display: none; }
+/* phones: V2 keeps its caption (no darkening); the title sits above it in dark text, and the
+   labels list below */
+.ps-stage.is-list { display: flex; flex-direction: column; gap: 14px; }
+.ps-stage.is-list .ps-v2 { display: block; }
+.ps-stage.is-list .ps-dim { opacity: 0; }
+.ps-stage.is-list .ps-deep-title { position: static; order: -1; color: var(--cf-ink); }
+@media (max-width: 700px) { .ps-deep-title { font-size: 26px; left: 20px; bottom: 18px; } }
+
 .cf-version-title,
 .cf-version-by {
   font-family: 'PP Neue Montreal', sans-serif;
@@ -1816,23 +1836,6 @@ body.hero-covered .hero-section { visibility: hidden; }
   color: #D9D9D9;
 }
 .cf-version-tag img { display: block; width: 16px; height: 16px; filter: brightness(0) invert(1); }   /* icons in white */
-
-/* "Deep dive into V2": same type as "Get the highlights."; extra room above it so
-   the V1/V2 row and the big screenshot read as separate beats */
-.cf-deep-title {
-  margin-top: 64px;
-  margin-bottom: -36px;           /* 56px column gap − 36 = 20px to the screenshot, same as "Get the highlights." to its carousel */
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 600;
-  font-size: 40px;   /* (all section headers = .sk-h's 40px, was 44) */
-  line-height: 1;
-  letter-spacing: -0.04em;
-  text-align: center;
-  color: var(--cf-ink);
-}
-@media (max-width: 700px) {
-  .cf-deep-title { font-size: 30px; margin-top: 32px; }
-}
 
 /* ---------- flow pills (know → invoke) ---------- */
 
@@ -2823,7 +2826,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 .rs-pin.is-scroll-driven .rs-stick { position: sticky; top: var(--rs-stick-top, 0px); }   /* (off for now: research.js SCROLL_DRIVEN) */
 
 /* the intro text above the cards runs the full width */
-#research .cf-head--v2 .cf-body { max-width: none; }
+#research .cf-head--v2 :is(.cf-h2, .cf-body) { max-width: 744px; }   /* Figma: header text 744 wide, clear of the corner wheel (was max-width: none) */
 
 .rs-strip {
   display: flex;
@@ -3215,17 +3218,7 @@ html.nav-tabs .sk-card { top: calc(var(--frame-top) + var(--cf-gutter) - var(--f
   .sk-intro.is-shining .sk-word::after, .ag-intro.is-in .ag-word::after { animation: none; }   /* (a still gradient) */
 }
 
-/* Problem V1/V2 carousel: the same dots as the highlights carousel, but under the cards */
-.cf-versions-viewport .hl-dots {
-  background: rgba(232, 232, 236, 0.7);   /* the bottom nav's grey, so it shows on the white page */
-  position: relative;
-  z-index: 2;                     /* (over the cards' bottom edge) */
-  left: auto;
-  bottom: auto;                   /* (the highlights dots' own offsets don't apply here) */
-  transform: none;
-  width: fit-content;
-  margin: -20px auto 0;           /* pulled up by half its 40px height: it straddles the cards' bottom edge */
-}
+
 
 /* ================================
    THE BIG QUESTION (big-question.js)
@@ -3546,6 +3539,17 @@ strong.cf-hl {
   padding-bottom: 100px;
 }
 .cf-bigstat { justify-content: center; }   /* (every big number sits centred: Research, Skills) */
+/* Research's "1 in 3" (Figma 2279:8420): a white box that hugs the stat, centred, 637×180;
+   black number (Figma: 96/100 DM Sans SemiBold, label 24/32 Medium, 340 wide) */
+.cf-bigstat--box {
+  align-self: center;
+  padding: 40px;
+  border-radius: 20px;
+  background: #fff;
+}
+.cf-bigstat--box .cf-bigstat-num { color: var(--cf-ink); letter-spacing: -0.04em; white-space: nowrap; }   /* (−0.04em: matches Figma's 197px-wide "1 in 3"; at 0 it came out 221) */
+/* phones: number above the words */
+@media (max-width: 700px) { .cf-bigstat--box { flex-direction: column; align-items: flex-start; gap: 8px; padding: 28px 24px; } }
 .rs-block { display: flex; flex-direction: column; gap: 20px; }
 .rs-subhead {
   margin: 0;
@@ -4097,7 +4101,7 @@ strong.cf-hl {
    block's top-right corner, so only a few spokes show. Scrolling turns it
    (problem-wheel.js). Every size is in cqw (1% of the corner box's width), so it
    scales with the box. Tune the shape here: */
-#problem { position: relative; padding-bottom: 0; }   /* (the gray card ends right at the bottom of the fully grown deep-dive screenshot) */
+#problem { position: relative; }   /* (keeps the sections' usual 110px under the grown deep-dive screenshot; it used to end flush with it) */
 /* clipped to the gray card's own edges (rounded corners included), like the Figma */
 .pb-wheel-clip {
   position: absolute; inset: 0;
@@ -4174,7 +4178,7 @@ strong.cf-hl {
 .pb-icon {
   flex: none; display: block;
   width: 3.8cqw; height: 3.8cqw;
-  background: var(--cf-icon, #6F68FF);
+  background: var(--cf-ink);   /* black, like the floating strip's icons (was purple, --cf-icon) */
   -webkit-mask: var(--i) center / contain no-repeat;
           mask: var(--i) center / contain no-repeat;
 }
@@ -4183,7 +4187,13 @@ strong.cf-hl {
 .pb-wheel[data-orient="radial"][data-shape="icons"] .pb-icon { rotate: 90deg; }
 
 /* narrower screens: the corner would run into the text (for now, until it's designed) */
-@media (max-width: 1100px) { .pb-wheel-clip { display: none; } }
+@media (max-width: 1199px) { .pb-wheel-clip { display: none; } }   /* (was 1100: at ~1150 a circle clipped Research's title) */
+
+/* ---------- Research wheel ----------
+   The Problem wheel above, unchanged, now in Research's top-right corner (Figma 2279:8402
+   shows where; its circles there are only a stand-in). */
+#research { position: relative; }
+#research .pb-wheel-clip { inset: 0 calc(50% - 50vw); border-radius: 0; }   /* (the grey runs to the screen edges here, so the wheel's corner is the screen's) */
 
 /* ---------- Problem strip ----------
    Agent's capabilities as white icon circles across the gray card, edge to edge (Figma
@@ -4362,19 +4372,33 @@ html.nav-tabs .hero-image { border-radius: 0 0 var(--frame-radius) var(--frame-r
 }
 .wheel-toggle button[aria-pressed="true"] { background: #fff; color: #18181b; }
 
+/* wheel vs strip: the "problem" buttons on the dev switch (problem-wheel.js). Live = wheel. */
+html[data-pb-show="wheel"] .pb-strip { display: none; }
+html[data-pb-show="strip"] .pb-wheel-clip { display: none; }
+
 /* ---------- Problem cards ----------
-   The three problems as cards under the intro sentence, each with a small picture (Figma
-   "Pattern cards", 2616:6724): 287×386, 50 apart, centred. Number top, sentence bottom,
-   picture in the middle of the card. */
-.pb-cards {
-  display: flex; justify-content: center;
-  gap: clamp(16px, 3.5vw, 50px);
+   The three problems as a fanned-out hand of cards under the intro sentence (Figma
+   "Pattern cards", 2667:26239): a 1076×514 stage, cards ~333×453. 01 tilts −3.7°, 02 2.28°,
+   03 8.17°; 03 lies over 02, 02 over 01. Each card: number top, a small picture, then a
+   title + one line at the bottom. Narrower screens shrink the whole stage to fit (--pb-s,
+   problem-cards.js); phones stack the cards instead. */
+.pb-fan {
+  position: relative;
+  margin-top: 32px;   /* + the header's 24px gap = 56px from the text: the same gap as between blocks in a section (.cf-inner) */
   width: 100%;
+  height: calc(514px * var(--pb-s, 1));
+}
+.pb-cards {
+  position: absolute; left: 50%; top: 0;
+  width: 1076px; height: 514px;
+  transform: translateX(-50%) scale(var(--pb-s, 1));
+  transform-origin: 50% 0;
 }
 .pb-card {
-  position: relative;
-  flex: 0 1 287px;
-  height: 386px;
+  position: absolute;
+  width: 333.33px;
+  height: 453px;
+  rotate: var(--rot, 0deg);
   display: flex; flex-direction: column; justify-content: space-between;
   padding: 36px 30px;
   border-radius: 15px;
@@ -4382,13 +4406,28 @@ html.nav-tabs .hero-image { border-radius: 0 0 var(--frame-radius) var(--frame-r
   background: #fff;
   color: var(--cf-ink, #1E1C1D);
 }
-.pb-card--2 { background: #D2ABFF; }
-.pb-card--3 { background: #1E1C1D; color: #fff; }
-.pb-card-num { position: relative; z-index: 1; font: 400 45px/normal 'HafferXH', monospace; }   /* (all Regular, like Figma's 01) */
-.pb-card-text { position: relative; z-index: 1; margin: 0; font: 400 20px/normal 'PP Neue Montreal', sans-serif; }
-/* the picture: a point at the card's centre that the pieces are placed around */
+/* (spots = Figma's, as each card's top-left before it's tilted round its centre) */
+.pb-card--1 { left: 102.52px; top: 43.22px; --rot: -3.7deg; z-index: 1; box-shadow: inset 0 0 0 1px rgba(24, 24, 18, 0.05); }   /* Figma's faint card stroke */
+.pb-card--2 { left: 375px; top: 1px; width: 334px; --rot: 2.28deg; z-index: 2; background: #D2ABFF; }
+.pb-card--3 { left: 658.81px; top: 61.06px; --rot: 8.17deg; z-index: 3; background: #1E1C1D; color: #fff; }
+/* hovering a card slides it up with a small springy lift and brings it to the front; it STAYS
+   in front after the cursor leaves (problem-cards.js raises its z-index), only the lift settles.
+   (Not on phones, where the cards are stacked.) */
+@media (hover: hover) and (min-width: 761px) {
+  .pb-card { transition: scale 0.26s cubic-bezier(.3, 1.4, .5, 1), translate 0.26s cubic-bezier(.3, 1.4, .5, 1); }   /* (snappier: was 0.45s) */
+  :is(.pb-cards:not(.pb-anim), .pb-cards.is-dealt) .pb-card:hover { scale: 1.035; translate: 0 -18px; }   /* (slides straight up the screen, whatever its tilt; only once the fan-out has finished: .is-dealt) */
+}
+.pb-card-num { position: relative; z-index: 1; font: 400 45px/normal 'HafferXH', monospace; }
+/* title + line (Figma: 40px PP Neue Montreal Medium, 18 apart, 16px Book, 229 wide) */
+.pb-card-copy { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 18px; width: 278px; }
+.pb-card-title { margin: 0; font: 500 40px/normal 'PP Neue Montreal', sans-serif; white-space: nowrap; }
+.pb-card-text { margin: 0; max-width: 229.14px; font: 400 16px/normal 'PP Neue Montreal', sans-serif; }
+/* the picture: a point on the card that the pieces are placed around (each card's own, below) */
 .pb-card-art { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
 .pb-card-art > * { position: absolute; transform: translate(-50%, -50%); }
+.pb-card--1 .pb-card-art { left: calc(50% - 8.6px); top: calc(50% - 31.16px); }   /* (the "+") */
+.pb-card--2 .pb-card-art { left: calc(50% - 0.64px); top: calc(50% - 18.93px); }
+.pb-card--3 .pb-card-art { left: calc(50% - 1.62px); top: calc(50% - 17.56px); }
 
 /* 01: a "+" button in front of a tilted lightning (the shortcut skills hid behind) */
 .pb-chip {
@@ -4403,44 +4442,58 @@ html.nav-tabs .hero-image { border-radius: 0 0 var(--frame-radius) var(--frame-r
 .pb-chip--bolt { translate: 46px 1px; rotate: 16.67deg; }
 .pb-chip--add { filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, 0.25)); }
 
-/* 02: an empty prompt box */
+/* 02: an empty prompt box: the typing starts top-left, a send button bottom-right */
 .pb-prompt {
-  display: flex; align-items: center; justify-content: center;
-  width: 196px; height: 106px; box-sizing: border-box;
-  border-radius: 10px;
+  display: block;
+  width: 225.73px; height: 134.26px; box-sizing: border-box;
+  padding: 15px 18px;
+  border-radius: 15px;
   background: #F5F5F7;
   border: 1px solid rgba(24, 24, 18, 0.05);
 }
-.pb-type { font: 400 40px/1 Inter, 'Helvetica Neue', Arial, sans-serif; color: #000; transform: translateY(-0.28em); }
+.pb-type { display: inline-block; font: 500 30px/normal 'DM Sans', sans-serif; color: #000; }
 .pb-type i { font-style: normal; }
-.pb-type i:last-child { display: none; }   /* (the "?": only in the typing animation) */
+.pb-send {
+  position: absolute; right: 7px; bottom: 6px;
+  display: flex; align-items: center; justify-content: center;
+  width: 37.33px; height: 37.33px;
+  border-radius: 50%;
+  background: #6161FF;
+}
+.pb-send img { display: block; }
 
 /* animated (problem-cards.js adds .pb-anim; without it, or with reduced motion, the cards
    stay as the still Figma picture). Resting state between plays: */
 .pb-cards.pb-anim .pb-chip--bolt { translate: 0 0; rotate: 0deg; }   /* tucked behind the "+" */
-.pb-cards.pb-anim .pb-type { transform: translateY(-0.12em); }   /* (shared baseline for the dots and the "?") */
+.pb-cards.pb-anim .pb-chip--add { filter: none; }   /* the "+" rests flat on the card; it lifts (with its shadow) in problem-cards.js */
 .pb-cards.pb-anim .pb-type i { visibility: hidden; }
-.pb-cards.pb-anim .pb-type i:last-child { display: inline; }
 .pb-cards.pb-anim .pb-type i.is-on { visibility: visible; }
-
-/* 03: four shapes in four different styles (each product area looked different) */
-.pb-shapes {
-  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px;
-  width: 166px; height: 166px;
-  margin-left: 0.5px;
+/* the typing cursor (hidden until the cards have fanned out: .is-dealt; problem-cards.js moves
+   it to just after the last typed character; the untyped ones still hold their space, so
+   nothing shifts). Blinks while waiting, solid while typing. */
+.pb-caret { display: none; }
+.pb-cards.pb-anim.is-dealt .pb-caret {
+  display: inline-block;
+  width: 2px; height: 0.82em; margin: 0 1px;
+  vertical-align: -0.06em;
+  background: currentColor;
+  animation: pb-blink 1s step-end infinite;
 }
-.pb-shape { display: block; }
-.pb-shape--1 { border-radius: 10px; background: linear-gradient(107.4deg, #EDEDF0 28.6%, #D2D2D8 86.46%); }
-.pb-shape--2 { border-radius: 10px; background: linear-gradient(to top, #878D99, #EDEDF0); rotate: -45deg; }
-.pb-shape--3 {
-  justify-self: start; align-self: end;
-  width: 89px; height: 89px; border-radius: 50%;
-  background: radial-gradient(85px 77px at 50% 100%, #EDEDF0 0%, #BABDC4 50%, #878D99 100%);
-}
-.pb-shape--4 { background: linear-gradient(112.08deg, #76A4C3 13.25%, #EDEDF0 94.37%); }
+.pb-cards.pb-anim .pb-caret.is-typing { animation: none; }
+@keyframes pb-blink { 50% { opacity: 0; } }
 
-/* phones: stacked, a little shorter */
+/* 03: four shapes that don't match (an asterisk, a circle, a tilted grey square, a white
+   square), in a 166px square (Figma, as it looks after its 180° turn) */
+.pb-shapes { width: 166px; height: 166px; }
+.pb-shape { position: absolute; display: block; }
+.pb-shape--1 { left: 0; top: 0; width: 83px; height: 83px; }   /* the asterisk (img) */
+.pb-shape--2 { left: 90.69px; top: 0; width: 75.31px; height: 75.31px; border-radius: 50%; background: #D2ABFF; }
+.pb-shape--3 { left: 10.08px; top: 89.3px; width: 66.64px; height: 66.64px; background: #D9D9D9; rotate: -22.13deg; }
+.pb-shape--4 { left: 87.2px; top: 87.2px; width: 78.8px; height: 78.8px; background: #fff; }
+
+/* phones: stacked, upright */
 @media (max-width: 760px) {
-  .pb-cards { flex-direction: column; align-items: center; }
-  .pb-card { flex: none; width: min(100%, 340px); height: 340px; }
+  .pb-fan { height: auto; }
+  .pb-cards { position: static; width: auto; height: auto; transform: none; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .pb-card, .pb-card--2 { position: relative; left: auto; top: auto; --rot: 0deg; width: min(100%, 340px); height: 440px; }
 }

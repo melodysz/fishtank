@@ -1,11 +1,8 @@
 // ===================================
-// THE PROBLEM: OLD AGENT SCREENSHOT WITH POP-UP LABELS
+// THE PROBLEM: V2 → DEEP DIVE (OLD AGENT SCREENSHOT WITH POP-UP LABELS)
 // ===================================
-// The moment the screenshot enters the screen it starts growing (tied to scroll),
-// reaching the full section width when it's centred on screen; it darkens near the
-// end, then the frosted labels pop in one by one. Nothing is pinned: the stage is
-// given the grown image's height up front, so the page just has a little more
-// scroll here and the growing image never covers the text below it.
+// V2 starts as a card like V1 above it; once centred on screen it stays there while you
+// scroll, growing to the section's width, then darkens and the frosted labels pop in.
 // Hovering a label opens its note (tap/click keeps it open); "See all" opens all.
 // Phones and reduced motion skip the growing (see .is-static / .is-list).
 
@@ -104,17 +101,30 @@ function psInitPills(stage) {
   const stage = document.getElementById('problemShot');
   if (!stage) return;
 
+  const track = stage.parentElement;   // .ps-track: the scroll distance it stays on screen for
   const frame = stage.querySelector('.ps-frame');
   const dim = stage.querySelector('.ps-dim');
+  const v2 = stage.querySelector('.ps-v2');            // V2's caption (fades out as it grows)
+  const title = stage.querySelector('.ps-deep-title'); // "Deep dive into V2" (fades in)
+  const shade = stage.querySelector('.ps-deep-shade'); // the dark blur behind it
   const { pillsBox, sizeAllPills, placeGlass } = psInitPills(stage);
 
-  const DIM = 0.45;          // how dark the screenshot gets under the labels
-  const DIM_FROM = 0.6;      // darkening starts this far through the growing (0–1)
-  const FULL_AT = '58%';     // fully grown when its middle is 58% down the screen (50% = centred)
-  const LABELS_AT = 0.97;    // labels pop in once the growing is this far along
-  const LABELS_HIDE = 0.75;  // ...but once up, they linger while scrolling back until it's shrunk back past this
-  const RADIUS = 20;         // corner rounding, kept the same on screen while it grows
-  const SCREEN_MARGIN = 45;  // grown image keeps at least this gap to the top/bottom of the screen
+  // V2 → DEEP DIVE. V2 starts as a card the size of V1 (just under it). When it's centred on
+  // screen it stays there while you scroll (sticky), growing to the section's width; its
+  // caption fades out, "Deep dive into V2" fades in bottom-left, it darkens, and the labels
+  // pop in. Then it scrolls on. Scrolling back up plays it backwards.
+  const CARD = 0.72, CARD_MAX = 900;   // V2's starting width: same as V1 (.cf-versions --v-card)
+  const UNDER_V1 = 24;       // gap from V1 to V2 (px)
+  const HOLD = 1.0;          // how long it stays on screen while growing (in screen heights of scrolling)
+  const CAPTION_OUT = [0, 0.08];   // V2's caption fades out over this part of the growing (0–1) (was 0.22: took too much scrolling)
+  const GROW_END = 0.82;           // fully grown here (the rest is a short hold, labels up)
+  const DIM = 0.45;                // how dark the screenshot gets under the labels
+  const DIM_AT = [0.5, 0.82];
+  const TITLE_IN = [0.36, 0.56];   // "Deep dive into V2" fades in (with its dark blur behind it), riding the corner as it grows (0.62–0.82 was too late, 0.1–0.3 too soon)
+  const LABELS_AT = 0.86;          // labels pop in
+  const LABELS_HIDE = 0.7;         // ...and linger while scrolling back until it's shrunk back past this
+  const RADIUS = 15;               // corner rounding (V1's), kept the same on screen while it grows
+  const SCREEN_MARGIN = 36;        // grown image keeps at least this gap to the nav bar above and the screen's bottom
 
   // ---------- no growing: phones + reduced motion ----------
 
@@ -131,35 +141,63 @@ function psInitPills(stage) {
     return;
   }
 
-  // ---------- growing on scroll ----------
+  // ---------- growing while it stays on screen ----------
 
   let scale = 1;
 
-  // start size = the column width; grown size = the section's full width (its
-  // side margins stay), or less if that wouldn't fit the screen's height
+  // start size = V1's; grown size = the section's full width (its side margins stay), or less
+  // if that wouldn't fit the screen's height. The stage is the grown size and sticks with it
+  // centred on screen; the small card sits in its middle, and the track is pulled up so the
+  // small card lands UNDER_V1 below V1.
+  // the screen space it's centred in: below the nav bar (tab bar mode) and above the window
+  // frame's bottom edge, so it looks centred rather than tucked up under the bar
+  function viewArea() {
+    const css = getComputedStyle(document.documentElement);
+    const tabbed = document.documentElement.classList.contains('nav-tabs');
+    const top = tabbed ? (parseFloat(css.getPropertyValue('--frame-top')) || 0) : 0;
+    const bottom = tabbed ? (parseFloat(css.getPropertyValue('--frame-side')) || 0) : 0;
+    return { top, h: window.innerHeight - top - bottom };
+  }
+  let stickTop = 0;
+
   function measure() {
-    const w0 = stage.offsetWidth;
+    const col = track.parentElement.clientWidth;
+    const w0 = Math.min(col * CARD, CARD_MAX);
     const section = stage.closest('.cf-section') || stage.parentElement;
-    const maxByHeight = (window.innerHeight - SCREEN_MARGIN * 2) * 16 / 9;
+    const area = viewArea();
+    const maxByHeight = (area.h - SCREEN_MARGIN * 2) * 16 / 9;
     const w = Math.max(w0, Math.min(section.clientWidth, maxByHeight));
+    const h0 = w0 * 9 / 16, h = w * 9 / 16;
     scale = w / w0;
     stage.style.setProperty('--ps-w0', w0 + 'px');
-    stage.style.setProperty('--ps-h0', w0 * 9 / 16 + 'px');
+    stage.style.setProperty('--ps-h0', h0 + 'px');
     stage.style.setProperty('--ps-w', w + 'px');
-    stage.style.setProperty('--ps-h', w * 9 / 16 + 'px');
+    stage.style.setProperty('--ps-h', h + 'px');
+    stickTop = area.top + (area.h - h) / 2;
+    stage.style.setProperty('--ps-top', stickTop + 'px');
+    const gap = parseFloat(getComputedStyle(track.parentElement).rowGap) || 0;
+    track.style.marginTop = (UNDER_V1 - gap - (h - h0) / 2) + 'px';
+    track.style.height = (h + window.innerHeight * HOLD) + 'px';
   }
 
   stage.classList.add('is-anim');
   measure();
   gsap.set(frame, { xPercent: -50 });
 
+  // how far the small card's bottom-left corner is from the grown one's
+  const cornerShift = () => {
+    const px = (v) => parseFloat(stage.style.getPropertyValue(v));
+    return { x: (px('--ps-w') - px('--ps-w0')) / 2, y: -(px('--ps-h') - px('--ps-h0')) / 2 };
+  };
+
   const labelsThreshold = () => stage.classList.contains('is-labeled') ? LABELS_HIDE : LABELS_AT;
+  const span = ([a, b]) => ({ at: a, d: b - a });
 
   const tl = gsap.timeline({
     scrollTrigger: {
-      trigger: stage,
-      start: 'top bottom',       // the moment it peeks in
-      end: 'center ' + FULL_AT,  // fully grown (labels in) when its middle is this far down the screen
+      trigger: track,
+      start: () => 'top top+=' + stickTop,   // the moment it sticks
+      end: () => '+=' + window.innerHeight * HOLD,
       scrub: true,
       invalidateOnRefresh: true,
       onUpdate: self => setLabeled(self.progress >= labelsThreshold()),
@@ -167,8 +205,15 @@ function psInitPills(stage) {
     },
   });
 
-  tl.fromTo(frame, { scale: 1, borderRadius: RADIUS }, { scale: () => scale, borderRadius: () => RADIUS / scale, ease: 'none', duration: 1 }, 0)
-    .fromTo(dim, { opacity: 0 }, { opacity: DIM, ease: 'none', duration: 1 - DIM_FROM }, DIM_FROM);
+  const c = span(CAPTION_OUT), d = span(DIM_AT), t = span(TITLE_IN);
+  tl.fromTo(frame, { scale: 1, borderRadius: RADIUS }, { scale: () => scale, borderRadius: () => RADIUS / scale, ease: 'power1.inOut', duration: GROW_END }, 0)
+    .fromTo(v2, { opacity: 1 }, { opacity: 0, ease: 'none', duration: c.d }, c.at)
+    .fromTo(dim, { opacity: 0 }, { opacity: DIM, ease: 'none', duration: d.d }, d.at)
+    .fromTo([title, shade], { opacity: 0 }, { opacity: 1, ease: 'none', duration: t.d }, t.at)
+    // the title sits at the grown image's bottom-left corner; while it's still growing, shift it
+    // in to wherever that corner is right now (same easing as the growing, so it stays put on it)
+    .fromTo(title, { x: () => cornerShift().x, y: () => cornerShift().y }, { x: 0, y: 0, ease: 'power1.inOut', duration: GROW_END }, 0)
+    .to({}, { duration: 1 - GROW_END }, GROW_END);   // (the timeline runs the whole 0–1)
 
   function setLabeled(on) {
     if (on === stage.classList.contains('is-labeled')) return;
@@ -180,18 +225,8 @@ function psInitPills(stage) {
   ScrollTrigger.addEventListener('refreshInit', measure);   // re-measure on resize
   sizeAllPills();
   placeGlass();
-  ScrollTrigger.refresh();       // the stage just got taller: move the triggers below it
+  ScrollTrigger.refresh();       // the track just got taller: move the triggers below it
   document.fonts.ready.then(() => { sizeAllPills(); ScrollTrigger.refresh(); });
-})();
-
-// ---------- V1 / V2 carousel: cards slide in once it's on screen ----------
-(() => {
-  const vp = document.querySelector('.cf-versions-viewport');
-  if (!vp) return;
-  if (!('IntersectionObserver' in window)) { vp.classList.add('is-in'); return; }
-  new IntersectionObserver(([en], obs) => {
-    if (en.isIntersecting) { vp.classList.add('is-in'); obs.disconnect(); }
-  }, { threshold: 0.3 }).observe(vp);
 })();
 
 // ---------- plain stages (no growing): the Navigation chat-sidebar video ----------
