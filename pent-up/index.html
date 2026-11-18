@@ -44,10 +44,10 @@
       if (m !== 'classic') document.documentElement.classList.add('nav-tabs');   // (tabs unless classic was picked)
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=navy-bg-19-bold">
+  <link rel="stylesheet" href="style.css?v=navy-bg-19-bold-cards">
   <link rel="stylesheet" href="../css/nav-tabs.css?v=30">
   <link rel="stylesheet" href="../css/case-fin.css?v=3">
-  <link rel="stylesheet" href="../css/case-v2.css?v=4">
+  <link rel="stylesheet" href="../css/case-v2.css?v=7">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
   <script src="../js/splash.js?v=navy-bg-9"></script>
   <!-- hold the first frame until the navy splash exists, so the page swap stays seamless -->
@@ -199,18 +199,17 @@
 </section>
 
 <section id="overview" class="content-section overview-section">
-  <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/dashlines.png" class="stamp-dash-bg" alt="" loading="lazy">
   <div class="content-column">
     <h2 class="cf-eyebrow section-eyebrow">[01] Overview</h2>
     
     <div class="overview-grid">
       <div class="overview-main">
         <div class="overview-block">
-          <h3>The PROBLEM</h3>
+          <h3>The problem</h3>
           <p>Penn students experience high social pressure in an environment where expression is hyper-visible and identity-linked. Existing platforms either feel too public or reward performative vulnerability, <span class="highlight">leaving no safe, shared space for unfiltered expression within a shared campus context.</span></p>
         </div>
         <div class="overview-block">
-          <h3>The SOLUTION</h3>
+          <h3>The solution</h3>
           <p><span class="highlight">We designed Pent Up to act as a digital release valve,</span> engineered to dismantle the performative dynamics of the Penn community and strip away social validation mechanics.</p>
         </div>
       </div>
@@ -238,31 +237,11 @@
       </div>
     </div>
     
-    <div class="stamp-cards-grid">
-      <div class="stamp-card">
-        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/stamp.webp" alt="Stamp" class="stamp-bg" loading="lazy">
-        <div class="stamp-content">
-          <div class="stamp-number">01</div>
-          <h4 class="stamp-title">No Feedback Loops</h4>
-          <p class="stamp-text">Removed upvotes and virality trackers to eliminate the dopamine loops that drive engagement farming.</p>
-        </div>
-      </div>
-      <div class="stamp-card">
-        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/stamp.webp" alt="Stamp" class="stamp-bg" loading="lazy">
-        <div class="stamp-content">
-          <div class="stamp-number">02</div>
-          <h4 class="stamp-title">Pure Expression</h4>
-          <p class="stamp-text">The "read-and-release" architecture lets users express freely without performance.</p>
-        </div>
-      </div>
-      <div class="stamp-card">
-        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/stamp.webp" alt="Stamp" class="stamp-bg" loading="lazy">
-        <div class="stamp-content">
-          <div class="stamp-number">03</div>
-          <h4 class="stamp-title">Penn-Locked Anonymity</h4>
-          <p class="stamp-text">Email verification creates a high-trust, Penn-only environment for sharing with peers.</p>
-        </div>
-      </div>
+    <!-- numbered cards, same as Deep24's (css/case-v2.css "numbered cards"; were stamps) -->
+<div class="cs-cards">
+      <div class="cs-card cs-card--1"><div class="cs-card-num">01</div><div><h4 class="cs-card-name">No Feedback Loops</h4><p class="cs-card-text">Removed upvotes and virality trackers to eliminate the dopamine loops that drive engagement farming.</p></div></div>
+      <div class="cs-card cs-card--2"><div class="cs-card-num">02</div><div><h4 class="cs-card-name">Pure Expression</h4><p class="cs-card-text">The "read-and-release" architecture lets users express freely without performance.</p></div></div>
+      <div class="cs-card cs-card--3"><div class="cs-card-num">03</div><div><h4 class="cs-card-name">Penn-Locked Anonymity</h4><p class="cs-card-text">Email verification creates a high-trust, Penn-only environment for sharing with peers.</p></div></div>
     </div>
     
     <div class="results-circle">
@@ -274,7 +253,7 @@
     </div>
     
     <div class="overview-block">
-      <h3>My CONTRIBUTION</h3>
+      <h3>My contribution</h3>
       <p>Pent Up was originally conceived as a two-person side project. Recognizing that our ambitions outpaced our immediate resources, <span class="highlight">I pitched the concept to our club, Penn Spark, to secure a seven-person, cross-functional team.</span></p>
       <p>As lead designer, <span class="highlight">I defined trust and anonymity as core product constraints and owned the end-to-end experience</span>, from UX research through final visual design. <span class="highlight">I also acted as the connective tissue between design and development</span>—clarifying intent, resolving feasibility questions, and ensuring the product shipped as designed.</p>
       <p>Alongside this, <span class="highlight">I established the design system, designed key launch materials</span>, including physical flyers and Instagram story assets, and designed the final showcase presentation.</p>
@@ -288,7 +267,7 @@
     <h2 class="cf-eyebrow section-eyebrow">[02] Research</h2>
     
     <div class="market-audit-section">
-      <h3>Our MARKET AUDIT</h3>
+      <h3>Our market audit</h3>
       <div class="market-audit-grid">
         <div class="market-audit-text">
           <p>To understand the mechanics of anonymous spaces, <span class="highlight">we audited two extremes</span> to identify the "sweet spot" for genuine expression:</p>
@@ -348,7 +327,7 @@
     </div>
     
     <div class="proto-personas-section">
-      <h3>Our PROTO-PERSONAS</h3>
+      <h3>Our proto-personas</h3>
       <p class="personas-intro">To ensure we didn't just design for ourselves, we created proto-personas—<span class="highlight">the Anonymous Poster (seeking release) and the Curious Scroller (seeking connection)</span>—to stress-test our features against two opposing user needs: <span class="highlight">absolute anonymity vs. community resonance.</span></p>
       <div class="persona-card">
         <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/proto-persona_%20sana.webp"
@@ -370,7 +349,7 @@
     </div>
     
     <div class="dilemmas-section">
-      <h3>Our DILEMMAS</h3>
+      <h3>Our dilemmas</h3>
       <div class="dilemma-row dilemma-row--default">
         <div class="dilemma-text">
           <div class="dilemma-label">
@@ -406,7 +385,7 @@
   <div class="content-column">
     <h2 class="cf-eyebrow section-eyebrow">[03] Design</h2>
     <div class="ideation-section">
-      <h3>Our IDEATION</h3>
+      <h3>Our ideation</h3>
       <p>I led a design workshop to define the project's visual direction and align the team around a shared artistic language. We converged within our Pinterest moodboard and <span class="highlight">emerged with our three core visual motifs:</span></p>
     </div>
   </div>
@@ -434,13 +413,13 @@
     </div>
     
     <div class="user-flow-section">
-      <h3>Our USER FLOW</h3>
+      <h3>Our user flow</h3>
       <p>To support a read-and-release experience, <span class="highlight">we deliberately minimized decision points throughout the flow.</span> Introducing unnecessary choices risked slowing users down at the moment when expression should feel immediate.</p>
       <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/userflow.webp" alt="User Flow Diagram" class="userflow-image" loading="lazy">
     </div>
     
     <div class="lofi-section">
-      <h3>Our LO-FI WIREFRAMES</h3>
+      <h3>Our lo-fi wireframes</h3>
       <p>We used lo-fi wireframes to define the core screens, hierarchy, and flow.</p>
       <div class="wireframe-grid">
         <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/lo-fi-1.png" alt="Lo-Fi Wireframe 1" loading="lazy">
@@ -451,7 +430,7 @@
     </div>
     
     <div class="midfi-section">
-      <h3>Our MID-FI WIREFRAMES</h3>
+      <h3>Our mid-fi wireframes</h3>
       <p>We experimented with color schemes for the hero and looks for the main feed.</p>
       <div class="wireframe-grid">
         <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/mid-fi-1.webp" alt="Mid-Fi Wireframe 1">
@@ -462,7 +441,7 @@
     </div>
     
     <div class="mascot-exploration-section">
-      <h3>Our MASCOT EXPLORATION</h3>
+      <h3>Our mascot exploration</h3>
       <p>We asked ourselves: <span class="highlight">what sort of mascot would suit Pent Up?</span> Something memorable, adorable, on-theme...</p>
       <p><span class="highlight">An angry critter!</span> After our team went through stages of doodling iterations and looking for inspiration, I assembled the logo: our mascot, trapped within a stamp. <span class="highlight">It's a visual pun: quite literally pent up.</span></p>
     </div>
@@ -478,7 +457,7 @@
 <section class="content-section">
   <div class="content-column">
     <div class="feedback-section">
-      <h3>Our FEEDBACK</h3>
+      <h3>Our feedback</h3>
       <p>Penn Spark hosted a midpoint check-in for all projects, during which Pent Up's mid-fi wireframes were presented. This served as our <span class="highlight">primary User Acceptance Testing session</span>.</p>
       <div class="feedback-grid">
         <div class="feedback-worked">
@@ -513,38 +492,17 @@
       <p>I led the team in translating these critiques into <span class="highlight">three primary design pivots:</span></p>
       
       <div class="pivot-stamps-wrapper">
-        <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/dashlines.png" class="stamp-dash-bg" alt="" loading="lazy">
-        <div class="stamp-cards-grid">
-          <div class="stamp-card">
-            <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/pivot-stamp.webp" alt="Pivot Stamp" class="stamp-bg" loading="lazy">
-            <div class="stamp-content">
-              <div class="stamp-number">01</div>
-              <h4 class="stamp-title">Typography & Accessibility</h4>
-              <p class="stamp-text">Pixel fonts were difficult to read in large quantities. So we ensured Helvetica was used for body text, while pixel fonts were used sparingly, for headers.</p>
-            </div>
-          </div>
-          <div class="stamp-card">
-            <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/pivot-stamp.webp" alt="Pivot Stamp" class="stamp-bg" loading="lazy">
-            <div class="stamp-content">
-              <div class="stamp-number">02</div>
-              <h4 class="stamp-title">Navigation & Discovery</h4>
-              <p class="stamp-text">Users were unsure how to find specific content beyond scrolling. So we introduced a search-by-initials feature in the navigation bar.</p>
-            </div>
-          </div>
-          <div class="stamp-card">
-            <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/pivot-stamp.webp" alt="Pivot Stamp" class="stamp-bg" loading="lazy">
-            <div class="stamp-content">
-              <div class="stamp-number">03</div>
-              <h4 class="stamp-title">Visual Hierarchy</h4>
-              <p class="stamp-text">The interface felt visually dense in the body of the homepage, where all the messages were. So we reduced decorative elements in reading contexts.</p>
-            </div>
-          </div>
+        <!-- numbered cards, same as Deep24's (css/case-v2.css "numbered cards"; were stamps) -->
+<div class="cs-cards">
+          <div class="cs-card cs-card--1"><div class="cs-card-num">01</div><div><h4 class="cs-card-name">Typography & Accessibility</h4><p class="cs-card-text">Pixel fonts were difficult to read in large quantities. So we ensured Helvetica was used for body text, while pixel fonts were used sparingly, for headers.</p></div></div>
+          <div class="cs-card cs-card--2"><div class="cs-card-num">02</div><div><h4 class="cs-card-name">Navigation & Discovery</h4><p class="cs-card-text">Users were unsure how to find specific content beyond scrolling. So we introduced a search-by-initials feature in the navigation bar.</p></div></div>
+          <div class="cs-card cs-card--3"><div class="cs-card-num">03</div><div><h4 class="cs-card-name">Visual Hierarchy</h4><p class="cs-card-text">The interface felt visually dense in the body of the homepage, where all the messages were. So we reduced decorative elements in reading contexts.</p></div></div>
         </div>
       </div>
     </div>
     
     <div class="design-pivots-section">
-      <h3>Our DESIGN PIVOTS</h3>
+      <h3>Our design pivots</h3>
       <div class="pivot-label">
         <div class="audit-number">01</div>
         <div class="audit-name">Unifying the Hero Section</div>
@@ -600,7 +558,7 @@
 <section class="content-section">
   <div class="content-column">
     <div class="final-prototype-section">
-      <h3>Our FINAL PROTOTYPE</h3>
+      <h3>Our final prototype</h3>
     </div>
   </div>
 </section>
@@ -657,7 +615,7 @@
   <div class="content-column">
     <h2 class="cf-eyebrow section-eyebrow">[04] Launch</h2>
     <div class="launch-marketing-section">
-      <h3>The MARKETING</h3>
+      <h3>The marketing</h3>
       <p>Leading up to launch, we released a series of minimal <span class="highlight">Instagram teasers designed to spark curiosity</span> without revealing functionality.</p>
       <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/marketing-phones.webp" alt="Marketing – Instagram Teasers" class="launch-full-img" loading="lazy">
       <p>I paired this with physical flyers placed in high-traffic campus spaces, using sparse copy and tactile visuals to mirror the platform's tone.</p>
@@ -678,7 +636,7 @@
   <div class="content-column">
     <h2 class="cf-eyebrow section-eyebrow">[05] Reflection</h2>
     <div class="reflection-results-section">
-      <h3>The RESULTS</h3>
+      <h3>The results</h3>
       <div class="results-grid">
         <div class="results-text-col">
           <p>Pent Up was awarded <span class="highlight">Best Red Project—the top honor within Penn Spark's advanced track for senior members.</span> The project culminated in a live launch at the Wu and Chen Auditorium, where we presented our roadmap to the Penn community and secured 50+ verified submissions during the event alone.</p>
@@ -691,7 +649,7 @@
       <img src="https://raw.githubusercontent.com/melodysz/baubles/main/pent-up/results-table.webp" alt="Results Metrics Table" class="results-table-img" loading="lazy">
     </div>
     <div class="future-considerations-section">
-      <h3>My FUTURE CONSIDERATIONS</h3>
+      <h3>My future considerations</h3>
       <p>Pent Up was born from a simple text exchange between two sophomores. What began as a dormant experiment grew into a vibrant social amalgam. <span class="highlight">However, because this product was deployed within a tight 10-week sprint while the team balanced midterms and theater performances, several high-impact features were intentionally deprioritized for the initial launch.</span></p>
       <div class="future-item">
         <div class="audit-number">01</div>
@@ -766,6 +724,6 @@
 <script src="main.js?v=23"></script>
 <script src="../js/fin-letters.js?v=2"></script>
 <script src="../js/case-v2.js?v=1"></script>
-  <script src="../js/companion-blend.js?v=3"></script>
+  <script src="../js/companion-blend.js?v=4"></script>
 </body>
 </html>

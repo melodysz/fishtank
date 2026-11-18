@@ -3549,7 +3549,8 @@ strong.cf-hl {
 }
 .cf-bigstat--box .cf-bigstat-num { color: var(--cf-ink); letter-spacing: -0.04em; white-space: nowrap; }   /* (−0.04em: matches Figma's 197px-wide "1 in 3"; at 0 it came out 221) */
 /* phones: number above the words */
-@media (max-width: 700px) { .cf-bigstat--box { flex-direction: column; align-items: flex-start; gap: 8px; padding: 28px 24px; } }
+.cf-bigstat--box .cf-bigstat-label { width: 340px; }   /* (Figma: a fixed 340 wide, so short labels keep the box the designed width) */
+@media (max-width: 700px) { .cf-bigstat--box { flex-direction: column; align-items: flex-start; gap: 8px; padding: 28px 24px; } .cf-bigstat--box .cf-bigstat-label { width: auto; } }
 .rs-block { display: flex; flex-direction: column; gap: 20px; }
 .rs-subhead {
   margin: 0;
@@ -4340,6 +4341,11 @@ html.nav-tabs { --hero-pad: var(--frame-top); }
 html.nav-tabs.win-inset { --cf-gutter: calc(45px + var(--win-m)); }
 @media (max-width: 700px) { html.nav-tabs.win-inset { --cf-gutter: calc(12px + var(--win-m)); } }
 html.nav-tabs .hero-section .agent-hero { top: var(--hero-pad); }
+/* …but the dot grid runs all the way up to the hero's top edge: the bar shrinks to a thin
+   strip over the hero now, so the band it used to cover shows. (clip-path instead of the
+   hero's overflow: hidden, so it can spill upward but stays clipped at the bottom/sides.) */
+html.nav-tabs .hero-section .agent-hero { overflow: visible; clip-path: inset(calc(-1 * var(--hero-pad)) 0 0 0); }
+html.nav-tabs .hero-section .ah-dots { top: calc(-1 * var(--hero-pad)); }
 /* tabs mode: corners follow the window frame's (--frame-radius, 14px; 12px on phones) so
    the page's boxes echo the frame instead of being twice as round. Big backgrounds match
    it exactly; the screenshots / media inside them are a step smaller. Classic mode keeps
@@ -4412,15 +4418,17 @@ html[data-pb-show="strip"] .pb-wheel-clip { display: none; }
 .pb-card--3 { left: 658.81px; top: 61.06px; --rot: 8.17deg; z-index: 3; background: #1E1C1D; color: #fff; }
 /* hovering a card slides it up with a small springy lift and brings it to the front; it STAYS
    in front after the cursor leaves (problem-cards.js raises its z-index), only the lift settles.
+   Only a real mouse move over it counts (not a cursor resting there as the cards fanned out).
    (Not on phones, where the cards are stacked.) */
 @media (hover: hover) and (min-width: 761px) {
   .pb-card { transition: scale 0.26s cubic-bezier(.3, 1.4, .5, 1), translate 0.26s cubic-bezier(.3, 1.4, .5, 1); }   /* (snappier: was 0.45s) */
-  :is(.pb-cards:not(.pb-anim), .pb-cards.is-dealt) .pb-card:hover { scale: 1.035; translate: 0 -18px; }   /* (slides straight up the screen, whatever its tilt; only once the fan-out has finished: .is-dealt) */
+  .pb-card.is-hover { scale: 1.035; translate: 0 -18px; }   /* (slides straight up the screen, whatever its tilt; problem-cards.js adds .is-hover only when the mouse moves over it after the fan-out) */
 }
 .pb-card-num { position: relative; z-index: 1; font: 400 45px/normal 'HafferXH', monospace; }
-/* title + line (Figma: 40px PP Neue Montreal Medium, 18 apart, 16px Book, 229 wide) */
-.pb-card-copy { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 18px; width: 278px; }
-.pb-card-title { margin: 0; font: 500 40px/normal 'PP Neue Montreal', sans-serif; white-space: nowrap; }
+/* title + line (Figma: 35px PP Neue Montreal Medium (03: 34px), 14 apart, 16px Book, 229 wide) */
+.pb-card-copy { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; width: 278px; }
+.pb-card-title { margin: 0; font: 500 35px/normal 'PP Neue Montreal', sans-serif; white-space: nowrap; }
+.pb-card--3 .pb-card-title { font-size: 34px; }   /* (Figma: a pixel smaller on 03) */
 .pb-card-text { margin: 0; max-width: 229.14px; font: 400 16px/normal 'PP Neue Montreal', sans-serif; }
 /* the picture: a point on the card that the pieces are placed around (each card's own, below) */
 .pb-card-art { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }

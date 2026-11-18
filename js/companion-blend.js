@@ -22,6 +22,20 @@
   const mark = document.querySelector('strong.cf-hl, .highlight');
   const hl = mark && getComputedStyle(mark).backgroundImage.match(/rgba?\(\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)/);
   if (hl) companion.style.setProperty('--companion-color', `rgb(${hl[1]}, ${hl[2]}, ${hl[3]})`);
+  // the case-study list under "Fin.": hovering a case study tints the cursor with THAT case
+  // study's colour (the colour its own page gives the cursor), then back to this page's
+  const CASE_COLORS = { creatify: 'rgb(210, 171, 255)', deep24: 'rgb(10, 158, 255)', 'pent-up': 'rgb(243, 119, 32)', knouri: 'rgb(206, 232, 137)' };
+  const ownColor = companion.style.getPropertyValue('--companion-color');
+  document.querySelectorAll('.cf-fin-links a').forEach((a) => {
+    const slug = new URL(a.getAttribute('href'), location.href).pathname.split('/').filter(Boolean).pop();
+    const color = CASE_COLORS[slug];
+    if (!color) return;
+    a.addEventListener('pointerenter', () => companion.style.setProperty('--companion-color', color));
+    a.addEventListener('pointerleave', () => {
+      if (ownColor) companion.style.setProperty('--companion-color', ownColor);
+      else companion.style.removeProperty('--companion-color');
+    });
+  });
   let px = 0, py = 0, queued = false, lastCheck = -Infinity;
   function update() {
     queued = false;

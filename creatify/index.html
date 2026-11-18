@@ -41,7 +41,7 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=navy-bg-302">
+  <link rel="stylesheet" href="style.css?v=navy-bg-306">
   <link rel="stylesheet" href="../css/nav-tabs.css?v=30">
   <link rel="stylesheet" href="../css/case-fin.css?v=3">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
@@ -200,7 +200,7 @@
 <section class="cf-summary">
   <div class="cf-summary-row">
     <h1 class="cf-title">Cre<em>a</em>tify</h1>
-    <p class="cf-summary-text">Rethinking how users discover and navigate Creatify’s AI Agent—redesigning Skills, structuring complex AI workflows, and exploring a more discoverable homepage experience.</p>
+    <p class="cf-summary-text">Rethinking how users discover and navigate Creatify’s AI Agent—redesigning Skills and exploring a more discoverable homepage experience.</p>
   </div>
   <div class="cf-tags">
     <span class="cf-pill"><span class="cf-icon" style="--icon:url(icons/asterisk.svg)"></span>AI Product Design</span>
@@ -292,7 +292,8 @@
           </div>
         </div>
       </article>
-      <article class="hl-card hl-card--chat">
+      <!-- HIDDEN for now with the in-chat section (remove "hidden" to bring back) -->
+      <article class="hl-card hl-card--chat" hidden>
         <div class="hl-card-inner">
           <p class="hl-caption"><span class="hl-caption-in">Chat, meet <em>structure.</em></span></p>
           <!-- Figma "Carousel Item 3": exported as one image (title left out; it's the caption above).
@@ -340,7 +341,7 @@
   <div class="cf-overview-text">
     <div class="cf-eyebrow cf-eyebrow--v2">[01] Overview</div>
     <h2 class="cf-h2">Designing discoverability</h2>
-    <p>As Creatify’s sole product design intern, I <strong>redesigned how users discover and use Agent</strong>—across Skills, in-chat workflows, navigation, and its homepage.</p>
+    <p>As Creatify’s sole product design intern, I <strong>redesigned how users discover and use Agent</strong>—across Skills, navigation, and its homepage.</p>
     <p>I also stepped into design engineering, <strong>moving from Figma into production code</strong> to implement, open PRs, and ship live.</p>
   </div>
 
@@ -725,7 +726,8 @@
         <div class="cf-body"><p>Skills are ready-made instructions that improve the quality of Agent’s output. However, users first had to know Skills existed before they could use them. Skills could only reach them by typing “/” or opening an unlabeled + menu. In fact, <strong>only about 1.3% of Agent sessions used a Skill.</strong></p></div>
       </div>
 
-      <div class="cf-bigstat cf-reveal"><span class="cf-bigstat-num">1.3%</span><span class="cf-bigstat-label">of Agent sessions used a Skill</span></div>
+      <!-- Figma 2662:25945: the stat in a white box, centred (same as Research's "1 in 3") -->
+      <div class="cf-bigstat cf-bigstat--box cf-reveal"><span class="cf-bigstat-num">1.3%</span><span class="cf-bigstat-label">of Agent sessions used a Skill</span></div>
 
       <!-- the chip + dropdown: its two recordings run past the box, out to the page's margins -->
       <div class="sk-box cf-reveal">
@@ -893,8 +895,8 @@
   </div>
 </section>
 
-<!-- ===== 03 Design · In-chat workflows ===== -->
-<section id="agent" class="cf-section cf-section--gray chat-sec">
+<!-- ===== 03 Design · In-chat workflows ===== HIDDEN for now (hidden attribute; remove it to bring back). The "04 design: agent" nav link now goes to the #agent marker before Look & feel. -->
+<section class="cf-section cf-section--gray chat-sec" hidden>
   <div class="cf-inner">
     <div class="cf-head cf-head--v2 cf-reveal">
       <div class="cf-eyebrow cf-eyebrow--v2">04 Agent · In-chat workflows</div>
@@ -965,6 +967,9 @@
   </div>
 </section>
 
+<!-- where the "04 design: agent" nav link lands (the in-chat section that had id="agent" is hidden for now) -->
+<div id="agent" aria-hidden="true"></div>
+
 <!-- ===== 04 Design · Look & feel ===== -->
 <!-- An Apple-style explorer: clicking a pill opens its note and changes what's shown —
      the laptop zooms to the detail and its screen swaps recordings; for "A glass composer"
@@ -975,7 +980,7 @@
       <div class="cf-head cf-head--v2 cf-reveal">
         <div class="cf-eyebrow cf-eyebrow--v2">04 — Design · Look &amp; feel</div>
         <h2 class="cf-h2">Making Agent unmistakably Creatify</h2>
-        <div class="cf-body"><p>Structure fixed how Agent worked, but it still didn’t feel like Creatify. I redesigned its look and feel around two things users and leadership already liked: <strong>the original Agent’s aurora, and the Skills page.</strong></p></div>
+        <div class="cf-body"><p>After rounds of redesigns by various teams, Agent no longer felt like Creatify. I set out to center its look and feel around two things users and leadership already liked: <strong>the original Agent’s aurora, and the Skills page.</strong></p></div>
       </div>
     </div>
   </div>
@@ -1120,6 +1125,7 @@
           <p class="cf-quote bq-in">Discovery should happen before prompting, not only after it.</p>
           <div class="cf-hmw-body cf-hmw-body--sm bq-in">
             <p>I presented the coded prototype to the CEO. <strong>He wanted to bring the new visual style into production right away,</strong> and liked the reasoning behind Direction B, though as a conceptual prototype it would need testing first.</p>
+            <p>Creatify has significantly evolved the design since, as fast-moving teams do.</p>
           </div>
         </div>
       </div>
@@ -1131,7 +1137,8 @@
      (replaces "Untangling Agent’s two sidebars", "An Agent icon to match the rest" and
      "Labeled, layered, and a step closer to premium"; the floating sidebar polish lives in
      the look-and-feel callouts). Reuses the old nav section's boxes (.nav-subbox, .nav-vote). ===== -->
-<section class="cf-section cf-section--gray nav-sec oc-sec">
+<!-- HIDDEN for now (hidden attribute): remove "hidden" to bring it back. Its closing line moved into the reception block above. -->
+<section class="cf-section cf-section--gray nav-sec oc-sec" hidden>
   <div class="cf-inner">
     <div class="cf-head cf-head--v2 cf-reveal">
       <h2 class="cf-h2">Other contributions</h2>
@@ -1159,7 +1166,6 @@
       </div>
     </div>
 
-    <p class="sk-footnote oc-closing cf-reveal">Creatify has significantly evolved the design since, as fast-moving teams do.</p>
   </div>
 </section>
 
@@ -1231,10 +1237,10 @@
 <script src="problem-shot.js?v=20"></script>
 <script src="problem-strip.js?v=6"></script>
 <script src="problem-wheel.js?v=17"></script>
-<script src="problem-cards.js?v=20"></script>
+<script src="problem-cards.js?v=21"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
 <script src="agent-hero.js?v=25"></script>
-<script src="highlights.js?v=46"></script>
+<script src="highlights.js?v=47"></script>
 <script src="lightbox.js?v=3"></script>
 <script src="highlights-text.js?v=2"></script>
 <script src="research.js?v=9"></script>
@@ -1247,6 +1253,6 @@
 <script src="grow-media.js?v=2"></script>
 <script src="count-up.js?v=1"></script>
 <script src="fin-letters.js?v=6"></script>
-  <script src="../js/companion-blend.js?v=3"></script>
+  <script src="../js/companion-blend.js?v=4"></script>
 </body>
 </html>

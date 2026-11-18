@@ -1382,3 +1382,7 @@ h3 {
 
 /* near the footer the bottom nav fades out (main.js); kept after the .visible rules so it wins */
 .sidebar-nav.near-footer { opacity: 0; pointer-events: none; }
+
+
+/* the middle numbered card's colour (css/case-v2.css .cs-card--2): this page's light accent */
+:root { --cs-tint: #F9C9A6; }

@@ -622,7 +622,7 @@ document.querySelectorAll('img').forEach(img => {
 
 // REPLACE the entire SCROLL FADE-IN ANIMATIONS block with:
 document.querySelectorAll(
-  '.overview-block, .stamp-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .mascot-image, .feedback-section, .feedback-grid, .prototype-block'
+  '.overview-block, .cs-card, .results-circle, .conclusion-circle, .market-audit-image, .unsent-project-image, .sidechat-image, .unsent-analysis, .sidechat-analysis, .dilemma-row, .market-audit-text, .dilemma-text, .personas-intro, .ideation-section, .ideation-image-section, .ideation-quote, .user-flow-section, .lofi-section, .midfi-section, .wireframe-grid img, .mascot-exploration-section, .mascot-image, .feedback-section, .feedback-grid, .prototype-block'
 ).forEach(el => {
   el.style.opacity = '1';
   el.style.transform = 'none';
@@ -636,7 +636,7 @@ const highlights = document.querySelectorAll('.highlight');
 const paragraphGroups = new Map();
 
 highlights.forEach(highlight => {
-  const parent = highlight.closest('p, h3, h4, .meta-text, .stamp-text');
+  const parent = highlight.closest('p, h3, h4, .meta-text, .cs-card-text');
   if (!paragraphGroups.has(parent)) paragraphGroups.set(parent, []);
   paragraphGroups.get(parent).push(highlight);
 });

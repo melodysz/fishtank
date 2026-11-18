@@ -8,7 +8,7 @@
 // section's Agent V1 / V2 row share exactly the same swiping.)
 document.querySelectorAll('.hl-viewport').forEach(function (viewport) {
   const track = viewport.querySelector('.hl-track');
-  const cards = [...track.children];
+  const cards = [...track.children].filter((c) => !c.hidden);   // (cards hidden for now are skipped)
   const dotsBox = viewport.querySelector('.hl-dots');
 
   const FLICK = {

@@ -17,13 +17,22 @@
   fit();
   new ResizeObserver(fit).observe(fan);
 
-  // FRONT: hovering a card brings it to the top of the pile, and it stays there after the
-  // cursor leaves (the last card hovered is always on top)
+  // HOVER: a card lifts and comes to the top of the pile, and stays on top after the cursor
+  // leaves (the last card hovered is always on top). It only counts when the mouse actually
+  // MOVES over a card once the fan-out has finished: a cursor that was just resting there while
+  // the cards fanned out under it doesn't count. (.is-hover = the lift, style.css)
   let top = 10;
-  cards.querySelectorAll('.pb-card').forEach((c) => c.addEventListener('pointerenter', (e) => {
-    const ready = !cards.classList.contains('pb-anim') || cards.classList.contains('is-dealt');   // (not until the fan-out has finished)
-    if (ready && e.pointerType === 'mouse' && window.innerWidth > 760) c.style.zIndex = ++top;
-  }));
+  const ready = () => !cards.classList.contains('pb-anim') || cards.classList.contains('is-dealt');
+  cards.querySelectorAll('.pb-card').forEach((c) => {
+    c.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || window.innerWidth <= 760 || !ready()) return;
+      if (!e.movementX && !e.movementY) return;   // (the browser's own "moves" after scrolling or layout changes: not a real one)
+      if (c.classList.contains('is-hover')) return;
+      c.classList.add('is-hover');
+      c.style.zIndex = ++top;
+    });
+    c.addEventListener('pointerleave', () => c.classList.remove('is-hover'));
+  });
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // (stays the still Figma picture)
   cards.classList.add('pb-anim');
@@ -197,9 +206,7 @@
   (async function loop() {
     await whenDealable();
     await dealIn();
-    cards.classList.add('is-dealt');   // (card 02's cursor shows up from here on, and hovering works)
-    const under = cards.querySelector('.pb-card:hover');   // (the mouse was already resting on one: bring it forward now)
-    if (under && window.innerWidth > 760) under.style.zIndex = ++top;
+    cards.classList.add('is-dealt');   // (card 02's cursor shows up from here on, and hovering works once the mouse moves)
     await wait(T.afterDeal);
     for (;;) {
       await whenVisible();

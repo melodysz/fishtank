@@ -98,13 +98,42 @@
 .cf-eyebrow {
   font-family: 'Haffer Mono', monospace;
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;   /* (= Creatify's "[01] Overview" labels; was 18) */
   line-height: 1.2;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--cf-accent);
   text-align: left;
   margin: 0 0 28px;
+}
+
+/* bolded phrases in the text: PP Neue Montreal Medium, a step up from the body's Book weight,
+   like Creatify's (the browser's default bold was too heavy) */
+.main-content strong, .main-content b { font-weight: 500; }
+
+/* numbered cards (Knouri + Pent Up; were "stamps"): Deep24's pattern cards (.d24-pattern):
+   a big mono number up top, a title + line at the bottom; light grey / the page's accent
+   tint / near-black. (Light grey, not white: these sit on the white page, not a grey band.) */
+.cs-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 56px 0; }
+.cs-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  min-height: 340px;
+  padding: 40px 30px;
+  border-radius: 12px;
+  background: #F5F5F7;
+  color: var(--cf-ink);
+}
+.cs-card--2 { background: var(--cs-tint, #EDEDF0); }
+.cs-card--3 { background: #1D1D1F; color: #fff; }
+.cs-card-num { font-family: 'Haffer Mono', monospace; font-size: 44px; line-height: 1; }
+.main-content .cs-card-name { margin: 0 0 12px; font-family: 'PP Neue Montreal', sans-serif; font-style: normal; font-weight: 500; font-size: 22px; line-height: 28px; letter-spacing: 0; text-transform: none; color: inherit; }
+.main-content .cs-card-text { margin: 0; font-family: 'PP Neue Montreal', sans-serif; font-size: 16px; line-height: 24px; opacity: 0.85; color: inherit; }
+@media (max-width: 900px) {
+  .cs-cards { grid-template-columns: 1fr; }
+  .cs-card { min-height: 0; gap: 28px; padding: 30px 24px; }
 }
 
 /* ---------- 3. widths ---------- */
@@ -151,6 +180,20 @@
   line-height: 34px;
   letter-spacing: -0.01em;
   color: var(--cf-ink);
+}
+
+/* Knouri + Pent Up's section headings ("The problem", "Our market audit"…): Creatify's title
+   style (DM Sans SemiBold 40/45, like .sk-h / .cf-versions-title), its 24px gap to the text */
+.main-content .content-section h3:not([class]) {
+  font-family: 'DM Sans', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 45px;
+  letter-spacing: -0.04em;
+  text-transform: none;
+  color: var(--cf-ink);
+  margin-bottom: 24px;
 }
 
 /* big one-off headings (Creatify's section titles) */
@@ -353,6 +396,7 @@
   .cf-title { font-size: 56px; }
   .cf-h2 { font-size: 30px; line-height: 38px; }
   .main-content h3 { font-size: 22px; line-height: 30px; }
+  .main-content .content-section h3:not([class]) { font-size: 30px; line-height: 36px; }   /* (= Creatify's on phones) */
   .sidebar-nav { bottom: 14px; }
 }
 

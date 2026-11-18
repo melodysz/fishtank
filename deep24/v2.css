@@ -76,8 +76,8 @@
   margin: 0;
   font-family: 'DM Sans', sans-serif;
   font-weight: 600;
-  font-size: 50px;
-  line-height: 55px;
+  font-size: 40px;   /* (= Creatify's section titles, .cf-h2; was 50/55) */
+  line-height: 45px;
   letter-spacing: -0.04em;
   color: var(--d24-ink);
 }
@@ -100,7 +100,7 @@
 }
 .d24-body p { margin: 0; }
 .d24-body p + p { margin-top: 18px; }
-.d24-sec strong { font-weight: 700; }
+.d24-sec strong { font-weight: 500; }   /* (Medium, like Creatify; Bold was too heavy) */
 
 .d24-list { list-style: none; margin: 16px 0 0; padding: 0 0 0 4px; }
 .d24-list li::before { content: '•'; margin-right: 12px; }
@@ -192,7 +192,7 @@
 .d24-ov-text {
   margin: 0;
   font-family: 'PP Neue Montreal', sans-serif;
-  font-size: 20px;
+  font-size: 18px;   /* (= Creatify's overview / body text 18/30; was 20) */
   line-height: 30px;
   color: var(--d24-ink);
 }
@@ -361,7 +361,7 @@ html.nav-tabs { --d24-r: var(--frame-radius, 14px); --d24-r-in: calc(var(--frame
 }
 @media (max-width: 900px) {
   :root { --d24-gap: 96px; --d24-pad-y: 64px; }
-  .d24-h2 { font-size: 38px; line-height: 44px; }
+  .d24-h2 { font-size: 30px; line-height: 36px; }   /* (= Creatify's on phones) */
   .main-content .d24-h3 { font-size: 30px; line-height: 36px; }
   .d24-hl-grid, .d24-tldr { grid-template-columns: 1fr; }
   .d24-hl-card { min-height: 0; padding: 36px 30px; }
@@ -383,6 +383,6 @@ html.nav-tabs { --d24-r: var(--frame-radius, 14px); --d24-r-in: calc(var(--frame
   .d24-overview { padding: 20px; }
   .d24-ov-art { margin: 20px -20px -20px; width: calc(100% + 40px); }
   .d24-ov-card { padding: 22px; }
-  .d24-ov-text { font-size: 18px; line-height: 28px; }
+  .d24-ov-text { font-size: 16px; line-height: 26px; }   /* (phones: a step down) */
   .d24-bigstat { flex-direction: column; align-items: flex-start; gap: 6px; }
 }
