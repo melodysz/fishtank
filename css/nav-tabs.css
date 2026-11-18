@@ -49,6 +49,8 @@ html.nav-tabs .cf-frame::after {
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
           backdrop-filter: blur(22px) saturate(1.5);
 }
+/* (the band slides up while the bar shrinks over the hero, see placeBand in nav-tabs.js) */
+.cf-frame-piece--top { will-change: transform; }
 @media (max-width: 700px) { :root { --frame-side: 5px; --frame-radius: 12px; } }
 
 /* EXPERIMENT (local only, html.win-inset, switched by the "window" button / ?win=): the

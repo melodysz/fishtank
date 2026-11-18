@@ -263,28 +263,51 @@
     frame.appendChild(el);
     return el;
   }) : [];
+  // (its sizes, measured once and kept until the window changes size, so reshaping it on every
+  // frame of the compact bar's animation doesn't make the browser recheck the page each time)
+  let frameDims = null;
+  const measureFrame = () => {
+    const css = getComputedStyle(root), px = (v) => parseFloat(css.getPropertyValue(v)) || 0;
+    return { W: frame.clientWidth, H: frame.clientHeight, ft: px('--frame-top'), sd: px('--frame-side'), r: px('--frame-radius') };
+  };
   const placePiece = (el, x, y, w, h, clip) =>
     Object.assign(el.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', clipPath: clip });
   function shapeFrame() {
     if (!frame || !root.classList.contains('nav-tabs')) return;
-    const css = getComputedStyle(root), px = (v) => parseFloat(css.getPropertyValue(v)) || 0;
-    const W = frame.clientWidth, H = frame.clientHeight;
-    const t = barH ?? px('--frame-top'), sd = px('--frame-side'), r = px('--frame-radius'), PAD = 40;   // (barH: the band's live height while it shrinks over the hero)
+    frameDims ??= measureFrame();
+    const { W, H, sd, r } = frameDims, PAD = 40;
     // (inset window experiment: the outer corners are rounded too, one frame-width rounder)
     const Ro = root.classList.contains('win-inset') ? r + sd : 0;
     const [top, bottom, left, right] = framePieces;
-    // top: the tab bar band, down to where the hole's top corners finish curving
-    const tb = t + r;
-    placePiece(top, 0, 0, W, tb + PAD,
-      `path("M0 ${tb}V${Ro}A${Ro} ${Ro} 0 0 1 ${Ro} 0H${W - Ro}A${Ro} ${Ro} 0 0 1 ${W} ${Ro}V${tb}H${W - sd}A${r} ${r} 0 0 0 ${W - sd - r} ${t}H${sd + r}A${r} ${r} 0 0 0 ${sd} ${tb}Z")`);
+    if (Ro) {
+      // (inset window experiment: the band is reshaped to the bar's live height (barH) on
+      // every frame while it shrinks, the slow way, see placeBand)
+      const t = barH ?? frameDims.ft, tb = t + r;
+      placePiece(top, 0, 0, W, tb + PAD,
+        `path("M0 ${tb}V${Ro}A${Ro} ${Ro} 0 0 1 ${Ro} 0H${W - Ro}A${Ro} ${Ro} 0 0 1 ${W} ${Ro}V${tb}H${W - sd}A${r} ${r} 0 0 0 ${W - sd - r} ${t}H${sd + r}A${r} ${r} 0 0 0 ${sd} ${tb}Z")`);
+      top.style.transform = '';
+      const sh = Math.max(0, H - tb - (sd + r));
+      placePiece(left, 0, tb, sd + PAD, sh, `inset(0 ${PAD}px 0 0)`);
+      placePiece(right, W - sd - PAD, tb, sd + PAD, sh, `inset(0 0 0 ${PAD}px)`);
+    } else {
+      // top: the tab bar band between the two sides, down to where the hole's top corners
+      // finish curving. Always shaped at the bar's full height: while the bar shrinks over the
+      // hero, placeBand just slides it up. (Reshaping blurred glass means the browser redoes
+      // the blur from scratch, and doing that every frame made scrolling out of the hero choppy.)
+      const t = frameDims.ft, tb = t + r;
+      placePiece(top, 0, 0, W, tb + PAD,
+        `path("M${sd} 0H${W - sd}V${tb}A${r} ${r} 0 0 0 ${W - sd - r} ${t}H${sd + r}A${r} ${r} 0 0 0 ${sd} ${tb}Z")`);
+      // the two sides, from the very top of the screen down to the bottom corners (so the
+      // band can slide up between them without leaving a gap)
+      const sh = Math.max(0, H - (sd + r));
+      placePiece(left, 0, 0, sd + PAD, sh, `inset(0 ${PAD}px 0 0)`);
+      placePiece(right, W - sd - PAD, 0, sd + PAD, sh, `inset(0 0 0 ${PAD}px)`);
+      placeBand();
+    }
     // bottom: the thin bottom edge plus the hole's bottom corners (its box starts PAD higher)
     const hb = sd + r + PAD;
     placePiece(bottom, 0, H - hb, W, hb,
       `path("M0 ${PAD}H${sd}A${r} ${r} 0 0 0 ${sd + r} ${hb - sd}H${W - sd - r}A${r} ${r} 0 0 0 ${W - sd} ${PAD}H${W}V${hb - Ro}A${Ro} ${Ro} 0 0 1 ${W - Ro} ${hb}H${Ro}A${Ro} ${Ro} 0 0 1 0 ${hb - Ro}Z")`);
-    // the two sides, between the corners
-    const sh = Math.max(0, H - tb - (sd + r));
-    placePiece(left, 0, tb, sd + PAD, sh, `inset(0 ${PAD}px 0 0)`);
-    placePiece(right, W - sd - PAD, tb, sd + PAD, sh, `inset(0 0 0 ${PAD}px)`);
     // (inset window experiment: the blurred margins, one strip per edge. Each strip's box
     // reaches PAD px in past the margin, so the blur still takes in the page beside it,
     // but it's clipped to show only the margin itself.)
@@ -305,7 +328,15 @@
       placePiece(right, VW - m - PAD, band, m + PAD, Math.max(0, VH - 2 * band), `inset(0 0 0 ${PAD}px)`);
     }
   }
-  window.addEventListener('resize', shapeFrame);
+  window.addEventListener('resize', () => { frameDims = null; shapeFrame(); });
+  // the band at the bar's live height (barH, while it shrinks over the hero): slid up by however
+  // much shorter than full height it is
+  function placeBand() {
+    if (!frame || !root.classList.contains('nav-tabs')) return;
+    if (root.classList.contains('win-inset')) return shapeFrame();
+    frameDims ??= measureFrame();
+    framePieces[0].style.transform = barH == null ? '' : `translateY(${barH - frameDims.ft}px)`;
+  }
 
   // ---------- compact bar over the hero (CSS: html.nav-compact, .tb-dots) ----------
   // While the page is still on its hero, the band shrinks to a thin BAR_COMPACT px strip, the
@@ -328,6 +359,11 @@
   cornerLogo.setAttribute('aria-label', 'Back to home');
   cornerLogo.innerHTML = '<img src="https://cdn.jsdelivr.net/gh/melodysz/baubles@main/asterisk.svg" alt="" width="26" height="26">';
   document.body.appendChild(cornerLogo);
+  // the band's live height (--bar-h) goes only on the few things placed from it, not the whole
+  // page: set on the page itself, every frame of the animation made the browser recheck the
+  // styles of everything on it, which made scrolling out of the hero choppy
+  const barVarEls = [bar, frame, cornerLogo, ...document.querySelectorAll('.cf-topfade')].filter(Boolean);
+  const setBarVar = (v) => barVarEls.forEach((el) => v == null ? el.style.removeProperty('--bar-h') : el.style.setProperty('--bar-h', v + 'px'));
   function toneBehind() {
     const r = cornerLogo.getBoundingClientRect();
     // (look past things that only float over the page: the entry splash, the cursor, the frame)
@@ -349,10 +385,10 @@
     const step = (now) => {
       const k = ms ? Math.min(1, (now - t0) / ms) : 1, e = 1 - Math.pow(1 - k, 3);
       barH = from + (to - from) * e;
-      root.style.setProperty('--bar-h', barH + 'px');
-      shapeFrame();
+      setBarVar(barH);
+      placeBand();
       if (k < 1) barAnim = requestAnimationFrame(step);
-      else if (!compact) { barH = null; root.style.removeProperty('--bar-h'); shapeFrame(); }
+      else if (!compact) { barH = null; setBarVar(null); placeBand(); }
     };
     if (ms) barAnim = requestAnimationFrame(step); else step(t0);
   }
