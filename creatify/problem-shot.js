@@ -106,6 +106,8 @@ function psInitPills(stage) {
   const dim = stage.querySelector('.ps-dim');
   const v2 = stage.querySelector('.ps-v2');            // V2's caption (fades out as it grows)
   const title = stage.querySelector('.ps-deep-title'); // "Deep dive into V2" (fades in)
+  const captionBits = [...v2.querySelectorAll('.cf-version-title, .cf-version-by, .cf-version-tag')];
+  const captionBack = [...v2.querySelectorAll('.cf-version-blurs, .cf-version-fade')];
   const shade = stage.querySelector('.ps-deep-shade'); // the dark blur behind it
   const { pillsBox, sizeAllPills, placeGlass } = psInitPills(stage);
 
@@ -116,11 +118,25 @@ function psInitPills(stage) {
   const CARD = 0.72, CARD_MAX = 900;   // V2's starting width: same as V1 (.cf-versions --v-card)
   const UNDER_V1 = 24;       // gap from V1 to V2 (px)
   const HOLD = 1.0;          // how long it stays on screen while growing (in screen heights of scrolling)
-  const CAPTION_OUT = [0, 0.08];   // V2's caption fades out over this part of the growing (0–1) (was 0.22: took too much scrolling)
+  // V2's caption isn't tied to the scroll: once the growing passes CAPTION_AT it PLAYS (its own
+  // timing, however fast you scroll), and scrolling back above that plays it in reverse.
+  // Its lines slide up as they fade, one after another: title, then the "By…" line, then each
+  // pill a beat after the one before; the dark blur behind them fades over the same time.
+  // (2026-11-18: sliding off to the right was tried, she preferred up; scroll-scrubbed was tried,
+  // she wanted trigger-and-play)
+  const CAPTION_AT = 0.01;         // how far into the growing (0–1) it starts leaving
+  const CAPTION_RISE = 28;         // px each piece travels up as it goes
+  const CAPTION_EACH = 0.45;       // seconds each piece takes
+  const CAPTION_STAGGER = 0.07;    // seconds between one piece and the next
   const GROW_END = 0.82;           // fully grown here (the rest is a short hold, labels up)
   const DIM = 0.45;                // how dark the screenshot gets under the labels
   const DIM_AT = [0.5, 0.82];
-  const TITLE_IN = [0.36, 0.56];   // "Deep dive into V2" fades in (with its dark blur behind it), riding the corner as it grows (0.62–0.82 was too late, 0.1–0.3 too soon)
+  const TITLE_IN = [0.36, 0.56];   // "Deep dive into V2"'s dark blur fades in over this, riding the corner as it grows (0.62–0.82 was too late, 0.1–0.3 too soon)
+  // ...and at TITLE_IN's start its letters PLAY in (not tied to the scroll, like the caption):
+  // each slides up and fades in, one after another. Scrolling back above it plays them back out.
+  const LETTER_RISE = 0.5;         // how far each letter rises (in em: half a letter's height)
+  const LETTER_EACH = 0.55;        // seconds per letter
+  const LETTER_STAGGER = 0.028;    // seconds between one letter and the next
   const LABELS_AT = 0.86;          // labels pop in
   const LABELS_HIDE = 0.7;         // ...and linger while scrolling back until it's shrunk back past this
   const RADIUS = 15;               // corner rounding (V1's), kept the same on screen while it grows
@@ -193,6 +209,30 @@ function psInitPills(stage) {
   const labelsThreshold = () => stage.classList.contains('is-labeled') ? LABELS_HIDE : LABELS_AT;
   const span = ([a, b]) => ({ at: a, d: b - a });
 
+  const caption = gsap.timeline({ paused: true })
+    .fromTo(captionBits, { y: 0, opacity: 1 }, { y: -CAPTION_RISE, opacity: 0, ease: 'power2.in', duration: CAPTION_EACH, stagger: CAPTION_STAGGER }, 0)
+    .fromTo(captionBack, { opacity: 1 }, { opacity: 0, ease: 'power1.inOut', duration: CAPTION_EACH + CAPTION_STAGGER * (captionBits.length - 1) }, 0);
+  let captionShown = true;
+
+  // "Deep dive into V2", one letter at a time (screen readers still read the whole title)
+  title.setAttribute('aria-label', title.textContent.trim());
+  title.innerHTML = [...title.textContent.trim()].map((ch) => ch === ' ' ? ' ' : `<span class="ps-letter" aria-hidden="true">${ch}</span>`).join('');
+  const letters = [...title.querySelectorAll('.ps-letter')];
+  gsap.set(title, { opacity: 1 });
+  const titleLetters = gsap.timeline({ paused: true })
+    .fromTo(letters, { yPercent: LETTER_RISE * 100, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'power3.out', duration: LETTER_EACH, stagger: LETTER_STAGGER });
+  let titleShown = false;
+  function setTitle(show) {
+    if (show === titleShown) return;
+    titleShown = show;
+    show ? titleLetters.play() : titleLetters.reverse();
+  }
+  function setCaption(show) {
+    if (show === captionShown) return;
+    captionShown = show;
+    show ? caption.reverse() : caption.play();
+  }
+
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: track,
@@ -200,16 +240,19 @@ function psInitPills(stage) {
       end: () => '+=' + window.innerHeight * HOLD,
       scrub: true,
       invalidateOnRefresh: true,
-      onUpdate: self => setLabeled(self.progress >= labelsThreshold()),
-      onRefresh: self => { setLabeled(self.progress >= LABELS_AT); sizeAllPills(); placeGlass(); },
+      onUpdate: self => { setLabeled(self.progress >= labelsThreshold()); setCaption(self.progress < CAPTION_AT); setTitle(self.progress >= TITLE_IN[0]); },
+      onRefresh: self => {
+        setLabeled(self.progress >= LABELS_AT); sizeAllPills(); placeGlass();
+        captionShown = self.progress < CAPTION_AT; caption.pause().progress(captionShown ? 0 : 1);   // (no animation on load/resize)
+        titleShown = self.progress >= TITLE_IN[0]; titleLetters.pause().progress(titleShown ? 1 : 0);
+      },
     },
   });
 
-  const c = span(CAPTION_OUT), d = span(DIM_AT), t = span(TITLE_IN);
+  const d = span(DIM_AT), t = span(TITLE_IN);
   tl.fromTo(frame, { scale: 1, borderRadius: RADIUS }, { scale: () => scale, borderRadius: () => RADIUS / scale, ease: 'power1.inOut', duration: GROW_END }, 0)
-    .fromTo(v2, { opacity: 1 }, { opacity: 0, ease: 'none', duration: c.d }, c.at)
     .fromTo(dim, { opacity: 0 }, { opacity: DIM, ease: 'none', duration: d.d }, d.at)
-    .fromTo([title, shade], { opacity: 0 }, { opacity: 1, ease: 'none', duration: t.d }, t.at)
+    .fromTo(shade, { opacity: 0 }, { opacity: 1, ease: 'none', duration: t.d }, t.at)
     // the title sits at the grown image's bottom-left corner; while it's still growing, shift it
     // in to wherever that corner is right now (same easing as the growing, so it stays put on it)
     .fromTo(title, { x: () => cornerShift().x, y: () => cornerShift().y }, { x: 0, y: 0, ease: 'power1.inOut', duration: GROW_END }, 0)

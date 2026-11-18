@@ -910,7 +910,7 @@ function fitTitle() {
   const title = document.querySelector('.cf-summary .cf-title');
   const text = document.querySelector('.cf-summary-text'), tags = document.querySelector('.cf-tags');
   if (!title || !text || !tags) return;
-  if (window.matchMedia('(max-width: 1100px)').matches) { title.style.fontSize = ''; title.style.transform = ''; return; }
+  if (window.matchMedia('(max-width: 1100px)').matches) { title.style.fontSize = ''; title.style.transform = ''; text.style.marginTop = ''; return; }
   const cs = getComputedStyle(title);
   const font = (px) => `${cs.fontStyle} ${cs.fontWeight} ${px}px ${cs.fontFamily}`;
   const c = fitTitle.ctx || (fitTitle.ctx = document.createElement('canvas').getContext('2d'));
@@ -919,12 +919,22 @@ function fitTitle() {
   // settles on the compact version (tags on one row) whenever that fits.
   title.style.fontSize = '72px';
   title.style.transform = '';
+  // On wide screens the summary fits on one line and the tags on one row, so that block is
+  // short, and a title fitted to it would be small (83px). The title never goes below
+  // --cf-title-min (dev slider: summary-width.js): when it's taller than the block, the block
+  // drops down so its bottom (the tags) lines up with the bottom of the "y" instead.
+  // (Once the floor wins, it's the title's exact size: a bigger title can push the pills onto a
+  // second row, and re-fitting to that taller block would jump straight to ~156px.)
+  const min = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cf-title-min')) || 0;
+  let floored = false;
   for (let pass = 0; pass < 4; pass++) {               // the title's width changes the text's wrapping: settle in a few passes
+    text.style.marginTop = '';
     const top = text.getBoundingClientRect().top, bottom = tags.getBoundingClientRect().bottom;
     c.font = font(100);
     const m = c.measureText(title.textContent);
     const ink = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) / 100;   // letter height per 1px of font size
-    const size = (bottom - top) / ink;
+    let size = (bottom - top) / ink;
+    if (size < min || floored) { floored = true; size = min; text.style.marginTop = Math.max(0, size * ink - (bottom - top)) + 'px'; }
     title.style.fontSize = size + 'px';
     // with line-height 1 the baseline sits at: box top + (size − (ascent+descent)) / 2 + ascent
     c.font = font(size);

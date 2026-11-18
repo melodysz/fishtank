@@ -851,9 +851,9 @@ box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255,
   opacity: 0;
 }
 
-.bubble-dot-sm  { width: 11px;  height: 11px;  left: 33px; top: -25px; z-index: 2; }
-.bubble-dot-md  { width: 16px; height: 16px; left: 10px;  top: -16px;  z-index: 2; }
-.bubble-dot-lg  { width: 22px; height: 22px; left: -2px; top: 10px;  z-index: 2; }
+.bubble-dot-sm  { width: 10px; height: 10px; left: 40px; top: -28px; z-index: 2; }   /* Figma 2268:6266: three dots curving up-right off the menu's top-left corner */
+.bubble-dot-md  { width: 15px; height: 15px; left: 20px; top: -21px; z-index: 2; }
+.bubble-dot-lg  { width: 18px; height: 18px; left: 10px; top: 2px;   z-index: 2; }   /* (sits on the menu's rounded corner) */
 
 .bubble-menu {
   position: absolute;
@@ -864,7 +864,7 @@ box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255,
   backdrop-filter: blur(18px) saturate(1.4);
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
 box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.45), 0px 2px 2px rgba(0, 0, 0, 0.18);
-  border-radius: 40px;
+  border-radius: 30px;
   padding: 18px 24px;
   display: flex;
   flex-direction: column;
@@ -1071,7 +1071,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   padding: 0 50px;                /* Figma: 50px inside the 1440 frame */
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  column-gap: 96px;
+  column-gap: var(--cf-summary-gap, 56px);   /* (dev slider: summary-width.js) */
   row-gap: 14px;
   align-items: start;
 }
@@ -1080,6 +1080,7 @@ body.hero-covered .hero-section { visibility: hidden; }
    stack on the right, tags left-aligned with the summary text. The title's size is fitted
    in main.js (fitTitle) so its letters run exactly from the top of the summary text to the
    bottom of the tags. */
+:root { --cf-title-min: 131px; }   /* "Creatify" never smaller than this (main.js fitTitle). 131px + a 56px gap: Melody's pick 2026-11-18, pills stay on one row */
 .cf-summary-row { display: contents; }
 .cf-summary .cf-title { grid-row: 1 / span 2; line-height: 1; white-space: nowrap; }
 
@@ -1769,6 +1770,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 }
 /* V2's caption layer inside the deep-dive frame (fades out as it grows: problem-shot.js) */
 .ps-v2 { position: absolute; inset: 0; pointer-events: none; }
+.ps-deep-title .ps-letter { display: inline-block; }   /* (each rises in on its own, problem-shot.js) */
 .ps-track { margin-top: -32px; }   /* (56px column gap − 32 = 24px under V1) */
 /* "Deep dive into V2": white, bottom-left of the grown screenshot, where V2's caption was.
    Placed in the grown size (like the labels), so it's never scaled. */
@@ -2382,6 +2384,8 @@ body.hero-covered .hero-section { visibility: hidden; }
   mask-image: linear-gradient(to bottom, #000 0%, #000 var(--dot-reveal), transparent calc(var(--dot-reveal) + 15%), transparent 100%);
 }
 .agent-hero.is-playing .ah-dots { animation: ah-dot-reveal 1800ms ease-in-out 700ms both; }
+/* the page hero: the dots sweep in straight away, as the logo finishes flying off (slideIn starts as it fades) */
+.hero-section .agent-hero.is-playing .ah-dots { animation: ah-dot-reveal 1400ms ease-out both; }
 
 /* the headline + composer + chips, centred in the hero; shrinks to fit on narrow screens */
 .ah-stage {
@@ -2526,7 +2530,7 @@ body.hero-covered .hero-section { visibility: hidden; }
 @keyframes ah-ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .agent-hero.is-playing .ah-dots, .ah-sweep-band.is-sweeping, .ah-ping::before { animation: none; }
+  .agent-hero.is-playing .ah-dots, .hero-section .agent-hero.is-playing .ah-dots, .ah-sweep-band.is-sweeping, .ah-ping::before { animation: none; }
   .ah-dots { --dot-reveal: 115%; }
   .ah-sweep { display: none; }
 }
@@ -4346,6 +4350,8 @@ html.nav-tabs .hero-section .agent-hero { top: var(--hero-pad); }
    hero's overflow: hidden, so it can spill upward but stays clipped at the bottom/sides.) */
 html.nav-tabs .hero-section .agent-hero { overflow: visible; clip-path: inset(calc(-1 * var(--hero-pad)) 0 0 0); }
 html.nav-tabs .hero-section .ah-dots { top: calc(-1 * var(--hero-pad)); }
+/* liquid dots (hero-dots.js): once its canvas draws the grid, drop the CSS dots */
+.ah-dots.is-live { background-image: none; }
 /* tabs mode: corners follow the window frame's (--frame-radius, 14px; 12px on phones) so
    the page's boxes echo the frame instead of being twice as round. Big backgrounds match
    it exactly; the screenshots / media inside them are a step smaller. Classic mode keeps
@@ -4421,8 +4427,10 @@ html[data-pb-show="strip"] .pb-wheel-clip { display: none; }
    Only a real mouse move over it counts (not a cursor resting there as the cards fanned out).
    (Not on phones, where the cards are stacked.) */
 @media (hover: hover) and (min-width: 761px) {
-  .pb-card { transition: scale 0.26s cubic-bezier(.3, 1.4, .5, 1), translate 0.26s cubic-bezier(.3, 1.4, .5, 1); }   /* (snappier: was 0.45s) */
-  .pb-card.is-hover { scale: 1.035; translate: 0 -18px; }   /* (slides straight up the screen, whatever its tilt; problem-cards.js adds .is-hover only when the mouse moves over it after the fan-out) */
+  /* a springy settle (overshoots ~19%, then a small dip back); browsers without linear() get the old single overshoot */
+  .pb-card { transition: translate 0.3s cubic-bezier(.3, 1.5, .5, 1); }
+  .pb-card { transition: translate 0.58s linear(0.0, 0.062, 0.216, 0.416, 0.625, 0.815, 0.971, 1.084, 1.154, 1.184, 1.184, 1.163, 1.129, 1.089, 1.051, 1.019, 0.993, 0.977, 0.967, 0.965, 0.967, 0.973, 0.98, 0.987, 0.994, 0.999, 1.003, 1.005, 1.007, 1.006, 1.006, 1.004, 1.003, 1.002, 1.001, 1); }   /* (~19% overshoot: 27% was too much with the graphics shaking, 10% read as no bounce at all) */
+  .pb-card.is-hover { translate: 0 -32px; }   /* (was -18px) */   /* (no enlarge, per Melody 2026-11-18; slides straight up the screen, whatever its tilt; problem-cards.js adds .is-hover only when the mouse moves over it after the fan-out) */
 }
 .pb-card-num { position: relative; z-index: 1; font: 400 45px/normal 'HafferXH', monospace; }
 /* title + line (Figma: 35px PP Neue Montreal Medium (03: 34px), 14 apart, 16px Book, 229 wide) */
