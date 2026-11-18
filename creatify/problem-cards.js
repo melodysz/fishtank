@@ -73,11 +73,9 @@
     hopHeight: 22,    //     how high (px)
     hopStagger: 110,  //     each shape starts this much after the one before
     loopRest: 900,    // pause after each round before starting over
-    dealIn: 900,      // intro: the hand fanning open (ms)
+    dealIn: 650,      // intro: the hand fanning open (ms)
     dealStagger: 40,  //        (phones) 03 starts this much after 01
-    fanSwing: 16,     //        how far (degrees) the tops of 01 / 03 swing out past their tilt while the bottoms are still bunched
-    fanSwingEnd: 0.9, //        ...that swing is over by this point of the intro (0–1)
-    fanLag: 0.18,     //        the bottoms start sliding apart this far into the intro (0–1), so the tops lead
+    fanPivot: 450,    //        how far below the pile's centre the cards turn about (px; smaller = more curve)
     fanOver: 0.04,    //        bounce: how far past their tilt / spot they go before settling (4%; 12% overshot too much)
     liftHand: 36,     //        how much lower the pile starts, so the hand rises as it opens (px)
     handScale: 0.95,  //        and how much smaller
@@ -180,37 +178,31 @@
     const pile = (c) => c.style.translate.split(' ').map(parseFloat);   // (offset from its spot to the pile)
     let runs;
     if (window.innerWidth > 760) {
-      // FAN: like a hand of cards opening. Each card turns about its own BOTTOM edge: at first the
-      // bottoms stay bunched together while the tops swing out wide (01 left, 03 right), then the
-      // bottoms slide apart to their spots and the tilts ease back to Figma's, with a small
-      // bounce. The hand also rises a little and grows to full size as it opens.
-      const D = T.dealIn;
-      const k = Array.from({ length: 31 }, (_, i) => i / 30);   // sample times (enough that the path stays smooth)
-      const ease = (t) => t < 0.72 ? (1 + T.fanOver) * (1 - Math.pow(1 - t / 0.72, 3)) : 1 + T.fanOver * (1 - (t - 0.72) / 0.28) * Math.cos((t - 0.72) / 0.28 * Math.PI / 2);
-      const clamp = (v) => Math.min(1, Math.max(0, v));
-      const prog = ease;                                                      // the tilt settling to Figma's
-      const spread = (t) => ease(clamp((t - T.fanLag) / (1 - T.fanLag)));     // the bottoms sliding apart (starts a beat later)
-      const swing = (t) => Math.sin(Math.PI * clamp(t / T.fanSwingEnd));      // the extra fan-out of the tops: up, then back
-      const rad = (deg) => deg * Math.PI / 180;
-      const H2 = c2.offsetHeight / 2;
-      const pileX = c2.offsetLeft + c2.offsetWidth / 2, pileBottom = c2.offsetTop + 2 * H2 + T.liftHand;
-      const fan = (c, side) => {
-        const h = c.offsetHeight / 2, cx = c.offsetLeft + c.offsetWidth / 2, cy = c.offsetTop + h;
-        const end = parseFloat(tilt(c));
-        const bx1 = cx - h * Math.sin(rad(end)), by1 = cy + h * Math.cos(rad(end));   // its bottom edge's middle, in place
+      // FAN: the hand rises a little as it opens. 01 and 03 turn outward round a shared pivot
+      // below the pile (only ever outward, with a small bounce past their tilt at the end) while
+      // 02, carrying the pile, lifts from slightly lower and smaller into place.
+      const h = T.fanPivot, D = T.dealIn;
+      const k = Array.from({ length: 21 }, (_, i) => i / 20);   // sample times (enough that the path stays smooth)
+      // progress at each sample: a quick ease-out to a small overshoot, then settle
+      const prog = (t) => t < 0.72 ? (1 + T.fanOver) * (1 - Math.pow(1 - t / 0.72, 3)) : 1 + T.fanOver * (1 - (t - 0.72) / 0.28) * Math.cos((t - 0.72) / 0.28 * Math.PI / 2);
+      const rise = (t) => (1 - prog(t));   // 1 = lowest (start), 0 = in place
+      const fanned = (c) => {
+        const [px, py] = pile(c), end = parseFloat(tilt(c)), rad = (deg) => deg * Math.PI / 180;
+        const fanAt = (a) => [h * Math.sin(rad(a)), h * (1 - Math.cos(rad(a)))];   // where turning by a about the pivot puts it
+        const [fx, fy] = fanAt(end);
         return k.map((t) => {
-          const a = end * prog(t) + side * T.fanSwing * swing(t);
-          const q = spread(t);
-          const bx = pileX + (bx1 - pileX) * q, by = pileBottom + (by1 - pileBottom) * q;
-          // the card turns about that bottom point: where that puts its centre
-          const x = bx + h * Math.sin(rad(a)) - cx, y = by - h * Math.cos(rad(a)) - cy;
-          return { offset: t, translate: `${x}px ${y}px`, rotate: `${a}deg`, scale: String(1 - (1 - T.handScale) * (1 - prog(t))) };
+          const p = prog(t), a = end * p, [ax, ay] = fanAt(a);
+          // pile → spot: the turn about the pivot, plus a straight share that makes it land exactly
+          const x = px + ax + p * (-px - fx), y = py + ay + p * (-py - fy) + T.liftHand * rise(t);
+          return { offset: t, translate: `${x}px ${y}px`, rotate: `${a}deg`, scale: String(1 - (1 - T.handScale) * rise(t)) };
         });
       };
+      const end2 = parseFloat(tilt(c2));   // (02 turns into its own small tilt as the hand opens)
+      const middle = k.map((t) => ({ offset: t, translate: `0px ${T.liftHand * rise(t)}px`, rotate: `${end2 * prog(t)}deg`, scale: String(1 - (1 - T.handScale) * rise(t)) }));
       runs = [
-        c1.animate(fan(c1, -1), { duration: D, fill: 'backwards' }),
-        c2.animate(fan(c2, 0), { duration: D, fill: 'backwards' }),
-        c3.animate(fan(c3, 1), { duration: D, fill: 'backwards' }),
+        c1.animate(fanned(c1), { duration: D, fill: 'backwards' }),
+        c2.animate(middle, { duration: D, fill: 'backwards' }),
+        c3.animate(fanned(c3), { duration: D, fill: 'backwards' }),
       ];
     } else {
       // phones (cards stacked upright): 01 and 03 slide up/down out of the pile
