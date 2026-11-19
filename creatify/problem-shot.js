@@ -210,8 +210,11 @@ function psInitPills(stage) {
   const span = ([a, b]) => ({ at: a, d: b - a });
 
   const caption = gsap.timeline({ paused: true })
-    .fromTo(captionBits, { y: 0, opacity: 1 }, { y: -CAPTION_RISE, opacity: 0, ease: 'power2.in', duration: CAPTION_EACH, stagger: CAPTION_STAGGER }, 0)
-    .fromTo(captionBack, { opacity: 1 }, { opacity: 0, ease: 'power1.inOut', duration: CAPTION_EACH + CAPTION_STAGGER * (captionBits.length - 1) }, 0);
+    // (autoAlpha: once faded out they're also visibility: hidden, so the browser stops drawing
+    // them at all while the image grows; the blurred copies behind the caption were the heaviest
+    // thing on screen and made the growing lag)
+    .fromTo(captionBits, { y: 0, autoAlpha: 1 }, { y: -CAPTION_RISE, autoAlpha: 0, ease: 'power2.in', duration: CAPTION_EACH, stagger: CAPTION_STAGGER }, 0)
+    .fromTo(captionBack, { autoAlpha: 1 }, { autoAlpha: 0, ease: 'power1.inOut', duration: CAPTION_EACH + CAPTION_STAGGER * (captionBits.length - 1) }, 0);
   let captionShown = true;
 
   // "Deep dive into V2", one letter at a time (screen readers still read the whole title)

@@ -41,7 +41,7 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/GeneralSans-Variable.woff2" crossorigin>
 
 
-  <link rel="stylesheet" href="style.css?v=navy-bg-317">
+  <link rel="stylesheet" href="style.css?v=navy-bg-318">
   <link rel="stylesheet" href="../css/nav-tabs.css?v=30">
   <link rel="stylesheet" href="../css/case-fin.css?v=3">
   <link rel="stylesheet" href="../css/page-wipe.css?v=12">
@@ -454,7 +454,8 @@
         <img class="ps-img" src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" alt="The original Agent homepage: a chat history sidebar, a “What will you create today?” heading, a Creative / Performance toggle, an empty prompt box and a row of shortcut chips.">
         <!-- the V2 card's caption (fades out as it grows) -->
         <div class="ps-v2">
-          <div class="cf-version-blurs" aria-hidden="true"><div class="cf-version-blur cf-version-blur--1"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--2"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--3"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div><div class="cf-version-blur cf-version-blur--4"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div></div>
+          <!-- the caption's blur, baked into one image (4 live blurred copies lagged while the image grows) -->
+          <img class="cf-version-blurs ps-v2-blur" src="images/problem-old-agent-capblur.webp" width="1280" height="720" loading="lazy" draggable="false" alt="" aria-hidden="true">
           <div class="cf-version-fade" aria-hidden="true"></div>
           <figcaption>
                 <span class="cf-version-title">[V2] Agent before my redesign</span>
@@ -469,7 +470,7 @@
         </div>
         <!-- a soft dark blur in the bottom-left corner so "Deep dive into V2" stands out
              (a blurred copy of the screenshot + a black glow, fading out from the corner) -->
-        <div class="ps-deep-shade" aria-hidden="true"><img src="images/problem-old-agent.webp" width="2560" height="1440" loading="lazy" draggable="false" alt=""></div>
+        <div class="ps-deep-shade" aria-hidden="true"><img src="images/problem-old-agent-blur.webp" width="640" height="360" loading="lazy" draggable="false" alt=""></div>
         <div class="ps-dim" aria-hidden="true"></div>
       </div>
       <!-- takes the caption's place once it's grown (white, bottom-left) -->
@@ -1235,7 +1236,7 @@
 <script src="../js/nav-tabs.js?v=30"></script>
 <script src="main.js?v=53"></script>
 <script src="summary-width.js?v=3"></script>
-<script src="problem-shot.js?v=24"></script>
+<script src="problem-shot.js?v=25"></script>
 <script src="problem-strip.js?v=6"></script>
 <script src="problem-wheel.js?v=17"></script>
 <script src="problem-cards.js?v=24"></script>

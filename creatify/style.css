@@ -1741,7 +1741,8 @@ body.hero-covered .hero-section { visibility: hidden; }
   object-position: top;
   -webkit-user-drag: none;
 }
-.cf-version-blurs { position: absolute; inset: 0; pointer-events: none; --fade-top: 71%; --blur-end: 85%; }   /* (only behind the caption itself; 45% then 64% both reached too high) */
+.cf-version-blurs { position: absolute; inset: 0; pointer-events: none; --fade-top: 71%; --blur-end: 85%; }
+.ps-v2-blur { width: 100%; height: 100%; object-fit: cover; object-position: top; }   /* (V2: the same graded blur, pre-made: images/problem-old-agent-capblur.webp) */   /* (only behind the caption itself; 45% then 64% both reached too high) */
 .cf-version-blur {
   position: absolute;
   inset: 0;
@@ -1802,7 +1803,7 @@ body.hero-covered .hero-section { visibility: hidden; }
   -webkit-mask-image: radial-gradient(ellipse 55% 42% at 0% 100%, #000 35%, transparent 100%);
           mask-image: radial-gradient(ellipse 55% 42% at 0% 100%, #000 35%, transparent 100%);
 }
-.ps-deep-shade img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(14px); }
+.ps-deep-shade img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }   /* (a small, already-blurred copy: a live blur(14px) had to be redrawn every frame while the image grows, which lagged) */
 .ps-deep-shade::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); }
 .ps-stage.is-static .ps-deep-title, .ps-stage.is-static .ps-deep-shade { opacity: 1; }
 .ps-stage.is-list .ps-deep-shade { display: none; }
