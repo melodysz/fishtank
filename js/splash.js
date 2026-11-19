@@ -21,6 +21,11 @@
   };
   const PROJECT_TEXT = '#000180';
 
+  // Every splash throws its text in letter by letter, in a quick ripple (2026-11-18; it used to
+  // go line by line: set LETTERS = false to go back).
+  const LETTERS = true;
+  const LETTER_STAGGER = 28;   // ms between one letter and the next (the last one lands just as the page changes)
+
   // everything else: black with pink text
   const OTHERS = { 'work': 'work!', 'who': 'who?', 'play': 'play!', 'home': 'home', 'say hi': 'say hi!' };
   const OTHER_BG = '#030309';
@@ -51,6 +56,7 @@
     .splash-inner { display: flex; flex-direction: column; align-items: center; }
     .splash-star { display: block; width: 32px; height: auto; margin-bottom: 44px; }
     .splash-num { margin-top: 10px; font-family: 'HafferXH', monospace; font-weight: 300; }
+    .splash-ch { display: inline-block; }
   `;
   const style = document.createElement('style');
   style.textContent = css;
@@ -73,7 +79,9 @@
     let box = overlay.querySelector('#work-wipe-text, .page-wipe-label, .splash-content');
     if (!box) { box = document.createElement('div'); overlay.appendChild(box); }
     box.classList.add('splash-content');
-    box.innerHTML = '<div class="splash-inner">' + STAR + `<span class="splash-name">${s.name}</span>` + (s.num ? `<span class="splash-num">[${s.num}]</span>` : '') + '</div>';
+    const letters = LETTERS;
+    const text = (t) => letters ? [...t].map((ch) => `<span class="splash-ch">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('') : t;
+    box.innerHTML = `<div class="splash-inner${letters ? ' is-letters' : ''}">` + STAR + `<span class="splash-name">${text(s.name)}</span>` + (s.num ? `<span class="splash-num">${text('[' + s.num + ']')}</span>` : '') + '</div>';
   }
 
   // The splash's arrival flourish: as the rising screen brakes to a stop, it
@@ -89,6 +97,7 @@
   function play(overlay, delay = 380) {
     const inner = overlay && overlay.querySelector('.splash-inner');
     if (!inner || !inner.animate) return;
+    if (inner.classList.contains('is-letters')) return playLetters(inner, delay);
     [...inner.children].forEach((el, k) => {
       const total = RISE + HANG + k * LAND_STAGGER + FALL;
       el.animate(
@@ -104,6 +113,25 @@
       [{ rotate: '0deg' }, { rotate: '360deg' }],
       { duration: 900, delay, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }   // spins as it's thrown, easing to a stop
     );
+  }
+
+  // letter by letter: the asterisk is thrown and spins as usual; then every letter (name, then
+  // number) gets the same throw, each starting LETTER_STAGGER after the one before, so the
+  // text ripples up and lands left to right.
+  function playLetters(inner, delay) {
+    const throwUp = (el, wait, total) => el.animate(
+      [{ translate: `0 ${START}px`, easing: 'cubic-bezier(0.33, 1, 0.68, 1)' },
+       { translate: `0 -${HEIGHT}px`, offset: RISE / total },
+       { translate: `0 -${HEIGHT}px`, offset: (total - FALL) / total, easing: 'cubic-bezier(0.55, 0.085, 0.68, 0.53)' },
+       { translate: '0 0' }],
+      { duration: total, delay: wait, fill: 'backwards' });
+    const star = inner.querySelector('.splash-star');
+    if (star) {
+      throwUp(star, delay, RISE + HANG + FALL);
+      star.animate([{ rotate: '0deg' }, { rotate: '360deg' }], { duration: 900, delay, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    }
+    [...inner.querySelectorAll('.splash-ch')].forEach((ch, i) =>
+      throwUp(ch, delay + LAND_STAGGER + i * LETTER_STAGGER, RISE + HANG + FALL));
   }
 
   window.fishtankSplash = { render, play, SETTLE_MS };
