@@ -1,7 +1,8 @@
 // SPARKLE CURSOR — shared by every page. The resting cursor dot as a four-point sparkle
 // (html.cursor-sparkle). It still turns into the link / tab bubbles, the big circle and the
 // eye as usual; only the plain dot changes shape. 16px (an 8px sparkle is too small to
-// read). It spins as you move, faster the faster you go.
+// read). It spins as you move, faster the faster you go. (Hidden for now:
+// only the hover shapes show, see the rule below.)
 (() => {
   const root = document.documentElement;
   const SPARKLE = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.6 6.4 17.6 11.4 24 12C17.6 12.6 12.6 17.6 12 24C11.4 17.6 6.4 12.6 0 12C6.4 11.4 11.4 6.4 12 0Z'/%3E%3C/svg%3E\")";
@@ -19,9 +20,15 @@
       background-color: inherit;
       -webkit-mask: ${SPARKLE} center / contain no-repeat; mask: ${SPARKLE} center / contain no-repeat;
       rotate: var(--spin, 0deg);
-    }`;
+    }
+    /* FOR NOW (2026-11-18): no resting cursor at all. The companion only shows when it's doing
+       a job: turning into a link / button / tab bubble (.is-blob), the eye (.is-zoom) or a label
+       (.has-label). The plain sparkle, and the plain "grows bigger" over cards and screenshots
+       (.is-big without the eye), stay hidden. To bring the sparkle back: delete this rule. */
+    html.cursor-sparkle .cursor-dot:not(.is-blob):not(.is-zoom):not(.has-label) { opacity: 0 !important; }`;
   document.head.appendChild(style);
   root.classList.add('cursor-sparkle');
+
 
   // the spin: every px the pointer travels turns the sparkle SPIN_PER_PX degrees, clockwise
   // moving right, anticlockwise moving left (like rolling), so the faster you move the
