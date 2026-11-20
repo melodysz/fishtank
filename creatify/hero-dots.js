@@ -6,6 +6,7 @@
 // travels outward as a ripple, like a surface of water. Moving the mouse
 // drags the dots it passes along with it (faster = stronger); they wobble
 // back into place, and dots brighten a little while they're moving.
+// Clicking in the hero sends a pulse ring out from the click.
 //
 // When nothing is moving the loop stops, so a still hero costs nothing.
 // Touch screens and "reduce motion" keep the plain CSS dots.
@@ -26,6 +27,11 @@
   const MAX_SHIFT = 26;    // a dot never strays further than this from home (px)
   const GLOW = 0.09;       // how quickly a moving dot brightens
   const LEVELS = 8;        // brightness steps (pre-drawn dot sprites)
+  // click pulse: a ring that spreads out from where you click, nudging dots outward as it passes
+  const PULSE_SPEED = 7;   // how fast the ring grows (px per frame)
+  const PULSE_WIDTH = 22;  // thickness of the ring (px)
+  const PULSE_FORCE = 1.1; // how hard the ring pushes dots
+  const PULSE_MAX = 380;   // the ring fades out by this radius (px)
 
   const canvas = document.createElement('canvas');
   canvas.setAttribute('aria-hidden', 'true');
@@ -98,6 +104,42 @@
   }, { passive: true });
   document.addEventListener('pointerleave', () => { px = py = lastX = lastY = null; });
 
+  // click anywhere in the hero → a pulse ring
+  const pulses = [];
+  const hero = host.closest('.hero-section');
+  window.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch' || e.button !== 0 || !onScreen) return;
+    if (!hero || !hero.contains(e.target)) return;
+    const p = toLocal(e);
+    if (!p || p[0] < 0 || p[1] < 0 || p[0] > W || p[1] > H) return;
+    pulses.push({ x: p[0], y: p[1], r: 0 });
+    if (pulses.length > 4) pulses.shift();
+    wake();
+  }, { passive: true });
+
+  function pulseStep() {
+    for (let k = pulses.length - 1; k >= 0; k--) {
+      const p = pulses[k];
+      p.r += PULSE_SPEED;
+      if (p.r > PULSE_MAX) { pulses.splice(k, 1); continue; }
+      const fade = (1 - p.r / PULSE_MAX) ** 1.5 * PULSE_FORCE;
+      const out = p.r + PULSE_WIDTH, inn = Math.max(0, p.r - PULSE_WIDTH);
+      const c0 = Math.max(0, Math.floor((p.x - out) / GAP)), c1 = Math.min(cols - 1, Math.ceil((p.x + out) / GAP));
+      const r0 = Math.max(0, Math.floor((p.y - out) / GAP)), r1 = Math.min(rows - 1, Math.ceil((p.y + out) / GAP));
+      for (let r = r0; r <= r1; r++) {
+        for (let c = c0; c <= c1; c++) {
+          const hx = c * GAP + GAP / 2 - p.x, hy = r * GAP + GAP / 2 - p.y;
+          const d2 = hx * hx + hy * hy;
+          if (d2 > out * out || d2 < inn * inn) continue;
+          const d = Math.sqrt(d2) || 1;
+          const f = (1 - Math.abs(d - p.r) / PULSE_WIDTH) * fade;
+          const i = r * cols + c;
+          vx[i] += (hx / d) * f; vy[i] += (hy / d) * f;
+        }
+      }
+    }
+  }
+
   // stir every dot near one point on the cursor's path
   function stir(x, y, mx, my) {
     const sig2 = 2 * (REACH / 2) ** 2;
@@ -120,6 +162,7 @@
 
   // ---------- one step of the liquid ----------
   function step() {
+    if (pulses.length) pulseStep();
     // the cursor's movement since last frame, applied along its path (no gaps on fast flicks)
     if (px !== null && lastX !== null) {
       const mx = px - lastX, my = py - lastY;
@@ -182,7 +225,7 @@
     draw();
     const moving = moved; moved = false;
     calm = e < n * 0.002 ? calm + 1 : 0;
-    if (calm > 20 && !moving) {        // settled: snap home exactly, draw once, sleep
+    if (calm > 20 && !moving && !pulses.length) {        // settled: snap home exactly, draw once, sleep
       dx.fill(0); dy.fill(0); vx.fill(0); vy.fill(0); draw();
       return;
     }
